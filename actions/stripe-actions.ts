@@ -8,11 +8,11 @@ import {
   updateProfileAction,
   updateProfileByStripeCustomerIdAction
 } from "@/actions/db/profiles-actions"
-import { SelectProfile } from "@/db/schema"
+import { ProfileDocument } from "@/db/schema"
 import { stripe } from "@/lib/stripe"
 import Stripe from "stripe"
 
-type MembershipStatus = SelectProfile["membership"]
+type MembershipStatus = ProfileDocument["membership"]
 
 const getMembershipStatus = (
   status: Stripe.Subscription.Status,

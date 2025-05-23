@@ -1,20 +1,13 @@
 /*
 <ai_context>
-Initializes the database connection and schema for the app.
+Initializes the database connection and exports for the app.
 </ai_context>
 */
 
-import { profilesTable } from "@/db/schema"
-import { config } from "dotenv"
-import { drizzle } from "drizzle-orm/postgres-js"
-import postgres from "postgres"
+import { db, auth, storage } from "@/lib/firebase"
 
-config({ path: ".env.local" })
+// Re-export Firebase services for easy import
+export { db, auth, storage }
 
-const schema = {
-  profiles: profilesTable
-}
-
-const client = postgres(process.env.DATABASE_URL!)
-
-export const db = drizzle(client, { schema })
+// Export collection references and types
+export * from "./firestore/collections"

@@ -1,6 +1,6 @@
 /*
 <ai_context>
-Contains server actions related to profiles in the DB.
+Contains server actions related to profiles in Firestore.
 </ai_context>
 */
 
@@ -8,22 +8,56 @@ Contains server actions related to profiles in the DB.
 
 import { db } from "@/db/db"
 import {
-  InsertProfile,
-  profilesTable,
-  SelectProfile
-} from "@/db/schema/profiles-schema"
+  COLLECTIONS,
+  ProfileDocument,
+  CreateProfileData,
+  UpdateProfileData
+} from "@/db/firestore/collections"
 import { ActionState } from "@/types"
-import { eq } from "drizzle-orm"
+import {
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  collection,
+  where,
+  getDocs,
+  Timestamp,
+  serverTimestamp
+} from "firebase/firestore"
 
 export async function createProfileAction(
-  data: InsertProfile
-): Promise<ActionState<SelectProfile>> {
+  data: CreateProfileData
+): Promise<ActionState<ProfileDocument>> {
   try {
-    const [newProfile] = await db.insert(profilesTable).values(data).returning()
+    const profileRef = doc(db, COLLECTIONS.PROFILES, data.userId)
+    
+    const profileData: Omit<ProfileDocument, "createdAt" | "updatedAt"> & {
+      createdAt: any
+      updatedAt: any
+    } = {
+      userId: data.userId,
+      membership: data.membership || "free",
+      stripeCustomerId: data.stripeCustomerId,
+      stripeSubscriptionId: data.stripeSubscriptionId,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    }
+
+    await setDoc(profileRef, profileData)
+    
+    // Get the created document to return with actual timestamps
+    const createdDoc = await getDoc(profileRef)
+    if (!createdDoc.exists()) {
+      return { isSuccess: false, message: "Failed to create profile" }
+    }
+
     return {
       isSuccess: true,
       message: "Profile created successfully",
-      data: newProfile
+      data: createdDoc.data() as ProfileDocument
     }
   } catch (error) {
     console.error("Error creating profile:", error)
@@ -33,19 +67,19 @@ export async function createProfileAction(
 
 export async function getProfileByUserIdAction(
   userId: string
-): Promise<ActionState<SelectProfile>> {
+): Promise<ActionState<ProfileDocument>> {
   try {
-    const profile = await db.query.profiles.findFirst({
-      where: eq(profilesTable.userId, userId)
-    })
-    if (!profile) {
+    const profileRef = doc(db, COLLECTIONS.PROFILES, userId)
+    const profileDoc = await getDoc(profileRef)
+    
+    if (!profileDoc.exists()) {
       return { isSuccess: false, message: "Profile not found" }
     }
 
     return {
       isSuccess: true,
       message: "Profile retrieved successfully",
-      data: profile
+      data: profileDoc.data() as ProfileDocument
     }
   } catch (error) {
     console.error("Error getting profile by user id", error)
@@ -55,23 +89,34 @@ export async function getProfileByUserIdAction(
 
 export async function updateProfileAction(
   userId: string,
-  data: Partial<InsertProfile>
-): Promise<ActionState<SelectProfile>> {
+  data: UpdateProfileData
+): Promise<ActionState<ProfileDocument>> {
   try {
-    const [updatedProfile] = await db
-      .update(profilesTable)
-      .set(data)
-      .where(eq(profilesTable.userId, userId))
-      .returning()
-
-    if (!updatedProfile) {
+    const profileRef = doc(db, COLLECTIONS.PROFILES, userId)
+    
+    // Check if profile exists
+    const profileDoc = await getDoc(profileRef)
+    if (!profileDoc.exists()) {
       return { isSuccess: false, message: "Profile not found to update" }
+    }
+
+    const updateData = {
+      ...data,
+      updatedAt: serverTimestamp()
+    }
+
+    await updateDoc(profileRef, updateData)
+    
+    // Get the updated document
+    const updatedDoc = await getDoc(profileRef)
+    if (!updatedDoc.exists()) {
+      return { isSuccess: false, message: "Failed to get updated profile" }
     }
 
     return {
       isSuccess: true,
       message: "Profile updated successfully",
-      data: updatedProfile
+      data: updatedDoc.data() as ProfileDocument
     }
   } catch (error) {
     console.error("Error updating profile:", error)
@@ -81,26 +126,42 @@ export async function updateProfileAction(
 
 export async function updateProfileByStripeCustomerIdAction(
   stripeCustomerId: string,
-  data: Partial<InsertProfile>
-): Promise<ActionState<SelectProfile>> {
+  data: UpdateProfileData
+): Promise<ActionState<ProfileDocument>> {
   try {
-    const [updatedProfile] = await db
-      .update(profilesTable)
-      .set(data)
-      .where(eq(profilesTable.stripeCustomerId, stripeCustomerId))
-      .returning()
+    // Query for profile with the given Stripe customer ID
+    const profilesRef = collection(db, COLLECTIONS.PROFILES)
+    const q = query(profilesRef, where("stripeCustomerId", "==", stripeCustomerId))
+    const querySnapshot = await getDocs(q)
 
-    if (!updatedProfile) {
+    if (querySnapshot.empty) {
       return {
         isSuccess: false,
         message: "Profile not found by Stripe customer ID"
       }
     }
 
+    // Get the first (should be only) matching document
+    const profileDoc = querySnapshot.docs[0]
+    const profileRef = profileDoc.ref
+
+    const updateData = {
+      ...data,
+      updatedAt: serverTimestamp()
+    }
+
+    await updateDoc(profileRef, updateData)
+    
+    // Get the updated document
+    const updatedDoc = await getDoc(profileRef)
+    if (!updatedDoc.exists()) {
+      return { isSuccess: false, message: "Failed to get updated profile" }
+    }
+
     return {
       isSuccess: true,
       message: "Profile updated by Stripe customer ID successfully",
-      data: updatedProfile
+      data: updatedDoc.data() as ProfileDocument
     }
   } catch (error) {
     console.error("Error updating profile by stripe customer ID:", error)
@@ -115,7 +176,9 @@ export async function deleteProfileAction(
   userId: string
 ): Promise<ActionState<void>> {
   try {
-    await db.delete(profilesTable).where(eq(profilesTable.userId, userId))
+    const profileRef = doc(db, COLLECTIONS.PROFILES, userId)
+    await deleteDoc(profileRef)
+    
     return {
       isSuccess: true,
       message: "Profile deleted successfully",

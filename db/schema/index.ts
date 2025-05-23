@@ -1,7 +1,8 @@
 /*
 <ai_context>
-Exports the database schema for the app.
+Exports all database schema types and interfaces.
 </ai_context>
 */
 
-export * from "./profiles-schema"
+// Export Firestore types
+export * from "../firestore/collections"

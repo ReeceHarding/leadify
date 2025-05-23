@@ -15,7 +15,7 @@ This is a web app template.
 ## Tech Stack
 
 - Frontend: Next.js, Tailwind, Shadcn, Framer Motion
-- Backend: Postgres, Supabase, Drizzle ORM, Server Actions
+- Backend: Firebase, Firestore, Server Actions
 - Auth: Clerk
 - Payments: Stripe
 - Analytics: PostHog
@@ -25,6 +25,7 @@ This is a web app template.
 
 - `actions` - Server actions
   - `db` - Database related actions
+  - `storage` - Storage related actions
   - Other actions
 - `app` - Next.js app router
   - `api` - API routes
@@ -36,7 +37,7 @@ This is a web app template.
   - `ui` - UI components
   - `utilities` - Utility components
 - `db` - Database
-  - `schema` - Database schemas
+  - `firestore` - Firestore collections and types
 - `lib` - Library code
   - `hooks` - Custom hooks
 - `prompts` - Prompt files
@@ -70,7 +71,7 @@ Follow these rules when working with types.
 - All types should go in `types`
 - Make sure to export the types in `types/index.ts`
 - Prefer interfaces over type aliases
-- If referring to db types, use `@/db/schema` such as `SelectTodo` from `todos-schema.ts`
+- If referring to db types, use `@/db/schema` such as `ProfileDocument` from `collections.ts`
 
 An example of a type:
 
@@ -197,7 +198,7 @@ export async function ExampleServerComponent({
 ##### Client Components
 
 - Use `"use client"` at the top of the file
-- Client components can safely rely on props passed down from server components, or handle UI interactions without needing <Suspense> if there’s no async logic.
+- Client components can safely rely on props passed down from server components, or handle UI interactions without needing <Suspense> if there's no async logic.
 - Never use server actions in client components. If you need to create a new server action, create it in `/actions`
 
 Example of a client page:
@@ -231,55 +232,57 @@ export default function ExampleClientComponent({
 
 Follow these rules when working on the backend.
 
-It uses Postgres, Supabase, Drizzle ORM, and Server Actions.
+It uses Firebase Firestore and Server Actions.
 
 #### General Rules
 
-- Never generate migrations. You do not have to do anything in the `db/migrations` folder inluding migrations and metadata. Ignore it.
+- Use Firebase Firestore for database operations
+- Use Firebase Storage for file uploads
+- Use Firestore collections and documents instead of SQL tables
 
 #### Organization
 
-#### Schemas
+#### Collections
 
-- When importing schemas, use `@/db/schema`
-- Name files like `example-schema.ts`
-- All schemas should go in `db/schema`
-- Make sure to export the schema in `db/schema/index.ts`
-- Make sure to add the schema to the `schema` object in `db/db.ts`
-- If using a userId, always use `userId: text("user_id").notNull()`
-- Always include createdAt and updatedAt columns in all tables
-- Make sure to cascade delete when necessary
-- Use enums for columns that have a limited set of possible values such as:
+- When importing collections, use `@/db/schema` or `@/db/firestore/collections`
+- Name files like `example-collections.ts`
+- All collection definitions should go in `db/firestore`
+- Make sure to export the collection types in `db/schema/index.ts`
+- Use TypeScript interfaces for document types
+- Always include createdAt and updatedAt fields using Firestore Timestamp
+- Use string literals for enum-like values
 
-```ts
-import { pgEnum } from "drizzle-orm/pg-core"
+Example of a collection:
 
-export const membershipEnum = pgEnum("membership", ["free", "pro"])
-
-membership: membershipEnum("membership").notNull().default("free")
-```
-
-Example of a schema:
-
-`db/schema/todos-schema.ts`
+`db/firestore/todos-collections.ts`
 
 ```ts
-import { boolean, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core"
+import { Timestamp } from "firebase/firestore"
 
-export const todosTable = pgTable("todos", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: text("user_id").notNull(),
-  content: text("content").notNull(),
-  completed: boolean("completed").default(false).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at")
-    .defaultNow()
-    .notNull()
-    .$onUpdate(() => new Date())
-})
+export const COLLECTIONS = {
+  TODOS: "todos"
+} as const
 
-export type InsertTodo = typeof todosTable.$inferInsert
-export type SelectTodo = typeof todosTable.$inferSelect
+export interface TodoDocument {
+  id: string
+  userId: string
+  content: string
+  completed: boolean
+  createdAt: Timestamp
+  updatedAt: Timestamp
+}
+
+export interface CreateTodoData {
+  userId: string
+  content: string
+  completed?: boolean
+}
+
+export interface UpdateTodoData {
+  content?: string
+  completed?: boolean
+  updatedAt?: Timestamp
+}
 ```
 
 And exporting it:
@@ -287,91 +290,14 @@ And exporting it:
 `db/schema/index.ts`
 
 ```ts
-export * from "./todos-schema"
-```
-
-And adding it to the schema in `db/db.ts`:
-
-`db/db.ts`
-
-```ts
-import { todosTable } from "@/db/schema"
-
-const schema = {
-  todos: todosTable
-}
-```
-
-And a more complex schema:
-
-```ts
-import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core"
-
-export const chatsTable = pgTable("chats", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: text("user_id").notNull(),
-  name: text("name").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at")
-    .defaultNow()
-    .notNull()
-    .$onUpdate(() => new Date())
-})
-
-export type InsertChat = typeof chatsTable.$inferInsert
-export type SelectChat = typeof chatsTable.$inferSelect
-```
-
-```ts
-import { pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core"
-import { chatsTable } from "./chats-schema"
-
-export const roleEnum = pgEnum("role", ["assistant", "user"])
-
-export const messagesTable = pgTable("messages", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  chatId: uuid("chat_id")
-    .references(() => chatsTable.id, { onDelete: "cascade" })
-    .notNull(),
-  content: text("content").notNull(),
-  role: roleEnum("role").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at")
-    .defaultNow()
-    .notNull()
-    .$onUpdate(() => new Date())
-})
-
-export type InsertMessage = typeof messagesTable.$inferInsert
-export type SelectMessage = typeof messagesTable.$inferSelect
-```
-
-And exporting it:
-
-`db/schema/index.ts`
-
-```ts
-export * from "./chats-schema"
-export * from "./messages-schema"
-```
-
-And adding it to the schema in `db/db.ts`:
-
-`db/db.ts`
-
-```ts
-import { chatsTable, messagesTable } from "@/db/schema"
-
-const schema = {
-  chats: chatsTable,
-  messages: messagesTable
-}
+export * from "../firestore/todos-collections"
 ```
 
 #### Server Actions
 
 - When importing actions, use `@/actions` or `@/actions/db` if db related
 - DB related actions should go in the `actions/db` folder
+- Storage related actions should go in the `actions/storage` folder
 - Other actions should go in the `actions` folder
 - Name files like `example-actions.ts`
 - All actions should go in the `actions` folder
@@ -381,7 +307,8 @@ const schema = {
 - Actions should return a Promise<ActionState<T>>
 - Sort in CRUD order: Create, Read, Update, Delete
 - Make sure to return undefined as the data type if the action is not supposed to return any data
-- **Date Handling:** For columns defined as `PgDateString` (or any date string type), always convert JavaScript `Date` objects to ISO strings using `.toISOString()` before performing operations (e.g., comparisons or insertions). This ensures value type consistency and prevents type errors.
+- Use Firestore methods like `doc`, `getDoc`, `setDoc`, `updateDoc`, `deleteDoc`, `collection`, `query`, `where`, `getDocs`
+- Use `serverTimestamp()` for timestamps
 
 ```ts
 export type ActionState<T> =
@@ -397,19 +324,48 @@ Example of an action:
 "use server"
 
 import { db } from "@/db/db"
-import { InsertTodo, SelectTodo, todosTable } from "@/db/schema/todos-schema"
+import {
+  COLLECTIONS,
+  TodoDocument,
+  CreateTodoData,
+  UpdateTodoData
+} from "@/db/firestore/todos-collections"
 import { ActionState } from "@/types"
-import { eq } from "drizzle-orm"
+import {
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+  serverTimestamp
+} from "firebase/firestore"
 
 export async function createTodoAction(
-  todo: InsertTodo
-): Promise<ActionState<SelectTodo>> {
+  data: CreateTodoData
+): Promise<ActionState<TodoDocument>> {
   try {
-    const [newTodo] = await db.insert(todosTable).values(todo).returning()
+    const todoRef = doc(collection(db, COLLECTIONS.TODOS))
+    
+    const todoData = {
+      id: todoRef.id,
+      userId: data.userId,
+      content: data.content,
+      completed: data.completed || false,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    }
+
+    await setDoc(todoRef, todoData)
+    
+    const createdDoc = await getDoc(todoRef)
     return {
       isSuccess: true,
       message: "Todo created successfully",
-      data: newTodo
+      data: createdDoc.data() as TodoDocument
     }
   } catch (error) {
     console.error("Error creating todo:", error)
@@ -417,13 +373,16 @@ export async function createTodoAction(
   }
 }
 
-export async function getTodosAction(
+export async function getTodosByUserIdAction(
   userId: string
-): Promise<ActionState<SelectTodo[]>> {
+): Promise<ActionState<TodoDocument[]>> {
   try {
-    const todos = await db.query.todos.findMany({
-      where: eq(todosTable.userId, userId)
-    })
+    const todosRef = collection(db, COLLECTIONS.TODOS)
+    const q = query(todosRef, where("userId", "==", userId))
+    const querySnapshot = await getDocs(q)
+    
+    const todos = querySnapshot.docs.map(doc => doc.data() as TodoDocument)
+    
     return {
       isSuccess: true,
       message: "Todos retrieved successfully",
@@ -437,19 +396,23 @@ export async function getTodosAction(
 
 export async function updateTodoAction(
   id: string,
-  data: Partial<InsertTodo>
-): Promise<ActionState<SelectTodo>> {
+  data: UpdateTodoData
+): Promise<ActionState<TodoDocument>> {
   try {
-    const [updatedTodo] = await db
-      .update(todosTable)
-      .set(data)
-      .where(eq(todosTable.id, id))
-      .returning()
+    const todoRef = doc(db, COLLECTIONS.TODOS, id)
+    
+    const updateData = {
+      ...data,
+      updatedAt: serverTimestamp()
+    }
 
+    await updateDoc(todoRef, updateData)
+    
+    const updatedDoc = await getDoc(todoRef)
     return {
       isSuccess: true,
       message: "Todo updated successfully",
-      data: updatedTodo
+      data: updatedDoc.data() as TodoDocument
     }
   } catch (error) {
     console.error("Error updating todo:", error)
@@ -459,7 +422,7 @@ export async function updateTodoAction(
 
 export async function deleteTodoAction(id: string): Promise<ActionState<void>> {
   try {
-    await db.delete(todosTable).where(eq(todosTable.id, id))
+    await deleteDoc(doc(db, COLLECTIONS.TODOS, id))
     return {
       isSuccess: true,
       message: "Todo deleted successfully",
@@ -497,16 +460,16 @@ It uses PostHog for analytics.
 
 # Storage Rules
 
-Follow these rules when working with Supabase Storage.
+Follow these rules when working with Firebase Storage.
 
-It uses Supabase Storage for file uploads, downloads, and management.
+It uses Firebase Storage for file uploads, downloads, and management.
 
 ## General Rules
 
 - Always use environment variables for bucket names to maintain consistency across environments
 - Never hardcode bucket names in the application code
 - Always handle file size limits and allowed file types at the application level
-- Use the `upsert` method instead of `upload` when you want to replace existing files
+- Use appropriate upload methods for different file types
 - Always implement proper error handling for storage operations
 - Use content-type headers when uploading files to ensure proper file handling
 
@@ -514,18 +477,17 @@ It uses Supabase Storage for file uploads, downloads, and management.
 
 ### Buckets
 
-- Name buckets in kebab-case: `user-uploads`, `profile-images`
-- Create separate buckets for different types of files (e.g., `profile-images`, `documents`, `attachments`)
-- Document bucket purposes in a central location
-- Set appropriate bucket policies (public/private) based on access requirements
-- Implement RLS (Row Level Security) policies for buckets that need user-specific access
-- Make sure to let me know instructions for setting up RLS policies on Supabase since you can't do this yourself, including the SQL scripts I need to run in the editor
+- Name storage paths in kebab-case: `user-uploads`, `profile-images`
+- Create separate path structures for different types of files (e.g., `profile-images`, `documents`, `attachments`)
+- Document path purposes in a central location
+- Set appropriate Firebase Storage rules based on access requirements
+- Implement Firebase Storage security rules for path-based access control
 
 ### File Structure
 
 - Organize files in folders based on their purpose and ownership
 - Use predictable, collision-resistant naming patterns
-- Structure: `{bucket}/{userId}/{purpose}/{filename}`
+- Structure: `{category}/{userId}/{purpose}/{filename}`
 - Example: `profile-images/123e4567-e89b/avatar/profile.jpg`
 - Include timestamps in filenames when version history is important
 - Example: `documents/123e4567-e89b/contracts/2024-02-13-contract.pdf`
@@ -542,30 +504,30 @@ Example of a storage action:
 ```ts
 "use server"
 
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+import { storage } from "@/lib/firebase"
 import { ActionState } from "@/types"
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage"
 
 export async function uploadFileStorage(
-  bucket: string,
   path: string,
   file: File
-): Promise<ActionState<{ path: string }>> {
+): Promise<ActionState<{ path: string; downloadURL: string }>> {
   try {
-    const supabase = createClientComponentClient()
-
-    const { data, error } = await supabase.storage
-      .from(bucket)
-      .upload(path, file, {
-        upsert: false,
-        contentType: file.type
-      })
-
-    if (error) throw error
+    const fileRef = ref(storage, path)
+    
+    const uploadResult = await uploadBytes(fileRef, file, {
+      contentType: file.type
+    })
+    
+    const downloadURL = await getDownloadURL(uploadResult.ref)
 
     return {
       isSuccess: true,
       message: "File uploaded successfully",
-      data: { path: data.path }
+      data: { 
+        path: uploadResult.ref.fullPath,
+        downloadURL 
+      }
     }
   } catch (error) {
     console.error("Error uploading file:", error)
@@ -582,7 +544,7 @@ export async function uploadFileStorage(
 - Implement file type validation using both extension and MIME type
 - Generate unique filenames to prevent collisions
 - Set appropriate content-type headers
-- Handle existing files appropriately (error or upsert)
+- Handle existing files appropriately (error or replace)
 
 Example validation:
 
@@ -607,7 +569,7 @@ function validateFile(file: File): boolean {
 
 - Always handle missing files gracefully
 - Implement proper error handling for failed downloads
-- Use signed URLs for private files
+- Use download URLs for accessing files
 
 ### Delete Rules
 
@@ -619,25 +581,29 @@ function validateFile(file: File): boolean {
 
 ## Security
 
-### Bucket Policies
+### Storage Rules
 
-- Make buckets private by default
-- Only make buckets public when absolutely necessary
-- Use RLS policies to restrict access to authorized users
-- Example RLS policy:
+- Make storage paths private by default
+- Only make paths public when absolutely necessary
+- Use Firebase Storage Rules to restrict access to authorized users
+- Example Firebase Storage Rule:
 
-```sql
-CREATE POLICY "Users can only access their own files"
-ON storage.objects
-FOR ALL
-USING (auth.uid()::text = (storage.foldername(name))[1]);
+```javascript
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /user-uploads/{userId}/{allPaths=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
 ```
 
 ### Access Control
 
-- Generate short-lived signed URLs for private files
-- Implement proper CORS policies
-- Use separate buckets for public and private files
+- Use download URLs for accessing files
+- Implement proper authentication checks
+- Use separate paths for public and private files
 - Never expose internal file paths
 - Validate user permissions before any operation
 
