@@ -38,6 +38,7 @@ export interface SerializedProfileDocument {
   name?: string
   profilePictureUrl?: string
   website?: string
+  keywords?: string[] // Keywords for lead generation
   onboardingCompleted?: boolean
   createdAt: string // ISO string instead of Timestamp
   updatedAt: string // ISO string instead of Timestamp

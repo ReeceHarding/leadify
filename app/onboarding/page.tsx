@@ -160,30 +160,33 @@ export default function OnboardingPage() {
         name: onboardingData.name,
         profilePictureUrl: onboardingData.profilePictureUrl,
         website: onboardingData.website,
+        keywords: onboardingData.keywords,
         onboardingCompleted: true
       })
 
-      await updateProfileAction(user.id, {
+      const profileResult = await updateProfileAction(user.id, {
         name: onboardingData.name,
         profilePictureUrl: onboardingData.profilePictureUrl,
         website: onboardingData.website,
+        keywords: onboardingData.keywords,
         onboardingCompleted: true
       })
 
       console.log("🔍 [ONBOARDING] Profile updated successfully")
+      console.log("🔍 [ONBOARDING] Profile update result:", profileResult)
 
-      // Redirect to leadify with the keywords ready to create a campaign
-      const keywordsParam = encodeURIComponent(
-        JSON.stringify(onboardingData.keywords)
-      )
-      const redirectUrl = `/reddit/lead-finder?keywords=${keywordsParam}`
+      if (!profileResult.isSuccess) {
+        throw new Error("Failed to update profile")
+      }
+
+      // Redirect to lead finder - keywords will be retrieved from profile
+      const redirectUrl = `/reddit/lead-finder`
 
       console.log(
-        "🔍 [ONBOARDING] Keywords being passed to URL:",
+        "🔍 [ONBOARDING] Keywords saved to profile:",
         onboardingData.keywords
       )
-      console.log("🔍 [ONBOARDING] Encoded keywords param:", keywordsParam)
-      console.log("🔍 [ONBOARDING] Full redirect URL:", redirectUrl)
+      console.log("🔍 [ONBOARDING] Redirect URL:", redirectUrl)
 
       router.push(redirectUrl)
     } catch (error) {

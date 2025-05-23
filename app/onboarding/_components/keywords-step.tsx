@@ -237,135 +237,142 @@ export default function KeywordsStep({
       </div>
 
       {/* Loading State */}
-      {isGenerating && !hasGenerated && (
+      {isGenerating && (
         <div className="flex flex-col items-center space-y-4 py-12">
           <div className="relative">
             <div className="size-8 animate-spin rounded-full border-2 border-gray-600 border-t-blue-600" />
           </div>
           <p className="text-gray-400">
-            Analyzing your website and generating keywords...
+            {hasGenerated
+              ? "Refining keywords..."
+              : "Analyzing your website and generating keywords..."}
           </p>
         </div>
       )}
 
       {/* Keywords Display */}
-      {(data.keywords.length > 0 || hasGenerated) && !isGenerating && (
+      {(data.keywords.length > 0 || hasGenerated) && (
         <div className="space-y-6">
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white">
-              Generated Keywords
-            </h3>
-            <div className="flex flex-wrap justify-center gap-3">
-              {data.keywords.map((keyword, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="group relative"
-                >
-                  {editingIndex === index ? (
-                    <div className="flex items-center rounded-lg border border-gray-600 bg-gray-800 px-3 py-2">
-                      <input
-                        type="text"
-                        value={keyword}
-                        onChange={e => editKeyword(index, e.target.value)}
-                        onBlur={e => handleKeywordBlur(e, index, keyword)}
-                        onKeyDown={e => {
-                          if (e.key === "Enter") {
-                            setEditingIndex(null)
-                          }
-                        }}
-                        className="min-w-0 flex-1 border-none bg-transparent text-sm text-white outline-none"
-                        autoFocus
-                        style={{ width: `${keyword.length + 2}ch` }}
-                      />
-                      <button
-                        onClick={() => removeKeyword(keyword)}
-                        className="ml-2 text-gray-500 hover:text-gray-300"
-                      >
-                        <X className="size-3" />
-                      </button>
-                    </div>
-                  ) : (
-                    <Badge
-                      variant="outline"
-                      className="cursor-pointer rounded-lg border-gray-600 bg-gray-800 px-3 py-2 text-sm text-white transition-colors hover:bg-gray-700"
-                      onClick={() => handleKeywordClick(index)}
+          {/* Show keywords unless it's the initial generation */}
+          {(!isGenerating || hasGenerated) && (
+            <>
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-white">
+                  Generated Keywords
+                </h3>
+                <div className="flex flex-wrap justify-center gap-3">
+                  {data.keywords.map((keyword, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="group relative"
                     >
-                      <span className="break-words">{keyword}</span>
-                      <button
-                        onClick={e => {
-                          e.stopPropagation()
-                          removeKeyword(keyword)
-                        }}
-                        className="ml-2 opacity-0 transition-opacity group-hover:opacity-100"
-                      >
-                        <X className="size-3" />
-                      </button>
-                    </Badge>
-                  )}
-                </motion.div>
-              ))}
-            </div>
-          </div>
+                      {editingIndex === index ? (
+                        <div className="flex items-center rounded-lg border border-gray-600 bg-gray-800 px-3 py-2">
+                          <input
+                            type="text"
+                            value={keyword}
+                            onChange={e => editKeyword(index, e.target.value)}
+                            onBlur={e => handleKeywordBlur(e, index, keyword)}
+                            onKeyDown={e => {
+                              if (e.key === "Enter") {
+                                setEditingIndex(null)
+                              }
+                            }}
+                            className="min-w-0 flex-1 border-none bg-transparent text-sm text-white outline-none"
+                            autoFocus
+                            style={{ width: `${keyword.length + 2}ch` }}
+                          />
+                          <button
+                            onClick={() => removeKeyword(keyword)}
+                            className="ml-2 text-gray-500 hover:text-gray-300"
+                          >
+                            <X className="size-3" />
+                          </button>
+                        </div>
+                      ) : (
+                        <Badge
+                          variant="outline"
+                          className="cursor-pointer rounded-lg border-gray-600 bg-gray-800 px-3 py-2 text-sm text-white transition-colors hover:bg-gray-700"
+                          onClick={() => handleKeywordClick(index)}
+                        >
+                          <span className="break-words">{keyword}</span>
+                          <button
+                            onClick={e => {
+                              e.stopPropagation()
+                              removeKeyword(keyword)
+                            }}
+                            className="ml-2 opacity-0 transition-opacity group-hover:opacity-100"
+                          >
+                            <X className="size-3" />
+                          </button>
+                        </Badge>
+                      )}
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
 
-          {/* AI Refinement */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white">
-              Refine Keywords
-            </h3>
-            <form onSubmit={handleRefinement} className="space-y-3">
-              <Textarea
-                value={refinementPrompt}
-                onChange={e => setRefinementPrompt(e.target.value)}
-                placeholder="Tell the AI how to adjust the keywords (e.g., 'focus more on technical keywords' or 'make them more specific to B2B customers')"
-                className="min-h-[80px] rounded-lg border-gray-600 bg-gray-900 text-white placeholder:text-gray-500"
-                disabled={isGenerating}
-              />
-              <Button
-                type="submit"
-                variant="outline"
-                className="w-full rounded-lg border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
-                disabled={!refinementPrompt.trim() || isGenerating}
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="mr-2 size-4 animate-spin" />
-                    Regenerating...
-                  </>
-                ) : (
-                  <>
-                    <Wand2 className="mr-2 size-4" />
-                    Regenerate Keywords
-                  </>
-                )}
-              </Button>
-            </form>
-          </div>
+              {/* AI Refinement */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-white">
+                  Refine Keywords
+                </h3>
+                <form onSubmit={handleRefinement} className="space-y-3">
+                  <Textarea
+                    value={refinementPrompt}
+                    onChange={e => setRefinementPrompt(e.target.value)}
+                    placeholder="Tell the AI how to adjust the keywords (e.g., 'focus more on technical keywords' or 'make them more specific to B2B customers')"
+                    className="min-h-[80px] rounded-lg border-gray-600 bg-gray-900 text-white placeholder:text-gray-500"
+                    disabled={isGenerating}
+                  />
+                  <Button
+                    type="submit"
+                    variant="outline"
+                    className="w-full rounded-lg border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
+                    disabled={!refinementPrompt.trim() || isGenerating}
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="mr-2 size-4 animate-spin" />
+                        Regenerating...
+                      </>
+                    ) : (
+                      <>
+                        <Wand2 className="mr-2 size-4" />
+                        Regenerate Keywords
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </div>
 
-          {/* Add Custom Keyword */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white">
-              Add Custom Keyword
-            </h3>
-            <form onSubmit={addKeyword} className="flex gap-2">
-              <Input
-                value={newKeyword}
-                onChange={e => setNewKeyword(e.target.value)}
-                placeholder="Add a custom keyword..."
-                className="flex-1 rounded-lg border-gray-600 bg-gray-900 text-white placeholder:text-gray-500"
-              />
-              <Button
-                type="submit"
-                variant="outline"
-                disabled={!newKeyword.trim()}
-                className="rounded-lg border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
-              >
-                <Plus className="size-4" />
-              </Button>
-            </form>
-          </div>
+              {/* Add Custom Keyword */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-white">
+                  Add Custom Keyword
+                </h3>
+                <form onSubmit={addKeyword} className="flex gap-2">
+                  <Input
+                    value={newKeyword}
+                    onChange={e => setNewKeyword(e.target.value)}
+                    placeholder="Add a custom keyword..."
+                    className="flex-1 rounded-lg border-gray-600 bg-gray-900 text-white placeholder:text-gray-500"
+                  />
+                  <Button
+                    type="submit"
+                    variant="outline"
+                    disabled={!newKeyword.trim()}
+                    className="rounded-lg border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
+                  >
+                    <Plus className="size-4" />
+                  </Button>
+                </form>
+              </div>
+            </>
+          )}
         </div>
       )}
 

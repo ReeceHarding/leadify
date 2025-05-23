@@ -4,7 +4,6 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import { ArrowLeft, Play, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 
 interface CompleteStepProps {
   data: {
@@ -91,61 +90,103 @@ export default function CompleteStep({
         </p>
       </div>
 
-      {/* Summary of Setup */}
-      <div className="space-y-4 rounded-lg bg-gray-800 p-4">
-        <h3 className="text-base font-semibold text-white">
-          Your Setup Summary
-        </h3>
+      {/* Professional Setup Summary */}
+      <div className="rounded-lg border border-gray-700 bg-gray-900/50 p-6">
+        <h3 className="mb-6 text-lg font-semibold text-white">Setup Summary</h3>
 
-        <div className="grid grid-cols-2 gap-3 text-left text-sm">
-          <div>
-            <p className="font-medium text-gray-300">Profile</p>
-            <p className="text-gray-400">{data.name}</p>
-          </div>
-
-          <div>
-            <p className="font-medium text-gray-300">Reddit Connected</p>
-            <Badge variant={data.redditConnected ? "default" : "secondary"}>
-              {data.redditConnected ? "Connected" : "Not Connected"}
-            </Badge>
-          </div>
-
-          <div className="col-span-2">
-            <p className="font-medium text-gray-300">Keywords Generated</p>
-            <p className="text-gray-400">
-              {data.keywords.length} keywords ready
-            </p>
-            {/* Debug display of actual keywords */}
-            <div className="mt-2 text-xs text-gray-500">
-              Keywords: {data.keywords.join(", ") || "None"}
+        <div className="space-y-6">
+          {/* Profile Section */}
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-300">Profile</p>
+              <p className="text-gray-400">{data.name || "No name provided"}</p>
             </div>
+            <div className="flex size-8 items-center justify-center rounded-full bg-green-600/10">
+              <div className="size-2 rounded-full bg-green-400"></div>
+            </div>
+          </div>
+
+          {/* Reddit Connection */}
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-300">
+                Reddit Integration
+              </p>
+              <p className="text-gray-400">
+                {data.redditConnected ? "Connected" : "Not Connected"}
+              </p>
+            </div>
+            <div
+              className={`flex size-8 items-center justify-center rounded-full ${
+                data.redditConnected ? "bg-green-600/10" : "bg-yellow-600/10"
+              }`}
+            >
+              <div
+                className={`size-2 rounded-full ${
+                  data.redditConnected ? "bg-green-400" : "bg-yellow-400"
+                }`}
+              ></div>
+            </div>
+          </div>
+
+          {/* Keywords Section */}
+          <div>
+            <div className="mb-3 flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-300">
+                  Keywords Generated
+                </p>
+                <p className="text-gray-400">
+                  {data.keywords.length}{" "}
+                  {data.keywords.length === 1 ? "keyword" : "keywords"} ready
+                </p>
+              </div>
+              <div className="flex size-8 items-center justify-center rounded-full bg-blue-600/10">
+                <div className="size-2 rounded-full bg-blue-400"></div>
+              </div>
+            </div>
+
+            {/* Keywords List */}
+            {data.keywords.length > 0 && (
+              <div className="rounded-md border border-gray-700 bg-gray-800/50 p-3">
+                <div className="max-h-24 overflow-y-auto">
+                  <div className="flex flex-wrap gap-1.5">
+                    {data.keywords.slice(0, 6).map((keyword, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center rounded-md bg-blue-600/10 px-2 py-1 text-xs text-blue-400"
+                      >
+                        {keyword}
+                      </span>
+                    ))}
+                    {data.keywords.length > 6 && (
+                      <span className="inline-flex items-center rounded-md bg-gray-600/20 px-2 py-1 text-xs text-gray-400">
+                        +{data.keywords.length - 6} more
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Next Steps */}
-      <div className="relative rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white">
-        <div className="relative z-10">
-          <div className="mb-3 flex justify-center">
-            <div className="rounded-full bg-white/20 p-3">
-              <Play className="size-6" />
-            </div>
+      {/* Professional Call-to-Action */}
+      <div className="rounded-lg border border-gray-700 bg-gray-800/50 p-6">
+        <div className="space-y-4 text-center">
+          <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-blue-600/10">
+            <Play className="size-6 text-blue-400" />
           </div>
-          <h3 className="mb-2 text-lg font-semibold">
-            Ready to Find Your First Leads
-          </h3>
-          <p className="text-sm text-blue-100">
-            We'll search Reddit for opportunities matching your keywords and
-            help you engage with potential customers.
-          </p>
-        </div>
-
-        {/* Decorative elements */}
-        <div className="absolute right-3 top-3 opacity-20">
-          <div className="size-12 rounded-full bg-white"></div>
-        </div>
-        <div className="absolute bottom-3 left-3 opacity-10">
-          <div className="size-8 rounded-full bg-white"></div>
+          <div>
+            <h3 className="text-lg font-semibold text-white">
+              Ready to Find Your First Leads
+            </h3>
+            <p className="mt-2 text-sm text-gray-400">
+              We'll search Reddit for opportunities matching your keywords and
+              help you engage with potential customers.
+            </p>
+          </div>
         </div>
       </div>
 

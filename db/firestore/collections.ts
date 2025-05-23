@@ -25,6 +25,7 @@ export interface ProfileDocument {
   name?: string
   profilePictureUrl?: string
   website?: string
+  keywords?: string[] // Keywords for lead generation
   onboardingCompleted?: boolean
 
   createdAt: Timestamp
@@ -40,6 +41,7 @@ export interface CreateProfileData {
   name?: string
   profilePictureUrl?: string
   website?: string
+  keywords?: string[] // Keywords for lead generation
   onboardingCompleted?: boolean
 }
 
@@ -51,6 +53,7 @@ export interface UpdateProfileData {
   name?: string
   profilePictureUrl?: string
   website?: string
+  keywords?: string[] // Keywords for lead generation
   onboardingCompleted?: boolean
   updatedAt?: Timestamp
 }

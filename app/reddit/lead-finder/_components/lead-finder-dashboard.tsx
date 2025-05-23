@@ -90,28 +90,81 @@ export default function LeadFinderDashboard() {
   })
   const [campaignId, setCampaignId] = useState<string | null>(null)
 
-  // Get keywords from URL params and start real workflow
+  // Get keywords from profile and start real workflow
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search)
-    const keywordsParam = urlParams.get("keywords")
+    const initializeLeadGeneration = async () => {
+      if (!user?.id) {
+        console.log("🔍 [LEAD-FINDER] No user ID available yet")
+        return
+      }
 
-    if (keywordsParam && user?.id) {
+      console.log(
+        "🔍 [LEAD-FINDER] Initializing lead generation for user:",
+        user.id
+      )
+
       try {
-        const keywords = JSON.parse(decodeURIComponent(keywordsParam))
+        // Get user profile to retrieve keywords
+        const profileResult = await getProfileByUserIdAction(user.id)
+
+        if (!profileResult.isSuccess) {
+          console.error(
+            "🔍 [LEAD-FINDER] Failed to get profile:",
+            profileResult.message
+          )
+          setWorkflowProgress({
+            currentStep: "Error occurred",
+            completedSteps: 0,
+            totalSteps: 6,
+            isLoading: false,
+            error: "Failed to load user profile"
+          })
+          return
+        }
+
+        const profile = profileResult.data
+        console.log("🔍 [LEAD-FINDER] Profile loaded:", profile)
+        console.log("🔍 [LEAD-FINDER] Profile keywords:", profile.keywords)
+        console.log(
+          "🔍 [LEAD-FINDER] Profile keywords length:",
+          profile.keywords?.length || 0
+        )
+
+        const keywords = profile.keywords || []
+
         if (keywords.length > 0) {
-          startRealLeadGeneration(keywords)
+          console.log(
+            "🔍 [LEAD-FINDER] Starting lead generation with keywords:",
+            keywords
+          )
+          await startRealLeadGeneration(keywords)
+        } else {
+          console.log("🔍 [LEAD-FINDER] No keywords found in profile")
+          setWorkflowProgress({
+            currentStep: "No keywords found",
+            completedSteps: 0,
+            totalSteps: 6,
+            isLoading: false,
+            error:
+              "No keywords found in your profile. Please complete onboarding first."
+          })
         }
       } catch (error) {
-        console.error("Error parsing keywords:", error)
+        console.error(
+          "🔍 [LEAD-FINDER] Error initializing lead generation:",
+          error
+        )
         setWorkflowProgress({
           currentStep: "Error occurred",
           completedSteps: 0,
           totalSteps: 6,
           isLoading: false,
-          error: "Invalid keywords parameter"
+          error: "Failed to initialize lead generation"
         })
       }
     }
+
+    initializeLeadGeneration()
   }, [user?.id])
 
   // Update leads when comment length selection changes
