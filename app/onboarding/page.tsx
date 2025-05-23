@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useUser } from "@clerk/nextjs"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
@@ -26,6 +26,7 @@ const stepOrder: OnboardingStep[] = [
 export default function OnboardingPage() {
   const { user } = useUser()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [currentStep, setCurrentStep] = useState<OnboardingStep>("profile")
   const [onboardingData, setOnboardingData] = useState({
     name: user?.fullName || "",
@@ -37,6 +38,33 @@ export default function OnboardingPage() {
 
   const currentStepIndex = stepOrder.indexOf(currentStep)
   const progress = ((currentStepIndex + 1) / stepOrder.length) * 100
+
+  // Handle Reddit OAuth callback
+  useEffect(() => {
+    const success = searchParams.get("success")
+    const error = searchParams.get("error")
+
+    if (success === "Reddit authentication successful") {
+      // Update Reddit connection status and advance to next step
+      setOnboardingData(prev => ({ ...prev, redditConnected: true }))
+      setCurrentStep("complete")
+
+      // Clean up URL parameters
+      const url = new URL(window.location.href)
+      url.searchParams.delete("success")
+      window.history.replaceState({}, "", url.toString())
+    }
+
+    if (error) {
+      // Handle error if needed
+      console.error("Reddit authentication error:", error)
+
+      // Clean up URL parameters
+      const url = new URL(window.location.href)
+      url.searchParams.delete("error")
+      window.history.replaceState({}, "", url.toString())
+    }
+  }, [searchParams])
 
   const nextStep = () => {
     const currentIndex = stepOrder.indexOf(currentStep)

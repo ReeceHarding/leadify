@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
       console.error("Reddit OAuth error:", error)
       return NextResponse.redirect(
         new URL(
-          `/dashboard?error=${encodeURIComponent(`Reddit authorization failed: ${error}`)}`,
+          `/onboarding?error=${encodeURIComponent(`Reddit authorization failed: ${error}`)}`,
           request.url
         )
       )
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     if (!code || !state) {
       console.error("Missing required OAuth parameters")
       return NextResponse.redirect(
-        new URL("/dashboard?error=Invalid+OAuth+response", request.url)
+        new URL("/onboarding?error=Invalid+OAuth+response", request.url)
       )
     }
 
@@ -36,23 +36,23 @@ export async function GET(request: NextRequest) {
       console.error("Token exchange failed:", result.message)
       return NextResponse.redirect(
         new URL(
-          `/dashboard?error=${encodeURIComponent(result.message)}`,
+          `/onboarding?error=${encodeURIComponent(result.message)}`,
           request.url
         )
       )
     }
 
-    // Success - redirect to dashboard with success message
+    // Success - redirect back to onboarding with success message
     return NextResponse.redirect(
       new URL(
-        "/dashboard?success=Reddit+authentication+successful",
+        "/onboarding?success=Reddit+authentication+successful",
         request.url
       )
     )
   } catch (error) {
     console.error("OAuth callback error:", error)
     return NextResponse.redirect(
-      new URL("/dashboard?error=Authentication+failed", request.url)
+      new URL("/onboarding?error=Authentication+failed", request.url)
     )
   }
 }

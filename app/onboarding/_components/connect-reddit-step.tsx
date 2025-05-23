@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { ArrowLeft, Loader2, CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -29,6 +29,13 @@ export default function ConnectRedditStep({
   const [connectionStatus, setConnectionStatus] = useState<
     "idle" | "connecting" | "connected" | "error"
   >("idle")
+
+  // Update connection status based on data
+  useEffect(() => {
+    if (data.redditConnected) {
+      setConnectionStatus("connected")
+    }
+  }, [data.redditConnected])
 
   const handleConnectReddit = async () => {
     setIsConnecting(true)
