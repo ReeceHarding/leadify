@@ -36,18 +36,44 @@ export default function OnboardingPage() {
     redditConnected: false
   })
 
+  console.log("🔍 [ONBOARDING] Component initialized")
+  console.log("🔍 [ONBOARDING] Initial user:", user?.id)
+  console.log("🔍 [ONBOARDING] Initial onboardingData:", onboardingData)
+
   const currentStepIndex = stepOrder.indexOf(currentStep)
   const progress = ((currentStepIndex + 1) / stepOrder.length) * 100
 
   // Handle Reddit OAuth callback
   useEffect(() => {
+    console.log("🔍 [ONBOARDING] useEffect for Reddit OAuth callback triggered")
     const success = searchParams.get("success")
     const error = searchParams.get("error")
 
+    console.log(
+      "🔍 [ONBOARDING] URL params - success:",
+      success,
+      "error:",
+      error
+    )
+
     if (success === "Reddit authentication successful") {
+      console.log("🔍 [ONBOARDING] Reddit auth successful, updating state")
+      console.log(
+        "🔍 [ONBOARDING] Current onboardingData before Reddit update:",
+        onboardingData
+      )
+
       // Update Reddit connection status and advance to next step
-      setOnboardingData(prev => ({ ...prev, redditConnected: true }))
+      setOnboardingData(prev => {
+        const updated = { ...prev, redditConnected: true }
+        console.log(
+          "🔍 [ONBOARDING] Updated onboardingData after Reddit connect:",
+          updated
+        )
+        return updated
+      })
       setCurrentStep("complete")
+      console.log("🔍 [ONBOARDING] Advanced to complete step")
 
       // Clean up URL parameters
       const url = new URL(window.location.href)
@@ -57,7 +83,7 @@ export default function OnboardingPage() {
 
     if (error) {
       // Handle error if needed
-      console.error("Reddit authentication error:", error)
+      console.error("🔍 [ONBOARDING] Reddit authentication error:", error)
 
       // Clean up URL parameters
       const url = new URL(window.location.href)
@@ -67,27 +93,76 @@ export default function OnboardingPage() {
   }, [searchParams])
 
   const nextStep = () => {
+    console.log("🔍 [ONBOARDING] nextStep() called")
+    console.log("🔍 [ONBOARDING] Current step:", currentStep)
+    console.log("🔍 [ONBOARDING] Current onboardingData:", onboardingData)
+
     const currentIndex = stepOrder.indexOf(currentStep)
     if (currentIndex < stepOrder.length - 1) {
-      setCurrentStep(stepOrder[currentIndex + 1])
+      const nextStepName = stepOrder[currentIndex + 1]
+      console.log("🔍 [ONBOARDING] Moving to next step:", nextStepName)
+      setCurrentStep(nextStepName)
     }
   }
 
   const previousStep = () => {
+    console.log("🔍 [ONBOARDING] previousStep() called")
+    console.log("🔍 [ONBOARDING] Current step:", currentStep)
+
     const currentIndex = stepOrder.indexOf(currentStep)
     if (currentIndex > 0) {
-      setCurrentStep(stepOrder[currentIndex - 1])
+      const prevStepName = stepOrder[currentIndex - 1]
+      console.log("🔍 [ONBOARDING] Moving to previous step:", prevStepName)
+      setCurrentStep(prevStepName)
     }
   }
 
   const updateData = (data: Partial<typeof onboardingData>) => {
-    setOnboardingData(prev => ({ ...prev, ...data }))
+    console.log("🔍 [ONBOARDING] updateData() called with:", data)
+    console.log(
+      "🔍 [ONBOARDING] Current onboardingData before update:",
+      onboardingData
+    )
+
+    setOnboardingData(prev => {
+      const updated = { ...prev, ...data }
+      console.log("🔍 [ONBOARDING] Updated onboardingData:", updated)
+      console.log("🔍 [ONBOARDING] Keywords specifically:", updated.keywords)
+      console.log("🔍 [ONBOARDING] Keywords length:", updated.keywords.length)
+      return updated
+    })
   }
 
   const completeOnboarding = async () => {
-    if (!user?.id) return
+    console.log("🔍 [ONBOARDING] completeOnboarding() called")
+    console.log("🔍 [ONBOARDING] Final onboardingData:", onboardingData)
+    console.log("🔍 [ONBOARDING] Final keywords:", onboardingData.keywords)
+    console.log(
+      "🔍 [ONBOARDING] Final keywords length:",
+      onboardingData.keywords.length
+    )
+    console.log(
+      "🔍 [ONBOARDING] Final keywords stringified:",
+      JSON.stringify(onboardingData.keywords)
+    )
+
+    if (!user?.id) {
+      console.error("🔍 [ONBOARDING] No user ID found")
+      return
+    }
 
     try {
+      console.log(
+        "🔍 [ONBOARDING] Calling updateProfileAction with user ID:",
+        user.id
+      )
+      console.log("🔍 [ONBOARDING] Profile data being saved:", {
+        name: onboardingData.name,
+        profilePictureUrl: onboardingData.profilePictureUrl,
+        website: onboardingData.website,
+        onboardingCompleted: true
+      })
+
       await updateProfileAction(user.id, {
         name: onboardingData.name,
         profilePictureUrl: onboardingData.profilePictureUrl,
@@ -95,16 +170,37 @@ export default function OnboardingPage() {
         onboardingCompleted: true
       })
 
+      console.log("🔍 [ONBOARDING] Profile updated successfully")
+
       // Redirect to leadify with the keywords ready to create a campaign
-      router.push(
-        `/reddit/lead-finder?keywords=${encodeURIComponent(JSON.stringify(onboardingData.keywords))}`
+      const keywordsParam = encodeURIComponent(
+        JSON.stringify(onboardingData.keywords)
       )
+      const redirectUrl = `/reddit/lead-finder?keywords=${keywordsParam}`
+
+      console.log(
+        "🔍 [ONBOARDING] Keywords being passed to URL:",
+        onboardingData.keywords
+      )
+      console.log("🔍 [ONBOARDING] Encoded keywords param:", keywordsParam)
+      console.log("🔍 [ONBOARDING] Full redirect URL:", redirectUrl)
+
+      router.push(redirectUrl)
     } catch (error) {
-      console.error("Error completing onboarding:", error)
+      console.error("🔍 [ONBOARDING] Error completing onboarding:", error)
     }
   }
 
   const renderCurrentStep = () => {
+    console.log(
+      "🔍 [ONBOARDING] renderCurrentStep() called for step:",
+      currentStep
+    )
+    console.log(
+      "🔍 [ONBOARDING] Current onboardingData in render:",
+      onboardingData
+    )
+
     switch (currentStep) {
       case "profile":
         return (

@@ -28,6 +28,12 @@ export default function KeywordsStep({
   onNext,
   onPrevious
 }: KeywordsStepProps) {
+  console.log("🔍 [KEYWORDS] Component initialized")
+  console.log("🔍 [KEYWORDS] Props data:", data)
+  console.log("🔍 [KEYWORDS] Initial keywords:", data.keywords)
+  console.log("🔍 [KEYWORDS] Initial keywords length:", data.keywords.length)
+  console.log("🔍 [KEYWORDS] Website:", data.website)
+
   const [isGenerating, setIsGenerating] = useState(false)
   const [newKeyword, setNewKeyword] = useState("")
   const [refinementPrompt, setRefinementPrompt] = useState("")
@@ -36,32 +42,75 @@ export default function KeywordsStep({
 
   // Auto-generate keywords when component mounts if website is provided
   useEffect(() => {
+    console.log("🔍 [KEYWORDS] useEffect triggered")
+    console.log("🔍 [KEYWORDS] data.website:", data.website)
+    console.log("🔍 [KEYWORDS] hasGenerated:", hasGenerated)
+    console.log("🔍 [KEYWORDS] data.keywords.length:", data.keywords.length)
+
     if (data.website && !hasGenerated && data.keywords.length === 0) {
+      console.log("🔍 [KEYWORDS] Auto-generating keywords")
       generateKeywords()
+    } else {
+      console.log("🔍 [KEYWORDS] Not auto-generating keywords because:")
+      console.log("🔍 [KEYWORDS] - No website:", !data.website)
+      console.log("🔍 [KEYWORDS] - Already generated:", hasGenerated)
+      console.log(
+        "🔍 [KEYWORDS] - Already has keywords:",
+        data.keywords.length > 0
+      )
     }
   }, [data.website])
 
   const generateKeywords = async (refinement?: string) => {
+    console.log("🔍 [KEYWORDS] generateKeywords() called")
+    console.log("🔍 [KEYWORDS] Website:", data.website)
+    console.log("🔍 [KEYWORDS] Refinement:", refinement)
+
     setIsGenerating(true)
     try {
+      console.log("🔍 [KEYWORDS] Calling generateKeywordsAction")
       const result = await generateKeywordsAction({
         website: data.website,
         refinement: refinement || undefined
       })
 
+      console.log("🔍 [KEYWORDS] generateKeywordsAction result:", result)
+
       if (result.isSuccess) {
+        console.log("🔍 [KEYWORDS] Keywords generation successful")
+        console.log("🔍 [KEYWORDS] Generated keywords:", result.data.keywords)
+        console.log(
+          "🔍 [KEYWORDS] Generated keywords length:",
+          result.data.keywords.length
+        )
+
+        // Update keywords through parent component
         onUpdate({ keywords: result.data.keywords })
         setHasGenerated(true)
+
+        console.log(
+          "🔍 [KEYWORDS] Called onUpdate with keywords:",
+          result.data.keywords
+        )
+      } else {
+        console.error(
+          "🔍 [KEYWORDS] Keywords generation failed:",
+          result.message
+        )
       }
     } catch (error) {
-      console.error("Error generating keywords:", error)
+      console.error("🔍 [KEYWORDS] Error generating keywords:", error)
     } finally {
       setIsGenerating(false)
+      console.log("🔍 [KEYWORDS] Generation process completed")
     }
   }
 
   const handleRefinement = async (e: React.FormEvent) => {
     e.preventDefault()
+    console.log("🔍 [KEYWORDS] handleRefinement() called")
+    console.log("🔍 [KEYWORDS] Refinement prompt:", refinementPrompt)
+
     if (refinementPrompt.trim()) {
       await generateKeywords(refinementPrompt)
       setRefinementPrompt("")
@@ -70,25 +119,61 @@ export default function KeywordsStep({
 
   const addKeyword = (e: React.FormEvent) => {
     e.preventDefault()
+    console.log("🔍 [KEYWORDS] addKeyword() called")
+    console.log("🔍 [KEYWORDS] New keyword:", newKeyword)
+    console.log("🔍 [KEYWORDS] Current keywords:", data.keywords)
+
     if (newKeyword.trim() && !data.keywords.includes(newKeyword.trim())) {
-      onUpdate({ keywords: [...data.keywords, newKeyword.trim()] })
+      const updatedKeywords = [...data.keywords, newKeyword.trim()]
+      console.log(
+        "🔍 [KEYWORDS] Updated keywords after adding:",
+        updatedKeywords
+      )
+
+      onUpdate({ keywords: updatedKeywords })
       setNewKeyword("")
+
+      console.log("🔍 [KEYWORDS] Called onUpdate with updated keywords")
+    } else {
+      console.log(
+        "🔍 [KEYWORDS] Not adding keyword - either empty or duplicate"
+      )
     }
   }
 
   const removeKeyword = (keywordToRemove: string) => {
-    onUpdate({
-      keywords: data.keywords.filter(keyword => keyword !== keywordToRemove)
-    })
+    console.log("🔍 [KEYWORDS] removeKeyword() called")
+    console.log("🔍 [KEYWORDS] Keyword to remove:", keywordToRemove)
+    console.log("🔍 [KEYWORDS] Current keywords:", data.keywords)
+
+    const updatedKeywords = data.keywords.filter(
+      keyword => keyword !== keywordToRemove
+    )
+    console.log(
+      "🔍 [KEYWORDS] Updated keywords after removal:",
+      updatedKeywords
+    )
+
+    onUpdate({ keywords: updatedKeywords })
+    console.log("🔍 [KEYWORDS] Called onUpdate with updated keywords")
   }
 
   const editKeyword = (index: number, newValue: string) => {
+    console.log("🔍 [KEYWORDS] editKeyword() called")
+    console.log("🔍 [KEYWORDS] Index:", index)
+    console.log("🔍 [KEYWORDS] New value:", newValue)
+    console.log("🔍 [KEYWORDS] Current keywords:", data.keywords)
+
     const updatedKeywords = [...data.keywords]
     updatedKeywords[index] = newValue
+    console.log("🔍 [KEYWORDS] Updated keywords after edit:", updatedKeywords)
+
     onUpdate({ keywords: updatedKeywords })
+    console.log("🔍 [KEYWORDS] Called onUpdate with updated keywords")
   }
 
   const handleKeywordClick = (index: number) => {
+    console.log("🔍 [KEYWORDS] handleKeywordClick() called for index:", index)
     setEditingIndex(index)
   }
 
@@ -97,18 +182,43 @@ export default function KeywordsStep({
     index: number,
     keyword: string
   ) => {
+    console.log("🔍 [KEYWORDS] handleKeywordBlur() called")
+    console.log("🔍 [KEYWORDS] Index:", index)
+    console.log("🔍 [KEYWORDS] Keyword:", keyword)
+    console.log("🔍 [KEYWORDS] Input value:", e.target.value)
+
     setEditingIndex(null)
     if (e.target.value.trim() === "") {
+      console.log("🔍 [KEYWORDS] Empty value, removing keyword")
       removeKeyword(keyword)
     }
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    console.log("🔍 [KEYWORDS] handleSubmit() called")
+    console.log("🔍 [KEYWORDS] Current keywords before submit:", data.keywords)
+    console.log(
+      "🔍 [KEYWORDS] Keywords length before submit:",
+      data.keywords.length
+    )
+
     if (data.keywords.length > 0) {
+      console.log("🔍 [KEYWORDS] Keywords validation passed, calling onNext()")
       onNext()
+    } else {
+      console.log("🔍 [KEYWORDS] Keywords validation failed - no keywords")
     }
   }
+
+  console.log("🔍 [KEYWORDS] Rendering component")
+  console.log("🔍 [KEYWORDS] Current data.keywords:", data.keywords)
+  console.log(
+    "🔍 [KEYWORDS] Current data.keywords.length:",
+    data.keywords.length
+  )
+  console.log("🔍 [KEYWORDS] isGenerating:", isGenerating)
+  console.log("🔍 [KEYWORDS] hasGenerated:", hasGenerated)
 
   return (
     <motion.div

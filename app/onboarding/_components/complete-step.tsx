@@ -23,18 +23,49 @@ export default function CompleteStep({
   onComplete,
   onPrevious
 }: CompleteStepProps) {
+  console.log("🔍 [COMPLETE] Component initialized")
+  console.log("🔍 [COMPLETE] Props data:", data)
+  console.log("🔍 [COMPLETE] Keywords:", data.keywords)
+  console.log("🔍 [COMPLETE] Keywords length:", data.keywords.length)
+  console.log(
+    "🔍 [COMPLETE] Keywords stringified:",
+    JSON.stringify(data.keywords)
+  )
+  console.log("🔍 [COMPLETE] Name:", data.name)
+  console.log("🔍 [COMPLETE] Website:", data.website)
+  console.log("🔍 [COMPLETE] Reddit connected:", data.redditConnected)
+
   const [isCompleting, setIsCompleting] = useState(false)
 
   const handleComplete = async () => {
+    console.log("🔍 [COMPLETE] handleComplete() called")
+    console.log("🔍 [COMPLETE] Final data before completion:", data)
+    console.log(
+      "🔍 [COMPLETE] Final keywords before completion:",
+      data.keywords
+    )
+    console.log(
+      "🔍 [COMPLETE] Final keywords length before completion:",
+      data.keywords.length
+    )
+
     setIsCompleting(true)
     try {
+      console.log("🔍 [COMPLETE] Calling onComplete()")
       await onComplete()
+      console.log("🔍 [COMPLETE] onComplete() completed successfully")
     } catch (error) {
-      console.error("Error completing onboarding:", error)
+      console.error("🔍 [COMPLETE] Error completing onboarding:", error)
     } finally {
       setIsCompleting(false)
+      console.log("🔍 [COMPLETE] Completion process finished")
     }
   }
+
+  console.log("🔍 [COMPLETE] Rendering component")
+  console.log("🔍 [COMPLETE] Current data:", data)
+  console.log("🔍 [COMPLETE] Current keywords:", data.keywords)
+  console.log("🔍 [COMPLETE] Current keywords length:", data.keywords.length)
 
   return (
     <motion.div
@@ -84,6 +115,10 @@ export default function CompleteStep({
             <p className="text-gray-400">
               {data.keywords.length} keywords ready
             </p>
+            {/* Debug display of actual keywords */}
+            <div className="mt-2 text-xs text-gray-500">
+              Keywords: {data.keywords.join(", ") || "None"}
+            </div>
           </div>
         </div>
       </div>
