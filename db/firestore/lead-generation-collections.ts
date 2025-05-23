@@ -142,6 +142,10 @@ export interface GeneratedCommentDocument {
   used: boolean // Whether the user has used this comment
   createdAt: Timestamp
   updatedAt: Timestamp
+  
+  // Optional tracking fields
+  keyword?: string // Which keyword led to finding this post
+  postScore?: number // Reddit post score/upvotes
 }
 
 // Create generated comment data
@@ -159,6 +163,8 @@ export interface CreateGeneratedCommentData {
   mediumComment: string
   verboseComment: string
   status?: "new" | "viewed" | "approved" | "rejected" | "used" // Default to 'new'
+  keyword?: string // Optional: which keyword led to this post
+  postScore?: number // Optional: Reddit post score
 }
 
 // Update generated comment data

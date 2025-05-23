@@ -326,17 +326,13 @@ export async function runFullLeadGenerationWorkflowAction(
             microComment: scoringData.microComment,
             mediumComment: scoringData.mediumComment,
             verboseComment: scoringData.verboseComment,
-            status: "new"
-          }
-          
-          // Add extra fields that will be tracked
-          const extendedPayload = {
-            ...commentPayload,
+            status: "new",
             keyword: threadToFetch.keyword, // Track which keyword found this
             postScore: apiThread.score // Track Reddit post score
           }
 
           console.log(`💾 [WORKFLOW] Saving generated comment to Firestore...`)
+          console.log(`💾 [WORKFLOW] With keyword: ${threadToFetch.keyword}, score: ${apiThread.score}`)
           const saveCommentResult = await createGeneratedCommentAction(commentPayload)
           
           if (saveCommentResult.isSuccess) {

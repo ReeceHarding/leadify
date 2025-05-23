@@ -234,6 +234,8 @@ export async function createGeneratedCommentAction(
     console.log(`💾 [LEAD-GEN-DB] Campaign ID: ${data.campaignId}`)
     console.log(`💾 [LEAD-GEN-DB] Post Title: ${data.postTitle}`)
     console.log(`💾 [LEAD-GEN-DB] Relevance Score: ${data.relevanceScore}`)
+    console.log(`💾 [LEAD-GEN-DB] Keyword: ${data.keyword || 'Not provided'}`)
+    console.log(`💾 [LEAD-GEN-DB] Post Score: ${data.postScore || 'Not provided'}`)
     console.log(`💾 [LEAD-GEN-DB] Collection: ${LEAD_COLLECTIONS.GENERATED_COMMENTS}`)
     
     const commentRef = doc(collection(db, LEAD_COLLECTIONS.GENERATED_COMMENTS))
@@ -255,6 +257,9 @@ export async function createGeneratedCommentAction(
       status: data.status || "new", // Default to 'new'
       approved: false, // Default to false, can be updated later
       used: false, // Default to false
+      // Optional tracking fields
+      keyword: data.keyword,
+      postScore: data.postScore,
       // Timestamps will be added by serverTimestamp or directly
     }
     

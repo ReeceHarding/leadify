@@ -6178,3 +6178,762 @@
 [2025-05-23T23:20:09.574Z] NEXTJS_STDOUT: 📖 [LEAD-GEN] Fetching generated comments for campaign YPTfDMeUv1rhoosYkBC0
 [2025-05-23T23:20:09.828Z] NEXTJS_STDOUT: ✅ [LEAD-GEN] Found 19 comments with enriched data
 [2025-05-23T23:20:09.831Z] NEXTJS_STDOUT: POST /reddit/lead-finder 200 in 260ms
+[2025-05-23T23:20:20.825Z] NEXTJS_STDOUT: ✓ Compiled in 329ms (3223 modules)
+[2025-05-23T23:20:20.962Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Action called
+[2025-05-23T23:20:20.963Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] User ID: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-23T23:20:20.963Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] User ID type: string
+[2025-05-23T23:20:20.963Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Created Firestore document reference
+[2025-05-23T23:20:20.963Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Collection: profiles
+[2025-05-23T23:20:20.963Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Document path: profiles/user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-23T23:20:20.963Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Reading from Firestore...
+[2025-05-23T23:20:21.120Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Firestore read completed
+[2025-05-23T23:20:21.120Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Document exists: true
+[2025-05-23T23:20:21.120Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Document id: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-23T23:20:21.120Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw data from Firestore: {
+[2025-05-23T23:20:21.120Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-23T23:20:21.120Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-23T23:20:21.121Z] NEXTJS_STDOUT: "seconds": 1748041523,
+[2025-05-23T23:20:21.121Z] NEXTJS_STDOUT: "nanoseconds": 232000000
+[2025-05-23T23:20:21.121Z] NEXTJS_STDOUT: },
+[2025-05-23T23:20:21.121Z] NEXTJS_STDOUT: "keywords": [
+[2025-05-23T23:20:21.121Z] NEXTJS_STDOUT: "recommendations for private beachfront retreats in the Dominican Republic",
+[2025-05-23T23:20:21.121Z] NEXTJS_STDOUT: "where can I find exclusive group beach vacations near the ocean"
+[2025-05-23T23:20:21.121Z] NEXTJS_STDOUT: ],
+[2025-05-23T23:20:21.121Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-23T23:20:21.121Z] NEXTJS_STDOUT: "name": "Beachcomber Dominican Republic",
+[2025-05-23T23:20:21.121Z] NEXTJS_STDOUT: "onboardingCompleted": false,
+[2025-05-23T23:20:21.121Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-23T23:20:21.121Z] NEXTJS_STDOUT: "website": "https://lascanasbeachretreat.com",
+[2025-05-23T23:20:21.121Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-23T23:20:21.121Z] NEXTJS_STDOUT: "seconds": 1748026655,
+[2025-05-23T23:20:21.121Z] NEXTJS_STDOUT: "nanoseconds": 814000000
+[2025-05-23T23:20:21.121Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:21.121Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:21.121Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw data keys: [
+[2025-05-23T23:20:21.121Z] NEXTJS_STDOUT: 'userId',
+[2025-05-23T23:20:21.121Z] NEXTJS_STDOUT: 'updatedAt',
+[2025-05-23T23:20:21.121Z] NEXTJS_STDOUT: 'keywords',
+[2025-05-23T23:20:21.121Z] NEXTJS_STDOUT: 'membership',
+[2025-05-23T23:20:21.121Z] NEXTJS_STDOUT: 'name',
+[2025-05-23T23:20:21.121Z] NEXTJS_STDOUT: 'onboardingCompleted',
+[2025-05-23T23:20:21.121Z] NEXTJS_STDOUT: 'profilePictureUrl',
+[2025-05-23T23:20:21.121Z] NEXTJS_STDOUT: 'website',
+[2025-05-23T23:20:21.121Z] NEXTJS_STDOUT: 'createdAt'
+[2025-05-23T23:20:21.122Z] NEXTJS_STDOUT: ]
+[2025-05-23T23:20:21.122Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw createdAt from Firestore: Timestamp { seconds: 1748026655, nanoseconds: 814000000 }
+[2025-05-23T23:20:21.122Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw createdAt type: object
+[2025-05-23T23:20:21.122Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw updatedAt from Firestore: Timestamp { seconds: 1748041523, nanoseconds: 232000000 }
+[2025-05-23T23:20:21.122Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw updatedAt type: object
+[2025-05-23T23:20:21.122Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Casting to ProfileDocument
+[2025-05-23T23:20:21.122Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] ProfileDocument createdAt: Timestamp { seconds: 1748026655, nanoseconds: 814000000 }
+[2025-05-23T23:20:21.122Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] ProfileDocument updatedAt: Timestamp { seconds: 1748041523, nanoseconds: 232000000 }
+[2025-05-23T23:20:21.122Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Starting serialization...
+[2025-05-23T23:20:21.122Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Starting serialization
+[2025-05-23T23:20:21.122Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Input profile keys: [
+[2025-05-23T23:20:21.122Z] NEXTJS_STDOUT: 'userId',
+[2025-05-23T23:20:21.122Z] NEXTJS_STDOUT: 'updatedAt',
+[2025-05-23T23:20:21.122Z] NEXTJS_STDOUT: 'keywords',
+[2025-05-23T23:20:21.122Z] NEXTJS_STDOUT: 'membership',
+[2025-05-23T23:20:21.122Z] NEXTJS_STDOUT: 'name',
+[2025-05-23T23:20:21.122Z] NEXTJS_STDOUT: 'onboardingCompleted',
+[2025-05-23T23:20:21.122Z] NEXTJS_STDOUT: 'profilePictureUrl',
+[2025-05-23T23:20:21.122Z] NEXTJS_STDOUT: 'website',
+[2025-05-23T23:20:21.122Z] NEXTJS_STDOUT: 'createdAt'
+[2025-05-23T23:20:21.122Z] NEXTJS_STDOUT: ]
+[2025-05-23T23:20:21.122Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Raw profile data: {
+[2025-05-23T23:20:21.122Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-23T23:20:21.123Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-23T23:20:21.123Z] NEXTJS_STDOUT: "seconds": 1748041523,
+[2025-05-23T23:20:21.123Z] NEXTJS_STDOUT: "nanoseconds": 232000000
+[2025-05-23T23:20:21.123Z] NEXTJS_STDOUT: },
+[2025-05-23T23:20:21.123Z] NEXTJS_STDOUT: "keywords": [
+[2025-05-23T23:20:21.123Z] NEXTJS_STDOUT: "recommendations for private beachfront retreats in the Dominican Republic",
+[2025-05-23T23:20:21.123Z] NEXTJS_STDOUT: "where can I find exclusive group beach vacations near the ocean"
+[2025-05-23T23:20:21.123Z] NEXTJS_STDOUT: ],
+[2025-05-23T23:20:21.123Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-23T23:20:21.123Z] NEXTJS_STDOUT: "name": "Beachcomber Dominican Republic",
+[2025-05-23T23:20:21.123Z] NEXTJS_STDOUT: "onboardingCompleted": false,
+[2025-05-23T23:20:21.123Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-23T23:20:21.123Z] NEXTJS_STDOUT: "website": "https://lascanasbeachretreat.com",
+[2025-05-23T23:20:21.123Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-23T23:20:21.123Z] NEXTJS_STDOUT: "seconds": 1748026655,
+[2025-05-23T23:20:21.123Z] NEXTJS_STDOUT: "nanoseconds": 814000000
+[2025-05-23T23:20:21.123Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:21.123Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:21.123Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt type: object
+[2025-05-23T23:20:21.123Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt instanceof Timestamp: true
+[2025-05-23T23:20:21.123Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt value: Timestamp { seconds: 1748026655, nanoseconds: 814000000 }
+[2025-05-23T23:20:21.123Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt type: object
+[2025-05-23T23:20:21.123Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt instanceof Timestamp: true
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt value: Timestamp { seconds: 1748041523, nanoseconds: 232000000 }
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized profile: {
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: "updatedAt": "2025-05-23T23:05:23.232Z",
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: "keywords": [
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: "recommendations for private beachfront retreats in the Dominican Republic",
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: "where can I find exclusive group beach vacations near the ocean"
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: ],
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: "name": "Beachcomber Dominican Republic",
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: "onboardingCompleted": false,
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: "website": "https://lascanasbeachretreat.com",
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: "createdAt": "2025-05-23T18:57:35.814Z"
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized createdAt: 2025-05-23T18:57:35.814Z
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized updatedAt: 2025-05-23T23:05:23.232Z
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialization complete
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Final result: {
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: "isSuccess": true,
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: "message": "Profile retrieved successfully",
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: "data": {
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: "updatedAt": "2025-05-23T23:05:23.232Z",
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: "keywords": [
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: "recommendations for private beachfront retreats in the Dominican Republic",
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: "where can I find exclusive group beach vacations near the ocean"
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: ],
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: "name": "Beachcomber Dominican Republic",
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: "onboardingCompleted": false,
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: "website": "https://lascanasbeachretreat.com",
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: "createdAt": "2025-05-23T18:57:35.814Z"
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:21.124Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Action completed successfully
+[2025-05-23T23:20:21.125Z] NEXTJS_STDOUT: GET /reddit/lead-finder 200 in 289ms
+[2025-05-23T23:20:49.594Z] NEXTJS_STDOUT: ✓ Compiled in 424ms (3209 modules)
+[2025-05-23T23:20:49.736Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Action called
+[2025-05-23T23:20:49.738Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] User ID: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-23T23:20:49.738Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] User ID type: string
+[2025-05-23T23:20:49.738Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Created Firestore document reference
+[2025-05-23T23:20:49.738Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Collection: profiles
+[2025-05-23T23:20:49.738Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Document path: profiles/user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-23T23:20:49.738Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Reading from Firestore...
+[2025-05-23T23:20:49.952Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Firestore read completed
+[2025-05-23T23:20:49.953Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Document exists: true
+[2025-05-23T23:20:49.953Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Document id: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-23T23:20:49.953Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw data from Firestore: {
+[2025-05-23T23:20:49.954Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-23T23:20:49.954Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-23T23:20:49.954Z] NEXTJS_STDOUT: "seconds": 1748026655,
+[2025-05-23T23:20:49.954Z] NEXTJS_STDOUT: "nanoseconds": 814000000
+[2025-05-23T23:20:49.954Z] NEXTJS_STDOUT: },
+[2025-05-23T23:20:49.954Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-23T23:20:49.954Z] NEXTJS_STDOUT: "name": "Beachcomber Dominican Republic",
+[2025-05-23T23:20:49.954Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-23T23:20:49.955Z] NEXTJS_STDOUT: "seconds": 1748041523,
+[2025-05-23T23:20:49.955Z] NEXTJS_STDOUT: "nanoseconds": 232000000
+[2025-05-23T23:20:49.955Z] NEXTJS_STDOUT: },
+[2025-05-23T23:20:49.955Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-23T23:20:49.955Z] NEXTJS_STDOUT: "onboardingCompleted": false,
+[2025-05-23T23:20:49.955Z] NEXTJS_STDOUT: "keywords": [
+[2025-05-23T23:20:49.955Z] NEXTJS_STDOUT: "recommendations for private beachfront retreats in the Dominican Republic",
+[2025-05-23T23:20:49.955Z] NEXTJS_STDOUT: "where can I find exclusive group beach vacations near the ocean"
+[2025-05-23T23:20:49.955Z] NEXTJS_STDOUT: ],
+[2025-05-23T23:20:49.955Z] NEXTJS_STDOUT: "website": "https://lascanasbeachretreat.com"
+[2025-05-23T23:20:49.955Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:49.955Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw data keys: [
+[2025-05-23T23:20:49.955Z] NEXTJS_STDOUT: 'profilePictureUrl',
+[2025-05-23T23:20:49.955Z] NEXTJS_STDOUT: 'createdAt',
+[2025-05-23T23:20:49.955Z] NEXTJS_STDOUT: 'membership',
+[2025-05-23T23:20:49.955Z] NEXTJS_STDOUT: 'name',
+[2025-05-23T23:20:49.955Z] NEXTJS_STDOUT: 'updatedAt',
+[2025-05-23T23:20:49.955Z] NEXTJS_STDOUT: 'userId',
+[2025-05-23T23:20:49.955Z] NEXTJS_STDOUT: 'onboardingCompleted',
+[2025-05-23T23:20:49.955Z] NEXTJS_STDOUT: 'keywords',
+[2025-05-23T23:20:49.955Z] NEXTJS_STDOUT: 'website'
+[2025-05-23T23:20:49.955Z] NEXTJS_STDOUT: ]
+[2025-05-23T23:20:49.955Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw createdAt from Firestore: Timestamp { seconds: 1748026655, nanoseconds: 814000000 }
+[2025-05-23T23:20:49.955Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw createdAt type: object
+[2025-05-23T23:20:49.955Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw updatedAt from Firestore: Timestamp { seconds: 1748041523, nanoseconds: 232000000 }
+[2025-05-23T23:20:49.955Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw updatedAt type: object
+[2025-05-23T23:20:49.955Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Casting to ProfileDocument
+[2025-05-23T23:20:49.955Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] ProfileDocument createdAt: Timestamp { seconds: 1748026655, nanoseconds: 814000000 }
+[2025-05-23T23:20:49.955Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] ProfileDocument updatedAt: Timestamp { seconds: 1748041523, nanoseconds: 232000000 }
+[2025-05-23T23:20:49.956Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Starting serialization...
+[2025-05-23T23:20:49.956Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Starting serialization
+[2025-05-23T23:20:49.956Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Input profile keys: [
+[2025-05-23T23:20:49.956Z] NEXTJS_STDOUT: 'profilePictureUrl',
+[2025-05-23T23:20:49.956Z] NEXTJS_STDOUT: 'createdAt',
+[2025-05-23T23:20:49.956Z] NEXTJS_STDOUT: 'membership',
+[2025-05-23T23:20:49.956Z] NEXTJS_STDOUT: 'name',
+[2025-05-23T23:20:49.956Z] NEXTJS_STDOUT: 'updatedAt',
+[2025-05-23T23:20:49.956Z] NEXTJS_STDOUT: 'userId',
+[2025-05-23T23:20:49.956Z] NEXTJS_STDOUT: 'onboardingCompleted',
+[2025-05-23T23:20:49.956Z] NEXTJS_STDOUT: 'keywords',
+[2025-05-23T23:20:49.956Z] NEXTJS_STDOUT: 'website'
+[2025-05-23T23:20:49.956Z] NEXTJS_STDOUT: ]
+[2025-05-23T23:20:49.956Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Raw profile data: {
+[2025-05-23T23:20:49.956Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-23T23:20:49.956Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-23T23:20:49.956Z] NEXTJS_STDOUT: "seconds": 1748026655,
+[2025-05-23T23:20:49.956Z] NEXTJS_STDOUT: "nanoseconds": 814000000
+[2025-05-23T23:20:49.956Z] NEXTJS_STDOUT: },
+[2025-05-23T23:20:49.956Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-23T23:20:49.956Z] NEXTJS_STDOUT: "name": "Beachcomber Dominican Republic",
+[2025-05-23T23:20:49.956Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-23T23:20:49.956Z] NEXTJS_STDOUT: "seconds": 1748041523,
+[2025-05-23T23:20:49.956Z] NEXTJS_STDOUT: "nanoseconds": 232000000
+[2025-05-23T23:20:49.956Z] NEXTJS_STDOUT: },
+[2025-05-23T23:20:49.956Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-23T23:20:49.956Z] NEXTJS_STDOUT: "onboardingCompleted": false,
+[2025-05-23T23:20:49.956Z] NEXTJS_STDOUT: "keywords": [
+[2025-05-23T23:20:49.956Z] NEXTJS_STDOUT: "recommendations for private beachfront retreats in the Dominican Republic",
+[2025-05-23T23:20:49.956Z] NEXTJS_STDOUT: "where can I find exclusive group beach vacations near the ocean"
+[2025-05-23T23:20:49.956Z] NEXTJS_STDOUT: ],
+[2025-05-23T23:20:49.957Z] NEXTJS_STDOUT: "website": "https://lascanasbeachretreat.com"
+[2025-05-23T23:20:49.957Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:49.957Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt type: object
+[2025-05-23T23:20:49.957Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt instanceof Timestamp: true
+[2025-05-23T23:20:49.957Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt value: Timestamp { seconds: 1748026655, nanoseconds: 814000000 }
+[2025-05-23T23:20:49.957Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt type: object
+[2025-05-23T23:20:49.957Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt instanceof Timestamp: true
+[2025-05-23T23:20:49.957Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt value: Timestamp { seconds: 1748041523, nanoseconds: 232000000 }
+[2025-05-23T23:20:49.957Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized profile: {
+[2025-05-23T23:20:49.957Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-23T23:20:49.957Z] NEXTJS_STDOUT: "createdAt": "2025-05-23T18:57:35.814Z",
+[2025-05-23T23:20:49.957Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-23T23:20:49.957Z] NEXTJS_STDOUT: "name": "Beachcomber Dominican Republic",
+[2025-05-23T23:20:49.957Z] NEXTJS_STDOUT: "updatedAt": "2025-05-23T23:05:23.232Z",
+[2025-05-23T23:20:49.957Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-23T23:20:49.958Z] NEXTJS_STDOUT: "onboardingCompleted": false,
+[2025-05-23T23:20:49.958Z] NEXTJS_STDOUT: "keywords": [
+[2025-05-23T23:20:49.958Z] NEXTJS_STDOUT: "recommendations for private beachfront retreats in the Dominican Republic",
+[2025-05-23T23:20:49.958Z] NEXTJS_STDOUT: "where can I find exclusive group beach vacations near the ocean"
+[2025-05-23T23:20:49.958Z] NEXTJS_STDOUT: ],
+[2025-05-23T23:20:49.958Z] NEXTJS_STDOUT: "website": "https://lascanasbeachretreat.com"
+[2025-05-23T23:20:49.958Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:49.959Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized createdAt: 2025-05-23T18:57:35.814Z
+[2025-05-23T23:20:49.959Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized updatedAt: 2025-05-23T23:05:23.232Z
+[2025-05-23T23:20:49.959Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialization complete
+[2025-05-23T23:20:49.959Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Final result: {
+[2025-05-23T23:20:49.959Z] NEXTJS_STDOUT: "isSuccess": true,
+[2025-05-23T23:20:49.959Z] NEXTJS_STDOUT: "message": "Profile retrieved successfully",
+[2025-05-23T23:20:49.959Z] NEXTJS_STDOUT: "data": {
+[2025-05-23T23:20:49.959Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-23T23:20:49.959Z] NEXTJS_STDOUT: "createdAt": "2025-05-23T18:57:35.814Z",
+[2025-05-23T23:20:49.959Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-23T23:20:49.959Z] NEXTJS_STDOUT: "name": "Beachcomber Dominican Republic",
+[2025-05-23T23:20:49.959Z] NEXTJS_STDOUT: "updatedAt": "2025-05-23T23:05:23.232Z",
+[2025-05-23T23:20:49.959Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-23T23:20:49.959Z] NEXTJS_STDOUT: "onboardingCompleted": false,
+[2025-05-23T23:20:49.959Z] NEXTJS_STDOUT: "keywords": [
+[2025-05-23T23:20:49.959Z] NEXTJS_STDOUT: "recommendations for private beachfront retreats in the Dominican Republic",
+[2025-05-23T23:20:49.959Z] NEXTJS_STDOUT: "where can I find exclusive group beach vacations near the ocean"
+[2025-05-23T23:20:49.959Z] NEXTJS_STDOUT: ],
+[2025-05-23T23:20:49.959Z] NEXTJS_STDOUT: "website": "https://lascanasbeachretreat.com"
+[2025-05-23T23:20:49.960Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:49.960Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:49.960Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Action completed successfully
+[2025-05-23T23:20:49.968Z] NEXTJS_STDOUT: GET /reddit/lead-finder 200 in 359ms
+[2025-05-23T23:20:49.974Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Action called
+[2025-05-23T23:20:49.974Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] User ID: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-23T23:20:49.974Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] User ID type: string
+[2025-05-23T23:20:49.974Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Created Firestore document reference
+[2025-05-23T23:20:49.974Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Collection: profiles
+[2025-05-23T23:20:49.975Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Document path: profiles/user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-23T23:20:49.975Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Reading from Firestore...
+[2025-05-23T23:20:50.004Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Firestore read completed
+[2025-05-23T23:20:50.004Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Document exists: true
+[2025-05-23T23:20:50.004Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Document id: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-23T23:20:50.004Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw data from Firestore: {
+[2025-05-23T23:20:50.005Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-23T23:20:50.005Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-23T23:20:50.005Z] NEXTJS_STDOUT: "seconds": 1748026655,
+[2025-05-23T23:20:50.005Z] NEXTJS_STDOUT: "nanoseconds": 814000000
+[2025-05-23T23:20:50.005Z] NEXTJS_STDOUT: },
+[2025-05-23T23:20:50.005Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-23T23:20:50.005Z] NEXTJS_STDOUT: "name": "Beachcomber Dominican Republic",
+[2025-05-23T23:20:50.005Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-23T23:20:50.005Z] NEXTJS_STDOUT: "seconds": 1748041523,
+[2025-05-23T23:20:50.005Z] NEXTJS_STDOUT: "nanoseconds": 232000000
+[2025-05-23T23:20:50.005Z] NEXTJS_STDOUT: },
+[2025-05-23T23:20:50.005Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-23T23:20:50.005Z] NEXTJS_STDOUT: "onboardingCompleted": false,
+[2025-05-23T23:20:50.005Z] NEXTJS_STDOUT: "keywords": [
+[2025-05-23T23:20:50.005Z] NEXTJS_STDOUT: "recommendations for private beachfront retreats in the Dominican Republic",
+[2025-05-23T23:20:50.005Z] NEXTJS_STDOUT: "where can I find exclusive group beach vacations near the ocean"
+[2025-05-23T23:20:50.005Z] NEXTJS_STDOUT: ],
+[2025-05-23T23:20:50.005Z] NEXTJS_STDOUT: "website": "https://lascanasbeachretreat.com"
+[2025-05-23T23:20:50.005Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:50.005Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw data keys: [
+[2025-05-23T23:20:50.005Z] NEXTJS_STDOUT: 'profilePictureUrl',
+[2025-05-23T23:20:50.005Z] NEXTJS_STDOUT: 'createdAt',
+[2025-05-23T23:20:50.005Z] NEXTJS_STDOUT: 'membership',
+[2025-05-23T23:20:50.005Z] NEXTJS_STDOUT: 'name',
+[2025-05-23T23:20:50.005Z] NEXTJS_STDOUT: 'updatedAt',
+[2025-05-23T23:20:50.005Z] NEXTJS_STDOUT: 'userId',
+[2025-05-23T23:20:50.006Z] NEXTJS_STDOUT: 'onboardingCompleted',
+[2025-05-23T23:20:50.006Z] NEXTJS_STDOUT: 'keywords',
+[2025-05-23T23:20:50.006Z] NEXTJS_STDOUT: 'website'
+[2025-05-23T23:20:50.006Z] NEXTJS_STDOUT: ]
+[2025-05-23T23:20:50.006Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw createdAt from Firestore: Timestamp { seconds: 1748026655, nanoseconds: 814000000 }
+[2025-05-23T23:20:50.006Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw createdAt type: object
+[2025-05-23T23:20:50.006Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw updatedAt from Firestore: Timestamp { seconds: 1748041523, nanoseconds: 232000000 }
+[2025-05-23T23:20:50.006Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw updatedAt type: object
+[2025-05-23T23:20:50.006Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Casting to ProfileDocument
+[2025-05-23T23:20:50.006Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] ProfileDocument createdAt: Timestamp { seconds: 1748026655, nanoseconds: 814000000 }
+[2025-05-23T23:20:50.006Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] ProfileDocument updatedAt: Timestamp { seconds: 1748041523, nanoseconds: 232000000 }
+[2025-05-23T23:20:50.006Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Starting serialization...
+[2025-05-23T23:20:50.006Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Starting serialization
+[2025-05-23T23:20:50.006Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Input profile keys: [
+[2025-05-23T23:20:50.006Z] NEXTJS_STDOUT: 'profilePictureUrl',
+[2025-05-23T23:20:50.006Z] NEXTJS_STDOUT: 'createdAt',
+[2025-05-23T23:20:50.006Z] NEXTJS_STDOUT: 'membership',
+[2025-05-23T23:20:50.006Z] NEXTJS_STDOUT: 'name',
+[2025-05-23T23:20:50.006Z] NEXTJS_STDOUT: 'updatedAt',
+[2025-05-23T23:20:50.006Z] NEXTJS_STDOUT: 'userId',
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: 'onboardingCompleted',
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: 'keywords',
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: 'website'
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: ]
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Raw profile data: {
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: "seconds": 1748026655,
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: "nanoseconds": 814000000
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: },
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: "name": "Beachcomber Dominican Republic",
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: "seconds": 1748041523,
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: "nanoseconds": 232000000
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: },
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: "onboardingCompleted": false,
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: "keywords": [
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: "recommendations for private beachfront retreats in the Dominican Republic",
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: "where can I find exclusive group beach vacations near the ocean"
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: ],
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: "website": "https://lascanasbeachretreat.com"
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt type: object
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt instanceof Timestamp: true
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt value: Timestamp { seconds: 1748026655, nanoseconds: 814000000 }
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt type: object
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt instanceof Timestamp: true
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt value: Timestamp { seconds: 1748041523, nanoseconds: 232000000 }
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized profile: {
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: "createdAt": "2025-05-23T18:57:35.814Z",
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: "name": "Beachcomber Dominican Republic",
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: "updatedAt": "2025-05-23T23:05:23.232Z",
+[2025-05-23T23:20:50.007Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-23T23:20:50.008Z] NEXTJS_STDOUT: "onboardingCompleted": false,
+[2025-05-23T23:20:50.008Z] NEXTJS_STDOUT: "keywords": [
+[2025-05-23T23:20:50.008Z] NEXTJS_STDOUT: "recommendations for private beachfront retreats in the Dominican Republic",
+[2025-05-23T23:20:50.008Z] NEXTJS_STDOUT: "where can I find exclusive group beach vacations near the ocean"
+[2025-05-23T23:20:50.008Z] NEXTJS_STDOUT: ],
+[2025-05-23T23:20:50.008Z] NEXTJS_STDOUT: "website": "https://lascanasbeachretreat.com"
+[2025-05-23T23:20:50.008Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:50.008Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized createdAt: 2025-05-23T18:57:35.814Z
+[2025-05-23T23:20:50.008Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized updatedAt: 2025-05-23T23:05:23.232Z
+[2025-05-23T23:20:50.008Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialization complete
+[2025-05-23T23:20:50.008Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Final result: {
+[2025-05-23T23:20:50.008Z] NEXTJS_STDOUT: "isSuccess": true,
+[2025-05-23T23:20:50.008Z] NEXTJS_STDOUT: "message": "Profile retrieved successfully",
+[2025-05-23T23:20:50.008Z] NEXTJS_STDOUT: "data": {
+[2025-05-23T23:20:50.008Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-23T23:20:50.008Z] NEXTJS_STDOUT: "createdAt": "2025-05-23T18:57:35.814Z",
+[2025-05-23T23:20:50.008Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-23T23:20:50.008Z] NEXTJS_STDOUT: "name": "Beachcomber Dominican Republic",
+[2025-05-23T23:20:50.008Z] NEXTJS_STDOUT: "updatedAt": "2025-05-23T23:05:23.232Z",
+[2025-05-23T23:20:50.008Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-23T23:20:50.008Z] NEXTJS_STDOUT: "onboardingCompleted": false,
+[2025-05-23T23:20:50.008Z] NEXTJS_STDOUT: "keywords": [
+[2025-05-23T23:20:50.008Z] NEXTJS_STDOUT: "recommendations for private beachfront retreats in the Dominican Republic",
+[2025-05-23T23:20:50.008Z] NEXTJS_STDOUT: "where can I find exclusive group beach vacations near the ocean"
+[2025-05-23T23:20:50.008Z] NEXTJS_STDOUT: ],
+[2025-05-23T23:20:50.008Z] NEXTJS_STDOUT: "website": "https://lascanasbeachretreat.com"
+[2025-05-23T23:20:50.008Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:50.008Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:50.008Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Action completed successfully
+[2025-05-23T23:20:50.008Z] NEXTJS_STDOUT: POST /reddit/lead-finder 200 in 57ms
+[2025-05-23T23:20:50.039Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Action called
+[2025-05-23T23:20:50.039Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] User ID: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-23T23:20:50.039Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] User ID type: string
+[2025-05-23T23:20:50.039Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Created Firestore document reference
+[2025-05-23T23:20:50.039Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Collection: profiles
+[2025-05-23T23:20:50.039Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Document path: profiles/user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-23T23:20:50.039Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Reading from Firestore...
+[2025-05-23T23:20:50.161Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Firestore read completed
+[2025-05-23T23:20:50.162Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Document exists: true
+[2025-05-23T23:20:50.162Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Document id: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-23T23:20:50.162Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw data from Firestore: {
+[2025-05-23T23:20:50.162Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-23T23:20:50.162Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-23T23:20:50.162Z] NEXTJS_STDOUT: "seconds": 1748026655,
+[2025-05-23T23:20:50.162Z] NEXTJS_STDOUT: "nanoseconds": 814000000
+[2025-05-23T23:20:50.162Z] NEXTJS_STDOUT: },
+[2025-05-23T23:20:50.162Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-23T23:20:50.162Z] NEXTJS_STDOUT: "name": "Beachcomber Dominican Republic",
+[2025-05-23T23:20:50.162Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-23T23:20:50.162Z] NEXTJS_STDOUT: "seconds": 1748041523,
+[2025-05-23T23:20:50.162Z] NEXTJS_STDOUT: "nanoseconds": 232000000
+[2025-05-23T23:20:50.162Z] NEXTJS_STDOUT: },
+[2025-05-23T23:20:50.162Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-23T23:20:50.162Z] NEXTJS_STDOUT: "onboardingCompleted": false,
+[2025-05-23T23:20:50.162Z] NEXTJS_STDOUT: "keywords": [
+[2025-05-23T23:20:50.162Z] NEXTJS_STDOUT: "recommendations for private beachfront retreats in the Dominican Republic",
+[2025-05-23T23:20:50.162Z] NEXTJS_STDOUT: "where can I find exclusive group beach vacations near the ocean"
+[2025-05-23T23:20:50.162Z] NEXTJS_STDOUT: ],
+[2025-05-23T23:20:50.162Z] NEXTJS_STDOUT: "website": "https://lascanasbeachretreat.com"
+[2025-05-23T23:20:50.162Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:50.162Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw data keys: [
+[2025-05-23T23:20:50.163Z] NEXTJS_STDOUT: 'profilePictureUrl',
+[2025-05-23T23:20:50.163Z] NEXTJS_STDOUT: 'createdAt',
+[2025-05-23T23:20:50.163Z] NEXTJS_STDOUT: 'membership',
+[2025-05-23T23:20:50.163Z] NEXTJS_STDOUT: 'name',
+[2025-05-23T23:20:50.163Z] NEXTJS_STDOUT: 'updatedAt',
+[2025-05-23T23:20:50.163Z] NEXTJS_STDOUT: 'userId',
+[2025-05-23T23:20:50.163Z] NEXTJS_STDOUT: 'onboardingCompleted',
+[2025-05-23T23:20:50.163Z] NEXTJS_STDOUT: 'keywords',
+[2025-05-23T23:20:50.163Z] NEXTJS_STDOUT: 'website'
+[2025-05-23T23:20:50.163Z] NEXTJS_STDOUT: ]
+[2025-05-23T23:20:50.163Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw createdAt from Firestore: Timestamp { seconds: 1748026655, nanoseconds: 814000000 }
+[2025-05-23T23:20:50.163Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw createdAt type: object
+[2025-05-23T23:20:50.163Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw updatedAt from Firestore: Timestamp { seconds: 1748041523, nanoseconds: 232000000 }
+[2025-05-23T23:20:50.163Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw updatedAt type: object
+[2025-05-23T23:20:50.163Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Casting to ProfileDocument
+[2025-05-23T23:20:50.163Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] ProfileDocument createdAt: Timestamp { seconds: 1748026655, nanoseconds: 814000000 }
+[2025-05-23T23:20:50.163Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] ProfileDocument updatedAt: Timestamp { seconds: 1748041523, nanoseconds: 232000000 }
+[2025-05-23T23:20:50.163Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Starting serialization...
+[2025-05-23T23:20:50.163Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Starting serialization
+[2025-05-23T23:20:50.163Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Input profile keys: [
+[2025-05-23T23:20:50.163Z] NEXTJS_STDOUT: 'profilePictureUrl',
+[2025-05-23T23:20:50.163Z] NEXTJS_STDOUT: 'createdAt',
+[2025-05-23T23:20:50.163Z] NEXTJS_STDOUT: 'membership',
+[2025-05-23T23:20:50.163Z] NEXTJS_STDOUT: 'name',
+[2025-05-23T23:20:50.163Z] NEXTJS_STDOUT: 'updatedAt',
+[2025-05-23T23:20:50.163Z] NEXTJS_STDOUT: 'userId',
+[2025-05-23T23:20:50.163Z] NEXTJS_STDOUT: 'onboardingCompleted',
+[2025-05-23T23:20:50.163Z] NEXTJS_STDOUT: 'keywords',
+[2025-05-23T23:20:50.163Z] NEXTJS_STDOUT: 'website'
+[2025-05-23T23:20:50.164Z] NEXTJS_STDOUT: ]
+[2025-05-23T23:20:50.164Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Raw profile data: {
+[2025-05-23T23:20:50.164Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-23T23:20:50.164Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-23T23:20:50.164Z] NEXTJS_STDOUT: "seconds": 1748026655,
+[2025-05-23T23:20:50.164Z] NEXTJS_STDOUT: "nanoseconds": 814000000
+[2025-05-23T23:20:50.164Z] NEXTJS_STDOUT: },
+[2025-05-23T23:20:50.164Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-23T23:20:50.164Z] NEXTJS_STDOUT: "name": "Beachcomber Dominican Republic",
+[2025-05-23T23:20:50.164Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-23T23:20:50.164Z] NEXTJS_STDOUT: "seconds": 1748041523,
+[2025-05-23T23:20:50.164Z] NEXTJS_STDOUT: "nanoseconds": 232000000
+[2025-05-23T23:20:50.164Z] NEXTJS_STDOUT: },
+[2025-05-23T23:20:50.164Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-23T23:20:50.164Z] NEXTJS_STDOUT: "onboardingCompleted": false,
+[2025-05-23T23:20:50.164Z] NEXTJS_STDOUT: "keywords": [
+[2025-05-23T23:20:50.164Z] NEXTJS_STDOUT: "recommendations for private beachfront retreats in the Dominican Republic",
+[2025-05-23T23:20:50.164Z] NEXTJS_STDOUT: "where can I find exclusive group beach vacations near the ocean"
+[2025-05-23T23:20:50.164Z] NEXTJS_STDOUT: ],
+[2025-05-23T23:20:50.164Z] NEXTJS_STDOUT: "website": "https://lascanasbeachretreat.com"
+[2025-05-23T23:20:50.164Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:50.164Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt type: object
+[2025-05-23T23:20:50.164Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt instanceof Timestamp: true
+[2025-05-23T23:20:50.164Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt value: Timestamp { seconds: 1748026655, nanoseconds: 814000000 }
+[2025-05-23T23:20:50.164Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt type: object
+[2025-05-23T23:20:50.164Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt instanceof Timestamp: true
+[2025-05-23T23:20:50.164Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt value: Timestamp { seconds: 1748041523, nanoseconds: 232000000 }
+[2025-05-23T23:20:50.164Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized profile: {
+[2025-05-23T23:20:50.164Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-23T23:20:50.164Z] NEXTJS_STDOUT: "createdAt": "2025-05-23T18:57:35.814Z",
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: "name": "Beachcomber Dominican Republic",
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: "updatedAt": "2025-05-23T23:05:23.232Z",
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: "onboardingCompleted": false,
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: "keywords": [
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: "recommendations for private beachfront retreats in the Dominican Republic",
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: "where can I find exclusive group beach vacations near the ocean"
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: ],
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: "website": "https://lascanasbeachretreat.com"
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized createdAt: 2025-05-23T18:57:35.814Z
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized updatedAt: 2025-05-23T23:05:23.232Z
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialization complete
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Final result: {
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: "isSuccess": true,
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: "message": "Profile retrieved successfully",
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: "data": {
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: "createdAt": "2025-05-23T18:57:35.814Z",
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: "name": "Beachcomber Dominican Republic",
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: "updatedAt": "2025-05-23T23:05:23.232Z",
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: "onboardingCompleted": false,
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: "keywords": [
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: "recommendations for private beachfront retreats in the Dominican Republic",
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: "where can I find exclusive group beach vacations near the ocean"
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: ],
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: "website": "https://lascanasbeachretreat.com"
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Action completed successfully
+[2025-05-23T23:20:50.165Z] NEXTJS_STDOUT: POST /reddit/lead-finder 200 in 127ms
+[2025-05-23T23:20:50.200Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Action called
+[2025-05-23T23:20:50.200Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] User ID: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-23T23:20:50.200Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] User ID type: string
+[2025-05-23T23:20:50.201Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Created Firestore document reference
+[2025-05-23T23:20:50.201Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Collection: profiles
+[2025-05-23T23:20:50.201Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Document path: profiles/user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-23T23:20:50.201Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Reading from Firestore...
+[2025-05-23T23:20:50.290Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Firestore read completed
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Document exists: true
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Document id: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw data from Firestore: {
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: "seconds": 1748026655,
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: "nanoseconds": 814000000
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: },
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: "name": "Beachcomber Dominican Republic",
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: "seconds": 1748041523,
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: "nanoseconds": 232000000
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: },
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: "onboardingCompleted": false,
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: "keywords": [
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: "recommendations for private beachfront retreats in the Dominican Republic",
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: "where can I find exclusive group beach vacations near the ocean"
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: ],
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: "website": "https://lascanasbeachretreat.com"
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw data keys: [
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: 'profilePictureUrl',
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: 'createdAt',
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: 'membership',
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: 'name',
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: 'updatedAt',
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: 'userId',
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: 'onboardingCompleted',
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: 'keywords',
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: 'website'
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: ]
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw createdAt from Firestore: Timestamp { seconds: 1748026655, nanoseconds: 814000000 }
+[2025-05-23T23:20:50.291Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw createdAt type: object
+[2025-05-23T23:20:50.292Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw updatedAt from Firestore: Timestamp { seconds: 1748041523, nanoseconds: 232000000 }
+[2025-05-23T23:20:50.292Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw updatedAt type: object
+[2025-05-23T23:20:50.292Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Casting to ProfileDocument
+[2025-05-23T23:20:50.292Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] ProfileDocument createdAt: Timestamp { seconds: 1748026655, nanoseconds: 814000000 }
+[2025-05-23T23:20:50.292Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] ProfileDocument updatedAt: Timestamp { seconds: 1748041523, nanoseconds: 232000000 }
+[2025-05-23T23:20:50.292Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Starting serialization...
+[2025-05-23T23:20:50.292Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Starting serialization
+[2025-05-23T23:20:50.292Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Input profile keys: [
+[2025-05-23T23:20:50.292Z] NEXTJS_STDOUT: 'profilePictureUrl',
+[2025-05-23T23:20:50.292Z] NEXTJS_STDOUT: 'createdAt',
+[2025-05-23T23:20:50.292Z] NEXTJS_STDOUT: 'membership',
+[2025-05-23T23:20:50.292Z] NEXTJS_STDOUT: 'name',
+[2025-05-23T23:20:50.292Z] NEXTJS_STDOUT: 'updatedAt',
+[2025-05-23T23:20:50.292Z] NEXTJS_STDOUT: 'userId',
+[2025-05-23T23:20:50.292Z] NEXTJS_STDOUT: 'onboardingCompleted',
+[2025-05-23T23:20:50.292Z] NEXTJS_STDOUT: 'keywords',
+[2025-05-23T23:20:50.292Z] NEXTJS_STDOUT: 'website'
+[2025-05-23T23:20:50.292Z] NEXTJS_STDOUT: ]
+[2025-05-23T23:20:50.292Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Raw profile data: {
+[2025-05-23T23:20:50.292Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-23T23:20:50.292Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-23T23:20:50.292Z] NEXTJS_STDOUT: "seconds": 1748026655,
+[2025-05-23T23:20:50.292Z] NEXTJS_STDOUT: "nanoseconds": 814000000
+[2025-05-23T23:20:50.292Z] NEXTJS_STDOUT: },
+[2025-05-23T23:20:50.292Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-23T23:20:50.292Z] NEXTJS_STDOUT: "name": "Beachcomber Dominican Republic",
+[2025-05-23T23:20:50.292Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-23T23:20:50.292Z] NEXTJS_STDOUT: "seconds": 1748041523,
+[2025-05-23T23:20:50.292Z] NEXTJS_STDOUT: "nanoseconds": 232000000
+[2025-05-23T23:20:50.292Z] NEXTJS_STDOUT: },
+[2025-05-23T23:20:50.292Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: "onboardingCompleted": false,
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: "keywords": [
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: "recommendations for private beachfront retreats in the Dominican Republic",
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: "where can I find exclusive group beach vacations near the ocean"
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: ],
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: "website": "https://lascanasbeachretreat.com"
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt type: object
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt instanceof Timestamp: true
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt value: Timestamp { seconds: 1748026655, nanoseconds: 814000000 }
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt type: object
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt instanceof Timestamp: true
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt value: Timestamp { seconds: 1748041523, nanoseconds: 232000000 }
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized profile: {
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: "createdAt": "2025-05-23T18:57:35.814Z",
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: "name": "Beachcomber Dominican Republic",
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: "updatedAt": "2025-05-23T23:05:23.232Z",
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: "onboardingCompleted": false,
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: "keywords": [
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: "recommendations for private beachfront retreats in the Dominican Republic",
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: "where can I find exclusive group beach vacations near the ocean"
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: ],
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: "website": "https://lascanasbeachretreat.com"
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized createdAt: 2025-05-23T18:57:35.814Z
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized updatedAt: 2025-05-23T23:05:23.232Z
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialization complete
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Final result: {
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: "isSuccess": true,
+[2025-05-23T23:20:50.293Z] NEXTJS_STDOUT: "message": "Profile retrieved successfully",
+[2025-05-23T23:20:50.294Z] NEXTJS_STDOUT: "data": {
+[2025-05-23T23:20:50.294Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-23T23:20:50.294Z] NEXTJS_STDOUT: "createdAt": "2025-05-23T18:57:35.814Z",
+[2025-05-23T23:20:50.294Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-23T23:20:50.294Z] NEXTJS_STDOUT: "name": "Beachcomber Dominican Republic",
+[2025-05-23T23:20:50.294Z] NEXTJS_STDOUT: "updatedAt": "2025-05-23T23:05:23.232Z",
+[2025-05-23T23:20:50.294Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-23T23:20:50.294Z] NEXTJS_STDOUT: "onboardingCompleted": false,
+[2025-05-23T23:20:50.294Z] NEXTJS_STDOUT: "keywords": [
+[2025-05-23T23:20:50.294Z] NEXTJS_STDOUT: "recommendations for private beachfront retreats in the Dominican Republic",
+[2025-05-23T23:20:50.294Z] NEXTJS_STDOUT: "where can I find exclusive group beach vacations near the ocean"
+[2025-05-23T23:20:50.294Z] NEXTJS_STDOUT: ],
+[2025-05-23T23:20:50.294Z] NEXTJS_STDOUT: "website": "https://lascanasbeachretreat.com"
+[2025-05-23T23:20:50.294Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:50.294Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:50.294Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Action completed successfully
+[2025-05-23T23:20:50.294Z] NEXTJS_STDOUT: POST /reddit/lead-finder 200 in 96ms
+[2025-05-23T23:20:50.333Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Action called
+[2025-05-23T23:20:50.333Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] User ID: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-23T23:20:50.333Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] User ID type: string
+[2025-05-23T23:20:50.333Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Created Firestore document reference
+[2025-05-23T23:20:50.333Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Collection: profiles
+[2025-05-23T23:20:50.333Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Document path: profiles/user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-23T23:20:50.333Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Reading from Firestore...
+[2025-05-23T23:20:50.397Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Firestore read completed
+[2025-05-23T23:20:50.397Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Document exists: true
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Document id: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw data from Firestore: {
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: "seconds": 1748026655,
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: "nanoseconds": 814000000
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: },
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: "name": "Beachcomber Dominican Republic",
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: "seconds": 1748041523,
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: "nanoseconds": 232000000
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: },
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: "onboardingCompleted": false,
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: "keywords": [
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: "recommendations for private beachfront retreats in the Dominican Republic",
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: "where can I find exclusive group beach vacations near the ocean"
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: ],
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: "website": "https://lascanasbeachretreat.com"
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw data keys: [
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: 'profilePictureUrl',
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: 'createdAt',
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: 'membership',
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: 'name',
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: 'updatedAt',
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: 'userId',
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: 'onboardingCompleted',
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: 'keywords',
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: 'website'
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: ]
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw createdAt from Firestore: Timestamp { seconds: 1748026655, nanoseconds: 814000000 }
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw createdAt type: object
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw updatedAt from Firestore: Timestamp { seconds: 1748041523, nanoseconds: 232000000 }
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw updatedAt type: object
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Casting to ProfileDocument
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] ProfileDocument createdAt: Timestamp { seconds: 1748026655, nanoseconds: 814000000 }
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] ProfileDocument updatedAt: Timestamp { seconds: 1748041523, nanoseconds: 232000000 }
+[2025-05-23T23:20:50.398Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Starting serialization...
+[2025-05-23T23:20:50.399Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Starting serialization
+[2025-05-23T23:20:50.399Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Input profile keys: [
+[2025-05-23T23:20:50.399Z] NEXTJS_STDOUT: 'profilePictureUrl',
+[2025-05-23T23:20:50.399Z] NEXTJS_STDOUT: 'createdAt',
+[2025-05-23T23:20:50.399Z] NEXTJS_STDOUT: 'membership',
+[2025-05-23T23:20:50.399Z] NEXTJS_STDOUT: 'name',
+[2025-05-23T23:20:50.399Z] NEXTJS_STDOUT: 'updatedAt',
+[2025-05-23T23:20:50.399Z] NEXTJS_STDOUT: 'userId',
+[2025-05-23T23:20:50.399Z] NEXTJS_STDOUT: 'onboardingCompleted',
+[2025-05-23T23:20:50.399Z] NEXTJS_STDOUT: 'keywords',
+[2025-05-23T23:20:50.399Z] NEXTJS_STDOUT: 'website'
+[2025-05-23T23:20:50.399Z] NEXTJS_STDOUT: ]
+[2025-05-23T23:20:50.399Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Raw profile data: {
+[2025-05-23T23:20:50.399Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-23T23:20:50.399Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-23T23:20:50.399Z] NEXTJS_STDOUT: "seconds": 1748026655,
+[2025-05-23T23:20:50.399Z] NEXTJS_STDOUT: "nanoseconds": 814000000
+[2025-05-23T23:20:50.399Z] NEXTJS_STDOUT: },
+[2025-05-23T23:20:50.399Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-23T23:20:50.399Z] NEXTJS_STDOUT: "name": "Beachcomber Dominican Republic",
+[2025-05-23T23:20:50.399Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-23T23:20:50.399Z] NEXTJS_STDOUT: "seconds": 1748041523,
+[2025-05-23T23:20:50.399Z] NEXTJS_STDOUT: "nanoseconds": 232000000
+[2025-05-23T23:20:50.399Z] NEXTJS_STDOUT: },
+[2025-05-23T23:20:50.399Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-23T23:20:50.399Z] NEXTJS_STDOUT: "onboardingCompleted": false,
+[2025-05-23T23:20:50.399Z] NEXTJS_STDOUT: "keywords": [
+[2025-05-23T23:20:50.399Z] NEXTJS_STDOUT: "recommendations for private beachfront retreats in the Dominican Republic",
+[2025-05-23T23:20:50.399Z] NEXTJS_STDOUT: "where can I find exclusive group beach vacations near the ocean"
+[2025-05-23T23:20:50.399Z] NEXTJS_STDOUT: ],
+[2025-05-23T23:20:50.399Z] NEXTJS_STDOUT: "website": "https://lascanasbeachretreat.com"
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt type: object
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt instanceof Timestamp: true
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt value: Timestamp { seconds: 1748026655, nanoseconds: 814000000 }
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt type: object
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt instanceof Timestamp: true
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt value: Timestamp { seconds: 1748041523, nanoseconds: 232000000 }
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized profile: {
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: "createdAt": "2025-05-23T18:57:35.814Z",
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: "name": "Beachcomber Dominican Republic",
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: "updatedAt": "2025-05-23T23:05:23.232Z",
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: "onboardingCompleted": false,
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: "keywords": [
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: "recommendations for private beachfront retreats in the Dominican Republic",
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: "where can I find exclusive group beach vacations near the ocean"
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: ],
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: "website": "https://lascanasbeachretreat.com"
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized createdAt: 2025-05-23T18:57:35.814Z
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized updatedAt: 2025-05-23T23:05:23.232Z
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialization complete
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Final result: {
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: "isSuccess": true,
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: "message": "Profile retrieved successfully",
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: "data": {
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: "createdAt": "2025-05-23T18:57:35.814Z",
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: "name": "Beachcomber Dominican Republic",
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: "updatedAt": "2025-05-23T23:05:23.232Z",
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: "onboardingCompleted": false,
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: "keywords": [
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: "recommendations for private beachfront retreats in the Dominican Republic",
+[2025-05-23T23:20:50.400Z] NEXTJS_STDOUT: "where can I find exclusive group beach vacations near the ocean"
+[2025-05-23T23:20:50.401Z] NEXTJS_STDOUT: ],
+[2025-05-23T23:20:50.401Z] NEXTJS_STDOUT: "website": "https://lascanasbeachretreat.com"
+[2025-05-23T23:20:50.401Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:50.401Z] NEXTJS_STDOUT: }
+[2025-05-23T23:20:50.401Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Action completed successfully
+[2025-05-23T23:20:50.401Z] NEXTJS_STDOUT: POST /reddit/lead-finder 200 in 69ms
+[2025-05-23T23:20:50.752Z] NEXTJS_STDOUT: POST /reddit/lead-finder 200 in 317ms
+[2025-05-23T23:20:50.958Z] NEXTJS_STDOUT: POST /reddit/lead-finder 200 in 119ms
+[2025-05-23T23:20:50.966Z] NEXTJS_STDOUT: 📖 [LEAD-GEN] Fetching generated comments for campaign YPTfDMeUv1rhoosYkBC0
+[2025-05-23T23:20:51.266Z] NEXTJS_STDOUT: ✅ [LEAD-GEN] Found 19 comments with enriched data
+[2025-05-23T23:20:51.268Z] NEXTJS_STDOUT: POST /reddit/lead-finder 200 in 304ms
+[2025-05-23T23:20:51.323Z] NEXTJS_STDOUT: POST /reddit/lead-finder 200 in 44ms
+[2025-05-23T23:20:51.363Z] NEXTJS_STDOUT: 📖 [LEAD-GEN] Fetching generated comments for campaign YPTfDMeUv1rhoosYkBC0
+[2025-05-23T23:20:51.567Z] NEXTJS_STDOUT: ✅ [LEAD-GEN] Found 19 comments with enriched data
+[2025-05-23T23:20:51.569Z] NEXTJS_STDOUT: POST /reddit/lead-finder 200 in 209ms
+[2025-05-23T23:20:56.551Z] DEV_INTERRUPT: Development server interrupted by user (Ctrl+C)
+[2025-05-23T23:20:56.560Z] DEV_INTERRUPT: Development server interrupted by user (Ctrl+C)
+[2025-05-23T23:20:56.688Z] NEXTJS_STDOUT: [?25h
+[2025-05-23T23:20:56.699Z] NEXTJS_CLOSE: Next.js dev server stopped with exit code: 0
