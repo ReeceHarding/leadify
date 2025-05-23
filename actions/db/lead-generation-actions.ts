@@ -230,7 +230,14 @@ export async function createGeneratedCommentAction(
   data: CreateGeneratedCommentData
 ): Promise<ActionState<GeneratedCommentDocument>> {
   try {
+    console.log(`\n💾 [LEAD-GEN-DB] ====== CREATING GENERATED COMMENT ======`)
+    console.log(`💾 [LEAD-GEN-DB] Campaign ID: ${data.campaignId}`)
+    console.log(`💾 [LEAD-GEN-DB] Post Title: ${data.postTitle}`)
+    console.log(`💾 [LEAD-GEN-DB] Relevance Score: ${data.relevanceScore}`)
+    console.log(`💾 [LEAD-GEN-DB] Collection: ${LEAD_COLLECTIONS.GENERATED_COMMENTS}`)
+    
     const commentRef = doc(collection(db, LEAD_COLLECTIONS.GENERATED_COMMENTS))
+    console.log(`💾 [LEAD-GEN-DB] Generated doc ID: ${commentRef.id}`)
 
     const commentData: Omit<GeneratedCommentDocument, "createdAt" | "updatedAt" | "id"> & { createdAt?: any; updatedAt?: any } = {
       campaignId: data.campaignId,
@@ -258,17 +265,29 @@ export async function createGeneratedCommentAction(
       updatedAt: serverTimestamp()
     }
 
-
+    console.log(`💾 [LEAD-GEN-DB] Writing to Firestore...`)
     await setDoc(commentRef, removeUndefinedValues(finalCommentData))
+    console.log(`✅ [LEAD-GEN-DB] Successfully wrote to Firestore`)
 
     const createdDoc = await getDoc(commentRef)
+    if (!createdDoc.exists()) {
+      console.error(`❌ [LEAD-GEN-DB] Document not found after creation!`)
+      return {
+        isSuccess: false,
+        message: "Document not found after creation"
+      }
+    }
+    
+    console.log(`✅ [LEAD-GEN-DB] Verified document exists in Firestore`)
+    console.log(`💾 [LEAD-GEN-DB] ====== COMMENT CREATION COMPLETE ======\n`)
+    
     return {
       isSuccess: true,
       message: "Generated comment created successfully",
       data: createdDoc.data() as GeneratedCommentDocument
     }
   } catch (error) {
-    console.error("Error creating generated comment:", error)
+    console.error("❌ [LEAD-GEN-DB] Error creating generated comment:", error)
     return { isSuccess: false, message: "Failed to create generated comment" }
   }
 }

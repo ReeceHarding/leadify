@@ -232,12 +232,14 @@ export default function LeadFinderDashboard() {
   // Real-time listener for leads
   useEffect(() => {
     if (!campaignId) {
+      console.log("🚫 [FRONTEND] No campaignId, clearing leads")
       setLeads([]) // Clear leads if no campaign is selected
       return
     }
 
     setWorkflowProgress((prev: any) => ({ ...prev, isLoading: true, error: null }))
-    console.log(`🔥 Setting up real-time listener for campaign: ${campaignId}`)
+    console.log(`🔥 [FRONTEND] Setting up real-time listener for campaign: ${campaignId}`)
+    console.log(`🔥 [FRONTEND] Collection path: ${LEAD_COLLECTIONS.GENERATED_COMMENTS}`)
 
     const q = query(
       collection(db, LEAD_COLLECTIONS.GENERATED_COMMENTS),
@@ -245,22 +247,42 @@ export default function LeadFinderDashboard() {
       orderBy("createdAt", "desc") // Show newest leads first
     )
 
+    console.log(`🔥 [FRONTEND] Firestore query created, subscribing to real-time updates...`)
+
     const unsubscribe = onSnapshot(
       q,
       querySnapshot => {
-        console.log(`🔥 Firestore snapshot received: ${querySnapshot.docs.length} docs for campaign ${campaignId}`)
+        console.log(`\n🔥 [FRONTEND] ====== FIRESTORE SNAPSHOT RECEIVED ======`)
+        console.log(`🔥 [FRONTEND] Campaign ID: ${campaignId}`)
+        console.log(`🔥 [FRONTEND] Number of documents: ${querySnapshot.docs.length}`)
+        console.log(`🔥 [FRONTEND] Query metadata:`, {
+          fromCache: querySnapshot.metadata.fromCache,
+          hasPendingWrites: querySnapshot.metadata.hasPendingWrites
+        })
         
         // Track new leads for animation
         const currentLeadIds = new Set(leads.map(l => l.id))
         const newIds = new Set<string>()
         
-        const fetchedLeads: LeadResult[] = querySnapshot.docs.map(doc => {
+        const fetchedLeads: LeadResult[] = querySnapshot.docs.map((doc, index) => {
           const data = doc.data() as SerializedGeneratedCommentDocument
+          
+          console.log(`🔍 [FRONTEND] Processing document ${index + 1}/${querySnapshot.docs.length}:`)
+          console.log(`🔍 [FRONTEND] Doc ID: ${doc.id}`)
+          console.log(`🔍 [FRONTEND] Doc data:`, {
+            campaignId: data.campaignId,
+            postTitle: data.postTitle,
+            relevanceScore: data.relevanceScore,
+            status: data.status,
+            createdAt: data.createdAt,
+            keyword: data.keyword,
+            postScore: data.postScore
+          })
           
           // Check if this is a new lead
           if (!currentLeadIds.has(doc.id)) {
             newIds.add(doc.id)
-            console.log(`✨ New lead detected: ${data.postTitle}`)
+            console.log(`✨ [FRONTEND] New lead detected: ${data.postTitle}`)
           }
           
           // Derive subreddit from postUrl if possible, or use a placeholder
@@ -297,11 +319,13 @@ export default function LeadFinderDashboard() {
           }
         })
         
+        console.log(`🎯 [FRONTEND] Setting ${fetchedLeads.length} leads in state`)
         setLeads(fetchedLeads)
         setNewLeadIds(newIds)
         
         // Clear new lead indicators after animation
         if (newIds.size > 0) {
+          console.log(`✨ [FRONTEND] ${newIds.size} new leads detected`)
           // Show toast for new leads
           const newLeadsArray = Array.from(newIds)
           const firstNewLead = fetchedLeads.find(l => l.id === newLeadsArray[0])
@@ -324,11 +348,12 @@ export default function LeadFinderDashboard() {
           isLoading: false,
         }))
         if (fetchedLeads.length === 0 && !workflowProgress.isLoading) {
-            console.log("🔥 No leads found in snapshot, workflow might be running or no results yet.")
+            console.log("🔥 [FRONTEND] No leads found in snapshot, workflow might be running or no results yet.")
         }
+        console.log(`🔥 [FRONTEND] ====== SNAPSHOT PROCESSING COMPLETE ======\n`)
       },
       error => {
-        console.error("Error fetching real-time leads:", error)
+        console.error("❌ [FRONTEND] Error fetching real-time leads:", error)
         setWorkflowProgress((prev: any) => ({
           ...prev,
           isLoading: false,
@@ -468,6 +493,7 @@ export default function LeadFinderDashboard() {
         )
       }
 
+      console.log(`🎯 [FRONTEND] Setting campaign ID: ${realCampaignId}`)
       setCampaignId(realCampaignId)
 
       // Step 4: Run workflow only if needed

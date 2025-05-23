@@ -83,11 +83,6 @@ export default function ProfileStep({
         <p className="text-base leading-relaxed text-gray-400">
           First, let's create your professional profile. This helps us personalize your Reddit lead generation experience.
         </p>
-        <div className="mx-auto max-w-md rounded-lg border border-blue-600/20 bg-blue-600/5 p-3">
-          <p className="text-sm text-blue-200">
-            ⏱️ <strong>Takes 30 seconds</strong> • We'll use this to create authentic comments that sound like you
-          </p>
-        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
