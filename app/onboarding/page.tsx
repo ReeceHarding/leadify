@@ -286,6 +286,20 @@ export default function OnboardingPage() {
     }
   }
 
+  const [pendingAutoSave, setPendingAutoSave] = useState<{
+    data: Partial<typeof onboardingData>;
+    shouldSave: boolean;
+  } | null>(null)
+
+  // Handle auto-save in useEffect to avoid updating component during render
+  useEffect(() => {
+    if (pendingAutoSave?.shouldSave && user?.id) {
+      console.log("💾 [ONBOARDING] Processing auto-save...")
+      saveProgress(onboardingData)
+      setPendingAutoSave(null)
+    }
+  }, [pendingAutoSave, user?.id, onboardingData])
+
   const updateData = (
     data: Partial<typeof onboardingData>,
     autoSave: boolean = false
@@ -315,14 +329,14 @@ export default function OnboardingPage() {
       console.log("🔍 [ONBOARDING] Keywords specifically:", updated.keywords)
       console.log("🔍 [ONBOARDING] Keywords length:", updated.keywords.length)
 
-      // Auto-save important updates like keywords generation
-      if (autoSave && user?.id) {
-        console.log("💾 [ONBOARDING] Triggering immediate auto-save...")
-        saveProgress(updated)
-      }
-
       return updated
     })
+
+    // Schedule auto-save if requested
+    if (autoSave && user?.id) {
+      console.log("💾 [ONBOARDING] Scheduling auto-save...")
+      setPendingAutoSave({ data, shouldSave: true })
+    }
   }
 
   // Progressive save function to save data after each step

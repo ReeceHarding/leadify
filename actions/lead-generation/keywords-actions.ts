@@ -52,65 +52,51 @@ export async function generateKeywordsAction(
     // Step 2: Build strategic prompt for o3-mini
     console.log("🔍 [KEYWORDS-ACTION] Building strategic system prompt for o3-mini")
 
-    const strategicPrompt = `Analyze this business website and generate highly specific Reddit keywords for organic lead generation.
+    const strategicPrompt = `You are playing a JEOPARDY GAME for Reddit lead generation. Your job is to create the QUESTIONS when given the ANSWER.
 
-WEBSITE CONTENT:
+THE ANSWER IS: ${websiteTitle || 'This business'}
+
+WEBSITE CONTENT TO ANALYZE:
 Title: ${websiteTitle}
 Content: ${websiteContent.slice(0, 8000)}
 
-${data.refinement ? `\nADDITIONAL CONTEXT/REFINEMENT: ${data.refinement}` : ''}
+${data.refinement ? `\nUSER REFINEMENT: ${data.refinement}` : ''}
 
-STRATEGIC ANALYSIS REQUIRED:
+🎯 JEOPARDY STRATEGY:
+Think: "If [BUSINESS NAME] is the perfect answer, what would be the exact questions people ask on Reddit?"
 
-1. TARGET CUSTOMER ANALYSIS:
-   - Who specifically needs this service/product?
-   - What is their exact job title, role, or situation?
-   - What specific pain point keeps them up at night?
-   - Where are they in their journey (just starting, stuck, comparing options)?
+Examples for a Caribbean hotel like Las Canas Beach Retreat:
+- ANSWER: "Las Canas Beach Retreat"
+- QUESTIONS: "What is the best wedding venue in the Dominican Republic?"
+- QUESTIONS: "Where should I host my family vacation in the Dominican Republic?"
+- QUESTIONS: "Best place to stay in the Dominican Republic?"
+- QUESTIONS: "Best yoga retreat in the Dominican Republic?"
 
-2. UNIQUE VALUE PROPOSITION:
-   - What makes this business different from competitors?
-   - What specific outcome do they deliver?
-   - What's their unique approach or methodology?
+🎯 YOUR TASK:
+1. Study the website content deeply
+2. Identify what this business is the PERFECT answer for
+3. Generate 8-12 specific Reddit questions where this business would be mentioned naturally
+4. Focus on high-value threads where people are actively seeking recommendations
+5. Use natural Reddit language (casual, conversational)
+6. Target posts asking for comparisons, recommendations, and "where to find" advice
 
-3. REDDIT BEHAVIOR ANALYSIS:
-   - What specific questions would the target customer ask on Reddit?
-   - What subreddits would they browse when facing this pain?
-   - How would they phrase their requests for help?
-   - What comparison posts would they create?
-
-4. ORGANIC COMMENTING OPPORTUNITIES:
-   Generate keywords that represent posts where the business owner could:
-   - Share genuine experience and expertise
-   - Mention their business as ONE option among several
-   - Provide value without being salesy
-   - Sound like a helpful user, not a vendor
-
-KEYWORD REQUIREMENTS:
-- 8-12 highly specific search phrases
-- Focus on solution-seeking, not just problems
+⚡ KEYWORD REQUIREMENTS:
+- Each keyword = a Reddit post title where someone asks for help
+- Focus on questions that lead to organic recommendations  
+- Include location-specific queries when relevant
 - Include comparison requests ("X vs Y")
-- Include specific "where to find" or "how to hire" queries
-- Target posts asking for recommendations
-- Use natural Reddit language (casual, not corporate)
-- Each keyword should represent a post this business could authentically comment on
+- Include "best", "where to find", "recommendations for" phrases
+- Avoid corporate jargon - use how real people talk on Reddit
 
-FORMAT EXAMPLES FOR TECH/SOFTWARE BUSINESSES:
-✅ GOOD: "where to hire AI developers for startups"
-✅ GOOD: "best platforms to find machine learning engineers"
-✅ GOOD: "freelance developers vs development agencies comparison"
-✅ GOOD: "how to find developers who understand AI integration"
-
-❌ BAD: "need help with software development" (too generic)
-❌ BAD: "software development services" (not a Reddit question)
-❌ BAD: "AI development company recommendations" (too corporate)
+📝 STRATEGIC ANALYSIS:
+Also provide insights about the ideal customer profile, unique value proposition, and target pain points to inform the keyword strategy.
 
 Return response in this exact JSON format:
 {
-  "idealCustomerProfile": "Detailed 2-3 sentence description of the exact target customer",
-  "uniqueValueProposition": "1-2 sentences describing what makes this business unique",
+  "idealCustomerProfile": "Detailed 2-3 sentence description of the exact target customer who would ask these questions",
+  "uniqueValueProposition": "1-2 sentences describing what makes this business the perfect answer",
   "targetPainPoints": ["specific pain point 1", "specific pain point 2", "specific pain point 3"],
-  "keywords": ["specific keyword 1", "specific keyword 2", "etc..."]
+  "keywords": ["question 1 where this business is the answer", "question 2 where this business is the answer", "etc..."]
 }`
 
     console.log("🔍 [KEYWORDS-ACTION] Calling o3-mini with strategic prompt")

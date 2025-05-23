@@ -199,7 +199,7 @@ export default function KeywordsStep({
               <Textarea
                 value={refinementInput}
                 onChange={e => setRefinementInput(e.target.value)}
-                placeholder="Add specific context about your target customers or unique approach... (e.g., 'focus on companies looking to hire software developers with AI experience')"
+                placeholder="Describe in 1-2 sentences the types of users you're looking to find on Reddit - ie people looking for recommendations for large group event venues in the Dominican Republic like weddings and large family get togethers"
                 className="min-h-[100px] border-gray-600 bg-gray-800 text-white placeholder:text-gray-500"
               />
               <p className="text-sm text-gray-400">
