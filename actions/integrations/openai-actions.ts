@@ -54,22 +54,22 @@ CRITICAL SCORING (1-100) - BE HARSH:
 - 30-49: Weak connection, commenting would be obvious self-promotion  
 - 1-29: No relevant connection, would be spam to comment
 
-GENERATE 3 COMMENT TIERS (all must be SHORT, authentic, helpful, and non-salesy):
+GENERATE 3 COMMENT TIERS (ULTRA-SHORT, authentic, helpful, non-salesy):
 
-1. FREE COMMENT: Generic helpful advice anyone could give (no mention of any company)
-2. MEDIUM COMMENT: Helpful advice with subtle, natural mention of being a CEO/having experience 
-3. PREMIUM COMMENT: Helpful advice that naturally weaves in Gauntlet AI mention as ONE option among others
+1. FREE COMMENT: Ultra-minimal helpful advice (1-10 words IDEAL, max 15 words)
+2. MEDIUM COMMENT: Minimal advice with subtle CEO mention (1-10 words IDEAL, max 15 words)
+3. PREMIUM COMMENT: Brief advice mentioning Gauntlet AI naturally (1-10 words IDEAL, max 20 words)
 
 ALL COMMENTS MUST BE:
-- EXTREMELY SHORT and concise (30-80 words MAX)
+- EXTREMELY MINIMAL (1-10 words is PERFECT)
 - Sound authentic and genuinely helpful
 - Reddit-appropriate (casual, not corporate)
-- Provide real value despite being brief
+- Provide real value despite extreme brevity
 - Never pushy or salesy
-- Get straight to the point
+- Get straight to the core point
 - If score is below 50, make comments very generic with minimal/no company mention
 
-PRIORITIZE BREVITY ABOVE ALL ELSE. Be extremely critical with scoring. Most threads should score 30-60 unless they're perfect matches.`
+PRIORITIZE EXTREME BREVITY - EVERY WORD MUST COUNT. Most threads should score 30-60 unless they're perfect matches.`
 
     const { object } = await generateObject({
       model: openai('o3-mini'),
