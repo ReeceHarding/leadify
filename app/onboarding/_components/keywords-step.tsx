@@ -32,6 +32,7 @@ export default function KeywordsStep({
   const [newKeyword, setNewKeyword] = useState("")
   const [refinementPrompt, setRefinementPrompt] = useState("")
   const [hasGenerated, setHasGenerated] = useState(false)
+  const [editingIndex, setEditingIndex] = useState<number | null>(null)
 
   // Auto-generate keywords when component mounts if website is provided
   useEffect(() => {
@@ -87,6 +88,21 @@ export default function KeywordsStep({
     onUpdate({ keywords: updatedKeywords })
   }
 
+  const handleKeywordClick = (index: number) => {
+    setEditingIndex(index)
+  }
+
+  const handleKeywordBlur = (
+    e: React.FocusEvent<HTMLInputElement>,
+    index: number,
+    keyword: string
+  ) => {
+    setEditingIndex(null)
+    if (e.target.value.trim() === "") {
+      removeKeyword(keyword)
+    }
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (data.keywords.length > 0) {
@@ -127,36 +143,56 @@ export default function KeywordsStep({
             <h3 className="text-lg font-semibold text-gray-900">
               Generated Keywords
             </h3>
-            <div className="flex flex-wrap justify-center gap-2">
+            <div className="flex flex-wrap justify-center gap-3">
               {data.keywords.map((keyword, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: index * 0.1 }}
+                  className="group relative"
                 >
-                  <Badge
-                    variant="outline"
-                    className="group relative cursor-pointer px-3 py-1 text-sm"
-                  >
-                    <input
-                      type="text"
-                      value={keyword}
-                      onChange={e => editKeyword(index, e.target.value)}
-                      className="w-full border-none bg-transparent outline-none"
-                      onBlur={e => {
-                        if (e.target.value.trim() === "") {
-                          removeKeyword(keyword)
-                        }
-                      }}
-                    />
-                    <button
-                      onClick={() => removeKeyword(keyword)}
-                      className="ml-2 opacity-0 transition-opacity group-hover:opacity-100"
+                  {editingIndex === index ? (
+                    <div className="flex items-center rounded-md border border-gray-300 bg-white px-3 py-2">
+                      <input
+                        type="text"
+                        value={keyword}
+                        onChange={e => editKeyword(index, e.target.value)}
+                        onBlur={e => handleKeywordBlur(e, index, keyword)}
+                        onKeyDown={e => {
+                          if (e.key === "Enter") {
+                            setEditingIndex(null)
+                          }
+                        }}
+                        className="min-w-0 flex-1 border-none bg-transparent text-sm outline-none"
+                        autoFocus
+                        style={{ width: `${keyword.length + 2}ch` }}
+                      />
+                      <button
+                        onClick={() => removeKeyword(keyword)}
+                        className="ml-2 text-gray-400 hover:text-gray-600"
+                      >
+                        <X className="size-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <Badge
+                      variant="outline"
+                      className="cursor-pointer px-3 py-2 text-sm transition-colors hover:bg-gray-50"
+                      onClick={() => handleKeywordClick(index)}
                     >
-                      <X className="size-3" />
-                    </button>
-                  </Badge>
+                      <span className="break-words">{keyword}</span>
+                      <button
+                        onClick={e => {
+                          e.stopPropagation()
+                          removeKeyword(keyword)
+                        }}
+                        className="ml-2 opacity-0 transition-opacity group-hover:opacity-100"
+                      >
+                        <X className="size-3" />
+                      </button>
+                    </Badge>
+                  )}
                 </motion.div>
               ))}
             </div>
