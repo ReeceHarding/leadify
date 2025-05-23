@@ -456,18 +456,20 @@ export default function LeadFinderDashboard() {
         <div className="space-y-6">
           {/* Campaign Controls */}
           <div className="flex items-center justify-between gap-4">
-            {/* Left side - Onboarding button */}
-            <Button
-              variant="outline"
-              onClick={() => (window.location.href = "/onboarding")}
-              className="border-orange-500 text-orange-600 hover:bg-orange-50 hover:text-orange-700 dark:border-orange-400 dark:text-orange-400 dark:hover:bg-orange-900/20 dark:hover:text-orange-300"
-            >
-              <Target className="mr-2 size-4" />
-              Start Onboarding Here
-            </Button>
+            {/* Left side - Onboarding button (only show when no keywords error) */}
+            {workflowProgress.error?.includes("No keywords found") && (
+              <Button
+                variant="outline"
+                onClick={() => (window.location.href = "/onboarding")}
+                className="border-orange-500 text-orange-600 hover:bg-orange-50 hover:text-orange-700 dark:border-orange-400 dark:text-orange-400 dark:hover:bg-orange-900/20 dark:hover:text-orange-300"
+              >
+                <Target className="mr-2 size-4" />
+                Start Onboarding Here
+              </Button>
+            )}
 
             {/* Right side - Existing controls */}
-            <div className="flex items-center gap-4">
+            <div className="ml-auto flex items-center gap-4">
               <Select
                 value={selectedLength}
                 onValueChange={(value: any) => setSelectedLength(value)}
