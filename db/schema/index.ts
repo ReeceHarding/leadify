@@ -6,3 +6,4 @@ Exports all database schema types and interfaces.
 
 // Export Firestore types
 export * from "../firestore/collections"
+export * from "../firestore/lead-generation-collections"
