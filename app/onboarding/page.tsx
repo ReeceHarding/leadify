@@ -151,10 +151,50 @@ export default function OnboardingPage() {
           // Determine which step to start on based on existing data
           if (profileResult.data.onboardingCompleted) {
             console.log(
-              "🔍 [ONBOARDING] Onboarding already completed, redirecting to lead finder"
+              "🔍 [ONBOARDING] Onboarding marked as completed, checking data completeness..."
             )
-            router.push("/reddit/lead-finder")
-            return
+
+            // Verify that all required data is actually present
+            const hasCompleteData =
+              profileResult.data.name &&
+              profileResult.data.name !== "" &&
+              profileResult.data.website &&
+              profileResult.data.website !== "" &&
+              profileResult.data.keywords &&
+              profileResult.data.keywords.length > 0
+
+            console.log("🔍 [ONBOARDING] Data completeness check:")
+            console.log(
+              "🔍 [ONBOARDING] - name present:",
+              !!(profileResult.data.name && profileResult.data.name !== "")
+            )
+            console.log(
+              "🔍 [ONBOARDING] - website present:",
+              !!(
+                profileResult.data.website && profileResult.data.website !== ""
+              )
+            )
+            console.log(
+              "🔍 [ONBOARDING] - keywords present:",
+              !!(
+                profileResult.data.keywords &&
+                profileResult.data.keywords.length > 0
+              )
+            )
+            console.log("🔍 [ONBOARDING] - hasCompleteData:", hasCompleteData)
+
+            if (hasCompleteData) {
+              console.log(
+                "🔍 [ONBOARDING] Data is complete, redirecting to lead finder"
+              )
+              router.push("/reddit/lead-finder")
+              return
+            } else {
+              console.log(
+                "🔍 [ONBOARDING] Onboarding marked complete but data is incomplete, continuing onboarding flow"
+              )
+              // Continue with normal onboarding flow to fill missing data
+            }
           } else {
             // Check if user has started onboarding (has any data beyond defaults)
             const hasStartedOnboarding =
@@ -411,6 +451,43 @@ export default function OnboardingPage() {
 
     if (!user?.id) {
       console.error("🔍 [ONBOARDING] No user ID found")
+      return
+    }
+
+    // Validate that all required data is present before completing
+    const hasRequiredData =
+      onboardingData.name &&
+      onboardingData.name !== "" &&
+      onboardingData.website &&
+      onboardingData.website !== "" &&
+      onboardingData.keywords &&
+      onboardingData.keywords.length > 0
+
+    console.log("🔍 [ONBOARDING] Pre-completion validation:")
+    console.log(
+      "🔍 [ONBOARDING] - name valid:",
+      !!(onboardingData.name && onboardingData.name !== "")
+    )
+    console.log(
+      "🔍 [ONBOARDING] - website valid:",
+      !!(onboardingData.website && onboardingData.website !== "")
+    )
+    console.log(
+      "🔍 [ONBOARDING] - keywords valid:",
+      !!(onboardingData.keywords && onboardingData.keywords.length > 0)
+    )
+    console.log("🔍 [ONBOARDING] - hasRequiredData:", hasRequiredData)
+
+    if (!hasRequiredData) {
+      console.error(
+        "🔍 [ONBOARDING] Cannot complete onboarding - missing required data"
+      )
+      console.error("🔍 [ONBOARDING] Missing data details:")
+      if (!onboardingData.name) console.error("🔍 [ONBOARDING] - Missing name")
+      if (!onboardingData.website)
+        console.error("🔍 [ONBOARDING] - Missing website")
+      if (!onboardingData.keywords || onboardingData.keywords.length === 0)
+        console.error("🔍 [ONBOARDING] - Missing keywords")
       return
     }
 
