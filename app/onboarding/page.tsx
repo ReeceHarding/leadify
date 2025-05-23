@@ -287,8 +287,8 @@ export default function OnboardingPage() {
   }
 
   const [pendingAutoSave, setPendingAutoSave] = useState<{
-    data: Partial<typeof onboardingData>;
-    shouldSave: boolean;
+    data: Partial<typeof onboardingData>
+    shouldSave: boolean
   } | null>(null)
 
   // Handle auto-save in useEffect to avoid updating component during render
@@ -602,22 +602,18 @@ export default function OnboardingPage() {
           ))}
         </div>
         <div className="flex justify-center space-x-8 text-xs text-gray-500">
-          {[
-            "Profile", 
-            "Website", 
-            "Keywords", 
-            "Reddit", 
-            "Launch"
-          ].map((stepName, index) => (
-            <span
-              key={stepName}
-              className={`${
-                index <= currentStepIndex ? "text-blue-400" : "text-gray-600"
-              }`}
-            >
-              {stepName}
-            </span>
-          ))}
+          {["Profile", "Website", "Keywords", "Reddit", "Launch"].map(
+            (stepName, index) => (
+              <span
+                key={stepName}
+                className={`${
+                  index <= currentStepIndex ? "text-blue-400" : "text-gray-600"
+                }`}
+              >
+                {stepName}
+              </span>
+            )
+          )}
         </div>
       </div>
     </div>

@@ -51,9 +51,12 @@ export async function exportCampaignToFirebaseAction(
 
     // Get campaign details
     const campaignDoc = await getDocs(
-      query(collection(db, LEAD_COLLECTIONS.CAMPAIGNS), where("id", "==", campaignId))
+      query(
+        collection(db, LEAD_COLLECTIONS.CAMPAIGNS),
+        where("id", "==", campaignId)
+      )
     )
-    
+
     if (campaignDoc.empty) {
       return { isSuccess: false, message: "Campaign not found" }
     }
@@ -89,10 +92,14 @@ export async function exportCampaignToFirebaseAction(
     // Combine all data for export
     const exportData: FirebaseExportData[] = []
 
-    comments.docs.forEach((commentDoc) => {
+    comments.docs.forEach(commentDoc => {
       const comment = commentDoc.data()
-      const thread = threads.docs.find(t => t.data().threadId === comment.threadId)
-      const searchResult = searchResults.docs.find(sr => sr.data().threadId === comment.threadId)
+      const thread = threads.docs.find(
+        t => t.data().threadId === comment.threadId
+      )
+      const searchResult = searchResults.docs.find(
+        sr => sr.data().threadId === comment.threadId
+      )
 
       if (thread && searchResult) {
         const threadData = thread.data()
@@ -127,12 +134,15 @@ export async function exportCampaignToFirebaseAction(
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       })
-      
+
       await setDoc(recordRef, recordData)
     }
 
     // Create export summary
-    const summaryRef = doc(collection(db, `campaign_export_summaries`), exportId)
+    const summaryRef = doc(
+      collection(db, `campaign_export_summaries`),
+      exportId
+    )
     const summary = removeUndefinedValues({
       id: exportId,
       campaignId: campaign.id,
@@ -146,7 +156,9 @@ export async function exportCampaignToFirebaseAction(
 
     await setDoc(summaryRef, summary)
 
-    console.log(`✅ Exported ${exportData.length} records to Firebase collection: ${exportCollectionName}`)
+    console.log(
+      `✅ Exported ${exportData.length} records to Firebase collection: ${exportCollectionName}`
+    )
 
     return {
       isSuccess: true,
@@ -160,19 +172,21 @@ export async function exportCampaignToFirebaseAction(
     console.error("Error exporting to Firebase:", error)
     return {
       isSuccess: false,
-      message: `Failed to export to Firebase: ${error instanceof Error ? error.message : 'Unknown error'}`
+      message: `Failed to export to Firebase: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }
 
-export async function getAllCampaignExportsAction(): Promise<ActionState<any[]>> {
+export async function getAllCampaignExportsAction(): Promise<
+  ActionState<any[]>
+> {
   try {
     const exportsQuery = query(
       collection(db, "campaign_export_summaries"),
       orderBy("exportedAt", "desc")
     )
     const exportsSnapshot = await getDocs(exportsQuery)
-    
+
     const exports = exportsSnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
@@ -187,7 +201,7 @@ export async function getAllCampaignExportsAction(): Promise<ActionState<any[]>>
     console.error("Error getting campaign exports:", error)
     return {
       isSuccess: false,
-      message: `Failed to get campaign exports: ${error instanceof Error ? error.message : 'Unknown error'}`
+      message: `Failed to get campaign exports: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }
@@ -198,7 +212,10 @@ export async function getCampaignExportDataAction(
   try {
     // Get export summary to find collection name
     const summaryDoc = await getDocs(
-      query(collection(db, "campaign_export_summaries"), where("id", "==", exportId))
+      query(
+        collection(db, "campaign_export_summaries"),
+        where("id", "==", exportId)
+      )
     )
 
     if (summaryDoc.empty) {
@@ -215,7 +232,9 @@ export async function getCampaignExportDataAction(
     )
     const exportDataSnapshot = await getDocs(exportDataQuery)
 
-    const exportData = exportDataSnapshot.docs.map(doc => doc.data() as FirebaseExportData)
+    const exportData = exportDataSnapshot.docs.map(
+      doc => doc.data() as FirebaseExportData
+    )
 
     return {
       isSuccess: true,
@@ -226,7 +245,7 @@ export async function getCampaignExportDataAction(
     console.error("Error getting export data:", error)
     return {
       isSuccess: false,
-      message: `Failed to get export data: ${error instanceof Error ? error.message : 'Unknown error'}`
+      message: `Failed to get export data: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
-} 
+}

@@ -41,11 +41,16 @@ export const HeroSection = () => {
 
     setIsResetting(true)
     try {
-      console.log("🔧 [DEBUG] Starting complete account reset for user:", user.id)
+      console.log(
+        "🔧 [DEBUG] Starting complete account reset for user:",
+        user.id
+      )
       const result = await resetAccountAction(user.id)
-      
+
       if (result.isSuccess) {
-        console.log("✅ [DEBUG] Account reset successful, redirecting to onboarding")
+        console.log(
+          "✅ [DEBUG] Account reset successful, redirecting to onboarding"
+        )
         alert("✅ Account reset successfully! Redirecting to onboarding...")
         window.location.href = "/onboarding"
       } else {

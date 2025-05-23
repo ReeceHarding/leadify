@@ -8,24 +8,27 @@ Coordinates Firecrawl, Google Search, Reddit API, and OpenAI integrations.
 "use server"
 
 import { ActionState } from "@/types"
-import { updateCampaignAction, getCampaignByIdAction } from "@/actions/db/campaign-actions"
+import {
+  updateCampaignAction,
+  getCampaignByIdAction
+} from "@/actions/db/campaign-actions"
 import { scrapeWebsiteAction } from "@/actions/integrations/firecrawl-actions"
 import { searchMultipleKeywordsAction } from "@/actions/integrations/google-search-actions"
 import { fetchMultipleRedditThreadsAction } from "@/actions/integrations/reddit-actions"
 import { batchScoreThreadsWithThreeTierCommentsAction } from "@/actions/integrations/openai-actions"
-import { 
+import {
   LEAD_COLLECTIONS,
   CreateSearchResultData,
   CreateRedditThreadData,
   CreateGeneratedCommentData
 } from "@/db/schema"
 import { db } from "@/db/db"
-import { 
-  collection, 
-  doc, 
-  setDoc, 
+import {
+  collection,
+  doc,
+  setDoc,
   serverTimestamp,
-  writeBatch 
+  writeBatch
 } from "firebase/firestore"
 import { removeUndefinedValues } from "@/lib/firebase-utils"
 
@@ -59,8 +62,10 @@ export async function runFullLeadGenerationWorkflowAction(
   try {
     // Step 1: Get campaign details
     progress.currentStep = "Loading campaign"
-    console.log(`🚀 Starting lead generation workflow for campaign: ${campaignId}`)
-    
+    console.log(
+      `🚀 Starting lead generation workflow for campaign: ${campaignId}`
+    )
+
     const campaignResult = await getCampaignByIdAction(campaignId)
     if (!campaignResult.isSuccess) {
       progress.error = campaignResult.message
@@ -81,25 +86,30 @@ export async function runFullLeadGenerationWorkflowAction(
     // Step 2: Scrape website content
     progress.currentStep = "Scraping website"
     console.log(`🔥 Step 2: Scraping website: ${campaign.website}`)
-    
+
     let websiteContent = campaign.websiteContent
     let skipScraping = false
-    
+
     // Check if we already have recent website content (less than 24 hours old)
     if (websiteContent && campaign.updatedAt) {
       // Handle serialized updatedAt as ISO string
       const lastUpdate = new Date(campaign.updatedAt)
       const now = new Date()
-      const hoursSinceUpdate = (now.getTime() - lastUpdate.getTime()) / (1000 * 60 * 60)
-      
+      const hoursSinceUpdate =
+        (now.getTime() - lastUpdate.getTime()) / (1000 * 60 * 60)
+
       if (hoursSinceUpdate < 24) {
-        console.log(`🔥 Using cached website content (${Math.round(hoursSinceUpdate)}h old)`)
+        console.log(
+          `🔥 Using cached website content (${Math.round(hoursSinceUpdate)}h old)`
+        )
         skipScraping = true
       } else {
-        console.log(`🔥 Website content is ${Math.round(hoursSinceUpdate)}h old, re-scraping...`)
+        console.log(
+          `🔥 Website content is ${Math.round(hoursSinceUpdate)}h old, re-scraping...`
+        )
       }
     }
-    
+
     if (!skipScraping) {
       console.log(`🔥 Scraping website: ${campaign.website}`)
       const scrapeResult = await scrapeWebsiteAction(campaign.website)
@@ -111,22 +121,25 @@ export async function runFullLeadGenerationWorkflowAction(
         })
         await updateCampaignAction(campaignId, { status: "error" })
         progress.error = scrapeResult.message
-        return { isSuccess: false, message: `Website scraping failed: ${scrapeResult.message}` }
+        return {
+          isSuccess: false,
+          message: `Website scraping failed: ${scrapeResult.message}`
+        }
       }
 
       // Update campaign with fresh website content
       websiteContent = scrapeResult.data.content
-      await updateCampaignAction(campaignId, { 
-        websiteContent: websiteContent 
+      await updateCampaignAction(campaignId, {
+        websiteContent: websiteContent
       })
 
       progress.results.push({
         step: "Scrape Website",
         success: true,
         message: `Website scraped: ${scrapeResult.data.content.length} characters`,
-        data: { 
+        data: {
           title: scrapeResult.data.title,
-          contentLength: scrapeResult.data.content.length 
+          contentLength: scrapeResult.data.content.length
         }
       })
     } else {
@@ -134,7 +147,7 @@ export async function runFullLeadGenerationWorkflowAction(
         step: "Scrape Website",
         success: true,
         message: `Using cached website content: ${websiteContent?.length || 0} characters`,
-        data: { 
+        data: {
           cached: true,
           contentLength: websiteContent?.length || 0
         }
@@ -152,14 +165,19 @@ export async function runFullLeadGenerationWorkflowAction(
       progress.error = "No website content available"
       return { isSuccess: false, message: "No website content available" }
     }
-    
+
     progress.completedSteps++
 
     // Step 3: Search for Reddit threads
     progress.currentStep = "Searching Reddit threads"
-    console.log(`🔍 Step 3: Searching for Reddit threads with ${campaign.keywords.length} keywords`)
-    
-    const searchResult = await searchMultipleKeywordsAction(campaign.keywords, 10)
+    console.log(
+      `🔍 Step 3: Searching for Reddit threads with ${campaign.keywords.length} keywords`
+    )
+
+    const searchResult = await searchMultipleKeywordsAction(
+      campaign.keywords,
+      10
+    )
     if (!searchResult.isSuccess) {
       progress.results.push({
         step: "Search Reddit",
@@ -168,11 +186,14 @@ export async function runFullLeadGenerationWorkflowAction(
       })
       await updateCampaignAction(campaignId, { status: "error" })
       progress.error = searchResult.message
-      return { isSuccess: false, message: `Reddit search failed: ${searchResult.message}` }
+      return {
+        isSuccess: false,
+        message: `Reddit search failed: ${searchResult.message}`
+      }
     }
 
     // Save search results to database
-    const allSearchResults = searchResult.data.flatMap(keywordResult => 
+    const allSearchResults = searchResult.data.flatMap(keywordResult =>
       keywordResult.results.map(result => ({
         campaignId,
         keyword: keywordResult.keyword,
@@ -199,15 +220,15 @@ export async function runFullLeadGenerationWorkflowAction(
     }
     await batch.commit()
 
-    await updateCampaignAction(campaignId, { 
-      totalSearchResults: allSearchResults.length 
+    await updateCampaignAction(campaignId, {
+      totalSearchResults: allSearchResults.length
     })
 
     progress.results.push({
       step: "Search Reddit",
       success: true,
       message: `Found ${allSearchResults.length} Reddit threads`,
-      data: { 
+      data: {
         totalResults: allSearchResults.length,
         keywords: campaign.keywords.length
       }
@@ -216,8 +237,10 @@ export async function runFullLeadGenerationWorkflowAction(
 
     // Step 4: Fetch Reddit thread content
     progress.currentStep = "Fetching Reddit content"
-    console.log(`📖 Step 4: Fetching content for ${allSearchResults.length} Reddit threads`)
-    
+    console.log(
+      `📖 Step 4: Fetching content for ${allSearchResults.length} Reddit threads`
+    )
+
     const threadsToFetch = allSearchResults
       .filter(result => result.threadId)
       .map(result => ({
@@ -238,11 +261,13 @@ export async function runFullLeadGenerationWorkflowAction(
     // Save Reddit thread data to database
     const redditThreads = fetchResult.data || []
     const threadBatch = writeBatch(db)
-    
+
     for (const thread of redditThreads) {
       const threadRef = doc(collection(db, LEAD_COLLECTIONS.REDDIT_THREADS))
-      const searchResult = allSearchResults.find(sr => sr.threadId === thread.id)
-      
+      const searchResult = allSearchResults.find(
+        sr => sr.threadId === thread.id
+      )
+
       if (searchResult) {
         const threadDoc = removeUndefinedValues({
           id: threadRef.id,
@@ -265,15 +290,15 @@ export async function runFullLeadGenerationWorkflowAction(
     }
     await threadBatch.commit()
 
-    await updateCampaignAction(campaignId, { 
-      totalThreadsAnalyzed: redditThreads.length 
+    await updateCampaignAction(campaignId, {
+      totalThreadsAnalyzed: redditThreads.length
     })
 
     progress.results.push({
       step: "Fetch Reddit Content",
       success: true,
       message: `Fetched ${redditThreads.length} Reddit threads`,
-      data: { 
+      data: {
         threadsFound: redditThreads.length,
         totalAttempted: threadsToFetch.length
       }
@@ -282,15 +307,20 @@ export async function runFullLeadGenerationWorkflowAction(
 
     // Step 5: Score threads and generate comments
     progress.currentStep = "Scoring and generating comments"
-    console.log(`🤖 Step 5: Scoring threads and generating comments for ${redditThreads.length} threads`)
-    
+    console.log(
+      `🤖 Step 5: Scoring threads and generating comments for ${redditThreads.length} threads`
+    )
+
     const threadsForScoring = redditThreads.map(thread => ({
       threadTitle: thread.title,
       threadContent: thread.content,
       subreddit: thread.subreddit
     }))
 
-    const scoringResult = await batchScoreThreadsWithThreeTierCommentsAction(threadsForScoring, websiteContent)
+    const scoringResult = await batchScoreThreadsWithThreeTierCommentsAction(
+      threadsForScoring,
+      websiteContent
+    )
     if (!scoringResult.isSuccess) {
       progress.results.push({
         step: "Score and Generate Comments",
@@ -299,18 +329,27 @@ export async function runFullLeadGenerationWorkflowAction(
       })
       await updateCampaignAction(campaignId, { status: "error" })
       progress.error = scoringResult.message
-      return { isSuccess: false, message: `Comment generation failed: ${scoringResult.message}` }
+      return {
+        isSuccess: false,
+        message: `Comment generation failed: ${scoringResult.message}`
+      }
     }
 
     // Save generated comments to database
     const commentBatch = writeBatch(db)
     const scoringResults = scoringResult.data || []
-    
-    for (let i = 0; i < scoringResults.length && i < redditThreads.length; i++) {
+
+    for (
+      let i = 0;
+      i < scoringResults.length && i < redditThreads.length;
+      i++
+    ) {
       const scoring = scoringResults[i]
       const thread = redditThreads[i]
-      
-      const commentRef = doc(collection(db, LEAD_COLLECTIONS.GENERATED_COMMENTS))
+
+      const commentRef = doc(
+        collection(db, LEAD_COLLECTIONS.GENERATED_COMMENTS)
+      )
       const commentDoc = removeUndefinedValues({
         id: commentRef.id,
         campaignId,
@@ -330,7 +369,7 @@ export async function runFullLeadGenerationWorkflowAction(
     }
     await commentBatch.commit()
 
-    await updateCampaignAction(campaignId, { 
+    await updateCampaignAction(campaignId, {
       totalCommentsGenerated: scoringResults.length,
       status: "completed"
     })
@@ -339,9 +378,11 @@ export async function runFullLeadGenerationWorkflowAction(
       step: "Score and Generate Comments",
       success: true,
       message: `Generated ${scoringResults.length} comments`,
-      data: { 
+      data: {
         commentsGenerated: scoringResults.length,
-        averageScore: scoringResults.reduce((sum, r) => sum + r.score, 0) / scoringResults.length
+        averageScore:
+          scoringResults.reduce((sum, r) => sum + r.score, 0) /
+          scoringResults.length
       }
     })
     progress.completedSteps++
@@ -369,34 +410,37 @@ export async function runFullLeadGenerationWorkflowAction(
       message: "Lead generation workflow completed successfully",
       data: progress
     }
-
   } catch (error) {
     console.error("Error in lead generation workflow:", error)
     await updateCampaignAction(campaignId, { status: "error" })
-    
-    progress.error = error instanceof Error ? error.message : 'Unknown error'
+
+    progress.error = error instanceof Error ? error.message : "Unknown error"
     progress.results.push({
       step: progress.currentStep,
       success: false,
       message: progress.error
     })
 
-    return { 
-      isSuccess: false, 
+    return {
+      isSuccess: false,
       message: `Workflow failed: ${progress.error}`
     }
   }
 }
 
-export async function testAllIntegrationsAction(): Promise<ActionState<{ [key: string]: boolean }>> {
+export async function testAllIntegrationsAction(): Promise<
+  ActionState<{ [key: string]: boolean }>
+> {
   try {
     console.log("🧪 Testing all API integrations...")
-    
+
     const results: { [key: string]: boolean } = {}
-    
+
     // Test Firecrawl
     try {
-      const { testFirecrawlConnectionAction } = await import("@/actions/integrations/firecrawl-actions")
+      const { testFirecrawlConnectionAction } = await import(
+        "@/actions/integrations/firecrawl-actions"
+      )
       const firecrawlTest = await testFirecrawlConnectionAction()
       results.firecrawl = firecrawlTest.isSuccess
     } catch {
@@ -405,7 +449,9 @@ export async function testAllIntegrationsAction(): Promise<ActionState<{ [key: s
 
     // Test Google Search
     try {
-      const { testGoogleSearchConnectionAction } = await import("@/actions/integrations/google-search-actions")
+      const { testGoogleSearchConnectionAction } = await import(
+        "@/actions/integrations/google-search-actions"
+      )
       const googleTest = await testGoogleSearchConnectionAction()
       results.googleSearch = googleTest.isSuccess
     } catch {
@@ -414,7 +460,9 @@ export async function testAllIntegrationsAction(): Promise<ActionState<{ [key: s
 
     // Test Reddit
     try {
-      const { testRedditConnectionAction } = await import("@/actions/integrations/reddit-actions")
+      const { testRedditConnectionAction } = await import(
+        "@/actions/integrations/reddit-actions"
+      )
       const redditTest = await testRedditConnectionAction()
       results.reddit = redditTest.isSuccess
     } catch {
@@ -423,7 +471,9 @@ export async function testAllIntegrationsAction(): Promise<ActionState<{ [key: s
 
     // Test OpenAI
     try {
-      const { testOpenAIConnectionAction } = await import("@/actions/integrations/openai-actions")
+      const { testOpenAIConnectionAction } = await import(
+        "@/actions/integrations/openai-actions"
+      )
       const openaiTest = await testOpenAIConnectionAction()
       results.openai = openaiTest.isSuccess
     } catch {
@@ -431,7 +481,7 @@ export async function testAllIntegrationsAction(): Promise<ActionState<{ [key: s
     }
 
     const allWorking = Object.values(results).every(Boolean)
-    
+
     if (allWorking) {
       return {
         isSuccess: true,
@@ -446,9 +496,9 @@ export async function testAllIntegrationsAction(): Promise<ActionState<{ [key: s
     }
   } catch (error) {
     console.error("Error testing integrations:", error)
-    return { 
-      isSuccess: false, 
-      message: `Integration test failed: ${error instanceof Error ? error.message : 'Unknown error'}` 
+    return {
+      isSuccess: false,
+      message: `Integration test failed: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
-} 
+}

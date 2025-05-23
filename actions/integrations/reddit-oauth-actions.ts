@@ -17,20 +17,22 @@ export interface RedditOAuthTokens {
   refresh_token?: string
 }
 
-export async function generateRedditAuthUrlAction(): Promise<ActionState<{ authUrl: string }>> {
+export async function generateRedditAuthUrlAction(): Promise<
+  ActionState<{ authUrl: string }>
+> {
   try {
     if (!process.env.REDDIT_CLIENT_ID) {
       return { isSuccess: false, message: "Reddit client ID not configured" }
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL 
+    const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
       ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
       : "http://localhost:3000"
-    
+
     const redirectUri = `${baseUrl}/api/reddit/callback`
     const state = crypto.randomUUID()
     const scopes = ["read", "identity"]
-    
+
     // Store state in cookie for verification
     const cookieStore = await cookies()
     cookieStore.set("reddit_oauth_state", state, {
@@ -59,7 +61,7 @@ export async function generateRedditAuthUrlAction(): Promise<ActionState<{ authU
     console.error("Error generating Reddit auth URL:", error)
     return {
       isSuccess: false,
-      message: `Failed to generate auth URL: ${error instanceof Error ? error.message : 'Unknown error'}`
+      message: `Failed to generate auth URL: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }
@@ -76,36 +78,43 @@ export async function exchangeRedditCodeForTokensAction(
     // Verify state parameter
     const cookieStore = await cookies()
     const storedState = cookieStore.get("reddit_oauth_state")?.value
-    
+
     if (!storedState || storedState !== state) {
       return { isSuccess: false, message: "Invalid state parameter" }
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL 
+    const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
       ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
       : "http://localhost:3000"
-    
+
     const redirectUri = `${baseUrl}/api/reddit/callback`
 
     // Exchange code for tokens
-    const tokenResponse = await fetch("https://www.reddit.com/api/v1/access_token", {
-      method: "POST",
-      headers: {
-        "Authorization": `Basic ${Buffer.from(`${process.env.REDDIT_CLIENT_ID}:${process.env.REDDIT_CLIENT_SECRET}`).toString('base64')}`,
-        "Content-Type": "application/x-www-form-urlencoded",
-        "User-Agent": process.env.REDDIT_USER_AGENT || "reddit-lead-gen:v1.0.0"
-      },
-      body: new URLSearchParams({
-        grant_type: "authorization_code",
-        code,
-        redirect_uri: redirectUri
-      })
-    })
+    const tokenResponse = await fetch(
+      "https://www.reddit.com/api/v1/access_token",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Basic ${Buffer.from(`${process.env.REDDIT_CLIENT_ID}:${process.env.REDDIT_CLIENT_SECRET}`).toString("base64")}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+          "User-Agent":
+            process.env.REDDIT_USER_AGENT || "reddit-lead-gen:v1.0.0"
+        },
+        body: new URLSearchParams({
+          grant_type: "authorization_code",
+          code,
+          redirect_uri: redirectUri
+        })
+      }
+    )
 
     if (!tokenResponse.ok) {
       const errorText = await tokenResponse.text()
       console.error("Token exchange failed:", errorText)
-      return { isSuccess: false, message: `Token exchange failed: ${tokenResponse.status}` }
+      return {
+        isSuccess: false,
+        message: `Token exchange failed: ${tokenResponse.status}`
+      }
     }
 
     const tokens: RedditOAuthTokens = await tokenResponse.json()
@@ -139,12 +148,14 @@ export async function exchangeRedditCodeForTokensAction(
     console.error("Error exchanging Reddit code for tokens:", error)
     return {
       isSuccess: false,
-      message: `Failed to exchange code: ${error instanceof Error ? error.message : 'Unknown error'}`
+      message: `Failed to exchange code: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }
 
-export async function getRedditAccessTokenAction(): Promise<ActionState<string>> {
+export async function getRedditAccessTokenAction(): Promise<
+  ActionState<string>
+> {
   try {
     const cookieStore = await cookies()
     const accessToken = cookieStore.get("reddit_access_token")?.value
@@ -162,12 +173,14 @@ export async function getRedditAccessTokenAction(): Promise<ActionState<string>>
     console.error("Error getting Reddit access token:", error)
     return {
       isSuccess: false,
-      message: `Failed to get access token: ${error instanceof Error ? error.message : 'Unknown error'}`
+      message: `Failed to get access token: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }
 
-export async function refreshRedditTokenAction(): Promise<ActionState<RedditOAuthTokens>> {
+export async function refreshRedditTokenAction(): Promise<
+  ActionState<RedditOAuthTokens>
+> {
   try {
     if (!process.env.REDDIT_CLIENT_ID || !process.env.REDDIT_CLIENT_SECRET) {
       return { isSuccess: false, message: "Reddit credentials not configured" }
@@ -180,23 +193,30 @@ export async function refreshRedditTokenAction(): Promise<ActionState<RedditOAut
       return { isSuccess: false, message: "No refresh token available" }
     }
 
-    const tokenResponse = await fetch("https://www.reddit.com/api/v1/access_token", {
-      method: "POST",
-      headers: {
-        "Authorization": `Basic ${Buffer.from(`${process.env.REDDIT_CLIENT_ID}:${process.env.REDDIT_CLIENT_SECRET}`).toString('base64')}`,
-        "Content-Type": "application/x-www-form-urlencoded",
-        "User-Agent": process.env.REDDIT_USER_AGENT || "reddit-lead-gen:v1.0.0"
-      },
-      body: new URLSearchParams({
-        grant_type: "refresh_token",
-        refresh_token: refreshToken
-      })
-    })
+    const tokenResponse = await fetch(
+      "https://www.reddit.com/api/v1/access_token",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Basic ${Buffer.from(`${process.env.REDDIT_CLIENT_ID}:${process.env.REDDIT_CLIENT_SECRET}`).toString("base64")}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+          "User-Agent":
+            process.env.REDDIT_USER_AGENT || "reddit-lead-gen:v1.0.0"
+        },
+        body: new URLSearchParams({
+          grant_type: "refresh_token",
+          refresh_token: refreshToken
+        })
+      }
+    )
 
     if (!tokenResponse.ok) {
       const errorText = await tokenResponse.text()
       console.error("Token refresh failed:", errorText)
-      return { isSuccess: false, message: `Token refresh failed: ${tokenResponse.status}` }
+      return {
+        isSuccess: false,
+        message: `Token refresh failed: ${tokenResponse.status}`
+      }
     }
 
     const tokens: RedditOAuthTokens = await tokenResponse.json()
@@ -219,7 +239,7 @@ export async function refreshRedditTokenAction(): Promise<ActionState<RedditOAut
     console.error("Error refreshing Reddit tokens:", error)
     return {
       isSuccess: false,
-      message: `Failed to refresh tokens: ${error instanceof Error ? error.message : 'Unknown error'}`
+      message: `Failed to refresh tokens: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }
@@ -227,26 +247,29 @@ export async function refreshRedditTokenAction(): Promise<ActionState<RedditOAut
 export async function clearRedditTokensAction(): Promise<ActionState<void>> {
   try {
     console.log("🔧 [CLEAR-REDDIT-TOKENS] Clearing Reddit OAuth tokens...")
-    
+
     const cookieStore = await cookies()
-    
+
     // Clear all Reddit-related cookies
     cookieStore.delete("reddit_access_token")
     cookieStore.delete("reddit_refresh_token")
     cookieStore.delete("reddit_oauth_state")
-    
+
     console.log("✅ [CLEAR-REDDIT-TOKENS] Reddit tokens cleared successfully")
-    
+
     return {
       isSuccess: true,
       message: "Reddit tokens cleared successfully",
       data: undefined
     }
   } catch (error) {
-    console.error("❌ [CLEAR-REDDIT-TOKENS] Error clearing Reddit tokens:", error)
+    console.error(
+      "❌ [CLEAR-REDDIT-TOKENS] Error clearing Reddit tokens:",
+      error
+    )
     return {
       isSuccess: false,
       message: "Failed to clear Reddit tokens"
     }
   }
-} 
+}

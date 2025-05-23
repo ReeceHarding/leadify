@@ -6,9 +6,9 @@ Contains server actions for OpenAI o3-mini API integration to critically score R
 
 "use server"
 
-import { generateObject } from 'ai'
-import { openai } from '@ai-sdk/openai'
-import { z } from 'zod'
+import { generateObject } from "ai"
+import { openai } from "@ai-sdk/openai"
+import { z } from "zod"
 import { ActionState } from "@/types"
 
 // Schema for thread scoring and comment generation
@@ -16,16 +16,16 @@ const ThreadAnalysisSchema = z.object({
   score: z.number().min(1).max(100),
   reasoning: z.string(),
   microComment: z.string(),
-  mediumComment: z.string(), 
+  mediumComment: z.string(),
   verboseComment: z.string()
 })
 
 export interface ThreeTierCommentResult {
   score: number // 1-100
   reasoning: string
-  microComment: string      // Ultra-brief helpful advice (5-15 words)
-  mediumComment: string     // Balanced response with good detail (30-80 words)
-  verboseComment: string    // Comprehensive, valuable advice (100-200 words)
+  microComment: string // Ultra-brief helpful advice (5-15 words)
+  mediumComment: string // Balanced response with good detail (30-80 words)
+  verboseComment: string // Comprehensive, valuable advice (100-200 words)
 }
 
 export async function scoreThreadAndGenerateThreeTierCommentsAction(
@@ -35,8 +35,10 @@ export async function scoreThreadAndGenerateThreeTierCommentsAction(
   websiteContent: string
 ): Promise<ActionState<ThreeTierCommentResult>> {
   try {
-    console.log(`🤖 Critically scoring thread and generating 3-tier comments for: "${threadTitle.slice(0, 50)}..."`)
-    
+    console.log(
+      `🤖 Critically scoring thread and generating 3-tier comments for: "${threadTitle.slice(0, 50)}..."`
+    )
+
     const prompt = `You are an extremely critical expert at analyzing Reddit threads for authentic lead generation opportunities.
 
 COMPANY CONTEXT (Gauntlet AI from website):
@@ -77,11 +79,11 @@ ALL COMMENTS MUST BE:
 PRIORITIZE AUTHENTICITY AND VALUE. Most threads should score 30-60 unless they're perfect matches.`
 
     const { object } = await generateObject({
-      model: openai('o3-mini'),
+      model: openai("o3-mini"),
       schema: ThreadAnalysisSchema,
       prompt,
       providerOptions: {
-        openai: { reasoningEffort: 'medium' }
+        openai: { reasoningEffort: "medium" }
       }
     })
 
@@ -93,8 +95,10 @@ PRIORITIZE AUTHENTICITY AND VALUE. Most threads should score 30-60 unless they'r
       verboseComment: object.verboseComment
     }
 
-    console.log(`✅ Thread critically scored: ${result.score}/100 - ${result.reasoning.slice(0, 50)}...`)
-    
+    console.log(
+      `✅ Thread critically scored: ${result.score}/100 - ${result.reasoning.slice(0, 50)}...`
+    )
+
     return {
       isSuccess: true,
       message: "Thread scored and three-tier comments generated successfully",
@@ -102,9 +106,9 @@ PRIORITIZE AUTHENTICITY AND VALUE. Most threads should score 30-60 unless they'r
     }
   } catch (error) {
     console.error("Error scoring thread and generating comments:", error)
-    return { 
-      isSuccess: false, 
-      message: `Failed to score thread: ${error instanceof Error ? error.message : 'Unknown error'}` 
+    return {
+      isSuccess: false,
+      message: `Failed to score thread: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }
@@ -120,9 +124,11 @@ export async function batchScoreThreadsWithThreeTierCommentsAction(
   try {
     const results: ThreeTierCommentResult[] = []
     const errors: string[] = []
-    
-    console.log(`🤖 Batch scoring ${threads.length} threads with critical analysis...`)
-    
+
+    console.log(
+      `🤖 Batch scoring ${threads.length} threads with critical analysis...`
+    )
+
     for (const thread of threads) {
       const result = await scoreThreadAndGenerateThreeTierCommentsAction(
         thread.threadTitle,
@@ -130,24 +136,31 @@ export async function batchScoreThreadsWithThreeTierCommentsAction(
         thread.subreddit,
         websiteContent
       )
-      
+
       if (result.isSuccess) {
         results.push(result.data)
       } else {
         errors.push(`${thread.threadTitle.slice(0, 30)}: ${result.message}`)
-        console.error(`Failed to score thread "${thread.threadTitle}":`, result.message)
+        console.error(
+          `Failed to score thread "${thread.threadTitle}":`,
+          result.message
+        )
       }
-      
+
       // Add delay between requests to respect rate limits
       await new Promise(resolve => setTimeout(resolve, 3000)) // 3 second delay for o3-mini
     }
-    
+
     const successCount = results.length
     const errorCount = errors.length
-    
-    console.log(`📊 Critical scoring complete: ${successCount} succeeded, ${errorCount} failed`)
-    console.log(`📊 Average score: ${(results.reduce((sum, r) => sum + r.score, 0) / results.length).toFixed(1)}/100`)
-    
+
+    console.log(
+      `📊 Critical scoring complete: ${successCount} succeeded, ${errorCount} failed`
+    )
+    console.log(
+      `📊 Average score: ${(results.reduce((sum, r) => sum + r.score, 0) / results.length).toFixed(1)}/100`
+    )
+
     return {
       isSuccess: true,
       message: `Critically scored ${successCount} threads successfully, ${errorCount} failed`,
@@ -155,31 +168,33 @@ export async function batchScoreThreadsWithThreeTierCommentsAction(
     }
   } catch (error) {
     console.error("Error in batch scoring:", error)
-    return { 
-      isSuccess: false, 
-      message: `Failed to batch score threads: ${error instanceof Error ? error.message : 'Unknown error'}` 
+    return {
+      isSuccess: false,
+      message: `Failed to batch score threads: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }
 
-export async function testOpenAIConnectionAction(): Promise<ActionState<{ status: string }>> {
+export async function testOpenAIConnectionAction(): Promise<
+  ActionState<{ status: string }>
+> {
   try {
     if (!process.env.OPENAI_API_KEY) {
-      return { 
-        isSuccess: false, 
-        message: "OpenAI API key not configured" 
+      return {
+        isSuccess: false,
+        message: "OpenAI API key not configured"
       }
     }
 
     // Test with o3-mini
     const { object } = await generateObject({
-      model: openai('o3-mini'),
+      model: openai("o3-mini"),
       schema: z.object({
         message: z.string()
       }),
       prompt: 'Say "Hello from o3-mini"',
       providerOptions: {
-        openai: { reasoningEffort: 'low' }
+        openai: { reasoningEffort: "low" }
       }
     })
 
@@ -197,9 +212,9 @@ export async function testOpenAIConnectionAction(): Promise<ActionState<{ status
     }
   } catch (error) {
     console.error("Error testing OpenAI o3-mini connection:", error)
-    return { 
-      isSuccess: false, 
-      message: `OpenAI o3-mini connection test failed: ${error instanceof Error ? error.message : 'Unknown error'}` 
+    return {
+      isSuccess: false,
+      message: `OpenAI o3-mini connection test failed: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }
@@ -210,11 +225,16 @@ export async function scoreThreadRelevanceAndGenerateCommentAction(
   threadContent: string,
   subreddit: string,
   websiteContent: string
-): Promise<ActionState<{ score: number; reasoning: string; generatedComment: string }>> {
+): Promise<
+  ActionState<{ score: number; reasoning: string; generatedComment: string }>
+> {
   const result = await scoreThreadAndGenerateThreeTierCommentsAction(
-    threadTitle, threadContent, subreddit, websiteContent
+    threadTitle,
+    threadContent,
+    subreddit,
+    websiteContent
   )
-  
+
   if (result.isSuccess) {
     return {
       isSuccess: true,
@@ -226,7 +246,7 @@ export async function scoreThreadRelevanceAndGenerateCommentAction(
       }
     }
   }
-  
+
   return result as any
 }
 
@@ -237,9 +257,16 @@ export async function batchScoreThreadsAction(
     subreddit: string
   }>,
   websiteContent: string
-): Promise<ActionState<Array<{ score: number; reasoning: string; generatedComment: string }>>> {
-  const result = await batchScoreThreadsWithThreeTierCommentsAction(threads, websiteContent)
-  
+): Promise<
+  ActionState<
+    Array<{ score: number; reasoning: string; generatedComment: string }>
+  >
+> {
+  const result = await batchScoreThreadsWithThreeTierCommentsAction(
+    threads,
+    websiteContent
+  )
+
   if (result.isSuccess) {
     return {
       isSuccess: true,
@@ -251,6 +278,6 @@ export async function batchScoreThreadsAction(
       }))
     }
   }
-  
+
   return result as any
-} 
+}

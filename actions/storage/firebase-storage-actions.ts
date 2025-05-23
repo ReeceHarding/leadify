@@ -44,7 +44,7 @@ export async function uploadFileStorage(
     validateFile(file)
 
     const fileRef = ref(storage, `${bucket}/${path}`)
-    
+
     // Check if file exists when upsert is false
     if (!options?.upsert) {
       try {
@@ -67,16 +67,16 @@ export async function uploadFileStorage(
     return {
       isSuccess: true,
       message: "File uploaded successfully",
-      data: { 
+      data: {
         path: uploadResult.ref.fullPath,
-        downloadURL 
+        downloadURL
       }
     }
   } catch (error) {
     console.error("Error uploading file:", error)
-    return { 
-      isSuccess: false, 
-      message: error instanceof Error ? error.message : "Failed to upload file" 
+    return {
+      isSuccess: false,
+      message: error instanceof Error ? error.message : "Failed to upload file"
     }
   }
 }
@@ -96,9 +96,9 @@ export async function getFileDownloadURLStorage(
     }
   } catch (error) {
     console.error("Error getting download URL:", error)
-    return { 
-      isSuccess: false, 
-      message: "Failed to get download URL" 
+    return {
+      isSuccess: false,
+      message: "Failed to get download URL"
     }
   }
 }
@@ -118,9 +118,9 @@ export async function deleteFileStorage(
     }
   } catch (error) {
     console.error("Error deleting file:", error)
-    return { 
-      isSuccess: false, 
-      message: "Failed to delete file" 
+    return {
+      isSuccess: false,
+      message: "Failed to delete file"
     }
   }
 }
@@ -128,7 +128,9 @@ export async function deleteFileStorage(
 export async function getFileMetadataStorage(
   bucket: string,
   path: string
-): Promise<ActionState<{ size: number; contentType: string; timeCreated: string }>> {
+): Promise<
+  ActionState<{ size: number; contentType: string; timeCreated: string }>
+> {
   try {
     const fileRef = ref(storage, `${bucket}/${path}`)
     const metadata = await getMetadata(fileRef)
@@ -144,9 +146,9 @@ export async function getFileMetadataStorage(
     }
   } catch (error) {
     console.error("Error getting file metadata:", error)
-    return { 
-      isSuccess: false, 
-      message: "Failed to get file metadata" 
+    return {
+      isSuccess: false,
+      message: "Failed to get file metadata"
     }
   }
-} 
+}

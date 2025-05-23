@@ -83,39 +83,51 @@ export interface SerializedGeneratedCommentDocument {
 }
 
 // Serialization helper functions
-function serializeSearchResultDocument(searchResult: SearchResultDocument): SerializedSearchResultDocument {
+function serializeSearchResultDocument(
+  searchResult: SearchResultDocument
+): SerializedSearchResultDocument {
   return {
     ...searchResult,
-    createdAt: searchResult.createdAt instanceof Timestamp 
-      ? searchResult.createdAt.toDate().toISOString()
-      : new Date().toISOString(),
-    updatedAt: searchResult.updatedAt instanceof Timestamp 
-      ? searchResult.updatedAt.toDate().toISOString() 
-      : new Date().toISOString()
+    createdAt:
+      searchResult.createdAt instanceof Timestamp
+        ? searchResult.createdAt.toDate().toISOString()
+        : new Date().toISOString(),
+    updatedAt:
+      searchResult.updatedAt instanceof Timestamp
+        ? searchResult.updatedAt.toDate().toISOString()
+        : new Date().toISOString()
   }
 }
 
-function serializeRedditThreadDocument(thread: RedditThreadDocument): SerializedRedditThreadDocument {
+function serializeRedditThreadDocument(
+  thread: RedditThreadDocument
+): SerializedRedditThreadDocument {
   return {
     ...thread,
-    createdAt: thread.createdAt instanceof Timestamp 
-      ? thread.createdAt.toDate().toISOString()
-      : new Date().toISOString(),
-    updatedAt: thread.updatedAt instanceof Timestamp 
-      ? thread.updatedAt.toDate().toISOString() 
-      : new Date().toISOString()
+    createdAt:
+      thread.createdAt instanceof Timestamp
+        ? thread.createdAt.toDate().toISOString()
+        : new Date().toISOString(),
+    updatedAt:
+      thread.updatedAt instanceof Timestamp
+        ? thread.updatedAt.toDate().toISOString()
+        : new Date().toISOString()
   }
 }
 
-function serializeGeneratedCommentDocument(comment: GeneratedCommentDocument): SerializedGeneratedCommentDocument {
+function serializeGeneratedCommentDocument(
+  comment: GeneratedCommentDocument
+): SerializedGeneratedCommentDocument {
   return {
     ...comment,
-    createdAt: comment.createdAt instanceof Timestamp 
-      ? comment.createdAt.toDate().toISOString()
-      : new Date().toISOString(),
-    updatedAt: comment.updatedAt instanceof Timestamp 
-      ? comment.updatedAt.toDate().toISOString() 
-      : new Date().toISOString()
+    createdAt:
+      comment.createdAt instanceof Timestamp
+        ? comment.createdAt.toDate().toISOString()
+        : new Date().toISOString(),
+    updatedAt:
+      comment.updatedAt instanceof Timestamp
+        ? comment.updatedAt.toDate().toISOString()
+        : new Date().toISOString()
   }
 }
 
@@ -137,7 +149,7 @@ export async function createSearchResultAction(
 ): Promise<ActionState<SearchResultDocument>> {
   try {
     const searchResultRef = doc(collection(db, LEAD_COLLECTIONS.SEARCH_RESULTS))
-    
+
     const searchResultData = {
       id: searchResultRef.id,
       campaignId: data.campaignId,
@@ -153,7 +165,7 @@ export async function createSearchResultAction(
     }
 
     await setDoc(searchResultRef, removeUndefinedValues(searchResultData))
-    
+
     const createdDoc = await getDoc(searchResultRef)
     return {
       isSuccess: true,
@@ -173,7 +185,7 @@ export async function createRedditThreadAction(
 ): Promise<ActionState<RedditThreadDocument>> {
   try {
     const threadRef = doc(collection(db, LEAD_COLLECTIONS.REDDIT_THREADS))
-    
+
     const threadData = {
       id: threadRef.id,
       campaignId: data.campaignId,
@@ -192,7 +204,7 @@ export async function createRedditThreadAction(
     }
 
     await setDoc(threadRef, removeUndefinedValues(threadData))
-    
+
     const createdDoc = await getDoc(threadRef)
     return {
       isSuccess: true,
@@ -212,7 +224,7 @@ export async function createGeneratedCommentAction(
 ): Promise<ActionState<GeneratedCommentDocument>> {
   try {
     const commentRef = doc(collection(db, LEAD_COLLECTIONS.GENERATED_COMMENTS))
-    
+
     const commentData = {
       id: commentRef.id,
       campaignId: data.campaignId,
@@ -230,7 +242,7 @@ export async function createGeneratedCommentAction(
     }
 
     await setDoc(commentRef, removeUndefinedValues(commentData))
-    
+
     const createdDoc = await getDoc(commentRef)
     return {
       isSuccess: true,
@@ -250,12 +262,12 @@ export async function getGeneratedCommentsByCampaignAction(
     const commentsRef = collection(db, LEAD_COLLECTIONS.GENERATED_COMMENTS)
     const q = query(commentsRef, where("campaignId", "==", campaignId))
     const querySnapshot = await getDocs(q)
-    
+
     const comments = querySnapshot.docs.map(doc => {
       const rawComment = doc.data() as GeneratedCommentDocument
       return serializeGeneratedCommentDocument(rawComment)
     })
-    
+
     return {
       isSuccess: true,
       message: "Generated comments retrieved successfully",
@@ -269,18 +281,18 @@ export async function getGeneratedCommentsByCampaignAction(
 
 export async function updateGeneratedCommentLengthAction(
   id: string,
-  selectedLength: 'micro' | 'medium' | 'verbose'
+  selectedLength: "micro" | "medium" | "verbose"
 ): Promise<ActionState<GeneratedCommentDocument>> {
   try {
     const commentRef = doc(db, LEAD_COLLECTIONS.GENERATED_COMMENTS, id)
-    
+
     const updateData = {
       selectedLength,
       updatedAt: serverTimestamp()
     }
 
     await updateDoc(commentRef, removeUndefinedValues(updateData))
-    
+
     const updatedDoc = await getDoc(commentRef)
     return {
       isSuccess: true,
@@ -301,7 +313,7 @@ export async function createBatchRedditThreadsAction(
   try {
     const batch = writeBatch(db)
     const threadRefs: any[] = []
-    
+
     threads.forEach(threadData => {
       const threadRef = doc(collection(db, LEAD_COLLECTIONS.REDDIT_THREADS))
       const data = {
@@ -313,9 +325,9 @@ export async function createBatchRedditThreadsAction(
       batch.set(threadRef, removeUndefinedValues(data))
       threadRefs.push({ ref: threadRef, data })
     })
-    
+
     await batch.commit()
-    
+
     // Fetch the created documents
     const createdDocs = await Promise.all(
       threadRefs.map(async ({ ref }) => {
@@ -323,7 +335,7 @@ export async function createBatchRedditThreadsAction(
         return doc.data() as RedditThreadDocument
       })
     )
-    
+
     return {
       isSuccess: true,
       message: `Created ${createdDocs.length} Reddit threads successfully`,
@@ -341,9 +353,11 @@ export async function createBatchGeneratedCommentsAction(
   try {
     const batch = writeBatch(db)
     const commentRefs: any[] = []
-    
+
     comments.forEach(commentData => {
-      const commentRef = doc(collection(db, LEAD_COLLECTIONS.GENERATED_COMMENTS))
+      const commentRef = doc(
+        collection(db, LEAD_COLLECTIONS.GENERATED_COMMENTS)
+      )
       const data = {
         id: commentRef.id,
         ...commentData,
@@ -355,9 +369,9 @@ export async function createBatchGeneratedCommentsAction(
       batch.set(commentRef, removeUndefinedValues(data))
       commentRefs.push({ ref: commentRef, data })
     })
-    
+
     await batch.commit()
-    
+
     // Fetch the created documents
     const createdDocs = await Promise.all(
       commentRefs.map(async ({ ref }) => {
@@ -365,7 +379,7 @@ export async function createBatchGeneratedCommentsAction(
         return doc.data() as GeneratedCommentDocument
       })
     )
-    
+
     return {
       isSuccess: true,
       message: `Created ${createdDocs.length} generated comments successfully`,
@@ -375,4 +389,4 @@ export async function createBatchGeneratedCommentsAction(
     console.error("Error creating batch generated comments:", error)
     return { isSuccess: false, message: "Failed to create generated comments" }
   }
-} 
+}

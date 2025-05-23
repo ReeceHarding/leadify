@@ -19,9 +19,9 @@ export async function uploadFileStorage(
     return result
   } catch (error) {
     console.error("Error uploading file:", error)
-    return { 
-      isSuccess: false, 
-      message: "Failed to upload file" 
+    return {
+      isSuccess: false,
+      message: "Failed to upload file"
     }
   }
-} 
+}

@@ -23,7 +23,9 @@ interface KeywordsResult {
 export async function generateKeywordsAction(
   data: GenerateKeywordsData
 ): Promise<ActionState<KeywordsResult>> {
-  console.log("🔍 [KEYWORDS-ACTION] generateKeywordsAction called with o3-mini")
+  console.log(
+    "🔍 [KEYWORDS-ACTION] generateKeywordsAction called with o3-mini (natural search terms)"
+  )
   console.log("🔍 [KEYWORDS-ACTION] Input data:", data)
   console.log("🔍 [KEYWORDS-ACTION] Website:", data.website)
   console.log("🔍 [KEYWORDS-ACTION] Refinement:", data.refinement)
@@ -37,12 +39,15 @@ export async function generateKeywordsAction(
     // Step 1: Scrape the website to get actual content
     console.log("🔍 [KEYWORDS-ACTION] Scraping website content...")
     const scrapeResult = await scrapeWebsiteAction(data.website)
-    
+
     if (!scrapeResult.isSuccess) {
-      console.error("🔍 [KEYWORDS-ACTION] Website scraping failed:", scrapeResult.message)
-      return { 
-        isSuccess: false, 
-        message: `Failed to analyze website: ${scrapeResult.message}` 
+      console.error(
+        "🔍 [KEYWORDS-ACTION] Website scraping failed:",
+        scrapeResult.message
+      )
+      return {
+        isSuccess: false,
+        message: `Failed to analyze website: ${scrapeResult.message}`
       }
     }
 
@@ -52,58 +57,72 @@ export async function generateKeywordsAction(
     console.log("🔍 [KEYWORDS-ACTION] Content length:", websiteContent.length)
     console.log("🔍 [KEYWORDS-ACTION] Website title:", websiteTitle)
 
-    // Step 2: Build strategic prompt for o3-mini
-    console.log("🔍 [KEYWORDS-ACTION] Building strategic system prompt for o3-mini")
+    // Step 2: Build natural search terms prompt for o3-mini
+    console.log(
+      "🔍 [KEYWORDS-ACTION] Building natural search terms prompt for o3-mini"
+    )
 
-    const strategicPrompt = `You are a strategic lead generation expert. Your job: identify WHO would desperately need this business.
+    const naturalSearchPrompt = `You will be given a website homepage. Your task is to generate simple, natural search terms that people use when asking for recommendations or help on Reddit.
 
-THE ANSWER IS: ${websiteTitle || 'This business'}
+WEBSITE: ${websiteTitle || "This business"}
 
 WEBSITE CONTENT:
 ${websiteContent.slice(0, 4000)}
 
-${data.refinement ? `\nCUSTOMER FOCUS: ${data.refinement}` : ''}
+${data.refinement ? `\nFOCUS AREA: ${data.refinement}` : ""}
 
-🎯 STRATEGIC THINKING PROCESS:
+Your Process:
+1. Analyze the website to understand what core problem it solves (ignore marketing speak)
+2. Think about when someone would naturally ask strangers for recommendations about this problem
+3. Generate search terms that capture these organic request moments
 
-1. What core problem does this business solve?
-2. What specific value do they provide?
-3. WHO are 5 different groups that would desperately need this solution?
+What You're Looking For:
+Search terms that find posts where people are:
+- Asking "where can I find..."
+- Seeking "recommendations for..."
+- Looking for "best [service/product] for..."
+- Requesting "help finding..."
+- Asking "anyone know of..."
 
-Example: If business offers "large secluded venues"
-- Core problem: People need private spaces for important events
-- 5 Groups: Weddings, Large families, Yoga groups, Corporate retreats, Meditation retreats
-- Generate 2 Reddit questions per group (10 total)
+Examples:
+- where to find developers
+- recommendations for wedding venues in the caribbean
+- best accounting software for small business
+- help finding freelance designers
+- anyone know good meal delivery services
 
-🎯 YOUR TASK:
-1. Identify the core problem this business solves
-2. Think of 5 distinct customer groups who desperately need this solution
-3. For each group, create 2 Reddit questions they would ask
-4. Questions should be natural Reddit posts where this business is the perfect answer
+Key Points:
+- Focus on the underlying need, not the company's marketing language
+- Think like someone posting on Reddit would naturally phrase their request
+- Keep terms simple and conversational
+- Each term should find posts you could organically comment on to mention this business without feeling salesy
+- For example: "tips for planning a wedding" = BAD (can't naturally recommend venue)
+- "recommendations for wedding venues in caribbean" = GOOD (can naturally mention venue)
 
-⚡ REDDIT QUESTION FORMAT:
-- "What's the best [solution] for [specific need]?"
-- "Where can I find [solution] for [specific situation]?"
-- "Recommendations for [specific use case]?"
-- Use casual, real Reddit language
+Generate 10-15 search terms based on the website provided.
 
 Return response in this exact JSON format:
 {
   "coreProblem": "The main problem this business solves",
-  "customerGroups": ["group 1", "group 2", "group 3", "group 4", "group 5"],
-  "keywords": ["question 1 for group 1", "question 2 for group 1", "question 1 for group 2", "question 2 for group 2", "etc..."]
+  "customerGroups": ["primary customer type", "secondary customer type"],
+  "keywords": ["search term 1", "search term 2", "search term 3", "etc..."]
 }`
 
-    console.log("🔍 [KEYWORDS-ACTION] Calling o3-mini with strategic prompt")
-    console.log("🔍 [KEYWORDS-ACTION] Prompt length:", strategicPrompt.length)
+    console.log(
+      "🔍 [KEYWORDS-ACTION] Calling o3-mini with natural search terms prompt"
+    )
+    console.log(
+      "🔍 [KEYWORDS-ACTION] Prompt length:",
+      naturalSearchPrompt.length
+    )
 
     const result = await generateText({
       model: openai("o3-mini"),
-      prompt: strategicPrompt,
-      temperature: 0.3, // Lower temperature for more focused, strategic thinking
+      prompt: naturalSearchPrompt,
+      temperature: 0.2, // Low temperature for consistent, natural search terms
       providerOptions: {
-        openai: { 
-          reasoningEffort: 'medium' // Use medium reasoning for better strategic analysis
+        openai: {
+          reasoningEffort: "low" // Simple task, doesn't need complex reasoning
         }
       }
     })
@@ -114,28 +133,36 @@ Return response in this exact JSON format:
 
     try {
       console.log("🔍 [KEYWORDS-ACTION] Attempting to parse JSON response")
-      
+
       // Clean the response text to handle markdown-wrapped JSON
       let cleanText = result.text.trim()
-      
+
       // Remove markdown code blocks if present
-      if (cleanText.startsWith('```json')) {
-        console.log("🔍 [KEYWORDS-ACTION] Detected markdown-wrapped JSON, cleaning...")
-        cleanText = cleanText.replace(/^```json\s*/, '').replace(/\s*```$/, '')
-      } else if (cleanText.startsWith('```')) {
-        console.log("🔍 [KEYWORDS-ACTION] Detected generic markdown code block, cleaning...")
-        cleanText = cleanText.replace(/^```\s*/, '').replace(/\s*```$/, '')
+      if (cleanText.startsWith("```json")) {
+        console.log(
+          "🔍 [KEYWORDS-ACTION] Detected markdown-wrapped JSON, cleaning..."
+        )
+        cleanText = cleanText.replace(/^```json\s*/, "").replace(/\s*```$/, "")
+      } else if (cleanText.startsWith("```")) {
+        console.log(
+          "🔍 [KEYWORDS-ACTION] Detected generic markdown code block, cleaning..."
+        )
+        cleanText = cleanText.replace(/^```\s*/, "").replace(/\s*```$/, "")
       }
-      
+
       console.log("🔍 [KEYWORDS-ACTION] Cleaned text:", cleanText)
-      
+
       const parsedResult = JSON.parse(cleanText)
       console.log("🔍 [KEYWORDS-ACTION] Parsed result:", parsedResult)
-      
+
       // Validate the response structure
       if (!parsedResult.keywords || !Array.isArray(parsedResult.keywords)) {
-        console.log("🔍 [KEYWORDS-ACTION] Invalid response format - keywords not found or not array")
-        throw new Error("Invalid response format: keywords missing or not array")
+        console.log(
+          "🔍 [KEYWORDS-ACTION] Invalid response format - keywords not found or not array"
+        )
+        throw new Error(
+          "Invalid response format: keywords missing or not array"
+        )
       }
 
       if (!parsedResult.coreProblem) {
@@ -143,15 +170,29 @@ Return response in this exact JSON format:
         throw new Error("Invalid response format: coreProblem missing")
       }
 
-      console.log("🔍 [KEYWORDS-ACTION] Valid strategic response format detected")
-      console.log("🔍 [KEYWORDS-ACTION] Keywords found:", parsedResult.keywords)
-      console.log("🔍 [KEYWORDS-ACTION] Keywords length:", parsedResult.keywords.length)
-      console.log("🔍 [KEYWORDS-ACTION] Core problem:", parsedResult.coreProblem)
-      console.log("🔍 [KEYWORDS-ACTION] Customer groups:", parsedResult.customerGroups)
+      console.log(
+        "🔍 [KEYWORDS-ACTION] Valid natural search terms response format detected"
+      )
+      console.log(
+        "🔍 [KEYWORDS-ACTION] Search terms found:",
+        parsedResult.keywords
+      )
+      console.log(
+        "🔍 [KEYWORDS-ACTION] Search terms length:",
+        parsedResult.keywords.length
+      )
+      console.log(
+        "🔍 [KEYWORDS-ACTION] Core problem:",
+        parsedResult.coreProblem
+      )
+      console.log(
+        "🔍 [KEYWORDS-ACTION] Customer groups:",
+        parsedResult.customerGroups
+      )
 
       const successResult = {
         isSuccess: true as const,
-        message: "Strategic keywords generated successfully with o3-mini",
+        message: "Natural search terms generated successfully with o3-mini",
         data: {
           keywords: parsedResult.keywords,
           coreProblem: parsedResult.coreProblem || "",
@@ -163,17 +204,23 @@ Return response in this exact JSON format:
         }
       }
 
-      console.log("🔍 [KEYWORDS-ACTION] Returning strategic success result:", successResult)
+      console.log(
+        "🔍 [KEYWORDS-ACTION] Returning natural search terms success result:",
+        successResult
+      )
       return successResult
     } catch (parseError) {
       console.log("🔍 [KEYWORDS-ACTION] JSON parsing failed:", parseError)
       console.log("🔍 [KEYWORDS-ACTION] Attempting fallback keyword extraction")
-      
+
       // Fallback: extract keywords from text if JSON parsing fails
       const keywords = extractKeywordsFromText(result.text)
       console.log("🔍 [KEYWORDS-ACTION] Fallback keywords extracted:", keywords)
-      console.log("🔍 [KEYWORDS-ACTION] Fallback keywords length:", keywords.length)
-      
+      console.log(
+        "🔍 [KEYWORDS-ACTION] Fallback keywords length:",
+        keywords.length
+      )
+
       const fallbackResult = {
         isSuccess: true as const,
         message: "Keywords generated successfully (fallback mode)",
@@ -188,16 +235,21 @@ Return response in this exact JSON format:
         }
       }
 
-      console.log("🔍 [KEYWORDS-ACTION] Returning fallback result:", fallbackResult)
+      console.log(
+        "🔍 [KEYWORDS-ACTION] Returning fallback result:",
+        fallbackResult
+      )
       return fallbackResult
     }
-
   } catch (error) {
-    console.error("🔍 [KEYWORDS-ACTION] Error generating strategic keywords:", error)
+    console.error(
+      "🔍 [KEYWORDS-ACTION] Error generating natural search terms:",
+      error
+    )
     console.error("🔍 [KEYWORDS-ACTION] Error stack:", (error as Error)?.stack)
-    return { 
-      isSuccess: false, 
-      message: "Failed to generate strategic keywords" 
+    return {
+      isSuccess: false,
+      message: "Failed to generate natural search terms"
     }
   }
 }
@@ -208,14 +260,14 @@ function extractKeywordsFromText(text: string): string[] {
 
   // Clean the text to remove markdown if present
   let cleanText = text.trim()
-  if (cleanText.startsWith('```json')) {
-    cleanText = cleanText.replace(/^```json\s*/, '').replace(/\s*```$/, '')
-  } else if (cleanText.startsWith('```')) {
-    cleanText = cleanText.replace(/^```\s*/, '').replace(/\s*```$/, '')
+  if (cleanText.startsWith("```json")) {
+    cleanText = cleanText.replace(/^```json\s*/, "").replace(/\s*```$/, "")
+  } else if (cleanText.startsWith("```")) {
+    cleanText = cleanText.replace(/^```\s*/, "").replace(/\s*```$/, "")
   }
 
   const keywords: string[] = []
-  
+
   console.log("🔍 [KEYWORDS-ACTION] Processing cleaned text")
 
   // Try to extract from JSON structure first
@@ -227,24 +279,33 @@ function extractKeywordsFromText(text: string): string[] {
       const keywordMatches = keywordsString.match(/"([^"]+)"/g)
       if (keywordMatches) {
         keywordMatches.forEach(match => {
-          const keyword = match.replace(/"/g, '')
+          const keyword = match.replace(/"/g, "")
           keywords.push(keyword)
-          console.log("🔍 [KEYWORDS-ACTION] Extracted keyword from JSON:", keyword)
+          console.log(
+            "🔍 [KEYWORDS-ACTION] Extracted keyword from JSON:",
+            keyword
+          )
         })
       }
     }
   } catch (error) {
-    console.log("🔍 [KEYWORDS-ACTION] JSON extraction failed, trying line-by-line")
+    console.log(
+      "🔍 [KEYWORDS-ACTION] JSON extraction failed, trying line-by-line"
+    )
   }
 
   // Fallback to line-by-line extraction if JSON extraction failed
   if (keywords.length === 0) {
-    const lines = cleanText.split('\n')
+    const lines = cleanText.split("\n")
     console.log("🔍 [KEYWORDS-ACTION] Processing", lines.length, "lines")
 
     for (const line of lines) {
       // Look for lines that start with - or numbers or quotes
-      if (line.match(/^[-*•]\s*".*"/) || line.match(/^\d+\.\s*".*"/) || line.match(/^\s*".*",?\s*$/)) {
+      if (
+        line.match(/^[-*•]\s*".*"/) ||
+        line.match(/^\d+\.\s*".*"/) ||
+        line.match(/^\s*".*",?\s*$/)
+      ) {
         const match = line.match(/"([^"]+)"/)
         if (match) {
           console.log("🔍 [KEYWORDS-ACTION] Found keyword:", match[1])
@@ -253,23 +314,32 @@ function extractKeywordsFromText(text: string): string[] {
       }
     }
   }
-  
+
   console.log("🔍 [KEYWORDS-ACTION] Extracted keywords:", keywords)
 
-  // If no keywords found, return some strategic defaults based on common patterns
+  // If no keywords found, return some natural search term defaults
   if (keywords.length === 0) {
-    console.log("🔍 [KEYWORDS-ACTION] No keywords found, using strategic defaults")
+    console.log(
+      "🔍 [KEYWORDS-ACTION] No keywords found, using natural search term defaults"
+    )
     const defaults = [
-      "where to hire experts for my business",
-      "recommendations for professional services",
-      "how to find reliable service providers",
-      "comparing different solution providers"
+      "where to find reliable services",
+      "recommendations for local businesses",
+      "best providers in my area",
+      "anyone know good companies for",
+      "help finding quality services"
     ]
-    console.log("🔍 [KEYWORDS-ACTION] Strategic default keywords:", defaults)
+    console.log(
+      "🔍 [KEYWORDS-ACTION] Natural search term default keywords:",
+      defaults
+    )
     return defaults
   }
-  
-  const finalKeywords = keywords.slice(0, 12) // Limit to 12 keywords
-  console.log("🔍 [KEYWORDS-ACTION] Final strategic keywords (limited to 12):", finalKeywords)
+
+  const finalKeywords = keywords.slice(0, 15) // Limit to 15 search terms as requested
+  console.log(
+    "🔍 [KEYWORDS-ACTION] Final natural search terms (limited to 15):",
+    finalKeywords
+  )
   return finalKeywords
-} 
+}

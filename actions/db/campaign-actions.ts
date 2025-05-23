@@ -49,15 +49,19 @@ export interface SerializedCampaignDocument {
 }
 
 // Serialization helper function
-function serializeCampaignDocument(campaign: CampaignDocument): SerializedCampaignDocument {
+function serializeCampaignDocument(
+  campaign: CampaignDocument
+): SerializedCampaignDocument {
   return {
     ...campaign,
-    createdAt: campaign.createdAt instanceof Timestamp 
-      ? campaign.createdAt.toDate().toISOString()
-      : new Date().toISOString(),
-    updatedAt: campaign.updatedAt instanceof Timestamp 
-      ? campaign.updatedAt.toDate().toISOString() 
-      : new Date().toISOString()
+    createdAt:
+      campaign.createdAt instanceof Timestamp
+        ? campaign.createdAt.toDate().toISOString()
+        : new Date().toISOString(),
+    updatedAt:
+      campaign.updatedAt instanceof Timestamp
+        ? campaign.updatedAt.toDate().toISOString()
+        : new Date().toISOString()
   }
 }
 
@@ -66,7 +70,7 @@ export async function createCampaignAction(
 ): Promise<ActionState<SerializedCampaignDocument>> {
   try {
     const campaignRef = doc(collection(db, LEAD_COLLECTIONS.CAMPAIGNS))
-    
+
     const campaignData = removeUndefinedValues({
       id: campaignRef.id,
       userId: data.userId,
@@ -82,11 +86,11 @@ export async function createCampaignAction(
     })
 
     await setDoc(campaignRef, campaignData)
-    
+
     const createdDoc = await getDoc(campaignRef)
     const rawCampaign = createdDoc.data() as CampaignDocument
     const serializedCampaign = serializeCampaignDocument(rawCampaign)
-    
+
     return {
       isSuccess: true,
       message: "Campaign created successfully",
@@ -104,17 +108,17 @@ export async function getCampaignsByUserIdAction(
   try {
     const campaignsRef = collection(db, LEAD_COLLECTIONS.CAMPAIGNS)
     const q = query(
-      campaignsRef, 
+      campaignsRef,
       where("userId", "==", userId),
       orderBy("createdAt", "desc")
     )
     const querySnapshot = await getDocs(q)
-    
+
     const campaigns = querySnapshot.docs.map(doc => {
       const rawCampaign = doc.data() as CampaignDocument
       return serializeCampaignDocument(rawCampaign)
     })
-    
+
     return {
       isSuccess: true,
       message: "Campaigns retrieved successfully",
@@ -132,14 +136,14 @@ export async function getCampaignByIdAction(
   try {
     const campaignRef = doc(db, LEAD_COLLECTIONS.CAMPAIGNS, campaignId)
     const campaignDoc = await getDoc(campaignRef)
-    
+
     if (!campaignDoc.exists()) {
       return { isSuccess: false, message: "Campaign not found" }
     }
-    
+
     const rawCampaign = campaignDoc.data() as CampaignDocument
     const serializedCampaign = serializeCampaignDocument(rawCampaign)
-    
+
     return {
       isSuccess: true,
       message: "Campaign retrieved successfully",
@@ -157,7 +161,7 @@ export async function updateCampaignAction(
 ): Promise<ActionState<SerializedCampaignDocument>> {
   try {
     const campaignRef = doc(db, LEAD_COLLECTIONS.CAMPAIGNS, campaignId)
-    
+
     const campaignDoc = await getDoc(campaignRef)
     if (!campaignDoc.exists()) {
       return { isSuccess: false, message: "Campaign not found to update" }
@@ -169,11 +173,11 @@ export async function updateCampaignAction(
     })
 
     await updateDoc(campaignRef, updateData)
-    
+
     const updatedDoc = await getDoc(campaignRef)
     const rawCampaign = updatedDoc.data() as CampaignDocument
     const serializedCampaign = serializeCampaignDocument(rawCampaign)
-    
+
     return {
       isSuccess: true,
       message: "Campaign updated successfully",
@@ -211,25 +215,32 @@ export async function getCampaignSummaryAction(
     if (!campaignResult.isSuccess) {
       return { isSuccess: false, message: "Campaign not found" }
     }
-    
+
     const campaign = campaignResult.data
-    
+
     // Get generated comments for this campaign
     const commentsRef = collection(db, LEAD_COLLECTIONS.GENERATED_COMMENTS)
-    const commentsQuery = query(commentsRef, where("campaignId", "==", campaignId))
+    const commentsQuery = query(
+      commentsRef,
+      where("campaignId", "==", campaignId)
+    )
     const commentsSnapshot = await getDocs(commentsQuery)
-    
+
     const comments = commentsSnapshot.docs.map(doc => doc.data())
-    
+
     // Calculate summary statistics
     const totalComments = comments.length
-    const averageRelevanceScore = totalComments > 0 
-      ? comments.reduce((sum, comment) => sum + comment.relevanceScore, 0) / totalComments
-      : 0
-    const highQualityComments = comments.filter(comment => comment.relevanceScore > 70).length
+    const averageRelevanceScore =
+      totalComments > 0
+        ? comments.reduce((sum, comment) => sum + comment.relevanceScore, 0) /
+          totalComments
+        : 0
+    const highQualityComments = comments.filter(
+      comment => comment.relevanceScore > 70
+    ).length
     const approvedComments = comments.filter(comment => comment.approved).length
     const usedComments = comments.filter(comment => comment.used).length
-    
+
     const summary: CampaignSummary = {
       campaignId: campaign.id,
       campaignName: campaign.name,
@@ -240,7 +251,7 @@ export async function getCampaignSummaryAction(
       approvedComments,
       usedComments
     }
-    
+
     return {
       isSuccess: true,
       message: "Campaign summary retrieved successfully",
@@ -250,4 +261,4 @@ export async function getCampaignSummaryAction(
     console.error("Error getting campaign summary:", error)
     return { isSuccess: false, message: "Failed to get campaign summary" }
   }
-} 
+}
