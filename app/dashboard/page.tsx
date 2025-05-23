@@ -10,7 +10,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { auth } from "@clerk/nextjs/server"
-import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
+import {
+  getProfileByUserIdAction,
+  createProfileAction
+} from "@/actions/db/profiles-actions"
 import { redirect } from "next/navigation"
 import {
   ArrowUpRight,
@@ -31,15 +34,23 @@ import Link from "next/link"
 export default async function DashboardPage() {
   const { userId } = await auth()
 
-  if (userId) {
-    const profileRes = await getProfileByUserIdAction(userId)
-
-    // Redirect to onboarding if profile doesn't exist or onboarding isn't completed
-    if (!profileRes.isSuccess || !profileRes.data.onboardingCompleted) {
-      redirect("/onboarding")
-    }
-  } else {
+  if (!userId) {
     redirect("/login")
+  }
+
+  // Check if user has a profile, create one if not
+  const profileRes = await getProfileByUserIdAction(userId)
+
+  if (!profileRes.isSuccess) {
+    const createRes = await createProfileAction({ userId })
+    if (!createRes.isSuccess) {
+      console.error("Failed to create profile:", createRes.message)
+    }
+  }
+
+  // Redirect to onboarding if profile doesn't exist or onboarding isn't completed
+  if (!profileRes.isSuccess || !profileRes.data.onboardingCompleted) {
+    redirect("/onboarding")
   }
 
   const metrics = [
