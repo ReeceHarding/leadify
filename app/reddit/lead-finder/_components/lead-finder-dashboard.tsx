@@ -18,7 +18,9 @@ import {
   Calendar,
   ThumbsUp,
   Sparkles,
-  Loader2
+  Loader2,
+  PanelLeft,
+  ChevronRight
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -402,9 +404,51 @@ export default function LeadFinderDashboard() {
       <div className="flex-1 p-6">
         <div className="space-y-6">
           {/* Header */}
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold dark:text-gray-100">Results</h1>
-            <div className="flex items-center gap-4">
+          <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+            <div className="flex items-center gap-2 px-4">
+              <button
+                className="ring-offset-background focus-visible:ring-ring hover:bg-accent hover:text-accent-foreground -ml-1 inline-flex size-7 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
+                data-sidebar="trigger"
+              >
+                <PanelLeft className="size-4" />
+                <span className="sr-only">Toggle Sidebar</span>
+              </button>
+              <div
+                data-orientation="vertical"
+                role="none"
+                className="bg-border mr-2 h-4 w-[1px] shrink-0"
+              ></div>
+              <nav aria-label="breadcrumb">
+                <ol className="text-muted-foreground flex flex-wrap items-center gap-1.5 break-words text-sm sm:gap-2.5">
+                  <li className="hidden items-center gap-1.5 md:block">
+                    <a
+                      className="hover:text-foreground transition-colors"
+                      href="/dashboard"
+                    >
+                      Dashboard
+                    </a>
+                  </li>
+                  <li
+                    role="presentation"
+                    aria-hidden="true"
+                    className="hidden md:block [&>svg]:size-3.5"
+                  >
+                    <ChevronRight className="size-3.5" />
+                  </li>
+                  <li className="inline-flex items-center gap-1.5">
+                    <span
+                      role="link"
+                      aria-disabled="true"
+                      aria-current="page"
+                      className="text-foreground font-normal"
+                    >
+                      Lead Finder
+                    </span>
+                  </li>
+                </ol>
+              </nav>
+            </div>
+            <div className="ml-auto flex items-center gap-4 pr-4">
               <Select
                 value={selectedLength}
                 onValueChange={(value: any) => setSelectedLength(value)}
@@ -426,7 +470,7 @@ export default function LeadFinderDashboard() {
                 New Campaign
               </Button>
             </div>
-          </div>
+          </header>
 
           {/* Show progress or results */}
           {workflowProgress.isLoading || leads.length === 0 ? (
