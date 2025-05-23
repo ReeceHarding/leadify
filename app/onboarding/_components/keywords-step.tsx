@@ -29,10 +29,16 @@ export default function KeywordsStep({
   onPrevious
 }: KeywordsStepProps) {
   console.log("🔍 [KEYWORDS] Component initialized")
-  console.log("🔍 [KEYWORDS] Props data:", data)
+  console.log("🔍 [KEYWORDS] Props data:", JSON.stringify(data, null, 2))
   console.log("🔍 [KEYWORDS] Initial keywords:", data.keywords)
   console.log("🔍 [KEYWORDS] Initial keywords length:", data.keywords.length)
+  console.log(
+    "🔍 [KEYWORDS] Initial keywords stringified:",
+    JSON.stringify(data.keywords)
+  )
   console.log("🔍 [KEYWORDS] Website:", data.website)
+  console.log("🔍 [KEYWORDS] onUpdate function type:", typeof onUpdate)
+  console.log("🔍 [KEYWORDS] onNext function type:", typeof onNext)
 
   const [isGenerating, setIsGenerating] = useState(false)
   const [newKeyword, setNewKeyword] = useState("")
@@ -40,9 +46,24 @@ export default function KeywordsStep({
   const [hasGenerated, setHasGenerated] = useState(false)
   const [editingIndex, setEditingIndex] = useState<number | null>(null)
 
+  // Track prop changes
+  useEffect(() => {
+    console.log("🔍 [KEYWORDS] Props changed useEffect triggered")
+    console.log("🔍 [KEYWORDS] New data prop:", JSON.stringify(data, null, 2))
+    console.log("🔍 [KEYWORDS] New keywords from props:", data.keywords)
+    console.log(
+      "🔍 [KEYWORDS] New keywords length from props:",
+      data.keywords.length
+    )
+    console.log(
+      "🔍 [KEYWORDS] New keywords stringified from props:",
+      JSON.stringify(data.keywords)
+    )
+  }, [data])
+
   // Auto-generate keywords when component mounts if website is provided
   useEffect(() => {
-    console.log("🔍 [KEYWORDS] useEffect triggered")
+    console.log("🔍 [KEYWORDS] Auto-generation useEffect triggered")
     console.log("🔍 [KEYWORDS] data.website:", data.website)
     console.log("🔍 [KEYWORDS] hasGenerated:", hasGenerated)
     console.log("🔍 [KEYWORDS] data.keywords.length:", data.keywords.length)
@@ -74,7 +95,10 @@ export default function KeywordsStep({
         refinement: refinement || undefined
       })
 
-      console.log("🔍 [KEYWORDS] generateKeywordsAction result:", result)
+      console.log(
+        "🔍 [KEYWORDS] generateKeywordsAction result:",
+        JSON.stringify(result, null, 2)
+      )
 
       if (result.isSuccess) {
         console.log("🔍 [KEYWORDS] Keywords generation successful")
@@ -83,8 +107,21 @@ export default function KeywordsStep({
           "🔍 [KEYWORDS] Generated keywords length:",
           result.data.keywords.length
         )
+        console.log(
+          "🔍 [KEYWORDS] Generated keywords stringified:",
+          JSON.stringify(result.data.keywords)
+        )
 
         // Update keywords through parent component
+        console.log("🔍 [KEYWORDS] Calling onUpdate with generated keywords")
+        console.log("🔍 [KEYWORDS] onUpdate data payload:", {
+          keywords: result.data.keywords
+        })
+        console.log(
+          "🔍 [KEYWORDS] onUpdate data payload stringified:",
+          JSON.stringify({ keywords: result.data.keywords })
+        )
+
         onUpdate({ keywords: result.data.keywords })
         setHasGenerated(true)
 
@@ -92,6 +129,7 @@ export default function KeywordsStep({
           "🔍 [KEYWORDS] Called onUpdate with keywords:",
           result.data.keywords
         )
+        console.log("🔍 [KEYWORDS] Set hasGenerated to true")
       } else {
         console.error(
           "🔍 [KEYWORDS] Keywords generation failed:",
@@ -129,7 +167,15 @@ export default function KeywordsStep({
         "🔍 [KEYWORDS] Updated keywords after adding:",
         updatedKeywords
       )
+      console.log(
+        "🔍 [KEYWORDS] Updated keywords stringified:",
+        JSON.stringify(updatedKeywords)
+      )
 
+      console.log("🔍 [KEYWORDS] Calling onUpdate for addKeyword")
+      console.log("🔍 [KEYWORDS] onUpdate payload:", {
+        keywords: updatedKeywords
+      })
       onUpdate({ keywords: updatedKeywords })
       setNewKeyword("")
 
@@ -153,7 +199,15 @@ export default function KeywordsStep({
       "🔍 [KEYWORDS] Updated keywords after removal:",
       updatedKeywords
     )
+    console.log(
+      "🔍 [KEYWORDS] Updated keywords stringified:",
+      JSON.stringify(updatedKeywords)
+    )
 
+    console.log("🔍 [KEYWORDS] Calling onUpdate for removeKeyword")
+    console.log("🔍 [KEYWORDS] onUpdate payload:", {
+      keywords: updatedKeywords
+    })
     onUpdate({ keywords: updatedKeywords })
     console.log("🔍 [KEYWORDS] Called onUpdate with updated keywords")
   }
@@ -167,7 +221,15 @@ export default function KeywordsStep({
     const updatedKeywords = [...data.keywords]
     updatedKeywords[index] = newValue
     console.log("🔍 [KEYWORDS] Updated keywords after edit:", updatedKeywords)
+    console.log(
+      "🔍 [KEYWORDS] Updated keywords stringified:",
+      JSON.stringify(updatedKeywords)
+    )
 
+    console.log("🔍 [KEYWORDS] Calling onUpdate for editKeyword")
+    console.log("🔍 [KEYWORDS] onUpdate payload:", {
+      keywords: updatedKeywords
+    })
     onUpdate({ keywords: updatedKeywords })
     console.log("🔍 [KEYWORDS] Called onUpdate with updated keywords")
   }
@@ -202,6 +264,10 @@ export default function KeywordsStep({
       "🔍 [KEYWORDS] Keywords length before submit:",
       data.keywords.length
     )
+    console.log(
+      "🔍 [KEYWORDS] Keywords stringified before submit:",
+      JSON.stringify(data.keywords)
+    )
 
     if (data.keywords.length > 0) {
       console.log("🔍 [KEYWORDS] Keywords validation passed, calling onNext()")
@@ -216,6 +282,10 @@ export default function KeywordsStep({
   console.log(
     "🔍 [KEYWORDS] Current data.keywords.length:",
     data.keywords.length
+  )
+  console.log(
+    "🔍 [KEYWORDS] Current data.keywords stringified:",
+    JSON.stringify(data.keywords)
   )
   console.log("🔍 [KEYWORDS] isGenerating:", isGenerating)
   console.log("🔍 [KEYWORDS] hasGenerated:", hasGenerated)

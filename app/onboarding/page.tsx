@@ -11,7 +11,10 @@ import WebsiteStep from "./_components/website-step"
 import KeywordsStep from "./_components/keywords-step"
 import ConnectRedditStep from "./_components/connect-reddit-step"
 import CompleteStep from "./_components/complete-step"
-import { updateProfileAction } from "@/actions/db/profiles-actions"
+import {
+  updateProfileAction,
+  getProfileByUserIdAction
+} from "@/actions/db/profiles-actions"
 
 type OnboardingStep = "profile" | "website" | "keywords" | "reddit" | "complete"
 
@@ -29,16 +32,149 @@ export default function OnboardingPage() {
   const searchParams = useSearchParams()
   const [currentStep, setCurrentStep] = useState<OnboardingStep>("profile")
   const [onboardingData, setOnboardingData] = useState({
-    name: user?.fullName || "",
-    profilePictureUrl: user?.imageUrl || "",
+    name: "",
+    profilePictureUrl: "",
     website: "",
     keywords: [] as string[],
     redditConnected: false
   })
+  const [isLoading, setIsLoading] = useState(true)
+  const [hasLoadedProfile, setHasLoadedProfile] = useState(false)
 
   console.log("🔍 [ONBOARDING] Component initialized")
-  console.log("🔍 [ONBOARDING] Initial user:", user?.id)
+  console.log("🔍 [ONBOARDING] User ID:", user?.id)
+  console.log("🔍 [ONBOARDING] User fullName:", user?.fullName)
+  console.log("🔍 [ONBOARDING] User imageUrl:", user?.imageUrl)
   console.log("🔍 [ONBOARDING] Initial onboardingData:", onboardingData)
+  console.log("🔍 [ONBOARDING] isLoading:", isLoading)
+  console.log("🔍 [ONBOARDING] hasLoadedProfile:", hasLoadedProfile)
+
+  // Load existing profile data when user is available
+  useEffect(() => {
+    console.log("🔍 [ONBOARDING] useEffect for loading profile triggered")
+    console.log("🔍 [ONBOARDING] user?.id:", user?.id)
+    console.log("🔍 [ONBOARDING] hasLoadedProfile:", hasLoadedProfile)
+    console.log("🔍 [ONBOARDING] isLoading:", isLoading)
+
+    const loadExistingProfile = async () => {
+      if (!user?.id || hasLoadedProfile) {
+        console.log(
+          "🔍 [ONBOARDING] Skipping profile load - no user ID or already loaded"
+        )
+        if (!user?.id) {
+          console.log("🔍 [ONBOARDING] No user ID, setting isLoading to false")
+          setIsLoading(false)
+        }
+        return
+      }
+
+      console.log("🔍 [ONBOARDING] Loading existing profile for user:", user.id)
+      setIsLoading(true)
+
+      try {
+        const profileResult = await getProfileByUserIdAction(user.id)
+        console.log("🔍 [ONBOARDING] Profile load result:", profileResult)
+
+        if (profileResult.isSuccess && profileResult.data) {
+          console.log("🔍 [ONBOARDING] Profile loaded successfully")
+          console.log("🔍 [ONBOARDING] Profile data:", profileResult.data)
+          console.log(
+            "🔍 [ONBOARDING] Profile keywords:",
+            profileResult.data.keywords
+          )
+          console.log(
+            "🔍 [ONBOARDING] Profile keywords length:",
+            profileResult.data.keywords?.length || 0
+          )
+
+          // Update onboarding data with existing profile data
+          const loadedData = {
+            name: profileResult.data.name || user.fullName || "",
+            profilePictureUrl:
+              profileResult.data.profilePictureUrl || user.imageUrl || "",
+            website: profileResult.data.website || "",
+            keywords: profileResult.data.keywords || [],
+            redditConnected: false // Will be determined by checking Reddit tokens
+          }
+
+          console.log(
+            "🔍 [ONBOARDING] Setting onboarding data to loaded profile:"
+          )
+          console.log("🔍 [ONBOARDING] - name:", loadedData.name)
+          console.log(
+            "🔍 [ONBOARDING] - profilePictureUrl:",
+            loadedData.profilePictureUrl
+          )
+          console.log("🔍 [ONBOARDING] - website:", loadedData.website)
+          console.log("🔍 [ONBOARDING] - keywords:", loadedData.keywords)
+          console.log(
+            "🔍 [ONBOARDING] - keywords length:",
+            loadedData.keywords.length
+          )
+          console.log(
+            "🔍 [ONBOARDING] - redditConnected:",
+            loadedData.redditConnected
+          )
+
+          setOnboardingData(loadedData)
+
+          // Determine which step to start on based on existing data
+          if (profileResult.data.onboardingCompleted) {
+            console.log(
+              "🔍 [ONBOARDING] Onboarding already completed, redirecting to lead finder"
+            )
+            router.push("/reddit/lead-finder")
+            return
+          } else if (loadedData.keywords.length > 0) {
+            console.log(
+              "🔍 [ONBOARDING] Keywords exist, starting on reddit step"
+            )
+            setCurrentStep("reddit")
+          } else if (loadedData.website) {
+            console.log(
+              "🔍 [ONBOARDING] Website exists, starting on keywords step"
+            )
+            setCurrentStep("keywords")
+          } else if (loadedData.name) {
+            console.log("🔍 [ONBOARDING] Name exists, starting on website step")
+            setCurrentStep("website")
+          } else {
+            console.log("🔍 [ONBOARDING] Starting from profile step")
+            setCurrentStep("profile")
+          }
+        } else {
+          console.log(
+            "🔍 [ONBOARDING] No existing profile found or failed to load"
+          )
+          console.log("🔍 [ONBOARDING] Setting default data from Clerk user")
+          // Set default data from Clerk user
+          setOnboardingData({
+            name: user.fullName || "",
+            profilePictureUrl: user.imageUrl || "",
+            website: "",
+            keywords: [],
+            redditConnected: false
+          })
+        }
+      } catch (error) {
+        console.error("🔍 [ONBOARDING] Error loading profile:", error)
+        // Set default data from Clerk user on error
+        setOnboardingData({
+          name: user.fullName || "",
+          profilePictureUrl: user.imageUrl || "",
+          website: "",
+          keywords: [],
+          redditConnected: false
+        })
+      } finally {
+        setIsLoading(false)
+        setHasLoadedProfile(true)
+        console.log("🔍 [ONBOARDING] Profile loading completed")
+      }
+    }
+
+    loadExistingProfile()
+  }, [user?.id, hasLoadedProfile, router])
 
   const currentStepIndex = stepOrder.indexOf(currentStep)
   const progress = ((currentStepIndex + 1) / stepOrder.length) * 100
@@ -124,11 +260,31 @@ export default function OnboardingPage() {
       onboardingData
     )
 
+    // Log specific updates
+    Object.keys(data).forEach(key => {
+      console.log(
+        `🔍 [ONBOARDING] Updating ${key}:`,
+        data[key as keyof typeof data]
+      )
+      if (key === "keywords") {
+        const keywords = data[key as keyof typeof data] as string[]
+        console.log(
+          `🔍 [ONBOARDING] Keywords array length:`,
+          keywords?.length || 0
+        )
+        console.log(`🔍 [ONBOARDING] Keywords content:`, keywords)
+      }
+    })
+
     setOnboardingData(prev => {
       const updated = { ...prev, ...data }
       console.log("🔍 [ONBOARDING] Updated onboardingData:", updated)
       console.log("🔍 [ONBOARDING] Keywords specifically:", updated.keywords)
       console.log("🔍 [ONBOARDING] Keywords length:", updated.keywords.length)
+      console.log(
+        "🔍 [ONBOARDING] Keywords stringified:",
+        JSON.stringify(updated.keywords)
+      )
       return updated
     })
   }
@@ -156,28 +312,39 @@ export default function OnboardingPage() {
         "🔍 [ONBOARDING] Calling updateProfileAction with user ID:",
         user.id
       )
-      console.log("🔍 [ONBOARDING] Profile data being saved:", {
+
+      const updatePayload = {
         name: onboardingData.name,
         profilePictureUrl: onboardingData.profilePictureUrl,
         website: onboardingData.website,
         keywords: onboardingData.keywords,
         onboardingCompleted: true
-      })
+      }
 
-      const profileResult = await updateProfileAction(user.id, {
-        name: onboardingData.name,
-        profilePictureUrl: onboardingData.profilePictureUrl,
-        website: onboardingData.website,
-        keywords: onboardingData.keywords,
-        onboardingCompleted: true
-      })
+      console.log("🔍 [ONBOARDING] Profile data being saved:", updatePayload)
+      console.log(
+        "🔍 [ONBOARDING] Keywords being saved:",
+        updatePayload.keywords
+      )
+      console.log(
+        "🔍 [ONBOARDING] Keywords being saved (stringified):",
+        JSON.stringify(updatePayload.keywords)
+      )
 
-      console.log("🔍 [ONBOARDING] Profile updated successfully")
+      const profileResult = await updateProfileAction(user.id, updatePayload)
+
       console.log("🔍 [ONBOARDING] Profile update result:", profileResult)
 
       if (!profileResult.isSuccess) {
+        console.error(
+          "🔍 [ONBOARDING] Profile update failed:",
+          profileResult.message
+        )
         throw new Error("Failed to update profile")
       }
+
+      console.log("🔍 [ONBOARDING] Profile updated successfully")
+      console.log("🔍 [ONBOARDING] Updated profile data:", profileResult.data)
 
       // Redirect to lead finder - keywords will be retrieved from profile
       const redirectUrl = `/reddit/lead-finder`
@@ -202,6 +369,14 @@ export default function OnboardingPage() {
     console.log(
       "🔍 [ONBOARDING] Current onboardingData in render:",
       onboardingData
+    )
+    console.log(
+      "🔍 [ONBOARDING] Current keywords in render:",
+      onboardingData.keywords
+    )
+    console.log(
+      "🔍 [ONBOARDING] Current keywords length in render:",
+      onboardingData.keywords.length
     )
 
     switch (currentStep) {
@@ -252,6 +427,25 @@ export default function OnboardingPage() {
         return null
     }
   }
+
+  // Show loading state while loading profile
+  if (isLoading) {
+    console.log("🔍 [ONBOARDING] Rendering loading state")
+    return (
+      <div className="mx-auto w-full max-w-lg space-y-12">
+        <div className="flex flex-col items-center space-y-4 py-12">
+          <div className="relative">
+            <div className="size-8 animate-spin rounded-full border-2 border-gray-600 border-t-blue-600" />
+          </div>
+          <p className="text-gray-400">Loading your profile...</p>
+        </div>
+      </div>
+    )
+  }
+
+  console.log("🔍 [ONBOARDING] Rendering main component")
+  console.log("🔍 [ONBOARDING] Final render onboardingData:", onboardingData)
+  console.log("🔍 [ONBOARDING] Final render keywords:", onboardingData.keywords)
 
   return (
     <div className="mx-auto w-full max-w-lg space-y-12">
