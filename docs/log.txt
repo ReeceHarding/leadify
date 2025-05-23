@@ -2404,3 +2404,169 @@
 [2025-05-23T19:29:56.708Z] ==================================================
 [2025-05-23T19:29:56.708Z] COMMAND FINISHED: tsc --noEmit (exit code: 0)
 [2025-05-23T19:29:56.708Z] ==================================================
+[2025-05-23T19:33:58.554Z] NEXTJS_STDOUT: ✓ Compiled in 1052ms (2738 modules)
+[2025-05-23T19:33:59.059Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Action called
+[2025-05-23T19:33:59.059Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] User ID: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-23T19:33:59.059Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] User ID type: string
+[2025-05-23T19:33:59.059Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Created Firestore document reference
+[2025-05-23T19:33:59.059Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Collection: profiles
+[2025-05-23T19:33:59.059Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Document path: profiles/user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-23T19:33:59.059Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Reading from Firestore...
+[2025-05-23T19:33:59.264Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Firestore read completed
+[2025-05-23T19:33:59.264Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Document exists: true
+[2025-05-23T19:33:59.264Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Document id: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-23T19:33:59.265Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw data from Firestore: {
+[2025-05-23T19:33:59.265Z] NEXTJS_STDOUT: "name": "Reece Harding",
+[2025-05-23T19:33:59.265Z] NEXTJS_STDOUT: "onboardingCompleted": false,
+[2025-05-23T19:33:59.265Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-23T19:33:59.265Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-23T19:33:59.265Z] NEXTJS_STDOUT: "keywords": [
+[2025-05-23T19:33:59.265Z] NEXTJS_STDOUT: "Where can I host an exclusive family reunion in the Dominican Republic with private amenities?",
+[2025-05-23T19:33:59.265Z] NEXTJS_STDOUT: "Best private beachfront retreat for large gatherings in the DR?",
+[2025-05-23T19:33:59.265Z] NEXTJS_STDOUT: "Anyone know a hidden gem for hosting a wedding in the Dominican Republic?",
+[2025-05-23T19:33:59.265Z] NEXTJS_STDOUT: "What are some recommendations for a secluded group retreat in the DR?",
+[2025-05-23T19:33:59.265Z] NEXTJS_STDOUT: "Looking for a Dominican Republic venue that offers a private chef and pool for big events—any suggestions?",
+[2025-05-23T19:33:59.265Z] NEXTJS_STDOUT: "How do I find a private beachfront resort with top-notch security and all-inclusive services in the Dominican Republic?",
+[2025-05-23T19:33:59.265Z] NEXTJS_STDOUT: "Group vacation planning in the Dominican Republic: where should we book to avoid crowds?",
+[2025-05-23T19:33:59.265Z] NEXTJS_STDOUT: "Comparing large group venues in the DR—has anyone tried Las Canas Beach Retreat?",
+[2025-05-23T19:33:59.265Z] NEXTJS_STDOUT: "Need recommendations for an exclusive, all-in-one retreat in the Dominican Republic for my birthday bash!",
+[2025-05-23T19:33:59.266Z] NEXTJS_STDOUT: "What’s the best spot to host a private corporate retreat on a beachfront in the DR?"
+[2025-05-23T19:33:59.266Z] NEXTJS_STDOUT: ],
+[2025-05-23T19:33:59.266Z] NEXTJS_STDOUT: "website": "https://lascanasbeachretreat.com",
+[2025-05-23T19:33:59.266Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-23T19:33:59.266Z] NEXTJS_STDOUT: "seconds": 1748028272,
+[2025-05-23T19:33:59.266Z] NEXTJS_STDOUT: "nanoseconds": 816000000
+[2025-05-23T19:33:59.266Z] NEXTJS_STDOUT: },
+[2025-05-23T19:33:59.266Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-23T19:33:59.266Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-23T19:33:59.266Z] NEXTJS_STDOUT: "seconds": 1748026655,
+[2025-05-23T19:33:59.266Z] NEXTJS_STDOUT: "nanoseconds": 814000000
+[2025-05-23T19:33:59.266Z] NEXTJS_STDOUT: }
+[2025-05-23T19:33:59.266Z] NEXTJS_STDOUT: }
+[2025-05-23T19:33:59.266Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw data keys: [
+[2025-05-23T19:33:59.266Z] NEXTJS_STDOUT: 'name',
+[2025-05-23T19:33:59.266Z] NEXTJS_STDOUT: 'onboardingCompleted',
+[2025-05-23T19:33:59.266Z] NEXTJS_STDOUT: 'profilePictureUrl',
+[2025-05-23T19:33:59.266Z] NEXTJS_STDOUT: 'userId',
+[2025-05-23T19:33:59.267Z] NEXTJS_STDOUT: 'keywords',
+[2025-05-23T19:33:59.267Z] NEXTJS_STDOUT: 'website',
+[2025-05-23T19:33:59.267Z] NEXTJS_STDOUT: 'updatedAt',
+[2025-05-23T19:33:59.267Z] NEXTJS_STDOUT: 'membership',
+[2025-05-23T19:33:59.267Z] NEXTJS_STDOUT: 'createdAt'
+[2025-05-23T19:33:59.267Z] NEXTJS_STDOUT: ]
+[2025-05-23T19:33:59.267Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw createdAt from Firestore: Timestamp { seconds: 1748026655, nanoseconds: 814000000 }
+[2025-05-23T19:33:59.267Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw createdAt type: object
+[2025-05-23T19:33:59.267Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw updatedAt from Firestore: Timestamp { seconds: 1748028272, nanoseconds: 816000000 }
+[2025-05-23T19:33:59.267Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw updatedAt type: object
+[2025-05-23T19:33:59.267Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Casting to ProfileDocument
+[2025-05-23T19:33:59.267Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] ProfileDocument createdAt: Timestamp { seconds: 1748026655, nanoseconds: 814000000 }
+[2025-05-23T19:33:59.267Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] ProfileDocument updatedAt: Timestamp { seconds: 1748028272, nanoseconds: 816000000 }
+[2025-05-23T19:33:59.267Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Starting serialization...
+[2025-05-23T19:33:59.267Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Starting serialization
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Input profile keys: [
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: 'name',
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: 'onboardingCompleted',
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: 'profilePictureUrl',
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: 'userId',
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: 'keywords',
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: 'website',
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: 'updatedAt',
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: 'membership',
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: 'createdAt'
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: ]
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Raw profile data: {
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: "name": "Reece Harding",
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: "onboardingCompleted": false,
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: "keywords": [
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: "Where can I host an exclusive family reunion in the Dominican Republic with private amenities?",
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: "Best private beachfront retreat for large gatherings in the DR?",
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: "Anyone know a hidden gem for hosting a wedding in the Dominican Republic?",
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: "What are some recommendations for a secluded group retreat in the DR?",
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: "Looking for a Dominican Republic venue that offers a private chef and pool for big events—any suggestions?",
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: "How do I find a private beachfront resort with top-notch security and all-inclusive services in the Dominican Republic?",
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: "Group vacation planning in the Dominican Republic: where should we book to avoid crowds?",
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: "Comparing large group venues in the DR—has anyone tried Las Canas Beach Retreat?",
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: "Need recommendations for an exclusive, all-in-one retreat in the Dominican Republic for my birthday bash!",
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: "What’s the best spot to host a private corporate retreat on a beachfront in the DR?"
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: ],
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: "website": "https://lascanasbeachretreat.com",
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: "seconds": 1748028272,
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: "nanoseconds": 816000000
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: },
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: "seconds": 1748026655,
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: "nanoseconds": 814000000
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: }
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: }
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt type: object
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt instanceof Timestamp: true
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt value: Timestamp { seconds: 1748026655, nanoseconds: 814000000 }
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt type: object
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt instanceof Timestamp: true
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt value: Timestamp { seconds: 1748028272, nanoseconds: 816000000 }
+[2025-05-23T19:33:59.268Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized profile: {
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "name": "Reece Harding",
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "onboardingCompleted": false,
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "keywords": [
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "Where can I host an exclusive family reunion in the Dominican Republic with private amenities?",
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "Best private beachfront retreat for large gatherings in the DR?",
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "Anyone know a hidden gem for hosting a wedding in the Dominican Republic?",
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "What are some recommendations for a secluded group retreat in the DR?",
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "Looking for a Dominican Republic venue that offers a private chef and pool for big events—any suggestions?",
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "How do I find a private beachfront resort with top-notch security and all-inclusive services in the Dominican Republic?",
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "Group vacation planning in the Dominican Republic: where should we book to avoid crowds?",
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "Comparing large group venues in the DR—has anyone tried Las Canas Beach Retreat?",
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "Need recommendations for an exclusive, all-in-one retreat in the Dominican Republic for my birthday bash!",
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "What’s the best spot to host a private corporate retreat on a beachfront in the DR?"
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: ],
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "website": "https://lascanasbeachretreat.com",
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "updatedAt": "2025-05-23T19:24:32.816Z",
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "createdAt": "2025-05-23T18:57:35.814Z"
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: }
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized createdAt: 2025-05-23T18:57:35.814Z
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized updatedAt: 2025-05-23T19:24:32.816Z
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialization complete
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Final result: {
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "isSuccess": true,
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "message": "Profile retrieved successfully",
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "data": {
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "name": "Reece Harding",
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "onboardingCompleted": false,
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "keywords": [
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "Where can I host an exclusive family reunion in the Dominican Republic with private amenities?",
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "Best private beachfront retreat for large gatherings in the DR?",
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "Anyone know a hidden gem for hosting a wedding in the Dominican Republic?",
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "What are some recommendations for a secluded group retreat in the DR?",
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "Looking for a Dominican Republic venue that offers a private chef and pool for big events—any suggestions?",
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "How do I find a private beachfront resort with top-notch security and all-inclusive services in the Dominican Republic?",
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "Group vacation planning in the Dominican Republic: where should we book to avoid crowds?",
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "Comparing large group venues in the DR—has anyone tried Las Canas Beach Retreat?",
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "Need recommendations for an exclusive, all-in-one retreat in the Dominican Republic for my birthday bash!",
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "What’s the best spot to host a private corporate retreat on a beachfront in the DR?"
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: ],
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "website": "https://lascanasbeachretreat.com",
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "updatedAt": "2025-05-23T19:24:32.816Z",
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-23T19:33:59.269Z] NEXTJS_STDOUT: "createdAt": "2025-05-23T18:57:35.814Z"
+[2025-05-23T19:33:59.270Z] NEXTJS_STDOUT: }
+[2025-05-23T19:33:59.270Z] NEXTJS_STDOUT: }
+[2025-05-23T19:33:59.270Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Action completed successfully
+[2025-05-23T19:33:59.272Z] NEXTJS_STDOUT: GET /onboarding 200 in 392ms
+[2025-05-23T19:34:16.330Z] NEXTJS_STDOUT: ✓ Compiled in 462ms (2738 modules)
+[2025-05-23T19:34:26.364Z] NEXTJS_STDOUT: ✓ Compiled in 271ms (2738 modules)
+[2025-05-23T19:34:34.301Z] NEXTJS_STDOUT: ✓ Compiled in 384ms (2738 modules)
+[2025-05-23T19:34:42.620Z] ==================================================
+[2025-05-23T19:34:42.620Z] COMMAND STARTED: tsc --noEmit
+[2025-05-23T19:34:42.620Z] ==================================================
+[2025-05-23T19:34:44.473Z] ==================================================
+[2025-05-23T19:34:44.473Z] COMMAND FINISHED: tsc --noEmit (exit code: 0)
+[2025-05-23T19:34:44.473Z] ==================================================

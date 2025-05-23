@@ -12,6 +12,9 @@ interface GenerateKeywordsData {
 
 interface KeywordsResult {
   keywords: string[]
+  coreProblem: string
+  customerGroups: string[]
+  // Backwards compatibility
   idealCustomerProfile: string
   uniqueValueProposition: string
   targetPainPoints: string[]
@@ -52,51 +55,43 @@ export async function generateKeywordsAction(
     // Step 2: Build strategic prompt for o3-mini
     console.log("🔍 [KEYWORDS-ACTION] Building strategic system prompt for o3-mini")
 
-    const strategicPrompt = `You are playing a JEOPARDY GAME for Reddit lead generation. Your job is to create the QUESTIONS when given the ANSWER.
+    const strategicPrompt = `You are a strategic lead generation expert. Your job: identify WHO would desperately need this business.
 
 THE ANSWER IS: ${websiteTitle || 'This business'}
 
-WEBSITE CONTENT TO ANALYZE:
-Title: ${websiteTitle}
-Content: ${websiteContent.slice(0, 8000)}
+WEBSITE CONTENT:
+${websiteContent.slice(0, 4000)}
 
-${data.refinement ? `\nUSER REFINEMENT: ${data.refinement}` : ''}
+${data.refinement ? `\nCUSTOMER FOCUS: ${data.refinement}` : ''}
 
-🎯 JEOPARDY STRATEGY:
-Think: "If [BUSINESS NAME] is the perfect answer, what would be the exact questions people ask on Reddit?"
+🎯 STRATEGIC THINKING PROCESS:
 
-Examples for a Caribbean hotel like Las Canas Beach Retreat:
-- ANSWER: "Las Canas Beach Retreat"
-- QUESTIONS: "What is the best wedding venue in the Dominican Republic?"
-- QUESTIONS: "Where should I host my family vacation in the Dominican Republic?"
-- QUESTIONS: "Best place to stay in the Dominican Republic?"
-- QUESTIONS: "Best yoga retreat in the Dominican Republic?"
+1. What core problem does this business solve?
+2. What specific value do they provide?
+3. WHO are 5 different groups that would desperately need this solution?
+
+Example: If business offers "large secluded venues"
+- Core problem: People need private spaces for important events
+- 5 Groups: Weddings, Large families, Yoga groups, Corporate retreats, Meditation retreats
+- Generate 2 Reddit questions per group (10 total)
 
 🎯 YOUR TASK:
-1. Study the website content deeply
-2. Identify what this business is the PERFECT answer for
-3. Generate 8-12 specific Reddit questions where this business would be mentioned naturally
-4. Focus on high-value threads where people are actively seeking recommendations
-5. Use natural Reddit language (casual, conversational)
-6. Target posts asking for comparisons, recommendations, and "where to find" advice
+1. Identify the core problem this business solves
+2. Think of 5 distinct customer groups who desperately need this solution
+3. For each group, create 2 Reddit questions they would ask
+4. Questions should be natural Reddit posts where this business is the perfect answer
 
-⚡ KEYWORD REQUIREMENTS:
-- Each keyword = a Reddit post title where someone asks for help
-- Focus on questions that lead to organic recommendations  
-- Include location-specific queries when relevant
-- Include comparison requests ("X vs Y")
-- Include "best", "where to find", "recommendations for" phrases
-- Avoid corporate jargon - use how real people talk on Reddit
-
-📝 STRATEGIC ANALYSIS:
-Also provide insights about the ideal customer profile, unique value proposition, and target pain points to inform the keyword strategy.
+⚡ REDDIT QUESTION FORMAT:
+- "What's the best [solution] for [specific need]?"
+- "Where can I find [solution] for [specific situation]?"
+- "Recommendations for [specific use case]?"
+- Use casual, real Reddit language
 
 Return response in this exact JSON format:
 {
-  "idealCustomerProfile": "Detailed 2-3 sentence description of the exact target customer who would ask these questions",
-  "uniqueValueProposition": "1-2 sentences describing what makes this business the perfect answer",
-  "targetPainPoints": ["specific pain point 1", "specific pain point 2", "specific pain point 3"],
-  "keywords": ["question 1 where this business is the answer", "question 2 where this business is the answer", "etc..."]
+  "coreProblem": "The main problem this business solves",
+  "customerGroups": ["group 1", "group 2", "group 3", "group 4", "group 5"],
+  "keywords": ["question 1 for group 1", "question 2 for group 1", "question 1 for group 2", "question 2 for group 2", "etc..."]
 }`
 
     console.log("🔍 [KEYWORDS-ACTION] Calling o3-mini with strategic prompt")
@@ -143,26 +138,28 @@ Return response in this exact JSON format:
         throw new Error("Invalid response format: keywords missing or not array")
       }
 
-      if (!parsedResult.idealCustomerProfile) {
-        console.log("🔍 [KEYWORDS-ACTION] Missing ideal customer profile")
-        throw new Error("Invalid response format: idealCustomerProfile missing")
+      if (!parsedResult.coreProblem) {
+        console.log("🔍 [KEYWORDS-ACTION] Missing core problem")
+        throw new Error("Invalid response format: coreProblem missing")
       }
 
       console.log("🔍 [KEYWORDS-ACTION] Valid strategic response format detected")
       console.log("🔍 [KEYWORDS-ACTION] Keywords found:", parsedResult.keywords)
       console.log("🔍 [KEYWORDS-ACTION] Keywords length:", parsedResult.keywords.length)
-      console.log("🔍 [KEYWORDS-ACTION] ICP:", parsedResult.idealCustomerProfile)
-      console.log("🔍 [KEYWORDS-ACTION] UVP:", parsedResult.uniqueValueProposition)
-      console.log("🔍 [KEYWORDS-ACTION] Pain points:", parsedResult.targetPainPoints)
+      console.log("🔍 [KEYWORDS-ACTION] Core problem:", parsedResult.coreProblem)
+      console.log("🔍 [KEYWORDS-ACTION] Customer groups:", parsedResult.customerGroups)
 
       const successResult = {
         isSuccess: true as const,
         message: "Strategic keywords generated successfully with o3-mini",
         data: {
           keywords: parsedResult.keywords,
-          idealCustomerProfile: parsedResult.idealCustomerProfile || "",
-          uniqueValueProposition: parsedResult.uniqueValueProposition || "",
-          targetPainPoints: parsedResult.targetPainPoints || []
+          coreProblem: parsedResult.coreProblem || "",
+          customerGroups: parsedResult.customerGroups || [],
+          // Keep backwards compatibility for existing components
+          idealCustomerProfile: `Targeting: ${(parsedResult.customerGroups || []).join(", ")}`,
+          uniqueValueProposition: parsedResult.coreProblem || "",
+          targetPainPoints: parsedResult.customerGroups || []
         }
       }
 
@@ -182,6 +179,9 @@ Return response in this exact JSON format:
         message: "Keywords generated successfully (fallback mode)",
         data: {
           keywords,
+          coreProblem: "Determined from website content (fallback)",
+          customerGroups: ["General customers"],
+          // Keep backwards compatibility
           idealCustomerProfile: "Generated from website analysis (fallback)",
           uniqueValueProposition: "Determined from website content",
           targetPainPoints: ["Analysis completed in fallback mode"]
