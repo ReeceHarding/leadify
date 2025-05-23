@@ -102,11 +102,7 @@ export default function WebsiteStep({
         <p className="text-base leading-relaxed text-gray-400">
           Add your business website so our AI can learn about your products, services, and unique value proposition.
         </p>
-        <div className="mx-auto max-w-md rounded-lg border border-blue-600/20 bg-blue-600/5 p-3">
-          <p className="text-sm text-blue-200">
-            ⏱️ <strong>Takes 1 minute</strong> • We'll analyze your website to understand what makes your business unique
-          </p>
-        </div>
+
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -131,11 +127,7 @@ export default function WebsiteStep({
           </p>
         </div>
 
-        <div className="mx-auto max-w-md rounded-lg border border-amber-600/20 bg-amber-600/5 p-3">
-          <p className="text-sm text-amber-200">
-            💡 <strong>Why we need this:</strong> The AI creates personalized responses by understanding exactly what you offer and how you help customers.
-          </p>
-        </div>
+
 
         {/* Buttons */}
         <div className="flex flex-col space-y-3">

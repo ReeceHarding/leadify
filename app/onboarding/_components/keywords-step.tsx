@@ -183,11 +183,7 @@ export default function KeywordsStep({
         <p className="text-base leading-relaxed text-gray-400">
           Our AI will analyze your website and create targeted Reddit search terms to find prospects who need exactly what you offer.
         </p>
-        <div className="mx-auto max-w-md rounded-lg border border-blue-600/20 bg-blue-600/5 p-3">
-          <p className="text-sm text-blue-200">
-            ⏱️ <strong>Takes 2-3 minutes</strong> • Uses o3-mini AI with Jeopardy strategy for high-value keywords
-          </p>
-        </div>
+
       </div>
 
       {!hasGenerated && (
@@ -196,7 +192,7 @@ export default function KeywordsStep({
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-white">
                 <Lightbulb className="size-5 text-blue-500" />
-                Refine Your Keywords (Optional)
+                In 1-2 sentences, describe what kind of customers you're looking for
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -226,7 +222,7 @@ export default function KeywordsStep({
             ) : (
               <>
                 <Wand2 className="mr-2 size-4" />
-                Generate Strategic Keywords with o3-mini
+                Generate Keywords
               </>
             )}
           </Button>
@@ -357,7 +353,7 @@ export default function KeywordsStep({
                 {isGenerating ? (
                   <>
                     <RefreshCw className="mr-2 size-4 animate-spin" />
-                    Regenerating with o3-mini...
+                    Regenerating...
                   </>
                 ) : (
                   <>
