@@ -24,7 +24,7 @@ const scrollingLogos = [...logos, ...logos]
 
 export const LogoCarousel = () => {
   return (
-    <section className="bg-gray-50 py-12 dark:bg-gray-800">
+    <section className="bg-black py-12">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -56,8 +56,8 @@ export const LogoCarousel = () => {
           </div>
 
           {/* Gradient overlays for fade effect */}
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-gray-50 to-transparent dark:from-gray-800" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-gray-50 to-transparent dark:from-gray-800" />
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-black to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-black to-transparent" />
         </div>
       </div>
     </section>

@@ -48,7 +48,7 @@ const scrollingTestimonials = [...testimonials, ...testimonials]
 
 export const TestimonialsSection = () => {
   return (
-    <section className="overflow-hidden bg-white py-20 dark:bg-gray-900">
+    <section className="overflow-hidden bg-black py-20">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -94,8 +94,8 @@ export const TestimonialsSection = () => {
           </div>
 
           {/* Gradient overlays for fade effect */}
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-white to-transparent dark:from-gray-900" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-white to-transparent dark:from-gray-900" />
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-black to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-black to-transparent" />
         </div>
       </div>
     </section>
