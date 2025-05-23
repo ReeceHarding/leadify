@@ -330,17 +330,77 @@ export default function OnboardingPage() {
         onboardingData
       )
 
-      // Update Reddit connection status and advance to next step
+      // Update Reddit connection status and determine next step
       setOnboardingData(prev => {
         const updated = { ...prev, redditConnected: true }
         console.log(
           "🔍 [ONBOARDING] Updated onboardingData after Reddit connect:",
           updated
         )
+
+        // Validate data completeness before advancing to complete step
+        // Use the updated data for validation, not the old onboardingData
+        const hasCompleteData =
+          updated.name &&
+          updated.name !== "" &&
+          updated.website &&
+          updated.website !== "" &&
+          updated.keywords &&
+          updated.keywords.length > 0
+
+        console.log("🔍 [ONBOARDING] Reddit auth data completeness check:")
+        console.log(
+          "🔍 [ONBOARDING] - name valid:",
+          !!(updated.name && updated.name !== "")
+        )
+        console.log(
+          "🔍 [ONBOARDING] - website valid:",
+          !!(updated.website && updated.website !== "")
+        )
+        console.log(
+          "🔍 [ONBOARDING] - keywords valid:",
+          !!(updated.keywords && updated.keywords.length > 0)
+        )
+        console.log("🔍 [ONBOARDING] - hasCompleteData:", hasCompleteData)
+
+        // Schedule the step change after state update
+        setTimeout(() => {
+          if (hasCompleteData) {
+            console.log(
+              "🔍 [ONBOARDING] Data is complete, advancing to complete step"
+            )
+            setCurrentStep("complete")
+          } else {
+            console.log(
+              "🔍 [ONBOARDING] Data incomplete, determining appropriate step"
+            )
+
+            // Determine which step to go to based on missing data
+            if (!updated.name || updated.name === "") {
+              console.log("🔍 [ONBOARDING] Missing name, going to profile step")
+              setCurrentStep("profile")
+              setOnboardingStarted(true)
+            } else if (!updated.website || updated.website === "") {
+              console.log(
+                "🔍 [ONBOARDING] Missing website, going to website step"
+              )
+              setCurrentStep("website")
+              setOnboardingStarted(true)
+            } else if (!updated.keywords || updated.keywords.length === 0) {
+              console.log(
+                "🔍 [ONBOARDING] Missing keywords, going to keywords step"
+              )
+              setCurrentStep("keywords")
+              setOnboardingStarted(true)
+            } else {
+              console.log("🔍 [ONBOARDING] Fallback: going to complete step")
+              setCurrentStep("complete")
+            }
+          }
+        }, 0)
+
         return updated
       })
-      setCurrentStep("complete")
-      console.log("🔍 [ONBOARDING] Advanced to complete step")
 
       // Clean up URL parameters
       const url = new URL(window.location.href)
