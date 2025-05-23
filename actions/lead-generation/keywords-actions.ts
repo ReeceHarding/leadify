@@ -46,7 +46,7 @@ The keywords should be:
 - Focus on pain points, not solutions
 - Be longer phrases (3-7 words) rather than single words
 
-Return the response in this exact JSON format:
+Return the response in this exact JSON format (without any markdown formatting):
 {
   "idealCustomerProfile": "Detailed description of the ideal customer",
   "keywords": ["keyword1", "keyword2", "keyword3", ...]
@@ -77,7 +77,22 @@ Example good keywords:
 
     try {
       console.log("🔍 [KEYWORDS-ACTION] Attempting to parse JSON response")
-      const parsedResult = JSON.parse(result.text)
+      
+      // Clean the response text to handle markdown-wrapped JSON
+      let cleanText = result.text.trim()
+      
+      // Remove markdown code blocks if present
+      if (cleanText.startsWith('```json')) {
+        console.log("🔍 [KEYWORDS-ACTION] Detected markdown-wrapped JSON, cleaning...")
+        cleanText = cleanText.replace(/^```json\s*/, '').replace(/\s*```$/, '')
+      } else if (cleanText.startsWith('```')) {
+        console.log("🔍 [KEYWORDS-ACTION] Detected generic markdown code block, cleaning...")
+        cleanText = cleanText.replace(/^```\s*/, '').replace(/\s*```$/, '')
+      }
+      
+      console.log("🔍 [KEYWORDS-ACTION] Cleaned text:", cleanText)
+      
+      const parsedResult = JSON.parse(cleanText)
       console.log("🔍 [KEYWORDS-ACTION] Parsed result:", parsedResult)
       
       if (!parsedResult.keywords || !Array.isArray(parsedResult.keywords)) {
@@ -139,19 +154,50 @@ function extractKeywordsFromText(text: string): string[] {
   console.log("🔍 [KEYWORDS-ACTION] extractKeywordsFromText called")
   console.log("🔍 [KEYWORDS-ACTION] Input text:", text)
 
-  // Simple fallback extraction if JSON parsing fails
-  const lines = text.split('\n')
+  // Clean the text to remove markdown if present
+  let cleanText = text.trim()
+  if (cleanText.startsWith('```json')) {
+    cleanText = cleanText.replace(/^```json\s*/, '').replace(/\s*```$/, '')
+  } else if (cleanText.startsWith('```')) {
+    cleanText = cleanText.replace(/^```\s*/, '').replace(/\s*```$/, '')
+  }
+
   const keywords: string[] = []
   
-  console.log("🔍 [KEYWORDS-ACTION] Processing", lines.length, "lines")
+  console.log("🔍 [KEYWORDS-ACTION] Processing cleaned text")
 
-  for (const line of lines) {
-    // Look for lines that start with - or numbers or quotes
-    if (line.match(/^[-*•]\s*".*"/) || line.match(/^\d+\.\s*".*"/)) {
-      const match = line.match(/"([^"]+)"/)
-      if (match) {
-        console.log("🔍 [KEYWORDS-ACTION] Found keyword:", match[1])
-        keywords.push(match[1])
+  // Try to extract from JSON structure first
+  try {
+    const jsonMatch = cleanText.match(/"keywords"\s*:\s*\[([\s\S]*?)\]/)
+    if (jsonMatch) {
+      console.log("🔍 [KEYWORDS-ACTION] Found keywords array in JSON structure")
+      const keywordsString = jsonMatch[1]
+      const keywordMatches = keywordsString.match(/"([^"]+)"/g)
+      if (keywordMatches) {
+        keywordMatches.forEach(match => {
+          const keyword = match.replace(/"/g, '')
+          keywords.push(keyword)
+          console.log("🔍 [KEYWORDS-ACTION] Extracted keyword from JSON:", keyword)
+        })
+      }
+    }
+  } catch (error) {
+    console.log("🔍 [KEYWORDS-ACTION] JSON extraction failed, trying line-by-line")
+  }
+
+  // Fallback to line-by-line extraction if JSON extraction failed
+  if (keywords.length === 0) {
+    const lines = cleanText.split('\n')
+    console.log("🔍 [KEYWORDS-ACTION] Processing", lines.length, "lines")
+
+    for (const line of lines) {
+      // Look for lines that start with - or numbers or quotes
+      if (line.match(/^[-*•]\s*".*"/) || line.match(/^\d+\.\s*".*"/) || line.match(/^\s*".*",?\s*$/)) {
+        const match = line.match(/"([^"]+)"/)
+        if (match) {
+          console.log("🔍 [KEYWORDS-ACTION] Found keyword:", match[1])
+          keywords.push(match[1])
+        }
       }
     }
   }
