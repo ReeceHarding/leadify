@@ -3,6 +3,7 @@
 import { ActionState } from "@/types"
 import { openai } from "@ai-sdk/openai"
 import { generateText } from "ai"
+import { scrapeWebsiteAction } from "@/actions/integrations/firecrawl-actions"
 
 interface GenerateKeywordsData {
   website: string
@@ -12,12 +13,14 @@ interface GenerateKeywordsData {
 interface KeywordsResult {
   keywords: string[]
   idealCustomerProfile: string
+  uniqueValueProposition: string
+  targetPainPoints: string[]
 }
 
 export async function generateKeywordsAction(
   data: GenerateKeywordsData
 ): Promise<ActionState<KeywordsResult>> {
-  console.log("🔍 [KEYWORDS-ACTION] generateKeywordsAction called")
+  console.log("🔍 [KEYWORDS-ACTION] generateKeywordsAction called with o3-mini")
   console.log("🔍 [KEYWORDS-ACTION] Input data:", data)
   console.log("🔍 [KEYWORDS-ACTION] Website:", data.website)
   console.log("🔍 [KEYWORDS-ACTION] Refinement:", data.refinement)
@@ -28,84 +31,103 @@ export async function generateKeywordsAction(
       return { isSuccess: false, message: "Website URL is required" }
     }
 
-    console.log("🔍 [KEYWORDS-ACTION] Building system prompt")
+    // Step 1: Scrape the website to get actual content
+    console.log("🔍 [KEYWORDS-ACTION] Scraping website content...")
+    const scrapeResult = await scrapeWebsiteAction(data.website)
+    
+    if (!scrapeResult.isSuccess) {
+      console.error("🔍 [KEYWORDS-ACTION] Website scraping failed:", scrapeResult.message)
+      return { 
+        isSuccess: false, 
+        message: `Failed to analyze website: ${scrapeResult.message}` 
+      }
+    }
 
-    // For now, we'll use a placeholder approach
-    // In a full implementation, you'd want to scrape the website first
-    const systemPrompt = `You are an expert at analyzing businesses and generating Reddit search keywords for lead generation.
+    const websiteContent = scrapeResult.data.content
+    const websiteTitle = scrapeResult.data.title
+    console.log("🔍 [KEYWORDS-ACTION] Website scraped successfully")
+    console.log("🔍 [KEYWORDS-ACTION] Content length:", websiteContent.length)
+    console.log("🔍 [KEYWORDS-ACTION] Website title:", websiteTitle)
 
-Your task is to:
-1. Analyze the provided website URL and business type
-2. Create an ideal customer profile (ICP) 
-3. Generate 8-12 specific keywords/phrases for Reddit posts where this business could ORGANICALLY comment and be helpful
+    // Step 2: Build strategic prompt for o3-mini
+    console.log("🔍 [KEYWORDS-ACTION] Building strategic system prompt for o3-mini")
 
-CRITICAL: Think about what type of post this business can naturally comment on without seeming like spam.
+    const strategicPrompt = `Analyze this business website and generate highly specific Reddit keywords for organic lead generation.
 
-The keywords should target posts where people are:
-- Asking for recommendations or comparisons between options
-- Seeking advice on choosing between solutions
-- Discussing problems where this business type is a natural solution
-- Comparing different approaches or platforms
-- Asking "what's the best..." questions
+WEBSITE CONTENT:
+Title: ${websiteTitle}
+Content: ${websiteContent.slice(0, 8000)}
 
-For REMOTE/ONLINE businesses:
-- Avoid location-specific keywords (no "[city]" or "near me")
-- Focus on online/remote/virtual service comparisons
-- Target posts about platform recommendations
-- Include keywords about online vs offline debates
+${data.refinement ? `\nADDITIONAL CONTEXT/REFINEMENT: ${data.refinement}` : ''}
 
-For LOCAL businesses:
-- Include location-specific terms
-- Target local recommendation requests
+STRATEGIC ANALYSIS REQUIRED:
 
-Keyword format:
-- Natural Reddit search phrases (3-7 words)
-- Questions or comparison requests
-- Focus on solution-seeking, not just pain points
+1. TARGET CUSTOMER ANALYSIS:
+   - Who specifically needs this service/product?
+   - What is their exact job title, role, or situation?
+   - What specific pain point keeps them up at night?
+   - Where are they in their journey (just starting, stuck, comparing options)?
 
-Return the response in this exact JSON format (without any markdown formatting):
+2. UNIQUE VALUE PROPOSITION:
+   - What makes this business different from competitors?
+   - What specific outcome do they deliver?
+   - What's their unique approach or methodology?
+
+3. REDDIT BEHAVIOR ANALYSIS:
+   - What specific questions would the target customer ask on Reddit?
+   - What subreddits would they browse when facing this pain?
+   - How would they phrase their requests for help?
+   - What comparison posts would they create?
+
+4. ORGANIC COMMENTING OPPORTUNITIES:
+   Generate keywords that represent posts where the business owner could:
+   - Share genuine experience and expertise
+   - Mention their business as ONE option among several
+   - Provide value without being salesy
+   - Sound like a helpful user, not a vendor
+
+KEYWORD REQUIREMENTS:
+- 8-12 highly specific search phrases
+- Focus on solution-seeking, not just problems
+- Include comparison requests ("X vs Y")
+- Include specific "where to find" or "how to hire" queries
+- Target posts asking for recommendations
+- Use natural Reddit language (casual, not corporate)
+- Each keyword should represent a post this business could authentically comment on
+
+FORMAT EXAMPLES FOR TECH/SOFTWARE BUSINESSES:
+✅ GOOD: "where to hire AI developers for startups"
+✅ GOOD: "best platforms to find machine learning engineers"
+✅ GOOD: "freelance developers vs development agencies comparison"
+✅ GOOD: "how to find developers who understand AI integration"
+
+❌ BAD: "need help with software development" (too generic)
+❌ BAD: "software development services" (not a Reddit question)
+❌ BAD: "AI development company recommendations" (too corporate)
+
+Return response in this exact JSON format:
 {
-  "idealCustomerProfile": "Detailed description of the ideal customer",
-  "keywords": ["keyword1", "keyword2", "keyword3", ...]
-}
+  "idealCustomerProfile": "Detailed 2-3 sentence description of the exact target customer",
+  "uniqueValueProposition": "1-2 sentences describing what makes this business unique",
+  "targetPainPoints": ["specific pain point 1", "specific pain point 2", "specific pain point 3"],
+  "keywords": ["specific keyword 1", "specific keyword 2", "etc..."]
+}`
 
-Website: ${data.website}
-${data.refinement ? `\nRefinement instructions: ${data.refinement}` : ''}
-
-Example GOOD keywords for different business types:
-
-Remote Health/Therapy Business:
-- "best online therapy platforms comparison"
-- "virtual therapy vs in-person experiences"
-- "affordable telehealth options that work"
-- "online counseling recommendations"
-- "remote mental health services reviews"
-
-Software/SaaS Business:
-- "best project management tools comparison"
-- "accounting software recommendations for startups"
-- "CRM platforms for small business"
-
-Local Service Business:
-- "best personal trainers in Austin"
-- "reliable plumbers in Denver area"
-- "wedding photographers in Seattle"
-
-Example BAD keywords (avoid these):
-- "seeking help for anxiety in [city]" (local request for remote business)
-- "therapists near me" (local request for remote business)
-- "struggling with depression" (pure pain point, no solution-seeking)`
-
-    console.log("🔍 [KEYWORDS-ACTION] System prompt created, length:", systemPrompt.length)
-    console.log("🔍 [KEYWORDS-ACTION] Calling OpenAI generateText")
+    console.log("🔍 [KEYWORDS-ACTION] Calling o3-mini with strategic prompt")
+    console.log("🔍 [KEYWORDS-ACTION] Prompt length:", strategicPrompt.length)
 
     const result = await generateText({
-      model: openai("gpt-4o-mini"),
-      prompt: systemPrompt,
-      temperature: 0.7,
+      model: openai("o3-mini"),
+      prompt: strategicPrompt,
+      temperature: 0.3, // Lower temperature for more focused, strategic thinking
+      providerOptions: {
+        openai: { 
+          reasoningEffort: 'medium' // Use medium reasoning for better strategic analysis
+        }
+      }
     })
 
-    console.log("🔍 [KEYWORDS-ACTION] OpenAI response received")
+    console.log("🔍 [KEYWORDS-ACTION] o3-mini response received")
     console.log("🔍 [KEYWORDS-ACTION] Raw response text:", result.text)
     console.log("🔍 [KEYWORDS-ACTION] Response length:", result.text.length)
 
@@ -129,28 +151,36 @@ Example BAD keywords (avoid these):
       const parsedResult = JSON.parse(cleanText)
       console.log("🔍 [KEYWORDS-ACTION] Parsed result:", parsedResult)
       
+      // Validate the response structure
       if (!parsedResult.keywords || !Array.isArray(parsedResult.keywords)) {
         console.log("🔍 [KEYWORDS-ACTION] Invalid response format - keywords not found or not array")
-        console.log("🔍 [KEYWORDS-ACTION] parsedResult.keywords:", parsedResult.keywords)
-        console.log("🔍 [KEYWORDS-ACTION] Is array?", Array.isArray(parsedResult.keywords))
-        throw new Error("Invalid response format")
+        throw new Error("Invalid response format: keywords missing or not array")
       }
 
-      console.log("🔍 [KEYWORDS-ACTION] Valid response format detected")
+      if (!parsedResult.idealCustomerProfile) {
+        console.log("🔍 [KEYWORDS-ACTION] Missing ideal customer profile")
+        throw new Error("Invalid response format: idealCustomerProfile missing")
+      }
+
+      console.log("🔍 [KEYWORDS-ACTION] Valid strategic response format detected")
       console.log("🔍 [KEYWORDS-ACTION] Keywords found:", parsedResult.keywords)
       console.log("🔍 [KEYWORDS-ACTION] Keywords length:", parsedResult.keywords.length)
       console.log("🔍 [KEYWORDS-ACTION] ICP:", parsedResult.idealCustomerProfile)
+      console.log("🔍 [KEYWORDS-ACTION] UVP:", parsedResult.uniqueValueProposition)
+      console.log("🔍 [KEYWORDS-ACTION] Pain points:", parsedResult.targetPainPoints)
 
       const successResult = {
         isSuccess: true as const,
-        message: "Keywords generated successfully",
+        message: "Strategic keywords generated successfully with o3-mini",
         data: {
           keywords: parsedResult.keywords,
-          idealCustomerProfile: parsedResult.idealCustomerProfile || ""
+          idealCustomerProfile: parsedResult.idealCustomerProfile || "",
+          uniqueValueProposition: parsedResult.uniqueValueProposition || "",
+          targetPainPoints: parsedResult.targetPainPoints || []
         }
       }
 
-      console.log("🔍 [KEYWORDS-ACTION] Returning success result:", successResult)
+      console.log("🔍 [KEYWORDS-ACTION] Returning strategic success result:", successResult)
       return successResult
     } catch (parseError) {
       console.log("🔍 [KEYWORDS-ACTION] JSON parsing failed:", parseError)
@@ -163,10 +193,12 @@ Example BAD keywords (avoid these):
       
       const fallbackResult = {
         isSuccess: true as const,
-        message: "Keywords generated successfully",
+        message: "Keywords generated successfully (fallback mode)",
         data: {
           keywords,
-          idealCustomerProfile: "Generated from website analysis"
+          idealCustomerProfile: "Generated from website analysis (fallback)",
+          uniqueValueProposition: "Determined from website content",
+          targetPainPoints: ["Analysis completed in fallback mode"]
         }
       }
 
@@ -175,11 +207,11 @@ Example BAD keywords (avoid these):
     }
 
   } catch (error) {
-    console.error("🔍 [KEYWORDS-ACTION] Error generating keywords:", error)
+    console.error("🔍 [KEYWORDS-ACTION] Error generating strategic keywords:", error)
     console.error("🔍 [KEYWORDS-ACTION] Error stack:", (error as Error)?.stack)
     return { 
       isSuccess: false, 
-      message: "Failed to generate keywords" 
+      message: "Failed to generate strategic keywords" 
     }
   }
 }
@@ -238,20 +270,20 @@ function extractKeywordsFromText(text: string): string[] {
   
   console.log("🔍 [KEYWORDS-ACTION] Extracted keywords:", keywords)
 
-  // If no keywords found, return some defaults
+  // If no keywords found, return some strategic defaults based on common patterns
   if (keywords.length === 0) {
-    console.log("🔍 [KEYWORDS-ACTION] No keywords found, using defaults")
+    console.log("🔍 [KEYWORDS-ACTION] No keywords found, using strategic defaults")
     const defaults = [
-      "need help with my business",
-      "looking for recommendations",
-      "best service provider",
-      "how to solve my problem"
+      "where to hire experts for my business",
+      "recommendations for professional services",
+      "how to find reliable service providers",
+      "comparing different solution providers"
     ]
-    console.log("🔍 [KEYWORDS-ACTION] Default keywords:", defaults)
+    console.log("🔍 [KEYWORDS-ACTION] Strategic default keywords:", defaults)
     return defaults
   }
   
   const finalKeywords = keywords.slice(0, 12) // Limit to 12 keywords
-  console.log("🔍 [KEYWORDS-ACTION] Final keywords (limited to 12):", finalKeywords)
+  console.log("🔍 [KEYWORDS-ACTION] Final strategic keywords (limited to 12):", finalKeywords)
   return finalKeywords
 } 

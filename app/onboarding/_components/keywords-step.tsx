@@ -2,11 +2,22 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { ArrowLeft, Loader2, X, Plus, Wand2 } from "lucide-react"
+import {
+  Target,
+  Wand2,
+  CheckCircle,
+  ArrowRight,
+  ArrowLeft,
+  RefreshCw,
+  Lightbulb,
+  Users,
+  AlertTriangle
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { generateKeywordsAction } from "@/actions/lead-generation/keywords-actions"
 
 interface KeywordsStepProps {
@@ -29,67 +40,58 @@ export default function KeywordsStep({
   onPrevious
 }: KeywordsStepProps) {
   console.log("🔍 [KEYWORDS] Component initialized")
-  console.log("🔍 [KEYWORDS] Props data:", JSON.stringify(data, null, 2))
-  console.log("🔍 [KEYWORDS] Initial keywords:", data.keywords)
-  console.log("🔍 [KEYWORDS] Initial keywords length:", data.keywords.length)
-  console.log(
-    "🔍 [KEYWORDS] Initial keywords stringified:",
-    JSON.stringify(data.keywords)
-  )
-  console.log("🔍 [KEYWORDS] Website:", data.website)
-  console.log("🔍 [KEYWORDS] onUpdate function type:", typeof onUpdate)
-  console.log("🔍 [KEYWORDS] onNext function type:", typeof onNext)
+  console.log("🔍 [KEYWORDS] Current data:", data)
+  console.log("🔍 [KEYWORDS] Current keywords:", data.keywords)
+  console.log("🔍 [KEYWORDS] Keywords length:", data.keywords?.length || 0)
 
   const [isGenerating, setIsGenerating] = useState(false)
-  const [newKeyword, setNewKeyword] = useState("")
-  const [refinementPrompt, setRefinementPrompt] = useState("")
-  const [hasGenerated, setHasGenerated] = useState(false)
-  const [editingIndex, setEditingIndex] = useState<number | null>(null)
+  const [hasGenerated, setHasGenerated] = useState(
+    data.keywords && data.keywords.length > 0
+  )
+  const [refinementInput, setRefinementInput] = useState("")
+  const [strategicInsights, setStrategicInsights] = useState<{
+    idealCustomerProfile?: string
+    uniqueValueProposition?: string
+    targetPainPoints?: string[]
+  }>({})
 
-  // Track prop changes
-  useEffect(() => {
-    console.log("🔍 [KEYWORDS] Props changed useEffect triggered")
-    console.log("🔍 [KEYWORDS] New data prop:", JSON.stringify(data, null, 2))
-    console.log("🔍 [KEYWORDS] New keywords from props:", data.keywords)
+  console.log("🔍 [KEYWORDS] Component state:")
+  console.log("🔍 [KEYWORDS] - isGenerating:", isGenerating)
+  console.log("🔍 [KEYWORDS] - hasGenerated:", hasGenerated)
+  console.log("🔍 [KEYWORDS] - refinementInput:", refinementInput)
+  console.log("🔍 [KEYWORDS] - strategicInsights:", strategicInsights)
+
+  const handleNext = () => {
+    console.log("🔍 [KEYWORDS] handleNext() called")
+    console.log("🔍 [KEYWORDS] Current keywords before next:", data.keywords)
     console.log(
-      "🔍 [KEYWORDS] New keywords length from props:",
-      data.keywords.length
+      "🔍 [KEYWORDS] Keywords length before next:",
+      data.keywords?.length || 0
     )
-    console.log(
-      "🔍 [KEYWORDS] New keywords stringified from props:",
-      JSON.stringify(data.keywords)
-    )
-  }, [data])
 
-  // Auto-generate keywords when component mounts if website is provided
-  useEffect(() => {
-    console.log("🔍 [KEYWORDS] Auto-generation useEffect triggered")
-    console.log("🔍 [KEYWORDS] data.website:", data.website)
-    console.log("🔍 [KEYWORDS] hasGenerated:", hasGenerated)
-    console.log("🔍 [KEYWORDS] data.keywords.length:", data.keywords.length)
-
-    if (data.website && !hasGenerated && data.keywords.length === 0) {
-      console.log("🔍 [KEYWORDS] Auto-generating keywords")
-      generateKeywords()
+    if (data.keywords && data.keywords.length > 0) {
+      console.log("🔍 [KEYWORDS] Keywords exist, proceeding to next step")
+      onNext()
     } else {
-      console.log("🔍 [KEYWORDS] Not auto-generating keywords because:")
-      console.log("🔍 [KEYWORDS] - No website:", !data.website)
-      console.log("🔍 [KEYWORDS] - Already generated:", hasGenerated)
-      console.log(
-        "🔍 [KEYWORDS] - Already has keywords:",
-        data.keywords.length > 0
-      )
+      console.log("🔍 [KEYWORDS] No keywords found, cannot proceed")
     }
-  }, [data.website])
+  }
+
+  const handlePrevious = () => {
+    console.log("🔍 [KEYWORDS] handlePrevious() called")
+    onPrevious()
+  }
 
   const generateKeywords = async (refinement?: string) => {
-    console.log("🔍 [KEYWORDS] generateKeywords() called")
+    console.log("🔍 [KEYWORDS] generateKeywords() called with o3-mini")
     console.log("🔍 [KEYWORDS] Website:", data.website)
     console.log("🔍 [KEYWORDS] Refinement:", refinement)
 
     setIsGenerating(true)
     try {
-      console.log("🔍 [KEYWORDS] Calling generateKeywordsAction")
+      console.log(
+        "🔍 [KEYWORDS] Calling generateKeywordsAction with strategic analysis"
+      )
       const result = await generateKeywordsAction({
         website: data.website,
         refinement: refinement || undefined
@@ -101,194 +103,68 @@ export default function KeywordsStep({
       )
 
       if (result.isSuccess) {
-        console.log("🔍 [KEYWORDS] Keywords generation successful")
+        console.log("🔍 [KEYWORDS] Strategic keywords generation successful")
         console.log("🔍 [KEYWORDS] Generated keywords:", result.data.keywords)
         console.log(
-          "🔍 [KEYWORDS] Generated keywords length:",
+          "🔍 [KEYWORDS] Keywords length:",
           result.data.keywords.length
         )
-        console.log(
-          "🔍 [KEYWORDS] Generated keywords stringified:",
-          JSON.stringify(result.data.keywords)
-        )
-
-        // Update keywords through parent component
-        console.log("🔍 [KEYWORDS] Calling onUpdate with generated keywords")
-        console.log("🔍 [KEYWORDS] onUpdate data payload:", {
-          keywords: result.data.keywords
+        console.log("🔍 [KEYWORDS] Strategic insights:", {
+          idealCustomerProfile: result.data.idealCustomerProfile,
+          uniqueValueProposition: result.data.uniqueValueProposition,
+          targetPainPoints: result.data.targetPainPoints
         })
-        console.log(
-          "🔍 [KEYWORDS] onUpdate data payload stringified:",
-          JSON.stringify({ keywords: result.data.keywords })
-        )
 
+        // Update keywords and strategic insights
+        console.log(
+          "🔍 [KEYWORDS] Calling onUpdate with generated keywords and insights"
+        )
         onUpdate({ keywords: result.data.keywords })
+
+        // Store strategic insights in component state for display
+        setStrategicInsights({
+          idealCustomerProfile: result.data.idealCustomerProfile,
+          uniqueValueProposition: result.data.uniqueValueProposition,
+          targetPainPoints: result.data.targetPainPoints
+        })
+
         setHasGenerated(true)
+        setRefinementInput("") // Clear refinement input after successful generation
 
         console.log(
-          "🔍 [KEYWORDS] Called onUpdate with keywords:",
-          result.data.keywords
+          "🔍 [KEYWORDS] Successfully updated keywords and strategic insights"
         )
-        console.log("🔍 [KEYWORDS] Set hasGenerated to true")
       } else {
         console.error(
-          "🔍 [KEYWORDS] Keywords generation failed:",
+          "🔍 [KEYWORDS] Strategic keywords generation failed:",
           result.message
         )
       }
     } catch (error) {
-      console.error("🔍 [KEYWORDS] Error generating keywords:", error)
+      console.error("🔍 [KEYWORDS] Error generating strategic keywords:", error)
     } finally {
       setIsGenerating(false)
-      console.log("🔍 [KEYWORDS] Generation process completed")
     }
   }
 
-  const handleRefinement = async (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log("🔍 [KEYWORDS] handleRefinement() called")
-    console.log("🔍 [KEYWORDS] Refinement prompt:", refinementPrompt)
-
-    if (refinementPrompt.trim()) {
-      await generateKeywords(refinementPrompt)
-      setRefinementPrompt("")
-    }
+  const handleGenerate = () => {
+    console.log("🔍 [KEYWORDS] handleGenerate() called")
+    console.log("🔍 [KEYWORDS] Refinement input:", refinementInput)
+    generateKeywords(refinementInput.trim() || undefined)
   }
 
-  const addKeyword = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log("🔍 [KEYWORDS] addKeyword() called")
-    console.log("🔍 [KEYWORDS] New keyword:", newKeyword)
-    console.log("🔍 [KEYWORDS] Current keywords:", data.keywords)
-
-    if (newKeyword.trim() && !data.keywords.includes(newKeyword.trim())) {
-      const updatedKeywords = [...data.keywords, newKeyword.trim()]
-      console.log(
-        "🔍 [KEYWORDS] Updated keywords after adding:",
-        updatedKeywords
-      )
-      console.log(
-        "🔍 [KEYWORDS] Updated keywords stringified:",
-        JSON.stringify(updatedKeywords)
-      )
-
-      console.log("🔍 [KEYWORDS] Calling onUpdate for addKeyword")
-      console.log("🔍 [KEYWORDS] onUpdate payload:", {
-        keywords: updatedKeywords
-      })
-      onUpdate({ keywords: updatedKeywords })
-      setNewKeyword("")
-
-      console.log("🔍 [KEYWORDS] Called onUpdate with updated keywords")
-    } else {
-      console.log(
-        "🔍 [KEYWORDS] Not adding keyword - either empty or duplicate"
-      )
-    }
-  }
-
-  const removeKeyword = (keywordToRemove: string) => {
-    console.log("🔍 [KEYWORDS] removeKeyword() called")
-    console.log("🔍 [KEYWORDS] Keyword to remove:", keywordToRemove)
-    console.log("🔍 [KEYWORDS] Current keywords:", data.keywords)
-
-    const updatedKeywords = data.keywords.filter(
-      keyword => keyword !== keywordToRemove
-    )
+  const handleRegenerate = () => {
+    console.log("🔍 [KEYWORDS] handleRegenerate() called")
     console.log(
-      "🔍 [KEYWORDS] Updated keywords after removal:",
-      updatedKeywords
+      "🔍 [KEYWORDS] Refinement input for regeneration:",
+      refinementInput
     )
-    console.log(
-      "🔍 [KEYWORDS] Updated keywords stringified:",
-      JSON.stringify(updatedKeywords)
-    )
-
-    console.log("🔍 [KEYWORDS] Calling onUpdate for removeKeyword")
-    console.log("🔍 [KEYWORDS] onUpdate payload:", {
-      keywords: updatedKeywords
-    })
-    onUpdate({ keywords: updatedKeywords })
-    console.log("🔍 [KEYWORDS] Called onUpdate with updated keywords")
+    generateKeywords(refinementInput.trim() || undefined)
   }
 
-  const editKeyword = (index: number, newValue: string) => {
-    console.log("🔍 [KEYWORDS] editKeyword() called")
-    console.log("🔍 [KEYWORDS] Index:", index)
-    console.log("🔍 [KEYWORDS] New value:", newValue)
-    console.log("🔍 [KEYWORDS] Current keywords:", data.keywords)
-
-    const updatedKeywords = [...data.keywords]
-    updatedKeywords[index] = newValue
-    console.log("🔍 [KEYWORDS] Updated keywords after edit:", updatedKeywords)
-    console.log(
-      "🔍 [KEYWORDS] Updated keywords stringified:",
-      JSON.stringify(updatedKeywords)
-    )
-
-    console.log("🔍 [KEYWORDS] Calling onUpdate for editKeyword")
-    console.log("🔍 [KEYWORDS] onUpdate payload:", {
-      keywords: updatedKeywords
-    })
-    onUpdate({ keywords: updatedKeywords })
-    console.log("🔍 [KEYWORDS] Called onUpdate with updated keywords")
-  }
-
-  const handleKeywordClick = (index: number) => {
-    console.log("🔍 [KEYWORDS] handleKeywordClick() called for index:", index)
-    setEditingIndex(index)
-  }
-
-  const handleKeywordBlur = (
-    e: React.FocusEvent<HTMLInputElement>,
-    index: number,
-    keyword: string
-  ) => {
-    console.log("🔍 [KEYWORDS] handleKeywordBlur() called")
-    console.log("🔍 [KEYWORDS] Index:", index)
-    console.log("🔍 [KEYWORDS] Keyword:", keyword)
-    console.log("🔍 [KEYWORDS] Input value:", e.target.value)
-
-    setEditingIndex(null)
-    if (e.target.value.trim() === "") {
-      console.log("🔍 [KEYWORDS] Empty value, removing keyword")
-      removeKeyword(keyword)
-    }
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log("🔍 [KEYWORDS] handleSubmit() called")
-    console.log("🔍 [KEYWORDS] Current keywords before submit:", data.keywords)
-    console.log(
-      "🔍 [KEYWORDS] Keywords length before submit:",
-      data.keywords.length
-    )
-    console.log(
-      "🔍 [KEYWORDS] Keywords stringified before submit:",
-      JSON.stringify(data.keywords)
-    )
-
-    if (data.keywords.length > 0) {
-      console.log("🔍 [KEYWORDS] Keywords validation passed, calling onNext()")
-      onNext()
-    } else {
-      console.log("🔍 [KEYWORDS] Keywords validation failed - no keywords")
-    }
-  }
-
-  console.log("🔍 [KEYWORDS] Rendering component")
-  console.log("🔍 [KEYWORDS] Current data.keywords:", data.keywords)
-  console.log(
-    "🔍 [KEYWORDS] Current data.keywords.length:",
-    data.keywords.length
-  )
-  console.log(
-    "🔍 [KEYWORDS] Current data.keywords stringified:",
-    JSON.stringify(data.keywords)
-  )
-  console.log("🔍 [KEYWORDS] isGenerating:", isGenerating)
-  console.log("🔍 [KEYWORDS] hasGenerated:", hasGenerated)
+  console.log("🔍 [KEYWORDS] About to render component")
+  console.log("🔍 [KEYWORDS] Final data.keywords:", data.keywords)
+  console.log("🔍 [KEYWORDS] Final hasGenerated:", hasGenerated)
 
   return (
     <motion.div
@@ -298,198 +174,219 @@ export default function KeywordsStep({
       className="space-y-8 text-center"
     >
       <div className="space-y-3">
-        <h1 className="text-3xl font-bold text-white">Target Keywords</h1>
+        <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-blue-700">
+          <Target className="size-8 text-white" />
+        </div>
+        <h1 className="text-3xl font-bold text-white">
+          Strategic Keyword Generation
+        </h1>
         <p className="text-base leading-relaxed text-gray-400">
-          {data.website
-            ? "We've analyzed your website and generated relevant keywords that your potential customers might search for on Reddit."
-            : "Add keywords that your potential customers might search for on Reddit."}
+          AI-powered analysis of your website to generate highly targeted Reddit
+          keywords for organic lead generation.
         </p>
       </div>
 
-      {/* Loading State */}
-      {isGenerating && (
-        <div className="flex flex-col items-center space-y-4 py-12">
-          <div className="relative">
-            <div className="size-8 animate-spin rounded-full border-2 border-gray-600 border-t-blue-600" />
-          </div>
-          <p className="text-gray-400">
-            {hasGenerated
-              ? "Refining keywords..."
-              : "Analyzing your website and generating keywords..."}
-          </p>
-        </div>
-      )}
+      {!hasGenerated && (
+        <div className="space-y-6 text-left">
+          <Card className="border-gray-700 bg-gray-900">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-white">
+                <Lightbulb className="size-5 text-blue-500" />
+                Refine Your Keywords (Optional)
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Textarea
+                value={refinementInput}
+                onChange={e => setRefinementInput(e.target.value)}
+                placeholder="Add specific context about your target customers or unique approach... (e.g., 'focus on companies looking to hire software developers with AI experience')"
+                className="min-h-[100px] border-gray-600 bg-gray-800 text-white placeholder:text-gray-500"
+              />
+              <p className="text-sm text-gray-400">
+                Help the AI understand your specific niche or target audience
+                for more relevant keywords.
+              </p>
+            </CardContent>
+          </Card>
 
-      {/* Keywords Display */}
-      {(data.keywords.length > 0 || hasGenerated) && (
-        <div className="space-y-6">
-          {/* Show keywords unless it's the initial generation */}
-          {(!isGenerating || hasGenerated) && (
-            <>
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-white">
-                  Generated Keywords
-                </h3>
-                <div className="flex flex-wrap justify-center gap-3">
-                  {data.keywords.map((keyword, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="group relative"
-                    >
-                      {editingIndex === index ? (
-                        <div className="flex items-center rounded-lg border border-gray-600 bg-gray-800 px-3 py-2">
-                          <input
-                            type="text"
-                            value={keyword}
-                            onChange={e => editKeyword(index, e.target.value)}
-                            onBlur={e => handleKeywordBlur(e, index, keyword)}
-                            onKeyDown={e => {
-                              if (e.key === "Enter") {
-                                setEditingIndex(null)
-                              }
-                            }}
-                            className="min-w-0 flex-1 border-none bg-transparent text-sm text-white outline-none"
-                            autoFocus
-                            style={{ width: `${keyword.length + 2}ch` }}
-                          />
-                          <button
-                            onClick={() => removeKeyword(keyword)}
-                            className="ml-2 text-gray-500 hover:text-gray-300"
-                          >
-                            <X className="size-3" />
-                          </button>
-                        </div>
-                      ) : (
-                        <Badge
-                          variant="outline"
-                          className="cursor-pointer rounded-lg border-gray-600 bg-gray-800 px-3 py-2 text-sm text-white transition-colors hover:bg-gray-700"
-                          onClick={() => handleKeywordClick(index)}
-                        >
-                          <span className="break-words">{keyword}</span>
-                          <button
-                            onClick={e => {
-                              e.stopPropagation()
-                              removeKeyword(keyword)
-                            }}
-                            className="ml-2 opacity-0 transition-opacity group-hover:opacity-100"
-                          >
-                            <X className="size-3" />
-                          </button>
-                        </Badge>
-                      )}
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-
-              {/* AI Refinement */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-white">
-                  Refine Keywords
-                </h3>
-                <form onSubmit={handleRefinement} className="space-y-3">
-                  <Textarea
-                    value={refinementPrompt}
-                    onChange={e => setRefinementPrompt(e.target.value)}
-                    placeholder="Tell the AI how to adjust the keywords (e.g., 'focus more on technical keywords' or 'make them more specific to B2B customers')"
-                    className="min-h-[80px] rounded-lg border-gray-600 bg-gray-900 text-white placeholder:text-gray-500"
-                    disabled={isGenerating}
-                  />
-                  <Button
-                    type="submit"
-                    variant="outline"
-                    className="w-full rounded-lg border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
-                    disabled={!refinementPrompt.trim() || isGenerating}
-                  >
-                    {isGenerating ? (
-                      <>
-                        <Loader2 className="mr-2 size-4 animate-spin" />
-                        Regenerating...
-                      </>
-                    ) : (
-                      <>
-                        <Wand2 className="mr-2 size-4" />
-                        Regenerate Keywords
-                      </>
-                    )}
-                  </Button>
-                </form>
-              </div>
-
-              {/* Add Custom Keyword */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-white">
-                  Add Custom Keyword
-                </h3>
-                <form onSubmit={addKeyword} className="flex gap-2">
-                  <Input
-                    value={newKeyword}
-                    onChange={e => setNewKeyword(e.target.value)}
-                    placeholder="Add a custom keyword..."
-                    className="flex-1 rounded-lg border-gray-600 bg-gray-900 text-white placeholder:text-gray-500"
-                  />
-                  <Button
-                    type="submit"
-                    variant="outline"
-                    disabled={!newKeyword.trim()}
-                    className="rounded-lg border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
-                  >
-                    <Plus className="size-4" />
-                  </Button>
-                </form>
-              </div>
-            </>
-          )}
-        </div>
-      )}
-
-      {/* Manual Keywords Entry (if no website) */}
-      {!data.website && data.keywords.length === 0 && !isGenerating && (
-        <div className="space-y-4">
-          <form onSubmit={addKeyword} className="flex gap-2">
-            <Input
-              value={newKeyword}
-              onChange={e => setNewKeyword(e.target.value)}
-              placeholder="Enter a keyword your customers might search for..."
-              className="flex-1 rounded-lg border-gray-600 bg-gray-900 text-white placeholder:text-gray-500"
-            />
-            <Button
-              type="submit"
-              variant="outline"
-              disabled={!newKeyword.trim()}
-              className="rounded-lg border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
-            >
-              <Plus className="size-4" />
-            </Button>
-          </form>
-        </div>
-      )}
-
-      {/* Navigation */}
-      {(data.keywords.length > 0 || !isGenerating) && (
-        <form onSubmit={handleSubmit} className="space-y-4">
           <Button
-            type="submit"
+            onClick={handleGenerate}
+            disabled={isGenerating}
             className="w-full rounded-lg bg-blue-600 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700"
-            disabled={data.keywords.length === 0}
           >
-            Continue →
+            {isGenerating ? (
+              <>
+                <Wand2 className="mr-2 size-4 animate-spin" />
+                Analyzing Website & Generating Strategic Keywords...
+              </>
+            ) : (
+              <>
+                <Wand2 className="mr-2 size-4" />
+                Generate Strategic Keywords with o3-mini
+              </>
+            )}
           </Button>
-
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={onPrevious}
-            className="flex w-full items-center justify-center text-gray-400 hover:text-gray-200"
-          >
-            <ArrowLeft className="mr-2 size-4" />
-            Back
-          </Button>
-        </form>
+        </div>
       )}
+
+      {hasGenerated && data.keywords && data.keywords.length > 0 && (
+        <div className="space-y-6 text-left">
+          {/* Strategic Insights */}
+          {(strategicInsights.idealCustomerProfile ||
+            strategicInsights.uniqueValueProposition ||
+            strategicInsights.targetPainPoints) && (
+            <div className="space-y-4">
+              <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
+                <Users className="size-5 text-blue-500" />
+                Strategic Analysis
+              </h3>
+
+              {strategicInsights.idealCustomerProfile && (
+                <Card className="border-gray-700 bg-gray-900">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm text-gray-300">
+                      Ideal Customer Profile
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-white">
+                      {strategicInsights.idealCustomerProfile}
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+
+              {strategicInsights.uniqueValueProposition && (
+                <Card className="border-gray-700 bg-gray-900">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm text-gray-300">
+                      Unique Value Proposition
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-white">
+                      {strategicInsights.uniqueValueProposition}
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+
+              {strategicInsights.targetPainPoints &&
+                strategicInsights.targetPainPoints.length > 0 && (
+                  <Card className="border-gray-700 bg-gray-900">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="flex items-center gap-2 text-sm text-gray-300">
+                        <AlertTriangle className="size-4" />
+                        Target Pain Points
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        {strategicInsights.targetPainPoints.map(
+                          (painPoint, index) => (
+                            <div key={index} className="flex items-start gap-2">
+                              <div className="mt-2 size-1.5 shrink-0 rounded-full bg-blue-500" />
+                              <p className="text-white">{painPoint}</p>
+                            </div>
+                          )
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+            </div>
+          )}
+
+          {/* Generated Keywords */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
+                <CheckCircle className="size-5 text-green-500" />
+                Generated Keywords ({data.keywords.length})
+              </h3>
+              <Badge
+                variant="secondary"
+                className="bg-green-900 text-green-100"
+              >
+                Ready for Reddit
+              </Badge>
+            </div>
+
+            <div className="grid gap-3">
+              {data.keywords.map((keyword, index) => (
+                <div
+                  key={index}
+                  className="rounded-lg border border-gray-700 bg-gray-900 p-3 text-white"
+                >
+                  <div className="flex items-start gap-3">
+                    <span className="flex size-6 items-center justify-center rounded-full bg-blue-600 text-xs font-medium text-white">
+                      {index + 1}
+                    </span>
+                    <span className="flex-1">{keyword}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Refinement Section */}
+          <Card className="border-gray-700 bg-gray-900">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-white">
+                <RefreshCw className="size-5 text-blue-500" />
+                Refine Keywords
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Textarea
+                value={refinementInput}
+                onChange={e => setRefinementInput(e.target.value)}
+                placeholder="Not satisfied? Add specific instructions to refine the keywords... (e.g., 'focus more on AI-specific hiring needs' or 'target smaller startups instead of enterprises')"
+                className="min-h-[80px] border-gray-600 bg-gray-800 text-white placeholder:text-gray-500"
+              />
+              <Button
+                onClick={handleRegenerate}
+                disabled={isGenerating}
+                variant="outline"
+                className="w-full border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
+              >
+                {isGenerating ? (
+                  <>
+                    <RefreshCw className="mr-2 size-4 animate-spin" />
+                    Regenerating with o3-mini...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="mr-2 size-4" />
+                    Regenerate Keywords
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      <div className="flex gap-4">
+        <Button
+          onClick={handlePrevious}
+          variant="outline"
+          className="flex-1 border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
+        >
+          <ArrowLeft className="mr-2 size-4" />
+          Previous
+        </Button>
+        <Button
+          onClick={handleNext}
+          disabled={
+            !hasGenerated || !data.keywords || data.keywords.length === 0
+          }
+          className="flex-1 bg-blue-600 text-white hover:bg-blue-700"
+        >
+          Continue
+          <ArrowRight className="ml-2 size-4" />
+        </Button>
+      </div>
     </motion.div>
   )
 }
