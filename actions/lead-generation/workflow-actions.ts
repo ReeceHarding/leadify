@@ -12,7 +12,7 @@ import { updateCampaignAction, getCampaignByIdAction } from "@/actions/db/campai
 import { scrapeWebsiteAction } from "@/actions/integrations/firecrawl-actions"
 import { searchMultipleKeywordsAction } from "@/actions/integrations/google-search-actions"
 import { fetchMultipleRedditThreadsAction } from "@/actions/integrations/reddit-actions"
-import { batchScoreThreadsAction } from "@/actions/integrations/openai-actions"
+import { batchScoreThreadsWithThreeTierCommentsAction } from "@/actions/integrations/openai-actions"
 import { 
   LEAD_COLLECTIONS,
   CreateSearchResultData,
@@ -245,7 +245,7 @@ export async function runFullLeadGenerationWorkflowAction(
       subreddit: thread.subreddit
     }))
 
-    const scoringResult = await batchScoreThreadsAction(threadsForScoring, scrapeResult.data.content)
+    const scoringResult = await batchScoreThreadsWithThreeTierCommentsAction(threadsForScoring, scrapeResult.data.content)
     if (!scoringResult.isSuccess) {
       progress.results.push({
         step: "Score and Generate Comments",
@@ -272,8 +272,10 @@ export async function runFullLeadGenerationWorkflowAction(
         redditThreadId: "unknown", // Would need better tracking
         threadId: thread.id,
         relevanceScore: scoring.score,
-        generatedComment: scoring.generatedComment,
         reasoning: scoring.reasoning,
+        freeComment: scoring.freeComment,
+        mediumComment: scoring.mediumComment,
+        premiumComment: scoring.premiumComment,
         approved: false,
         used: false,
         createdAt: serverTimestamp(),
