@@ -95,8 +95,10 @@ export default function WebsiteStep({
       className="space-y-8 text-center"
     >
       <div className="space-y-3">
-        <h1 className="text-3xl font-bold text-gray-900">Your Brand Source</h1>
-        <p className="text-base leading-relaxed text-gray-600">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+          Your Brand Source
+        </h1>
+        <p className="text-base leading-relaxed text-gray-600 dark:text-gray-400">
           Let's add your website to help us understand your brand better. This
           will be used as a reference for accurate content generation.
         </p>
@@ -112,13 +114,13 @@ export default function WebsiteStep({
               value={data.website}
               onChange={e => onUpdate({ website: e.target.value })}
               placeholder="https://yourwebsite.com"
-              className="rounded-lg border-gray-300 py-3 pl-12 text-center text-base"
+              className="rounded-lg border-gray-300 py-3 pl-12 text-center text-base dark:border-gray-600"
             />
-            <Globe className="absolute left-4 top-1/2 size-5 -translate-y-1/2 text-gray-400" />
+            <Globe className="absolute left-4 top-1/2 size-5 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
           </div>
         </div>
 
-        <p className="mx-auto max-w-md text-sm text-gray-500">
+        <p className="mx-auto max-w-md text-sm text-gray-500 dark:text-gray-400">
           We'll analyze your website to create a knowledge base of key
           information for your brand. Don't worry, you can always add or update
           your knowledge base later in the app.
@@ -128,7 +130,7 @@ export default function WebsiteStep({
         <div className="flex flex-col space-y-3">
           <Button
             type="submit"
-            className="w-full rounded-lg bg-blue-600 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700"
+            className="w-full rounded-lg bg-blue-600 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
             disabled={isValidating}
           >
             {isValidating ? (
@@ -145,7 +147,7 @@ export default function WebsiteStep({
             type="button"
             variant="ghost"
             onClick={handleSkip}
-            className="w-full text-gray-600 hover:text-gray-800"
+            className="w-full text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
             disabled={isValidating}
           >
             Skip for now →
@@ -157,7 +159,7 @@ export default function WebsiteStep({
           type="button"
           variant="ghost"
           onClick={onPrevious}
-          className="flex w-full items-center justify-center text-gray-600 hover:text-gray-800"
+          className="flex w-full items-center justify-center text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
           disabled={isValidating}
         >
           <ArrowLeft className="mr-2 size-4" />

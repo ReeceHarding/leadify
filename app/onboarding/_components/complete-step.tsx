@@ -41,49 +41,43 @@ export default function CompleteStep({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="space-y-8 text-center"
+      className="space-y-6 text-center"
     >
-      <div className="space-y-4">
+      <div className="space-y-3">
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
-          className="text-5xl"
+          className="text-4xl"
         >
           🎉
         </motion.div>
 
-        <h1 className="text-3xl font-bold text-gray-900">
-          Congratulations! You're ready to start creating with Lead Finder!
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          Setup Complete!
         </h1>
 
-        <p className="mx-auto max-w-lg text-base leading-relaxed text-gray-600">
-          Turn any Reddit opportunity into engaging content in seconds. Simply
-          paste a link below to transform it into ready-to-share posts.
+        <p className="mx-auto max-w-md text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+          You're ready to find and engage with potential customers on Reddit.
         </p>
       </div>
 
       {/* Summary of Setup */}
-      <div className="space-y-4 rounded-lg bg-gray-50 p-6">
-        <h3 className="text-lg font-semibold text-gray-900">
+      <div className="space-y-4 rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
+        <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
           Your Setup Summary
         </h3>
 
-        <div className="grid grid-cols-1 gap-4 text-left md:grid-cols-2">
+        <div className="grid grid-cols-2 gap-3 text-left text-sm">
           <div>
-            <p className="text-sm font-medium text-gray-700">Profile</p>
-            <p className="text-gray-600">{data.name}</p>
+            <p className="font-medium text-gray-700 dark:text-gray-300">
+              Profile
+            </p>
+            <p className="text-gray-600 dark:text-gray-400">{data.name}</p>
           </div>
 
-          {data.website && (
-            <div>
-              <p className="text-sm font-medium text-gray-700">Website</p>
-              <p className="break-all text-gray-600">{data.website}</p>
-            </div>
-          )}
-
           <div>
-            <p className="text-sm font-medium text-gray-700">
+            <p className="font-medium text-gray-700 dark:text-gray-300">
               Reddit Connected
             </p>
             <Badge variant={data.redditConnected ? "default" : "secondary"}>
@@ -91,60 +85,40 @@ export default function CompleteStep({
             </Badge>
           </div>
 
-          <div>
-            <p className="text-sm font-medium text-gray-700">
+          <div className="col-span-2">
+            <p className="font-medium text-gray-700 dark:text-gray-300">
               Keywords Generated
             </p>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-400">
               {data.keywords.length} keywords ready
             </p>
           </div>
         </div>
-
-        {data.keywords.length > 0 && (
-          <div>
-            <p className="mb-2 text-sm font-medium text-gray-700">
-              Target Keywords
-            </p>
-            <div className="flex flex-wrap gap-1">
-              {data.keywords.slice(0, 6).map((keyword, index) => (
-                <Badge key={index} variant="outline" className="text-xs">
-                  {keyword}
-                </Badge>
-              ))}
-              {data.keywords.length > 6 && (
-                <Badge variant="outline" className="text-xs">
-                  +{data.keywords.length - 6} more
-                </Badge>
-              )}
-            </div>
-          </div>
-        )}
       </div>
 
-      {/* Video/Demo Preview */}
-      <div className="relative rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 p-8 text-white">
+      {/* Next Steps */}
+      <div className="relative rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white">
         <div className="relative z-10">
-          <div className="mb-4 flex justify-center">
-            <div className="rounded-full bg-white/20 p-4">
-              <Play className="size-8" />
+          <div className="mb-3 flex justify-center">
+            <div className="rounded-full bg-white/20 p-3">
+              <Play className="size-6" />
             </div>
           </div>
-          <h3 className="mb-2 text-xl font-semibold">
+          <h3 className="mb-2 text-lg font-semibold">
             Ready to Find Your First Leads
           </h3>
-          <p className="text-blue-100">
+          <p className="text-sm text-blue-100">
             We'll search Reddit for opportunities matching your keywords and
             help you engage with potential customers.
           </p>
         </div>
 
         {/* Decorative elements */}
-        <div className="absolute right-4 top-4 opacity-20">
-          <div className="size-16 rounded-full bg-white"></div>
-        </div>
-        <div className="absolute bottom-4 left-4 opacity-10">
+        <div className="absolute right-3 top-3 opacity-20">
           <div className="size-12 rounded-full bg-white"></div>
+        </div>
+        <div className="absolute bottom-3 left-3 opacity-10">
+          <div className="size-8 rounded-full bg-white"></div>
         </div>
       </div>
 
@@ -153,7 +127,7 @@ export default function CompleteStep({
         <Button
           onClick={handleComplete}
           disabled={isCompleting}
-          className="w-full rounded-lg bg-blue-600 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700"
+          className="w-full rounded-lg bg-blue-600 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
         >
           {isCompleting ? (
             <>
@@ -169,7 +143,7 @@ export default function CompleteStep({
           type="button"
           variant="ghost"
           onClick={onPrevious}
-          className="flex w-full items-center justify-center text-gray-600 hover:text-gray-800"
+          className="flex w-full items-center justify-center text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
           disabled={isCompleting}
         >
           <ArrowLeft className="mr-2 size-4" />
