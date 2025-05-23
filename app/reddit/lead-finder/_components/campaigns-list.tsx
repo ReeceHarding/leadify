@@ -47,8 +47,8 @@ interface Campaign {
   totalSearchResults: number
   totalThreadsAnalyzed: number
   totalCommentsGenerated: number
-  createdAt: any // Firestore Timestamp
-  updatedAt: any // Firestore Timestamp
+  createdAt: string // ISO string instead of Firestore Timestamp
+  updatedAt: string // ISO string instead of Firestore Timestamp
 }
 
 interface CampaignsListProps {
@@ -266,7 +266,7 @@ export default function CampaignsList({
                 </TableCell>
                 <TableCell className="text-muted-foreground text-sm">
                   {campaign.createdAt &&
-                    format(campaign.createdAt.toDate(), "MMM dd, yyyy")}
+                    format(new Date(campaign.createdAt), "MMM dd, yyyy")}
                 </TableCell>
                 <TableCell>
                   <DropdownMenu>

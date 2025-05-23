@@ -26,7 +26,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { X, Plus, Loader2, Globe, Search, Target } from "lucide-react"
-import { createCampaignAction } from "@/actions/db/lead-generation-actions"
+import { createCampaignAction } from "@/actions/db/campaign-actions"
 import { runFullLeadGenerationWorkflowAction } from "@/actions/lead-generation/workflow-actions"
 import { toast } from "sonner"
 

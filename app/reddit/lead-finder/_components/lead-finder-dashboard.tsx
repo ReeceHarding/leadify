@@ -44,11 +44,11 @@ import {
 import CreateCampaignDialog from "./create-campaign-dialog"
 import CampaignsList from "./campaigns-list"
 import { runFullLeadGenerationWorkflowAction } from "@/actions/lead-generation/workflow-actions"
+import { getGeneratedCommentsByCampaignAction } from "@/actions/db/lead-generation-actions"
 import {
-  getGeneratedCommentsByCampaignAction,
   createCampaignAction,
   getCampaignsByUserIdAction
-} from "@/actions/db/lead-generation-actions"
+} from "@/actions/db/campaign-actions"
 import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
 import { useUser } from "@clerk/nextjs"
 

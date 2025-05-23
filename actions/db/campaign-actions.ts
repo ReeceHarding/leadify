@@ -1,6 +1,7 @@
 /*
 <ai_context>
 Contains server actions related to lead generation campaigns in Firestore.
+Updated to return serialized data for client components.
 </ai_context>
 */
 
@@ -27,12 +28,42 @@ import {
   where,
   getDocs,
   orderBy,
-  serverTimestamp
+  serverTimestamp,
+  Timestamp
 } from "firebase/firestore"
+
+// Serialized version for client components
+export interface SerializedCampaignDocument {
+  id: string
+  userId: string
+  name: string
+  website: string
+  websiteContent?: string
+  keywords: string[]
+  status: "draft" | "running" | "completed" | "paused" | "error"
+  totalSearchResults: number
+  totalThreadsAnalyzed: number
+  totalCommentsGenerated: number
+  createdAt: string // ISO string instead of Timestamp
+  updatedAt: string // ISO string instead of Timestamp
+}
+
+// Serialization helper function
+function serializeCampaignDocument(campaign: CampaignDocument): SerializedCampaignDocument {
+  return {
+    ...campaign,
+    createdAt: campaign.createdAt instanceof Timestamp 
+      ? campaign.createdAt.toDate().toISOString()
+      : new Date().toISOString(),
+    updatedAt: campaign.updatedAt instanceof Timestamp 
+      ? campaign.updatedAt.toDate().toISOString() 
+      : new Date().toISOString()
+  }
+}
 
 export async function createCampaignAction(
   data: CreateCampaignData
-): Promise<ActionState<CampaignDocument>> {
+): Promise<ActionState<SerializedCampaignDocument>> {
   try {
     const campaignRef = doc(collection(db, LEAD_COLLECTIONS.CAMPAIGNS))
     
@@ -53,10 +84,13 @@ export async function createCampaignAction(
     await setDoc(campaignRef, campaignData)
     
     const createdDoc = await getDoc(campaignRef)
+    const rawCampaign = createdDoc.data() as CampaignDocument
+    const serializedCampaign = serializeCampaignDocument(rawCampaign)
+    
     return {
       isSuccess: true,
       message: "Campaign created successfully",
-      data: createdDoc.data() as CampaignDocument
+      data: serializedCampaign
     }
   } catch (error) {
     console.error("Error creating campaign:", error)
@@ -66,7 +100,7 @@ export async function createCampaignAction(
 
 export async function getCampaignsByUserIdAction(
   userId: string
-): Promise<ActionState<CampaignDocument[]>> {
+): Promise<ActionState<SerializedCampaignDocument[]>> {
   try {
     const campaignsRef = collection(db, LEAD_COLLECTIONS.CAMPAIGNS)
     const q = query(
@@ -76,7 +110,10 @@ export async function getCampaignsByUserIdAction(
     )
     const querySnapshot = await getDocs(q)
     
-    const campaigns = querySnapshot.docs.map(doc => doc.data() as CampaignDocument)
+    const campaigns = querySnapshot.docs.map(doc => {
+      const rawCampaign = doc.data() as CampaignDocument
+      return serializeCampaignDocument(rawCampaign)
+    })
     
     return {
       isSuccess: true,
@@ -91,7 +128,7 @@ export async function getCampaignsByUserIdAction(
 
 export async function getCampaignByIdAction(
   campaignId: string
-): Promise<ActionState<CampaignDocument>> {
+): Promise<ActionState<SerializedCampaignDocument>> {
   try {
     const campaignRef = doc(db, LEAD_COLLECTIONS.CAMPAIGNS, campaignId)
     const campaignDoc = await getDoc(campaignRef)
@@ -100,10 +137,13 @@ export async function getCampaignByIdAction(
       return { isSuccess: false, message: "Campaign not found" }
     }
     
+    const rawCampaign = campaignDoc.data() as CampaignDocument
+    const serializedCampaign = serializeCampaignDocument(rawCampaign)
+    
     return {
       isSuccess: true,
       message: "Campaign retrieved successfully",
-      data: campaignDoc.data() as CampaignDocument
+      data: serializedCampaign
     }
   } catch (error) {
     console.error("Error getting campaign:", error)
@@ -114,7 +154,7 @@ export async function getCampaignByIdAction(
 export async function updateCampaignAction(
   campaignId: string,
   data: UpdateCampaignData
-): Promise<ActionState<CampaignDocument>> {
+): Promise<ActionState<SerializedCampaignDocument>> {
   try {
     const campaignRef = doc(db, LEAD_COLLECTIONS.CAMPAIGNS, campaignId)
     
@@ -131,10 +171,13 @@ export async function updateCampaignAction(
     await updateDoc(campaignRef, updateData)
     
     const updatedDoc = await getDoc(campaignRef)
+    const rawCampaign = updatedDoc.data() as CampaignDocument
+    const serializedCampaign = serializeCampaignDocument(rawCampaign)
+    
     return {
       isSuccess: true,
       message: "Campaign updated successfully",
-      data: updatedDoc.data() as CampaignDocument
+      data: serializedCampaign
     }
   } catch (error) {
     console.error("Error updating campaign:", error)

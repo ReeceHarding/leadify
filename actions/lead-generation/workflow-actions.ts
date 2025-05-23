@@ -87,13 +87,8 @@ export async function runFullLeadGenerationWorkflowAction(
     
     // Check if we already have recent website content (less than 24 hours old)
     if (websiteContent && campaign.updatedAt) {
-      // Handle both Timestamp and string types for updatedAt
-      const lastUpdate = campaign.updatedAt instanceof Date 
-        ? campaign.updatedAt 
-        : typeof campaign.updatedAt === 'string'
-        ? new Date(campaign.updatedAt)
-        : campaign.updatedAt.toDate() // Firestore Timestamp
-      
+      // Handle serialized updatedAt as ISO string
+      const lastUpdate = new Date(campaign.updatedAt)
       const now = new Date()
       const hoursSinceUpdate = (now.getTime() - lastUpdate.getTime()) / (1000 * 60 * 60)
       
