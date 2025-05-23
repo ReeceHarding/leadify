@@ -27,9 +27,11 @@ import {
   getDocs,
   Timestamp,
   serverTimestamp,
-  deleteField
+  deleteField,
+  writeBatch
 } from "firebase/firestore"
 import { clearRedditTokensAction } from "../integrations/reddit-oauth-actions"
+import { LEAD_COLLECTIONS } from "@/db/schema"
 
 // Create a serialized version of ProfileDocument that can be passed to client components
 export interface SerializedProfileDocument {
@@ -729,42 +731,99 @@ export async function resetAccountAction(
 
   try {
     const profileRef = doc(db, COLLECTIONS.PROFILES, userId)
-
-    // Check if profile exists first
     const profileDoc = await getDoc(profileRef)
 
     if (!profileDoc.exists()) {
-      console.log("🔧 [RESET-ACCOUNT] No profile found, nothing to reset")
-      return {
-        isSuccess: true,
-        message: "No profile found to reset",
-        data: undefined
-      }
+      console.log("🔧 [RESET-ACCOUNT] No profile found, nothing to reset for profile itself.")
+      // Proceed to delete associated lead gen data even if profile doc is gone or was never fully created
     }
 
     console.log("🔧 [RESET-ACCOUNT] Clearing Reddit tokens...")
-
-    // Clear Reddit OAuth tokens first
     await clearRedditTokensAction()
 
-    console.log("🔧 [RESET-ACCOUNT] Resetting all profile data...")
+    // --- Start Deleting Lead Generation Data ---
+    console.log("🔧 [RESET-ACCOUNT] Deleting associated lead generation data...")
+    const batch = writeBatch(db)
 
-    // Reset to completely fresh state - keep only essential fields
-    await updateDoc(profileRef, {
-      // Reset onboarding data
-      onboardingCompleted: false,
-      name: deleteField(),
-      profilePictureUrl: deleteField(),
-      website: deleteField(),
-      keywords: deleteField(),
+    // 1. Get all campaign IDs for the user
+    const campaignsQuery = query(
+      collection(db, LEAD_COLLECTIONS.CAMPAIGNS),
+      where("userId", "==", userId)
+    )
+    const campaignsSnapshot = await getDocs(campaignsQuery)
+    const campaignIds: string[] = []
 
-      // Keep membership and billing info
-      // membership: keep existing
-      // stripeCustomerId: keep existing
-      // stripeSubscriptionId: keep existing
-
-      updatedAt: serverTimestamp()
+    campaignsSnapshot.forEach(doc => {
+      campaignIds.push(doc.id)
+      console.log(`🔧 [RESET-ACCOUNT] Marking campaign for deletion: ${doc.id}`)
+      batch.delete(doc.ref) // Delete the campaign document itself
     })
+
+    // 2. If there are campaigns, delete associated data from other collections
+    if (campaignIds.length > 0) {
+      const collectionsToClean: (keyof typeof LEAD_COLLECTIONS)[] = [
+        "SEARCH_RESULTS",
+        "REDDIT_THREADS",
+        "GENERATED_COMMENTS"
+      ]
+
+      for (const collKey of collectionsToClean) {
+        const collName = LEAD_COLLECTIONS[collKey]
+        // Firestore `where in` queries are limited to 30 items. 
+        // If a user could have more than 30 campaigns (unlikely for now, but for robustness):
+        // We might need to batch campaignIds or do multiple queries.
+        // For now, assuming <30 campaigns per user simplifies this.
+        if (campaignIds.length <= 30) {
+          const itemsQuery = query(
+            collection(db, collName),
+            where("campaignId", "in", campaignIds)
+          )
+          const itemsSnapshot = await getDocs(itemsQuery)
+          itemsSnapshot.forEach(doc => {
+            console.log(`🔧 [RESET-ACCOUNT] Marking ${collName} item for deletion: ${doc.id}`)
+            batch.delete(doc.ref)
+          })
+        } else {
+          // Handle more than 30 campaignIds by chunking if necessary in a real-world scenario
+          console.warn(`🔧 [RESET-ACCOUNT] User has ${campaignIds.length} campaigns. Deleting associated data for ${collName} in chunks might be needed if this exceeds Firestore limits for 'in' query or batch size.`)
+          for (const cId of campaignIds) {
+            const itemsQuery = query(
+              collection(db, collName),
+              where("campaignId", "==", cId)
+            )
+            const itemsSnapshot = await getDocs(itemsQuery)
+            itemsSnapshot.forEach(doc => {
+              console.log(`🔧 [RESET-ACCOUNT] Marking ${collName} item for deletion: ${doc.id}`)
+              batch.delete(doc.ref)
+            })
+          }
+        }
+      }
+    }
+    
+    await batch.commit()
+    console.log("🔧 [RESET-ACCOUNT] Associated lead generation data deletion committed.")
+    // --- End Deleting Lead Generation Data ---
+
+    // Reset profile document fields if it exists
+    if (profileDoc.exists()) {
+        console.log("🔧 [RESET-ACCOUNT] Resetting profile document fields...")
+        await updateDoc(profileRef, {
+          onboardingCompleted: false,
+          name: deleteField(),
+          profilePictureUrl: deleteField(),
+          website: deleteField(),
+          keywords: deleteField(),
+          updatedAt: serverTimestamp()
+        })
+        console.log("🔧 [RESET-ACCOUNT] Profile document fields reset.")
+    } else {
+        // If profile doesn't exist, we might want to create a minimal one
+        // or ensure that the user is redirected to the start of onboarding.
+        // For now, just log it.
+        console.log("🔧 [RESET-ACCOUNT] Profile document did not exist, so only associated data was deleted.");
+    }
+
 
     console.log(
       "✅ [RESET-ACCOUNT] Complete account reset successful for user:",
