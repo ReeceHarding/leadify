@@ -29,9 +29,36 @@ import {
   serverTimestamp
 } from "firebase/firestore"
 
+// Create a serialized version of ProfileDocument that can be passed to client components
+export interface SerializedProfileDocument {
+  userId: string
+  membership: "free" | "basic" | "pro"
+  stripeCustomerId?: string
+  stripeSubscriptionId?: string
+  name?: string
+  profilePictureUrl?: string
+  website?: string
+  onboardingCompleted?: boolean
+  createdAt: string // ISO string instead of Timestamp
+  updatedAt: string // ISO string instead of Timestamp
+}
+
+// Helper function to serialize ProfileDocument to remove Firestore Timestamps
+function serializeProfileDocument(profile: ProfileDocument): SerializedProfileDocument {
+  return {
+    ...profile,
+    createdAt: profile.createdAt instanceof Timestamp 
+      ? profile.createdAt.toDate().toISOString()
+      : new Date().toISOString(),
+    updatedAt: profile.updatedAt instanceof Timestamp 
+      ? profile.updatedAt.toDate().toISOString() 
+      : new Date().toISOString()
+  }
+}
+
 export async function createProfileAction(
   data: CreateProfileData
-): Promise<ActionState<ProfileDocument>> {
+): Promise<ActionState<SerializedProfileDocument>> {
   try {
     const profileRef = doc(db, COLLECTIONS.PROFILES, data.userId)
     
@@ -53,10 +80,11 @@ export async function createProfileAction(
       return { isSuccess: false, message: "Failed to create profile" }
     }
 
+    const profile = createdDoc.data() as ProfileDocument
     return {
       isSuccess: true,
       message: "Profile created successfully",
-      data: createdDoc.data() as ProfileDocument
+      data: serializeProfileDocument(profile)
     }
   } catch (error) {
     console.error("Error creating profile:", error)
@@ -66,7 +94,7 @@ export async function createProfileAction(
 
 export async function getProfileByUserIdAction(
   userId: string
-): Promise<ActionState<ProfileDocument>> {
+): Promise<ActionState<SerializedProfileDocument>> {
   try {
     const profileRef = doc(db, COLLECTIONS.PROFILES, userId)
     const profileDoc = await getDoc(profileRef)
@@ -75,10 +103,11 @@ export async function getProfileByUserIdAction(
       return { isSuccess: false, message: "Profile not found" }
     }
 
+    const profile = profileDoc.data() as ProfileDocument
     return {
       isSuccess: true,
       message: "Profile retrieved successfully",
-      data: profileDoc.data() as ProfileDocument
+      data: serializeProfileDocument(profile)
     }
   } catch (error) {
     console.error("Error getting profile by user id", error)
@@ -89,7 +118,7 @@ export async function getProfileByUserIdAction(
 export async function updateProfileAction(
   userId: string,
   data: UpdateProfileData
-): Promise<ActionState<ProfileDocument>> {
+): Promise<ActionState<SerializedProfileDocument>> {
   try {
     const profileRef = doc(db, COLLECTIONS.PROFILES, userId)
     
@@ -113,10 +142,11 @@ export async function updateProfileAction(
       return { isSuccess: false, message: "Failed to get updated profile" }
     }
 
+    const profile = updatedDoc.data() as ProfileDocument
     return {
       isSuccess: true,
       message: "Profile updated successfully",
-      data: updatedDoc.data() as ProfileDocument
+      data: serializeProfileDocument(profile)
     }
   } catch (error) {
     console.error("Error updating profile:", error)
@@ -127,7 +157,7 @@ export async function updateProfileAction(
 export async function updateProfileByStripeCustomerIdAction(
   stripeCustomerId: string,
   data: UpdateProfileData
-): Promise<ActionState<ProfileDocument>> {
+): Promise<ActionState<SerializedProfileDocument>> {
   try {
     // Query for profile with the given Stripe customer ID
     const profilesRef = collection(db, COLLECTIONS.PROFILES)
@@ -159,10 +189,11 @@ export async function updateProfileByStripeCustomerIdAction(
       return { isSuccess: false, message: "Failed to get updated profile" }
     }
 
+    const profile = updatedDoc.data() as ProfileDocument
     return {
       isSuccess: true,
       message: "Profile updated by Stripe customer ID successfully",
-      data: updatedDoc.data() as ProfileDocument
+      data: serializeProfileDocument(profile)
     }
   } catch (error) {
     console.error("Error updating profile by stripe customer ID:", error)
