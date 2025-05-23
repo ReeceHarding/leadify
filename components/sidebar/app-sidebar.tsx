@@ -6,18 +6,7 @@ This client component provides the sidebar for the app.
 
 "use client"
 
-import {
-  AudioWaveform,
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
-  GalleryVerticalEnd,
-  Map,
-  PieChart,
-  Settings2,
-  SquareTerminal
-} from "lucide-react"
+import { BookOpen, Building2, Settings2, User, Users } from "lucide-react"
 import * as React from "react"
 
 import {
@@ -32,80 +21,62 @@ import { NavProjects } from "./nav-projects"
 import { NavUser } from "./nav-user"
 import { TeamSwitcher } from "./team-switcher"
 
-// Sample data
+// Generalized data
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg"
+    name: "User",
+    email: "user@example.com",
+    avatar: "/avatars/user.jpg"
   },
   teams: [
     {
-      name: "Acme Inc",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise"
-    },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup"
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free"
+      name: "My Organization",
+      logo: Building2,
+      plan: "Pro"
     }
   ],
   navMain: [
     {
-      title: "Playground",
-      url: "#",
-      icon: SquareTerminal,
+      title: "Dashboard",
+      url: "/",
+      icon: User,
       isActive: true,
       items: [
-        { title: "History", url: "#" },
-        { title: "Starred", url: "#" },
-        { title: "Settings", url: "#" }
+        { title: "Overview", url: "/" },
+        { title: "Profile", url: "/profile" }
       ]
     },
     {
-      title: "Models",
-      url: "#",
-      icon: Bot,
+      title: "Team",
+      url: "/team",
+      icon: Users,
       items: [
-        { title: "Genesis", url: "#" },
-        { title: "Explorer", url: "#" },
-        { title: "Quantum", url: "#" }
+        { title: "Members", url: "/team/members" },
+        { title: "Invites", url: "/team/invites" }
       ]
     },
     {
       title: "Documentation",
-      url: "#",
+      url: "/docs",
       icon: BookOpen,
       items: [
-        { title: "Introduction", url: "#" },
-        { title: "Get Started", url: "#" },
-        { title: "Tutorials", url: "#" },
-        { title: "Changelog", url: "#" }
+        { title: "Getting Started", url: "/docs/getting-started" },
+        { title: "API Reference", url: "/docs/api" }
       ]
     },
     {
       title: "Settings",
-      url: "#",
+      url: "/settings",
       icon: Settings2,
       items: [
-        { title: "General", url: "#" },
-        { title: "Team", url: "#" },
-        { title: "Billing", url: "#" },
-        { title: "Limits", url: "#" }
+        { title: "General", url: "/settings/general" },
+        { title: "Security", url: "/settings/security" },
+        { title: "Billing", url: "/settings/billing" },
+        { title: "Notifications", url: "/settings/notifications" }
       ]
     }
   ],
-  projects: [
-    { name: "Design Engineering", url: "#", icon: Frame },
-    { name: "Sales & Marketing", url: "#", icon: PieChart },
-    { name: "Travel", url: "#", icon: Map }
-  ]
+  projects: []
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -116,7 +87,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        {data.projects.length > 0 && <NavProjects projects={data.projects} />}
       </SidebarContent>
       <SidebarFooter>
         <NavUser />
