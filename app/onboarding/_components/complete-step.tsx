@@ -2,24 +2,9 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import {
-  ArrowLeft,
-  Play,
-  Loader2,
-  CheckCircle2,
-  Hash,
-  Globe,
-  Link,
-  Rocket,
-  Trophy,
-  Sparkles,
-  Target,
-  TrendingUp,
-  Users
-} from "lucide-react"
+import { ArrowLeft, Play, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
 
 interface CompleteStepProps {
   data: {
@@ -51,299 +36,119 @@ export default function CompleteStep({
     }
   }
 
-  const summaryItems = [
-    {
-      icon: Users,
-      title: data.name,
-      subtitle: "Your profile",
-      completed: true,
-      color: "blue"
-    },
-    {
-      icon: Globe,
-      title: data.website ? "Website Connected" : "No Website",
-      subtitle: data.website || "Website can be added later",
-      completed: !!data.website,
-      color: "green",
-      optional: !data.website
-    },
-    {
-      icon: Hash,
-      title: `${data.keywords.length} Keywords Ready`,
-      subtitle:
-        data.keywords.slice(0, 2).join(", ") +
-        (data.keywords.length > 2 ? ` +${data.keywords.length - 2} more` : ""),
-      completed: data.keywords.length > 0,
-      color: "purple"
-    },
-    {
-      icon: Link,
-      title: "Reddit Integration",
-      subtitle: data.redditConnected
-        ? "Connected for voice analysis"
-        : "Can be connected later",
-      completed: data.redditConnected,
-      color: "orange",
-      optional: !data.redditConnected
-    }
-  ]
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="space-y-8"
+      className="space-y-6 text-center"
     >
-      {/* Enhanced Celebration Header */}
-      <div className="space-y-6 text-center">
+      <div className="space-y-3">
         <motion.div
-          initial={{ scale: 0.5, opacity: 0, rotate: -180 }}
-          animate={{ scale: 1, opacity: 1, rotate: 0 }}
-          transition={{
-            delay: 0.2,
-            duration: 1,
-            type: "spring",
-            bounce: 0.6
-          }}
-          className="flex justify-center"
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+          className="text-4xl"
         >
-          <div className="relative">
-            <div className="flex size-24 items-center justify-center rounded-full bg-gradient-to-br from-green-400 via-green-500 to-green-600 shadow-2xl shadow-green-500/25">
-              <Trophy className="size-12 text-white" />
-            </div>
-
-            {/* Enhanced floating celebration elements */}
-            {[
-              { emoji: "🎉", delay: 0.5, position: "-right-3 -top-3" },
-              { emoji: "✨", delay: 0.7, position: "-bottom-3 -left-3" },
-              { emoji: "🚀", delay: 0.9, position: "-top-3 -left-3" },
-              { emoji: "🎯", delay: 1.1, position: "-bottom-3 -right-3" }
-            ].map((item, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0, rotate: 180 }}
-                animate={{
-                  opacity: 1,
-                  scale: 1,
-                  rotate: 0,
-                  y: [0, -10, 0]
-                }}
-                transition={{
-                  delay: item.delay,
-                  duration: 0.6,
-                  y: {
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }
-                }}
-                className={`absolute ${item.position} text-2xl`}
-              >
-                {item.emoji}
-              </motion.div>
-            ))}
-          </div>
+          🎉
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.6 }}
-          className="space-y-3"
-        >
-          <h2 className="gradient-text text-4xl font-bold">Setup Complete!</h2>
-          <p className="text-muted-foreground mx-auto max-w-2xl text-lg leading-relaxed">
-            Congratulations! Your AI-powered lead generation system is ready to
-            find and engage with qualified prospects on Reddit.
-          </p>
-        </motion.div>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          Setup Complete!
+        </h1>
+
+        <p className="mx-auto max-w-md text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+          You're ready to find and engage with potential customers on Reddit.
+        </p>
       </div>
 
-      {/* Enhanced Setup Summary */}
-      <Card className="shadow-glow border-0 bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-900 dark:to-gray-800/50">
-        <CardContent className="p-8">
-          <div className="space-y-6">
-            <div className="text-center">
-              <h3 className="mb-2 text-xl font-bold text-gray-900 dark:text-gray-100">
-                Your Configuration Summary
-              </h3>
-              <p className="text-muted-foreground">
-                Everything is set up and ready to start generating leads
-              </p>
-            </div>
+      {/* Summary of Setup */}
+      <div className="space-y-4 rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
+        <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+          Your Setup Summary
+        </h3>
 
-            <div className="grid gap-4">
-              {summaryItems.map((item, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.6 + index * 0.1, duration: 0.5 }}
-                >
-                  <div
-                    className={`
-                    flex items-center gap-4 rounded-xl p-4 transition-all duration-300
-                    ${
-                      item.completed
-                        ? "border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/20"
-                        : "border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800"
-                    }
-                  `}
-                  >
-                    <div
-                      className={`
-                      flex size-12 items-center justify-center rounded-xl
-                      ${item.color === "blue" && item.completed ? "bg-blue-100 dark:bg-blue-950" : ""}
-                      ${item.color === "green" && item.completed ? "bg-green-100 dark:bg-green-950" : ""}
-                      ${item.color === "purple" && item.completed ? "bg-purple-100 dark:bg-purple-950" : ""}
-                      ${item.color === "orange" && item.completed ? "bg-orange-100 dark:bg-orange-950" : ""}
-                      ${!item.completed ? "bg-gray-100 dark:bg-gray-800" : ""}
-                    `}
-                    >
-                      <item.icon
-                        className={`
-                        size-6
-                        ${item.color === "blue" && item.completed ? "text-blue-600" : ""}
-                        ${item.color === "green" && item.completed ? "text-green-600" : ""}
-                        ${item.color === "purple" && item.completed ? "text-purple-600" : ""}
-                        ${item.color === "orange" && item.completed ? "text-orange-600" : ""}
-                        ${!item.completed ? "text-gray-400" : ""}
-                      `}
-                      />
-                    </div>
-
-                    <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-gray-900 dark:text-gray-100">
-                        {item.title}
-                      </p>
-                      <p className="text-muted-foreground truncate text-sm">
-                        {item.subtitle}
-                      </p>
-                    </div>
-
-                    {item.completed ? (
-                      <CheckCircle2 className="size-6 text-green-600" />
-                    ) : (
-                      <Badge variant="secondary" className="text-xs">
-                        {item.optional ? "Optional" : "Pending"}
-                      </Badge>
-                    )}
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+        <div className="grid grid-cols-2 gap-3 text-left text-sm">
+          <div>
+            <p className="font-medium text-gray-700 dark:text-gray-300">
+              Profile
+            </p>
+            <p className="text-gray-600 dark:text-gray-400">{data.name}</p>
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Enhanced Next Steps Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1, duration: 0.6 }}
-      >
-        <Card className="shadow-glow overflow-hidden border-0 bg-gradient-to-br from-blue-600 via-blue-700 to-purple-700">
-          <CardContent className="relative p-8">
-            <div className="relative z-10 space-y-6 text-center text-white">
-              <div className="flex justify-center">
-                <motion.div
-                  animate={{
-                    rotate: [0, 360],
-                    scale: [1, 1.1, 1]
-                  }}
-                  transition={{
-                    rotate: { duration: 20, repeat: Infinity, ease: "linear" },
-                    scale: { duration: 2, repeat: Infinity, ease: "easeInOut" }
-                  }}
-                  className="flex size-16 items-center justify-center rounded-2xl bg-white/20 shadow-lg backdrop-blur-sm"
-                >
-                  <Rocket className="size-8" />
-                </motion.div>
-              </div>
+          <div>
+            <p className="font-medium text-gray-700 dark:text-gray-300">
+              Reddit Connected
+            </p>
+            <Badge variant={data.redditConnected ? "default" : "secondary"}>
+              {data.redditConnected ? "Connected" : "Not Connected"}
+            </Badge>
+          </div>
 
-              <div className="space-y-3">
-                <h3 className="text-2xl font-bold">Ready to Launch!</h3>
-                <p className="mx-auto max-w-md leading-relaxed text-white/90">
-                  Your AI-powered lead generation system will monitor Reddit
-                  24/7, identifying opportunities and helping you engage
-                  authentically with potential customers.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 pt-4 md:grid-cols-3">
-                <div className="flex items-center gap-3 text-white/80">
-                  <Target className="size-5" />
-                  <span className="text-sm font-medium">Smart Targeting</span>
-                </div>
-                <div className="flex items-center gap-3 text-white/80">
-                  <Sparkles className="size-5" />
-                  <span className="text-sm font-medium">AI Responses</span>
-                </div>
-                <div className="flex items-center gap-3 text-white/80">
-                  <TrendingUp className="size-5" />
-                  <span className="text-sm font-medium">
-                    Real-time Analytics
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Enhanced decorative background elements */}
-            <div className="absolute right-0 top-0 size-40 -translate-y-20 translate-x-20 rounded-full bg-white/5" />
-            <div className="absolute bottom-0 left-0 size-32 -translate-x-16 translate-y-16 rounded-full bg-white/5" />
-            <div className="absolute right-1/4 top-1/2 size-6 animate-pulse rounded-full bg-white/10" />
-            <div
-              className="absolute bottom-1/4 left-1/3 size-4 animate-pulse rounded-full bg-white/10"
-              style={{ animationDelay: "1s" }}
-            />
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* Enhanced Action Buttons */}
-      <div className="space-y-6">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.2, duration: 0.5 }}
-        >
-          <Button
-            onClick={handleComplete}
-            disabled={isCompleting}
-            className="h-16 w-full rounded-xl bg-gradient-to-r from-green-600 to-green-700 text-lg font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:from-green-700 hover:to-green-800 hover:shadow-xl disabled:transform-none disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {isCompleting ? (
-              <>
-                <Loader2 className="mr-3 size-6 animate-spin" />
-                Creating your lead generation campaign...
-              </>
-            ) : (
-              <>
-                <Rocket className="mr-3 size-6" />
-                Start Finding Leads Now
-              </>
-            )}
-          </Button>
-        </motion.div>
-
-        <div className="flex items-center justify-between">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={onPrevious}
-            className="text-muted-foreground hover:text-foreground flex items-center gap-2 rounded-lg px-4 py-2 transition-colors"
-            disabled={isCompleting}
-          >
-            <ArrowLeft className="size-4" />
-            Back to Reddit Setup
-          </Button>
-
-          <div className="text-muted-foreground flex items-center gap-2 text-sm">
-            <Trophy className="size-4 text-yellow-600" />
-            <span>Setup Complete - Step 5 of 5</span>
+          <div className="col-span-2">
+            <p className="font-medium text-gray-700 dark:text-gray-300">
+              Keywords Generated
+            </p>
+            <p className="text-gray-600 dark:text-gray-400">
+              {data.keywords.length} keywords ready
+            </p>
           </div>
         </div>
+      </div>
+
+      {/* Next Steps */}
+      <div className="relative rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white">
+        <div className="relative z-10">
+          <div className="mb-3 flex justify-center">
+            <div className="rounded-full bg-white/20 p-3">
+              <Play className="size-6" />
+            </div>
+          </div>
+          <h3 className="mb-2 text-lg font-semibold">
+            Ready to Find Your First Leads
+          </h3>
+          <p className="text-sm text-blue-100">
+            We'll search Reddit for opportunities matching your keywords and
+            help you engage with potential customers.
+          </p>
+        </div>
+
+        {/* Decorative elements */}
+        <div className="absolute right-3 top-3 opacity-20">
+          <div className="size-12 rounded-full bg-white"></div>
+        </div>
+        <div className="absolute bottom-3 left-3 opacity-10">
+          <div className="size-8 rounded-full bg-white"></div>
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="space-y-3">
+        <Button
+          onClick={handleComplete}
+          disabled={isCompleting}
+          className="w-full rounded-lg bg-blue-600 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+        >
+          {isCompleting ? (
+            <>
+              <Loader2 className="mr-2 size-4 animate-spin" />
+              Setting up your campaign...
+            </>
+          ) : (
+            "Create My First Campaign"
+          )}
+        </Button>
+
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={onPrevious}
+          className="flex w-full items-center justify-center text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+          disabled={isCompleting}
+        >
+          <ArrowLeft className="mr-2 size-4" />
+          Back
+        </Button>
       </div>
     </motion.div>
   )

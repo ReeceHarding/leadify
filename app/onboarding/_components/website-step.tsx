@@ -1,8 +1,11 @@
 "use client"
 
 import { useState } from "react"
+import { motion } from "framer-motion"
+import { ArrowLeft, Globe, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 interface WebsiteStepProps {
   data: {
@@ -23,15 +26,23 @@ export default function WebsiteStep({
   onNext,
   onPrevious
 }: WebsiteStepProps) {
-  const [validationError, setValidationError] = useState("")
+  const [isValidating, setIsValidating] = useState(false)
 
   const normalizeUrl = (url: string): string => {
     if (!url) return ""
+
+    // Remove whitespace
     url = url.trim()
+
+    // Add https:// if no protocol is specified
     if (!url.startsWith("http://") && !url.startsWith("https://")) {
       url = "https://" + url
     }
-    return url.replace(/https?:\/\/(www\.)?/, "https://")
+
+    // Remove www. and add it back consistently
+    url = url.replace(/https?:\/\/(www\.)?/, "https://")
+
+    return url
   }
 
   const validateUrl = (url: string): boolean => {
@@ -46,22 +57,29 @@ export default function WebsiteStep({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setValidationError("")
 
     if (!data.website.trim()) {
-      onNext()
+      onNext() // Allow skipping website
       return
     }
 
     const normalizedUrl = normalizeUrl(data.website)
 
     if (!validateUrl(normalizedUrl)) {
-      setValidationError("Please enter a valid website URL")
+      alert("Please enter a valid website URL")
       return
     }
 
+    setIsValidating(true)
+
+    // Update the website URL and proceed
     onUpdate({ website: normalizedUrl })
-    onNext()
+
+    // Simulate validation delay
+    setTimeout(() => {
+      setIsValidating(false)
+      onNext()
+    }, 1000)
   }
 
   const handleSkip = () => {
@@ -70,56 +88,84 @@ export default function WebsiteStep({
   }
 
   return (
-    <div className="space-y-8 text-center">
-      <div className="space-y-4">
-        <h1 className="text-3xl font-semibold text-black">Your Brand Source</h1>
-        <p className="mx-auto max-w-lg leading-relaxed text-gray-600">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="space-y-8 text-center"
+    >
+      <div className="space-y-3">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+          Your Brand Source
+        </h1>
+        <p className="text-base leading-relaxed text-gray-600 dark:text-gray-400">
           Let's add your website to help us understand your brand better. This
           will be used as a reference for accurate content generation.
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="text-left">
-          <Input
-            type="text"
-            value={data.website}
-            onChange={e => {
-              onUpdate({ website: e.target.value })
-              if (validationError) setValidationError("")
-            }}
-            placeholder="https://piedpiper.com"
-            className="h-12 border-gray-300 bg-white text-black"
-          />
-          {validationError && (
-            <p className="mt-2 text-sm text-red-600">{validationError}</p>
-          )}
+        {/* Website Input */}
+        <div className="space-y-3">
+          <div className="relative">
+            <Input
+              id="website"
+              type="text"
+              value={data.website}
+              onChange={e => onUpdate({ website: e.target.value })}
+              placeholder="https://yourwebsite.com"
+              className="rounded-lg border-gray-300 py-3 pl-12 text-center text-base dark:border-gray-600"
+            />
+            <Globe className="absolute left-4 top-1/2 size-5 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
+          </div>
         </div>
 
-        <div className="text-sm leading-relaxed text-gray-600">
+        <p className="mx-auto max-w-md text-sm text-gray-500 dark:text-gray-400">
           We'll analyze your website to create a knowledge base of key
           information for your brand. Don't worry, you can always add or update
           your knowledge base later in the app.
-        </div>
+        </p>
 
-        <div className="space-y-3">
+        {/* Buttons */}
+        <div className="flex flex-col space-y-3">
           <Button
             type="submit"
-            className="h-12 w-full bg-blue-600 text-white hover:bg-blue-700"
+            className="w-full rounded-lg bg-blue-600 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+            disabled={isValidating}
           >
-            Continue
+            {isValidating ? (
+              <>
+                <Loader2 className="mr-2 size-4 animate-spin" />
+                Analyzing Website...
+              </>
+            ) : (
+              "Continue →"
+            )}
           </Button>
 
           <Button
             type="button"
             variant="ghost"
             onClick={handleSkip}
-            className="h-12 w-full text-gray-600 hover:text-gray-800"
+            className="w-full text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+            disabled={isValidating}
           >
             Skip for now →
           </Button>
         </div>
+
+        {/* Back Button */}
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={onPrevious}
+          className="flex w-full items-center justify-center text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+          disabled={isValidating}
+        >
+          <ArrowLeft className="mr-2 size-4" />
+          Back
+        </Button>
       </form>
-    </div>
+    </motion.div>
   )
 }

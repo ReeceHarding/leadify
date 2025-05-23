@@ -12,20 +12,13 @@ const isPublicRoute = createRouteMatcher([
   '/about',
   '/contact', 
   '/pricing',
+  '/onboarding(.*)',
+  '/reddit/lead-finder(.*)',
+  '/reddit-test(.*)',
   '/login(.*)',
   '/signup(.*)',
   '/api/stripe/webhooks',
   '/api/reddit/callback'
-])
-
-const isOnboardingRoute = createRouteMatcher([
-  '/onboarding(.*)'
-])
-
-const isProtectedRoute = createRouteMatcher([
-  '/dashboard(.*)',
-  '/reddit/lead-finder(.*)',
-  '/reddit-test(.*)'
 ])
 
 export default clerkMiddleware(async (auth, req) => {
@@ -34,19 +27,7 @@ export default clerkMiddleware(async (auth, req) => {
     return
   }
   
-  // Protect onboarding routes - user must be signed in
-  if (isOnboardingRoute(req)) {
-    await auth.protect()
-    return
-  }
-  
-  // Protect other authenticated routes
-  if (isProtectedRoute(req)) {
-    await auth.protect()
-    return
-  }
-  
-  // Default protection for all other routes
+  // Protect all other routes
   await auth.protect()
 })
 
