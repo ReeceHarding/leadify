@@ -3,10 +3,6 @@
 import { useState, useEffect } from "react"
 import { useUser } from "@clerk/nextjs"
 import { useRouter, useSearchParams } from "next/navigation"
-import { motion, AnimatePresence } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
-import { CheckCircle2, User, Globe, Tag, Settings, Trophy } from "lucide-react"
 import ProfileStep from "./profile-step"
 import WebsiteStep from "./website-step"
 import KeywordsStep from "./keywords-step"
@@ -23,30 +19,6 @@ const stepOrder: OnboardingStep[] = [
   "reddit",
   "complete"
 ]
-
-const stepLabels = {
-  profile: "Profile",
-  website: "Website",
-  keywords: "Keywords",
-  reddit: "Connect",
-  complete: "Complete"
-}
-
-const stepIcons = {
-  profile: User,
-  website: Globe,
-  keywords: Tag,
-  reddit: Settings,
-  complete: Trophy
-}
-
-const stepDescriptions = {
-  profile: "Set up your profile",
-  website: "Add your website",
-  keywords: "Define target keywords",
-  reddit: "Connect your Reddit account",
-  complete: "You're all set!"
-}
 
 const ONBOARDING_STORAGE_KEY = "onboarding_data"
 const ONBOARDING_STEP_KEY = "onboarding_step"
@@ -101,7 +73,6 @@ export default function OnboardingFlow() {
   }, [currentStep])
 
   const currentStepIndex = stepOrder.indexOf(currentStep)
-  const progress = ((currentStepIndex + 1) / stepOrder.length) * 100
 
   // Handle Reddit OAuth callback
   useEffect(() => {
@@ -109,21 +80,16 @@ export default function OnboardingFlow() {
     const error = searchParams.get("error")
 
     if (success === "Reddit authentication successful") {
-      // Update Reddit connection status and advance to next step
       setOnboardingData(prev => ({ ...prev, redditConnected: true }))
       setCurrentStep("complete")
 
-      // Clean up URL parameters
       const url = new URL(window.location.href)
       url.searchParams.delete("success")
       window.history.replaceState({}, "", url.toString())
     }
 
     if (error) {
-      // Handle error if needed
       console.error("Reddit authentication error:", error)
-
-      // Clean up URL parameters
       const url = new URL(window.location.href)
       url.searchParams.delete("error")
       window.history.replaceState({}, "", url.toString())
@@ -159,11 +125,9 @@ export default function OnboardingFlow() {
         onboardingCompleted: true
       })
 
-      // Clear localStorage data after successful completion
       localStorage.removeItem(ONBOARDING_STORAGE_KEY)
       localStorage.removeItem(ONBOARDING_STEP_KEY)
 
-      // Redirect to lead finder with the keywords ready to create a campaign
       router.push(
         `/reddit/lead-finder?keywords=${encodeURIComponent(JSON.stringify(onboardingData.keywords))}`
       )
@@ -224,104 +188,24 @@ export default function OnboardingFlow() {
 
   return (
     <div className="space-y-12">
-      {/* Enhanced Progress Section */}
-      <div className="space-y-8">
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-foreground font-semibold">
-            Step {currentStepIndex + 1} of {stepOrder.length}
-          </span>
-          <span className="text-muted-foreground font-medium">
-            {Math.round(progress)}% Complete
-          </span>
-        </div>
+      {/* Main Content */}
+      <div className="min-h-[600px]">{renderCurrentStep()}</div>
 
-        {/* Enhanced Progress Bar */}
-        <div className="relative">
-          <div className="bg-muted h-3 overflow-hidden rounded-full">
-            <motion.div
-              className="h-full rounded-full bg-gradient-to-r from-blue-500 to-blue-600 shadow-sm"
-              initial={{ width: 0 }}
-              animate={{ width: `${progress}%` }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-            />
-          </div>
-        </div>
-
-        {/* Enhanced Step Indicators */}
-        <div className="grid grid-cols-5 gap-4">
-          {stepOrder.map((step, index) => {
-            const StepIcon = stepIcons[step]
-            const isCompleted = index < currentStepIndex
-            const isCurrent = index === currentStepIndex
-
-            return (
-              <motion.div
-                key={step}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="flex flex-col items-center gap-3"
-              >
-                <div
-                  className={`
-                    relative flex size-12 items-center justify-center rounded-xl transition-all duration-300
-                    ${
-                      isCompleted
-                        ? "bg-green-500 text-white shadow-lg shadow-green-500/25"
-                        : isCurrent
-                          ? "bg-primary text-primary-foreground ring-primary/20 shadow-lg ring-4"
-                          : "bg-muted text-muted-foreground"
-                    }
-                  `}
-                >
-                  {isCompleted ? (
-                    <CheckCircle2 className="size-6" />
-                  ) : (
-                    <StepIcon className="size-6" />
-                  )}
-
-                  {isCurrent && (
-                    <motion.div
-                      className="bg-primary/20 absolute inset-0 rounded-xl"
-                      animate={{ scale: [1, 1.1, 1] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                    />
-                  )}
-                </div>
-
-                <div className="text-center">
-                  <div
-                    className={`text-sm font-semibold transition-colors ${
-                      index <= currentStepIndex
-                        ? "text-foreground"
-                        : "text-muted-foreground"
-                    }`}
-                  >
-                    {stepLabels[step]}
-                  </div>
-                  <div className="text-muted-foreground mt-1 text-xs">
-                    {stepDescriptions[step]}
-                  </div>
-                </div>
-              </motion.div>
-            )
-          })}
-        </div>
+      {/* Simple Progress Dots */}
+      <div className="flex justify-center space-x-2">
+        {stepOrder.map((_, index) => (
+          <div
+            key={index}
+            className={`size-2 rounded-full ${
+              index === currentStepIndex
+                ? "bg-blue-600"
+                : index < currentStepIndex
+                  ? "bg-blue-300"
+                  : "bg-gray-300"
+            }`}
+          />
+        ))}
       </div>
-
-      {/* Enhanced Step Content */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentStep}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
-          className="glass shadow-glow rounded-2xl p-8"
-        >
-          {renderCurrentStep()}
-        </motion.div>
-      </AnimatePresence>
     </div>
   )
 }
