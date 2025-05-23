@@ -1,6 +1,14 @@
-# Mckay's App Template
+# Leadify
 
-This is a full-stack app template for courses on [Takeoff](https://JoinTakeoff.com/).
+An AI-powered lead generation platform for Reddit.
+
+## Features
+
+- AI-powered keyword generation
+- Reddit lead discovery
+- Automated comment generation
+- Campaign management
+- Real-time analytics
 
 ## Sponsors
 

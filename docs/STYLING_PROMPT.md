@@ -1,6 +1,6 @@
-# Next.js MVP Styling Prompt - Sleek & Modern
+# Leadify Styling Guide
 
-Based on mckays-app-template-4, create sleek and modern Next.js styling with these exact specifications:
+Based on Leadify, create sleek and modern Next.js styling with these exact specifications:
 
 ## Core Tech Stack
 - **Next.js 15** with App Router
