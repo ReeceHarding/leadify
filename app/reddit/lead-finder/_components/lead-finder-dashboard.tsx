@@ -455,27 +455,40 @@ export default function LeadFinderDashboard() {
       <div className="flex-1 p-6">
         <div className="space-y-6">
           {/* Campaign Controls */}
-          <div className="flex items-center justify-end gap-4">
-            <Select
-              value={selectedLength}
-              onValueChange={(value: any) => setSelectedLength(value)}
-            >
-              <SelectTrigger className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="micro">Micro</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="verbose">Verbose</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="flex items-center justify-between gap-4">
+            {/* Left side - Onboarding button */}
             <Button
-              onClick={() => setCreateDialogOpen(true)}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 dark:from-blue-500 dark:to-purple-500 dark:hover:from-blue-600 dark:hover:to-purple-600"
+              variant="outline"
+              onClick={() => (window.location.href = "/onboarding")}
+              className="border-orange-500 text-orange-600 hover:bg-orange-50 hover:text-orange-700 dark:border-orange-400 dark:text-orange-400 dark:hover:bg-orange-900/20 dark:hover:text-orange-300"
             >
-              <Plus className="mr-2 size-4" />
-              New Campaign
+              <Target className="mr-2 size-4" />
+              Start Onboarding Here
             </Button>
+
+            {/* Right side - Existing controls */}
+            <div className="flex items-center gap-4">
+              <Select
+                value={selectedLength}
+                onValueChange={(value: any) => setSelectedLength(value)}
+              >
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="micro">Micro</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="verbose">Verbose</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button
+                onClick={() => setCreateDialogOpen(true)}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 dark:from-blue-500 dark:to-purple-500 dark:hover:from-blue-600 dark:hover:to-purple-600"
+              >
+                <Plus className="mr-2 size-4" />
+                New Campaign
+              </Button>
+            </div>
           </div>
 
           {/* Show progress or results */}
