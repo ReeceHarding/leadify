@@ -31,8 +31,123 @@ import {
   where,
   getDocs,
   serverTimestamp,
-  writeBatch
+  writeBatch,
+  Timestamp
 } from "firebase/firestore"
+
+// Create serialized versions that can be passed to client components
+export interface SerializedCampaignDocument {
+  id: string
+  userId: string
+  name: string
+  website: string
+  websiteContent?: string
+  keywords: string[]
+  status: "draft" | "running" | "completed" | "paused" | "error"
+  totalSearchResults: number
+  totalThreadsAnalyzed: number
+  totalCommentsGenerated: number
+  createdAt: string // ISO string instead of Timestamp
+  updatedAt: string // ISO string instead of Timestamp
+}
+
+export interface SerializedSearchResultDocument {
+  id: string
+  campaignId: string
+  keyword: string
+  redditUrl: string
+  threadId?: string
+  title: string
+  snippet: string
+  position: number
+  processed: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface SerializedRedditThreadDocument {
+  id: string
+  campaignId: string
+  searchResultId: string
+  threadId: string
+  subreddit: string
+  title: string
+  content: string
+  author: string
+  score: number
+  numComments: number
+  url: string
+  processed: boolean
+  relevanceScore?: number
+  createdAt: string
+  updatedAt: string
+}
+
+export interface SerializedGeneratedCommentDocument {
+  id: string
+  campaignId: string
+  redditThreadId: string
+  threadId: string
+  relevanceScore: number
+  reasoning: string
+  microComment: string
+  mediumComment: string
+  verboseComment: string
+  selectedLength?: "micro" | "medium" | "verbose"
+  approved: boolean
+  used: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+// Serialization helper functions
+function serializeCampaignDocument(campaign: CampaignDocument): SerializedCampaignDocument {
+  return {
+    ...campaign,
+    createdAt: campaign.createdAt instanceof Timestamp 
+      ? campaign.createdAt.toDate().toISOString()
+      : new Date().toISOString(),
+    updatedAt: campaign.updatedAt instanceof Timestamp 
+      ? campaign.updatedAt.toDate().toISOString() 
+      : new Date().toISOString()
+  }
+}
+
+function serializeSearchResultDocument(searchResult: SearchResultDocument): SerializedSearchResultDocument {
+  return {
+    ...searchResult,
+    createdAt: searchResult.createdAt instanceof Timestamp 
+      ? searchResult.createdAt.toDate().toISOString()
+      : new Date().toISOString(),
+    updatedAt: searchResult.updatedAt instanceof Timestamp 
+      ? searchResult.updatedAt.toDate().toISOString() 
+      : new Date().toISOString()
+  }
+}
+
+function serializeRedditThreadDocument(thread: RedditThreadDocument): SerializedRedditThreadDocument {
+  return {
+    ...thread,
+    createdAt: thread.createdAt instanceof Timestamp 
+      ? thread.createdAt.toDate().toISOString()
+      : new Date().toISOString(),
+    updatedAt: thread.updatedAt instanceof Timestamp 
+      ? thread.updatedAt.toDate().toISOString() 
+      : new Date().toISOString()
+  }
+}
+
+function serializeGeneratedCommentDocument(comment: GeneratedCommentDocument): SerializedGeneratedCommentDocument {
+  return {
+    ...comment,
+    createdAt: comment.createdAt instanceof Timestamp 
+      ? comment.createdAt.toDate().toISOString()
+      : new Date().toISOString(),
+    updatedAt: comment.updatedAt instanceof Timestamp 
+      ? comment.updatedAt.toDate().toISOString() 
+      : new Date().toISOString()
+  }
+}
 
 // Utility function to remove undefined values for Firestore
 function removeUndefinedValues(obj: any): any {
@@ -49,7 +164,7 @@ function removeUndefinedValues(obj: any): any {
 
 export async function createCampaignAction(
   data: CreateCampaignData
-): Promise<ActionState<CampaignDocument>> {
+): Promise<ActionState<SerializedCampaignDocument>> {
   try {
     const campaignRef = doc(collection(db, LEAD_COLLECTIONS.CAMPAIGNS))
     
@@ -70,10 +185,13 @@ export async function createCampaignAction(
     await setDoc(campaignRef, removeUndefinedValues(campaignData))
     
     const createdDoc = await getDoc(campaignRef)
+    const rawCampaign = createdDoc.data() as CampaignDocument
+    const serializedCampaign = serializeCampaignDocument(rawCampaign)
+    
     return {
       isSuccess: true,
       message: "Campaign created successfully",
-      data: createdDoc.data() as CampaignDocument
+      data: serializedCampaign
     }
   } catch (error) {
     console.error("Error creating campaign:", error)
@@ -83,7 +201,7 @@ export async function createCampaignAction(
 
 export async function getCampaignByIdAction(
   id: string
-): Promise<ActionState<CampaignDocument>> {
+): Promise<ActionState<SerializedCampaignDocument>> {
   try {
     const campaignRef = doc(db, LEAD_COLLECTIONS.CAMPAIGNS, id)
     const campaignDoc = await getDoc(campaignRef)
@@ -92,10 +210,13 @@ export async function getCampaignByIdAction(
       return { isSuccess: false, message: "Campaign not found" }
     }
     
+    const rawCampaign = campaignDoc.data() as CampaignDocument
+    const serializedCampaign = serializeCampaignDocument(rawCampaign)
+    
     return {
       isSuccess: true,
       message: "Campaign retrieved successfully",
-      data: campaignDoc.data() as CampaignDocument
+      data: serializedCampaign
     }
   } catch (error) {
     console.error("Error getting campaign:", error)
@@ -106,7 +227,7 @@ export async function getCampaignByIdAction(
 export async function updateCampaignAction(
   id: string,
   data: UpdateCampaignData
-): Promise<ActionState<CampaignDocument>> {
+): Promise<ActionState<SerializedCampaignDocument>> {
   try {
     const campaignRef = doc(db, LEAD_COLLECTIONS.CAMPAIGNS, id)
     
@@ -118,14 +239,41 @@ export async function updateCampaignAction(
     await updateDoc(campaignRef, removeUndefinedValues(updateData))
     
     const updatedDoc = await getDoc(campaignRef)
+    const rawCampaign = updatedDoc.data() as CampaignDocument
+    const serializedCampaign = serializeCampaignDocument(rawCampaign)
+    
     return {
       isSuccess: true,
       message: "Campaign updated successfully",
-      data: updatedDoc.data() as CampaignDocument
+      data: serializedCampaign
     }
   } catch (error) {
     console.error("Error updating campaign:", error)
     return { isSuccess: false, message: "Failed to update campaign" }
+  }
+}
+
+export async function getCampaignsByUserIdAction(
+  userId: string
+): Promise<ActionState<SerializedCampaignDocument[]>> {
+  try {
+    const campaignsRef = collection(db, LEAD_COLLECTIONS.CAMPAIGNS)
+    const q = query(campaignsRef, where("userId", "==", userId))
+    const querySnapshot = await getDocs(q)
+    
+    const campaigns = querySnapshot.docs.map(doc => {
+      const rawCampaign = doc.data() as CampaignDocument
+      return serializeCampaignDocument(rawCampaign)
+    })
+    
+    return {
+      isSuccess: true,
+      message: "Campaigns retrieved successfully",
+      data: campaigns
+    }
+  } catch (error) {
+    console.error("Error getting campaigns:", error)
+    return { isSuccess: false, message: "Failed to get campaigns" }
   }
 }
 
@@ -244,13 +392,16 @@ export async function createGeneratedCommentAction(
 
 export async function getGeneratedCommentsByCampaignAction(
   campaignId: string
-): Promise<ActionState<GeneratedCommentDocument[]>> {
+): Promise<ActionState<SerializedGeneratedCommentDocument[]>> {
   try {
     const commentsRef = collection(db, LEAD_COLLECTIONS.GENERATED_COMMENTS)
     const q = query(commentsRef, where("campaignId", "==", campaignId))
     const querySnapshot = await getDocs(q)
     
-    const comments = querySnapshot.docs.map(doc => doc.data() as GeneratedCommentDocument)
+    const comments = querySnapshot.docs.map(doc => {
+      const rawComment = doc.data() as GeneratedCommentDocument
+      return serializeGeneratedCommentDocument(rawComment)
+    })
     
     return {
       isSuccess: true,

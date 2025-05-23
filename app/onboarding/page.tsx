@@ -423,6 +423,16 @@ export default function OnboardingPage() {
       error
     )
 
+    // CRITICAL FIX: Don't process callback until user is loaded and profile is loaded
+    if (!user?.id || !hasLoadedProfile) {
+      console.log(
+        "🔍 [ONBOARDING] Waiting for user and profile to load before processing Reddit callback"
+      )
+      console.log("🔍 [ONBOARDING] - user?.id:", user?.id)
+      console.log("🔍 [ONBOARDING] - hasLoadedProfile:", hasLoadedProfile)
+      return
+    }
+
     if (success === "Reddit authentication successful") {
       console.log("🔍 [ONBOARDING] Reddit auth successful, verifying tokens...")
       console.log(
@@ -495,14 +505,14 @@ export default function OnboardingPage() {
           console.error("🔍 [ONBOARDING] Reddit connection verification failed")
           // Stay on current step, Reddit authentication didn't work
         }
+
+        // Clean up URL parameters AFTER processing
+        const url = new URL(window.location.href)
+        url.searchParams.delete("success")
+        window.history.replaceState({}, "", url.toString())
       }
 
       handleRedditSuccess()
-
-      // Clean up URL parameters
-      const url = new URL(window.location.href)
-      url.searchParams.delete("success")
-      window.history.replaceState({}, "", url.toString())
     }
 
     if (error) {
@@ -514,7 +524,7 @@ export default function OnboardingPage() {
       url.searchParams.delete("error")
       window.history.replaceState({}, "", url.toString())
     }
-  }, [searchParams])
+  }, [searchParams, user?.id, hasLoadedProfile, onboardingData])
 
   const startOnboarding = () => {
     console.log("🔍 [ONBOARDING] startOnboarding() called")
