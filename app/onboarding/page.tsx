@@ -20,9 +20,9 @@ import ConnectRedditStep from "./_components/connect-reddit-step"
 import CompleteStep from "./_components/complete-step"
 import {
   updateProfileAction,
-  getProfileByUserIdAction
+  getProfileByUserIdAction,
+  resetOnboardingAction
 } from "@/actions/db/profiles-actions"
-import { resetOnboardingAction } from "@/actions/db/debug-actions"
 
 type OnboardingStep =
   | "welcome"

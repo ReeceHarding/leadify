@@ -26,7 +26,8 @@ import {
   where,
   getDocs,
   Timestamp,
-  serverTimestamp
+  serverTimestamp,
+  deleteField
 } from "firebase/firestore"
 
 // Create a serialized version of ProfileDocument that can be passed to client components
@@ -445,5 +446,37 @@ export async function deleteProfileAction(
     console.error("🔥 [DELETE-PROFILE] ERROR occurred:", error)
     console.error("🔥 [DELETE-PROFILE] Error stack:", (error as Error)?.stack)
     return { isSuccess: false, message: "Failed to delete profile" }
+  }
+}
+
+export async function resetOnboardingAction(
+  userId: string
+): Promise<ActionState<void>> {
+  console.log("🔧 [RESET-ONBOARDING] Action called for user:", userId)
+  
+  try {
+    const profileRef = doc(db, COLLECTIONS.PROFILES, userId)
+    
+    await updateDoc(profileRef, {
+      onboardingCompleted: false,
+      name: "",
+      website: "",
+      keywords: deleteField(), // Remove the keywords field entirely
+      updatedAt: serverTimestamp()
+    })
+    
+    console.log("✅ [RESET-ONBOARDING] Successfully reset for user:", userId)
+    
+    return {
+      isSuccess: true,
+      message: "Onboarding reset successfully",
+      data: undefined
+    }
+  } catch (error) {
+    console.error("❌ [RESET-ONBOARDING] Error resetting onboarding:", error)
+    return {
+      isSuccess: false,
+      message: "Failed to reset onboarding"
+    }
   }
 }
