@@ -14,6 +14,7 @@ import {
   UpdateProfileData
 } from "@/db/firestore/collections"
 import { ActionState } from "@/types"
+import { removeUndefinedValues } from "@/lib/firebase-utils"
 import {
   doc,
   getDoc,
@@ -34,17 +35,15 @@ export async function createProfileAction(
   try {
     const profileRef = doc(db, COLLECTIONS.PROFILES, data.userId)
     
-    const profileData: Omit<ProfileDocument, "createdAt" | "updatedAt"> & {
-      createdAt: any
-      updatedAt: any
-    } = {
+    // Create profile data and filter out undefined values
+    const profileData = removeUndefinedValues({
       userId: data.userId,
       membership: data.membership || "free",
       stripeCustomerId: data.stripeCustomerId,
       stripeSubscriptionId: data.stripeSubscriptionId,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
-    }
+    })
 
     await setDoc(profileRef, profileData)
     
@@ -100,10 +99,11 @@ export async function updateProfileAction(
       return { isSuccess: false, message: "Profile not found to update" }
     }
 
-    const updateData = {
+    // Create update data and filter out undefined values
+    const updateData = removeUndefinedValues({
       ...data,
       updatedAt: serverTimestamp()
-    }
+    })
 
     await updateDoc(profileRef, updateData)
     
@@ -145,10 +145,11 @@ export async function updateProfileByStripeCustomerIdAction(
     const profileDoc = querySnapshot.docs[0]
     const profileRef = profileDoc.ref
 
-    const updateData = {
+    // Create update data and filter out undefined values
+    const updateData = removeUndefinedValues({
       ...data,
       updatedAt: serverTimestamp()
-    }
+    })
 
     await updateDoc(profileRef, updateData)
     
