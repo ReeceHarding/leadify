@@ -222,4 +222,31 @@ export async function refreshRedditTokenAction(): Promise<ActionState<RedditOAut
       message: `Failed to refresh tokens: ${error instanceof Error ? error.message : 'Unknown error'}`
     }
   }
+}
+
+export async function clearRedditTokensAction(): Promise<ActionState<void>> {
+  try {
+    console.log("🔧 [CLEAR-REDDIT-TOKENS] Clearing Reddit OAuth tokens...")
+    
+    const cookieStore = await cookies()
+    
+    // Clear all Reddit-related cookies
+    cookieStore.delete("reddit_access_token")
+    cookieStore.delete("reddit_refresh_token")
+    cookieStore.delete("reddit_oauth_state")
+    
+    console.log("✅ [CLEAR-REDDIT-TOKENS] Reddit tokens cleared successfully")
+    
+    return {
+      isSuccess: true,
+      message: "Reddit tokens cleared successfully",
+      data: undefined
+    }
+  } catch (error) {
+    console.error("❌ [CLEAR-REDDIT-TOKENS] Error clearing Reddit tokens:", error)
+    return {
+      isSuccess: false,
+      message: "Failed to clear Reddit tokens"
+    }
+  }
 } 

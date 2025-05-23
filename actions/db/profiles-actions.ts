@@ -29,6 +29,7 @@ import {
   serverTimestamp,
   deleteField
 } from "firebase/firestore"
+import { clearRedditTokensAction } from "../integrations/reddit-oauth-actions"
 
 // Create a serialized version of ProfileDocument that can be passed to client components
 export interface SerializedProfileDocument {
@@ -477,6 +478,67 @@ export async function resetOnboardingAction(
     return {
       isSuccess: false,
       message: "Failed to reset onboarding"
+    }
+  }
+}
+
+export async function resetAccountAction(
+  userId: string
+): Promise<ActionState<void>> {
+  console.log("🔧 [RESET-ACCOUNT] COMPLETE ACCOUNT RESET called for user:", userId)
+  
+  try {
+    const profileRef = doc(db, COLLECTIONS.PROFILES, userId)
+    
+    // Check if profile exists first
+    const profileDoc = await getDoc(profileRef)
+    
+    if (!profileDoc.exists()) {
+      console.log("🔧 [RESET-ACCOUNT] No profile found, nothing to reset")
+      return {
+        isSuccess: true,
+        message: "No profile found to reset",
+        data: undefined
+      }
+    }
+    
+    console.log("🔧 [RESET-ACCOUNT] Clearing Reddit tokens...")
+    
+    // Clear Reddit OAuth tokens first
+    await clearRedditTokensAction()
+    
+    console.log("🔧 [RESET-ACCOUNT] Resetting all profile data...")
+    
+    // Reset to completely fresh state - keep only essential fields
+    await updateDoc(profileRef, {
+      // Reset onboarding data
+      onboardingCompleted: false,
+      name: deleteField(),
+      profilePictureUrl: deleteField(),
+      website: deleteField(),
+      keywords: deleteField(),
+      
+      // Keep membership and billing info
+      // membership: keep existing
+      // stripeCustomerId: keep existing  
+      // stripeSubscriptionId: keep existing
+      
+      updatedAt: serverTimestamp()
+    })
+    
+    console.log("✅ [RESET-ACCOUNT] Complete account reset successful for user:", userId)
+    
+    return {
+      isSuccess: true,
+      message: "Account completely reset - ready for fresh onboarding",
+      data: undefined
+    }
+  } catch (error) {
+    console.error("❌ [RESET-ACCOUNT] Error resetting account:", error)
+    console.error("❌ [RESET-ACCOUNT] Error stack:", (error as Error)?.stack)
+    return {
+      isSuccess: false,
+      message: "Failed to reset account"
     }
   }
 }

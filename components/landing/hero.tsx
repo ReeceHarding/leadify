@@ -9,16 +9,55 @@ This client component provides the hero section for the landing page.
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
-import { ChevronRight, Rocket, Search } from "lucide-react"
+import { ChevronRight, Rocket, Search, RotateCcw, Loader2 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import posthog from "posthog-js"
+import { useUser } from "@clerk/nextjs"
+import { useState } from "react"
+import { resetAccountAction } from "@/actions/db/profiles-actions"
 import AnimatedGradientText from "../magicui/animated-gradient-text"
 import HeroVideoDialog from "../magicui/hero-video-dialog"
 
 export const HeroSection = () => {
+  const { user } = useUser()
+  const [isResetting, setIsResetting] = useState(false)
+
   const handleGetStartedClick = () => {
     posthog.capture("clicked_get_started")
+  }
+
+  const handleStartOver = async () => {
+    if (!user?.id) {
+      alert("Please sign in first to reset your account")
+      return
+    }
+
+    const confirmed = confirm(
+      "🚨 DEBUG MODE: This will completely wipe your account clean and reset all onboarding progress. Are you sure you want to start over?"
+    )
+
+    if (!confirmed) return
+
+    setIsResetting(true)
+    try {
+      console.log("🔧 [DEBUG] Starting complete account reset for user:", user.id)
+      const result = await resetAccountAction(user.id)
+      
+      if (result.isSuccess) {
+        console.log("✅ [DEBUG] Account reset successful, redirecting to onboarding")
+        alert("✅ Account reset successfully! Redirecting to onboarding...")
+        window.location.href = "/onboarding"
+      } else {
+        console.error("❌ [DEBUG] Account reset failed:", result.message)
+        alert("❌ Failed to reset account: " + result.message)
+      }
+    } catch (error) {
+      console.error("❌ [DEBUG] Error during account reset:", error)
+      alert("❌ Error resetting account. Check console for details.")
+    } finally {
+      setIsResetting(false)
+    }
   }
 
   return (
@@ -73,6 +112,7 @@ export const HeroSection = () => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
+          className="flex flex-col items-center gap-4"
         >
           <Link href="/onboarding" onClick={handleGetStartedClick}>
             <Button className="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-3 text-lg hover:from-blue-700 hover:to-blue-800 dark:from-blue-500 dark:to-blue-600 dark:hover:from-blue-600 dark:hover:to-blue-700">
@@ -80,6 +120,29 @@ export const HeroSection = () => {
               Get Started &rarr;
             </Button>
           </Link>
+
+          {/* Debug Button - Only show for signed-in users */}
+          {user && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleStartOver}
+              disabled={isResetting}
+              className="border-red-500/20 bg-red-950/10 text-red-400 hover:bg-red-950/20 hover:text-red-300 dark:border-red-400/20"
+            >
+              {isResetting ? (
+                <>
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                  Resetting...
+                </>
+              ) : (
+                <>
+                  <RotateCcw className="mr-2 size-4" />
+                  🔧 Start Over (Debug)
+                </>
+              )}
+            </Button>
+          )}
         </motion.div>
       </motion.div>
 
