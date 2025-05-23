@@ -150,6 +150,7 @@ export default function LeadFinderDashboard() {
   const [regeneratingId, setRegeneratingId] = useState<string | null>(null)
   const [websiteContent, setWebsiteContent] = useState<string>("")
   const [activeTab, setActiveTab] = useState<"all" | "queue">("all")
+  const [newLeadIds, setNewLeadIds] = useState<Set<string>>(new Set())
 
   // Get keywords from profile and start real workflow
   useEffect(() => {
@@ -248,8 +249,20 @@ export default function LeadFinderDashboard() {
       q,
       querySnapshot => {
         console.log(`🔥 Firestore snapshot received: ${querySnapshot.docs.length} docs for campaign ${campaignId}`)
+        
+        // Track new leads for animation
+        const currentLeadIds = new Set(leads.map(l => l.id))
+        const newIds = new Set<string>()
+        
         const fetchedLeads: LeadResult[] = querySnapshot.docs.map(doc => {
           const data = doc.data() as SerializedGeneratedCommentDocument
+          
+          // Check if this is a new lead
+          if (!currentLeadIds.has(doc.id)) {
+            newIds.add(doc.id)
+            console.log(`✨ New lead detected: ${data.postTitle}`)
+          }
+          
           // Derive subreddit from postUrl if possible, or use a placeholder
           let subreddit = "unknown"
           try {
@@ -283,7 +296,29 @@ export default function LeadFinderDashboard() {
             keyword: data.keyword
           }
         })
+        
         setLeads(fetchedLeads)
+        setNewLeadIds(newIds)
+        
+        // Clear new lead indicators after animation
+        if (newIds.size > 0) {
+          // Show toast for new leads
+          const newLeadsArray = Array.from(newIds)
+          const firstNewLead = fetchedLeads.find(l => l.id === newLeadsArray[0])
+          if (firstNewLead) {
+            toast.success(
+              `New lead found: ${firstNewLead.postTitle.substring(0, 50)}...`,
+              {
+                description: `Score: ${firstNewLead.relevanceScore} - ${firstNewLead.keyword || 'Unknown keyword'}`
+              }
+            )
+          }
+          
+          setTimeout(() => {
+            setNewLeadIds(new Set())
+          }, 3000)
+        }
+        
         setWorkflowProgress((prev: any) => ({
           ...prev,
           isLoading: false,
@@ -811,6 +846,11 @@ export default function LeadFinderDashboard() {
             {workflowProgress.error
               ? "An error occurred"
               : workflowProgress.currentStep}
+            {workflowProgress.isLoading && workflowProgress.currentStep.includes("Scoring") && leads.length > 0 && (
+              <span className="ml-2 text-xs text-green-600 dark:text-green-400">
+                • {leads.length} leads processed
+              </span>
+            )}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -846,6 +886,18 @@ export default function LeadFinderDashboard() {
       </Card>
 
       {workflowProgress.isLoading && renderLoadingSkeleton()}
+      
+      {/* Live Progress Indicator */}
+      {workflowProgress.isLoading && leads.length > 0 && (
+        <div className="mt-4 animate-pulse rounded-lg bg-blue-50 p-3 dark:bg-blue-900/20">
+          <div className="flex items-center gap-2">
+            <Sparkles className="size-4 text-blue-600 dark:text-blue-400" />
+            <span className="text-sm text-blue-700 dark:text-blue-300">
+              Finding and analyzing new leads... ({leads.length} found so far)
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   )
 
@@ -992,7 +1044,11 @@ export default function LeadFinderDashboard() {
                 {paginatedLeads.map(lead => (
                   <Card
                     key={lead.id}
-                    className="cursor-pointer transition-shadow hover:shadow-md"
+                    className={`cursor-pointer transition-all hover:shadow-md ${
+                      newLeadIds.has(lead.id) 
+                        ? "animate-in fade-in slide-in-from-bottom-2 duration-500 ring-2 ring-green-500 ring-opacity-50" 
+                        : ""
+                    }`}
                     onClick={() => setSelectedPost(lead)}
                   >
                     <CardHeader className="pb-3">
@@ -1041,6 +1097,24 @@ export default function LeadFinderDashboard() {
                         </div>
                       </div>
 
+                      {/* Score Rationale */}
+                      <div className="border-t pt-3">
+                        <div className="mb-2 flex items-center justify-between">
+                          <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                            Why this score?
+                          </span>
+                          <Badge 
+                            variant={lead.relevanceScore >= 70 ? "default" : "secondary"} 
+                            className="text-xs"
+                          >
+                            Score: {lead.relevanceScore}
+                          </Badge>
+                        </div>
+                        <p className="mb-3 text-xs text-gray-600 dark:text-gray-400">
+                          {lead.reasoning || "AI analysis of relevance to your business"}
+                        </p>
+                      </div>
+
                       {/* Generated Comment */}
                       <div className="space-y-2 border-t pt-3" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-between">
@@ -1054,12 +1128,6 @@ export default function LeadFinderDashboard() {
                             )}
                           </span>
                           <div className="flex items-center gap-2">
-                            <Badge 
-                              variant={lead.relevanceScore >= 70 ? "default" : "secondary"} 
-                              className="text-xs"
-                            >
-                              Score: {lead.relevanceScore}
-                            </Badge>
                             {lead.status !== "used" && (
                               <>
                                 <Button
