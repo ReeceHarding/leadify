@@ -35,16 +35,33 @@ export async function generateKeywordsAction(
     const systemPrompt = `You are an expert at analyzing businesses and generating Reddit search keywords for lead generation.
 
 Your task is to:
-1. Analyze the provided website URL and business
+1. Analyze the provided website URL and business type
 2. Create an ideal customer profile (ICP) 
-3. Generate 8-12 specific keywords/phrases that potential customers would search for on Reddit when they have the pain point this business solves
+3. Generate 8-12 specific keywords/phrases for Reddit posts where this business could ORGANICALLY comment and be helpful
 
-The keywords should be:
-- Specific questions or problems customers would type into Reddit search
-- Natural language (how people actually search)
-- Include location-specific terms if the business is local
-- Focus on pain points, not solutions
-- Be longer phrases (3-7 words) rather than single words
+CRITICAL: Think about what type of post this business can naturally comment on without seeming like spam.
+
+The keywords should target posts where people are:
+- Asking for recommendations or comparisons between options
+- Seeking advice on choosing between solutions
+- Discussing problems where this business type is a natural solution
+- Comparing different approaches or platforms
+- Asking "what's the best..." questions
+
+For REMOTE/ONLINE businesses:
+- Avoid location-specific keywords (no "[city]" or "near me")
+- Focus on online/remote/virtual service comparisons
+- Target posts about platform recommendations
+- Include keywords about online vs offline debates
+
+For LOCAL businesses:
+- Include location-specific terms
+- Target local recommendation requests
+
+Keyword format:
+- Natural Reddit search phrases (3-7 words)
+- Questions or comparison requests
+- Focus on solution-seeking, not just pain points
 
 Return the response in this exact JSON format (without any markdown formatting):
 {
@@ -55,12 +72,29 @@ Return the response in this exact JSON format (without any markdown formatting):
 Website: ${data.website}
 ${data.refinement ? `\nRefinement instructions: ${data.refinement}` : ''}
 
-Example good keywords:
-- "where to find reliable freelance developers"
-- "how to plan wedding on budget"
-- "best accounting software for small business"
-- "need help with social media marketing"
-- "looking for personal trainer in [city]"`
+Example GOOD keywords for different business types:
+
+Remote Health/Therapy Business:
+- "best online therapy platforms comparison"
+- "virtual therapy vs in-person experiences"
+- "affordable telehealth options that work"
+- "online counseling recommendations"
+- "remote mental health services reviews"
+
+Software/SaaS Business:
+- "best project management tools comparison"
+- "accounting software recommendations for startups"
+- "CRM platforms for small business"
+
+Local Service Business:
+- "best personal trainers in Austin"
+- "reliable plumbers in Denver area"
+- "wedding photographers in Seattle"
+
+Example BAD keywords (avoid these):
+- "seeking help for anxiety in [city]" (local request for remote business)
+- "therapists near me" (local request for remote business)
+- "struggling with depression" (pure pain point, no solution-seeking)`
 
     console.log("🔍 [KEYWORDS-ACTION] System prompt created, length:", systemPrompt.length)
     console.log("🔍 [KEYWORDS-ACTION] Calling OpenAI generateText")
