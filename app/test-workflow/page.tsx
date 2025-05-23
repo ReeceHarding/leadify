@@ -14,7 +14,7 @@ export default async function TestWorkflowPage() {
             </h1>
             <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
               <h2 className="mb-2 text-lg font-semibold text-blue-900">
-                Enhanced with o3-mini Critical Scoring & Three-Tier Comments
+                Enhanced with o3-mini Critical Scoring & Ultra-Short Comments
               </h2>
               <ul className="space-y-1 text-blue-800">
                 <li>
@@ -24,8 +24,12 @@ export default async function TestWorkflowPage() {
                   • Three comment tiers: Free, Medium (subtle CEO mention),
                   Premium (natural Gauntlet AI integration)
                 </li>
-                <li>• All comments designed to be authentic and non-salesy</li>
-                <li>• Perfect for genuine engagement without feeling pushy</li>
+                <li>
+                  • Comments extremely short and concise (30-80 words max)
+                </li>
+                <li>
+                  • Authentic and non-salesy, perfect for genuine engagement
+                </li>
               </ul>
             </div>
           </div>

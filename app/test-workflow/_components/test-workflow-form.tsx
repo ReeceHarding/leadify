@@ -86,11 +86,11 @@ export default function TestWorkflowForm() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             🚀 Enhanced End-to-End Test
-            <Badge variant="secondary">o3-mini Powered</Badge>
+            <Badge variant="secondary">o3-mini + Ultra-Short</Badge>
           </CardTitle>
           <CardDescription>
-            Test the complete workflow with critical scoring and three-tier
-            comment generation
+            Test the complete workflow with critical scoring and ultra-short
+            three-tier comment generation
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -301,8 +301,8 @@ export default function TestWorkflowForm() {
                         🆓 Free Tier
                       </h4>
                       <p className="text-sm text-green-700">
-                        Generic helpful advice with no company mention. Perfect
-                        for building karma and credibility.
+                        Ultra-short generic advice (30-80 words). No company
+                        mention. Perfect for building karma quickly.
                       </p>
                     </div>
                     <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
@@ -310,9 +310,8 @@ export default function TestWorkflowForm() {
                         💼 Medium Tier
                       </h4>
                       <p className="text-sm text-blue-700">
-                        Helpful advice with subtle, natural mention of being a
-                        CEO or having experience. Authentic positioning without
-                        being salesy.
+                        Concise advice with subtle CEO/experience mention.
+                        Authentic positioning in minimal words.
                       </p>
                     </div>
                     <div className="rounded-lg border border-purple-200 bg-purple-50 p-4">
@@ -320,9 +319,8 @@ export default function TestWorkflowForm() {
                         💎 Premium Tier
                       </h4>
                       <p className="text-sm text-purple-700">
-                        Helpful advice that naturally weaves in Gauntlet AI
-                        mention as ONE option among others. Never pushy, always
-                        valuable.
+                        Brief advice that naturally mentions Gauntlet AI as one
+                        option. Maximum impact in minimum words.
                       </p>
                     </div>
                   </div>
