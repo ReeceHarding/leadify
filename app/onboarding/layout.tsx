@@ -1,6 +1,6 @@
 "use server"
 
-import Image from "next/image"
+import { Target } from "lucide-react"
 
 export default async function OnboardingLayout({
   children
@@ -8,24 +8,43 @@ export default async function OnboardingLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
-      <div className="container mx-auto px-4 py-12">
-        {/* Logo */}
-        <div className="mb-16 flex justify-center">
-          <div className="flex items-center gap-3">
-            <div className="rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 p-3">
-              <div className="text-2xl">✨</div>
+    <div className="from-background via-muted/20 to-background min-h-screen bg-gradient-to-br">
+      {/* Background Pattern */}
+      <div className="bg-grid-pattern absolute inset-0 opacity-5" />
+
+      <div className="container relative mx-auto px-4 py-8">
+        {/* Header */}
+        <header className="py-8 text-center">
+          <div className="bg-card inline-flex items-center gap-3 rounded-2xl border p-1 shadow-sm">
+            <div className="bg-primary text-primary-foreground flex size-12 items-center justify-center rounded-xl">
+              <Target className="size-6" />
             </div>
-            <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              Lead Finder
-            </span>
+            <div className="pr-4">
+              <h1 className="from-primary to-primary/70 bg-gradient-to-r bg-clip-text text-2xl font-bold text-transparent">
+                Lead Finder
+              </h1>
+              <p className="text-muted-foreground text-xs font-medium">
+                Setup Your Account
+              </p>
+            </div>
           </div>
-        </div>
+        </header>
 
         {/* Main Content */}
-        <div className="flex min-h-[60vh] items-start justify-center">
-          {children}
-        </div>
+        <main className="flex min-h-[70vh] items-center justify-center">
+          <div className="w-full max-w-md">
+            <div className="bg-card rounded-3xl border p-8 shadow-lg backdrop-blur-sm">
+              {children}
+            </div>
+          </div>
+        </main>
+
+        {/* Footer */}
+        <footer className="py-8 text-center">
+          <p className="text-muted-foreground text-sm">
+            Secure setup • Takes less than 3 minutes
+          </p>
+        </footer>
       </div>
     </div>
   )

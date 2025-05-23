@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react"
 import { motion } from "framer-motion"
-import { Camera, Upload } from "lucide-react"
+import { Camera, Upload, User, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -73,50 +73,58 @@ export default function ProfileStep({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="space-y-8 text-center"
+      className="space-y-6"
     >
-      <div className="space-y-3">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-          Your Profile
-        </h1>
-        <p className="text-base leading-relaxed text-gray-600 dark:text-gray-400">
-          Let's start by getting to know you a bit better.
+      {/* Header */}
+      <div className="space-y-2 text-center">
+        <div className="mb-4 flex justify-center">
+          <div className="bg-primary/10 rounded-full p-3">
+            <User className="text-primary size-6" />
+          </div>
+        </div>
+        <h2 className="text-2xl font-bold">Tell us about yourself</h2>
+        <p className="text-muted-foreground">
+          Let's start by setting up your profile information.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <form onSubmit={handleSubmit} className="space-y-6">
         {/* Profile Picture */}
-        <div className="flex flex-col items-center space-y-4">
-          <Label
-            htmlFor="profile-picture"
-            className="text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            Avatar
-          </Label>
-          <div className="relative">
-            <Avatar className="size-20 border-2 border-gray-200 dark:border-gray-600">
-              <AvatarImage src={data.profilePictureUrl} alt={data.name} />
-              <AvatarFallback className="bg-gradient-to-r from-blue-600 to-purple-600 text-lg text-white">
-                {getInitials(data.name) || "R"}
-              </AvatarFallback>
-            </Avatar>
-            <Button
-              type="button"
-              size="icon"
-              className="absolute -bottom-1 -right-1 size-6 rounded-full bg-gray-800 shadow-sm hover:bg-gray-700 dark:bg-gray-600 dark:hover:bg-gray-500"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
-            >
-              {uploading ? (
-                <div className="size-3 animate-spin rounded-full border border-white border-t-transparent" />
-              ) : (
-                <Camera className="size-3 text-white" />
-              )}
-            </Button>
+        <div className="space-y-4">
+          <Label className="text-sm font-medium">Profile Picture</Label>
+          <div className="flex flex-col items-center space-y-4">
+            <div className="group relative">
+              <Avatar className="border-background size-24 border-4 shadow-lg">
+                <AvatarImage src={data.profilePictureUrl} alt={data.name} />
+                <AvatarFallback className="from-primary to-primary/80 text-primary-foreground bg-gradient-to-br text-xl font-semibold">
+                  {getInitials(data.name) || "YU"}
+                </AvatarFallback>
+              </Avatar>
+
+              <Button
+                type="button"
+                size="icon"
+                variant="secondary"
+                className="absolute -bottom-2 -right-2 size-8 rounded-full shadow-md transition-transform hover:scale-110"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+              >
+                {uploading ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Camera className="size-4" />
+                )}
+              </Button>
+            </div>
+
+            <div className="space-y-1 text-center">
+              <p className="text-sm font-medium">Upload your photo</p>
+              <p className="text-muted-foreground text-xs">
+                JPG, PNG up to 10MB
+              </p>
+            </div>
           </div>
-          <p className="max-w-xs text-sm text-gray-500 dark:text-gray-400">
-            Click the circle or drop an image to it to upload your avatar.
-          </p>
+
           <input
             ref={fileInputRef}
             type="file"
@@ -127,20 +135,17 @@ export default function ProfileStep({
         </div>
 
         {/* Name Input */}
-        <div className="space-y-3">
-          <Label
-            htmlFor="name"
-            className="text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            Name
+        <div className="space-y-2">
+          <Label htmlFor="name" className="text-sm font-medium">
+            Full Name
           </Label>
           <Input
             id="name"
             type="text"
             value={data.name}
             onChange={e => onUpdate({ name: e.target.value })}
-            placeholder="Your full name"
-            className="rounded-lg border-gray-300 py-3 text-center text-base dark:border-gray-600"
+            placeholder="Enter your full name"
+            className="focus-ring h-12 text-base"
             required
           />
         </div>
@@ -148,10 +153,10 @@ export default function ProfileStep({
         {/* Continue Button */}
         <Button
           type="submit"
-          className="w-full rounded-lg bg-blue-600 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+          className="h-12 w-full rounded-xl text-base font-semibold"
           disabled={!data.name.trim()}
         >
-          Continue →
+          Continue
         </Button>
       </form>
     </motion.div>

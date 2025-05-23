@@ -2,7 +2,13 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { ArrowLeft, Globe, Loader2 } from "lucide-react"
+import {
+  ArrowLeft,
+  Globe,
+  Loader2,
+  Building2,
+  ChevronRight
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -66,16 +72,14 @@ export default function WebsiteStep({
     const normalizedUrl = normalizeUrl(data.website)
 
     if (!validateUrl(normalizedUrl)) {
+      // TODO: Add proper toast notification
       alert("Please enter a valid website URL")
       return
     }
 
     setIsValidating(true)
-
-    // Update the website URL and proceed
     onUpdate({ website: normalizedUrl })
 
-    // Simulate validation delay
     setTimeout(() => {
       setIsValidating(false)
       onNext()
@@ -92,45 +96,68 @@ export default function WebsiteStep({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="space-y-8 text-center"
+      className="space-y-6"
     >
-      <div className="space-y-3">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-          Your Brand Source
-        </h1>
-        <p className="text-base leading-relaxed text-gray-600 dark:text-gray-400">
-          Let's add your website to help us understand your brand better. This
-          will be used as a reference for accurate content generation.
+      {/* Header */}
+      <div className="space-y-2 text-center">
+        <div className="mb-4 flex justify-center">
+          <div className="bg-primary/10 rounded-full p-3">
+            <Building2 className="text-primary size-6" />
+          </div>
+        </div>
+        <h2 className="text-2xl font-bold">Connect your website</h2>
+        <p className="text-muted-foreground">
+          Help us understand your brand better by adding your website URL.
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Website Input */}
-        <div className="space-y-3">
+        <div className="space-y-2">
+          <Label htmlFor="website" className="text-sm font-medium">
+            Website URL
+          </Label>
           <div className="relative">
             <Input
               id="website"
               type="text"
               value={data.website}
               onChange={e => onUpdate({ website: e.target.value })}
-              placeholder="https://yourwebsite.com"
-              className="rounded-lg border-gray-300 py-3 pl-12 text-center text-base dark:border-gray-600"
+              placeholder="https://yourcompany.com"
+              className="focus-ring h-12 pl-12 text-base"
             />
-            <Globe className="absolute left-4 top-1/2 size-5 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
+            <Globe className="text-muted-foreground absolute left-4 top-1/2 size-5 -translate-y-1/2" />
+          </div>
+          <p className="text-muted-foreground text-xs">
+            We'll analyze your website to better understand your brand and
+            create personalized responses.
+          </p>
+        </div>
+
+        {/* Benefits */}
+        <div className="bg-muted/30 space-y-3 rounded-xl p-4">
+          <h3 className="text-sm font-medium">What this helps with:</h3>
+          <div className="text-muted-foreground space-y-2 text-sm">
+            <div className="flex items-center gap-2">
+              <ChevronRight className="text-primary size-4" />
+              <span>AI learns your brand voice and tone</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <ChevronRight className="text-primary size-4" />
+              <span>Better context for Reddit responses</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <ChevronRight className="text-primary size-4" />
+              <span>More accurate lead qualification</span>
+            </div>
           </div>
         </div>
 
-        <p className="mx-auto max-w-md text-sm text-gray-500 dark:text-gray-400">
-          We'll analyze your website to create a knowledge base of key
-          information for your brand. Don't worry, you can always add or update
-          your knowledge base later in the app.
-        </p>
-
-        {/* Buttons */}
-        <div className="flex flex-col space-y-3">
+        {/* Action Buttons */}
+        <div className="space-y-3">
           <Button
             type="submit"
-            className="w-full rounded-lg bg-blue-600 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+            className="h-12 w-full rounded-xl text-base font-semibold"
             disabled={isValidating}
           >
             {isValidating ? (
@@ -139,7 +166,7 @@ export default function WebsiteStep({
                 Analyzing Website...
               </>
             ) : (
-              "Continue →"
+              "Continue"
             )}
           </Button>
 
@@ -147,24 +174,27 @@ export default function WebsiteStep({
             type="button"
             variant="ghost"
             onClick={handleSkip}
-            className="w-full text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+            className="text-muted-foreground hover:text-foreground h-12 w-full"
             disabled={isValidating}
           >
-            Skip for now →
+            Skip for now
           </Button>
         </div>
 
-        {/* Back Button */}
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={onPrevious}
-          className="flex w-full items-center justify-center text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
-          disabled={isValidating}
-        >
-          <ArrowLeft className="mr-2 size-4" />
-          Back
-        </Button>
+        {/* Navigation */}
+        <div className="flex justify-between pt-4">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={onPrevious}
+            className="text-muted-foreground hover:text-foreground flex items-center gap-2"
+            disabled={isValidating}
+          >
+            <ArrowLeft className="size-4" />
+            Back
+          </Button>
+          <div></div>
+        </div>
       </form>
     </motion.div>
   )
