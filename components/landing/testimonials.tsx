@@ -28,70 +28,61 @@ const testimonials = [
     avatar: "👨‍💻"
   },
   {
-    name: "Emily Davis",
-    role: "Sales Lead, Innovation Labs",
+    name: "Alex Thompson",
+    role: "CEO, StartupLabs",
     content:
-      "Finding quality leads used to take hours. Now it takes minutes, and the quality is actually better than manual research.",
+      "Finally, a Reddit lead generation tool that actually works. The keyword targeting is incredibly accurate and saves us hours of manual work.",
     rating: 5,
-    avatar: "👩‍🚀"
+    avatar: "👨‍💼"
   }
 ]
 
-export const TestimonialsSection = () => {
+export function TestimonialsSection() {
   return (
-    <section className="bg-white py-20">
-      <div className="container mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="mb-16 text-center"
-        >
-          <h2 className="mb-4 text-4xl font-bold text-gray-900">
-            What Our Users Say
-          </h2>
-          <p className="mx-auto max-w-2xl text-xl text-gray-600">
-            See how teams are using our AI-powered lead generation to grow their
-            business
-          </p>
-        </motion.div>
+    <section className="w-full py-12 md:py-24 lg:py-32">
+      <div className="container mx-auto px-4 md:px-6">
+        <div className="flex flex-col items-center justify-center space-y-4 text-center">
+          <div className="space-y-2">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
+              What Our Users Say
+            </h2>
+            <p className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
+              Join thousands of businesses already using our Reddit lead
+              generation platform
+            </p>
+          </div>
+        </div>
 
-        <div className="grid gap-8 md:grid-cols-3">
+        <div className="mx-auto grid max-w-5xl items-center gap-6 py-12 lg:grid-cols-3 lg:gap-12">
           {testimonials.map((testimonial, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: 0.8,
-                delay: index * 0.2,
-                ease: "easeOut"
-              }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
             >
-              <Card className="h-full transition-shadow duration-300 hover:shadow-lg">
+              <Card className="flex h-full flex-col justify-between">
                 <CardContent className="p-6">
-                  <div className="mb-4 flex items-center">
+                  <div className="mb-4 flex items-center space-x-1">
                     {[...Array(testimonial.rating)].map((_, i) => (
                       <Star
                         key={i}
-                        className="size-5 fill-current text-yellow-400"
+                        className="size-4 fill-yellow-400 text-yellow-400"
                       />
                     ))}
                   </div>
-
-                  <p className="mb-6 leading-relaxed text-gray-700">
+                  <blockquote className="mb-4 text-sm text-gray-600">
                     "{testimonial.content}"
-                  </p>
-
-                  <div className="flex items-center">
-                    <div className="mr-3 text-3xl">{testimonial.avatar}</div>
+                  </blockquote>
+                  <div className="flex items-center space-x-3">
+                    <div className="text-2xl">{testimonial.avatar}</div>
                     <div>
-                      <h4 className="font-semibold text-gray-900">
+                      <div className="text-sm font-medium">
                         {testimonial.name}
-                      </h4>
-                      <p className="text-sm text-gray-600">
+                      </div>
+                      <div className="text-xs text-gray-500">
                         {testimonial.role}
-                      </p>
+                      </div>
                     </div>
                   </div>
                 </CardContent>

@@ -1,13 +1,35 @@
 /*
 <ai_context>
 Contains middleware for protecting routes, checking user authentication, and redirecting as needed.
-Modified to allow all pages for testing purposes while keeping Stripe logic.
+Using clerkMiddleware to handle authentication across the app.
 </ai_context>
 */
 
-import { clerkMiddleware } from "@clerk/nextjs/server"
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
 
-export default clerkMiddleware()
+const isPublicRoute = createRouteMatcher([
+  '/',
+  '/about',
+  '/contact', 
+  '/pricing',
+  '/onboarding(.*)',
+  '/reddit/lead-finder(.*)',
+  '/reddit-test(.*)',
+  '/login(.*)',
+  '/signup(.*)',
+  '/api/stripe/webhooks',
+  '/api/reddit/callback'
+])
+
+export default clerkMiddleware(async (auth, req) => {
+  // Allow public routes
+  if (isPublicRoute(req)) {
+    return
+  }
+  
+  // Protect all other routes
+  await auth.protect()
+})
 
 export const config = {
   matcher: [
