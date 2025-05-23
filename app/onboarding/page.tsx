@@ -66,6 +66,42 @@ export default function OnboardingPage() {
   console.log("🔍 [ONBOARDING] onboardingStarted:", onboardingStarted)
   console.log("🔍 [ONBOARDING] currentStep:", currentStep)
 
+  // Centralized validation function to eliminate duplication
+  const validateOnboardingData = (data: {
+    name?: string
+    website?: string
+    keywords?: string[]
+  }) => {
+    console.log("🔍 [ONBOARDING] validateOnboardingData() called with:", data)
+
+    const isValid = !!(
+      data.name &&
+      data.name.trim() !== "" &&
+      data.website &&
+      data.website.trim() !== "" &&
+      data.keywords &&
+      data.keywords.length > 0 &&
+      data.keywords.every(k => k.trim() !== "")
+    )
+
+    console.log("🔍 [ONBOARDING] Validation result:")
+    console.log(
+      "🔍 [ONBOARDING] - name valid:",
+      !!(data.name && data.name.trim() !== "")
+    )
+    console.log(
+      "🔍 [ONBOARDING] - website valid:",
+      !!(data.website && data.website.trim() !== "")
+    )
+    console.log(
+      "🔍 [ONBOARDING] - keywords valid:",
+      !!(data.keywords && data.keywords.length > 0)
+    )
+    console.log("🔍 [ONBOARDING] - overall valid:", isValid)
+
+    return isValid
+  }
+
   // Load existing profile data when user is available
   useEffect(() => {
     console.log("🔍 [ONBOARDING] useEffect for loading profile triggered")
@@ -154,33 +190,8 @@ export default function OnboardingPage() {
               "🔍 [ONBOARDING] Onboarding marked as completed, checking data completeness..."
             )
 
-            // Verify that all required data is actually present
-            const hasCompleteData =
-              profileResult.data.name &&
-              profileResult.data.name !== "" &&
-              profileResult.data.website &&
-              profileResult.data.website !== "" &&
-              profileResult.data.keywords &&
-              profileResult.data.keywords.length > 0
-
-            console.log("🔍 [ONBOARDING] Data completeness check:")
-            console.log(
-              "🔍 [ONBOARDING] - name present:",
-              !!(profileResult.data.name && profileResult.data.name !== "")
-            )
-            console.log(
-              "🔍 [ONBOARDING] - website present:",
-              !!(
-                profileResult.data.website && profileResult.data.website !== ""
-              )
-            )
-            console.log(
-              "🔍 [ONBOARDING] - keywords present:",
-              !!(
-                profileResult.data.keywords &&
-                profileResult.data.keywords.length > 0
-              )
-            )
+            // Use centralized validation with processed data
+            const hasCompleteData = validateOnboardingData(loadedData)
             console.log("🔍 [ONBOARDING] - hasCompleteData:", hasCompleteData)
 
             if (hasCompleteData) {
@@ -198,11 +209,9 @@ export default function OnboardingPage() {
           } else {
             // Check if user has started onboarding (has any data beyond defaults)
             const hasStartedOnboarding =
-              (profileResult.data.name && profileResult.data.name !== "") ||
-              (profileResult.data.website &&
-                profileResult.data.website !== "") ||
-              (profileResult.data.keywords &&
-                profileResult.data.keywords.length > 0)
+              (loadedData.name && loadedData.name !== "") ||
+              (loadedData.website && loadedData.website !== "") ||
+              (loadedData.keywords && loadedData.keywords.length > 0)
 
             console.log(
               "🔍 [ONBOARDING] Has started onboarding:",
@@ -210,20 +219,15 @@ export default function OnboardingPage() {
             )
             console.log(
               "🔍 [ONBOARDING] Name exists:",
-              !!(profileResult.data.name && profileResult.data.name !== "")
+              !!(loadedData.name && loadedData.name !== "")
             )
             console.log(
               "🔍 [ONBOARDING] Website exists:",
-              !!(
-                profileResult.data.website && profileResult.data.website !== ""
-              )
+              !!(loadedData.website && loadedData.website !== "")
             )
             console.log(
               "🔍 [ONBOARDING] Keywords exist:",
-              !!(
-                profileResult.data.keywords &&
-                profileResult.data.keywords.length > 0
-              )
+              !!(loadedData.keywords && loadedData.keywords.length > 0)
             )
 
             if (!hasStartedOnboarding) {
@@ -338,66 +342,43 @@ export default function OnboardingPage() {
           updated
         )
 
-        // Validate data completeness before advancing to complete step
-        // Use the updated data for validation, not the old onboardingData
-        const hasCompleteData =
-          updated.name &&
-          updated.name !== "" &&
-          updated.website &&
-          updated.website !== "" &&
-          updated.keywords &&
-          updated.keywords.length > 0
-
-        console.log("🔍 [ONBOARDING] Reddit auth data completeness check:")
-        console.log(
-          "🔍 [ONBOARDING] - name valid:",
-          !!(updated.name && updated.name !== "")
-        )
-        console.log(
-          "🔍 [ONBOARDING] - website valid:",
-          !!(updated.website && updated.website !== "")
-        )
-        console.log(
-          "🔍 [ONBOARDING] - keywords valid:",
-          !!(updated.keywords && updated.keywords.length > 0)
-        )
+        // Use centralized validation with updated data
+        const hasCompleteData = validateOnboardingData(updated)
         console.log("🔍 [ONBOARDING] - hasCompleteData:", hasCompleteData)
 
-        // Schedule the step change after state update
-        setTimeout(() => {
-          if (hasCompleteData) {
-            console.log(
-              "🔍 [ONBOARDING] Data is complete, advancing to complete step"
-            )
-            setCurrentStep("complete")
-          } else {
-            console.log(
-              "🔍 [ONBOARDING] Data incomplete, determining appropriate step"
-            )
+        // Determine next step based on validation result
+        if (hasCompleteData) {
+          console.log(
+            "🔍 [ONBOARDING] Data is complete, advancing to complete step"
+          )
+          setCurrentStep("complete")
+        } else {
+          console.log(
+            "🔍 [ONBOARDING] Data incomplete, determining appropriate step"
+          )
 
-            // Determine which step to go to based on missing data
-            if (!updated.name || updated.name === "") {
-              console.log("🔍 [ONBOARDING] Missing name, going to profile step")
-              setCurrentStep("profile")
-              setOnboardingStarted(true)
-            } else if (!updated.website || updated.website === "") {
-              console.log(
-                "🔍 [ONBOARDING] Missing website, going to website step"
-              )
-              setCurrentStep("website")
-              setOnboardingStarted(true)
-            } else if (!updated.keywords || updated.keywords.length === 0) {
-              console.log(
-                "🔍 [ONBOARDING] Missing keywords, going to keywords step"
-              )
-              setCurrentStep("keywords")
-              setOnboardingStarted(true)
-            } else {
-              console.log("🔍 [ONBOARDING] Fallback: going to complete step")
-              setCurrentStep("complete")
-            }
+          // Determine which step to go to based on missing data
+          if (!updated.name || updated.name === "") {
+            console.log("🔍 [ONBOARDING] Missing name, going to profile step")
+            setCurrentStep("profile")
+            setOnboardingStarted(true)
+          } else if (!updated.website || updated.website === "") {
+            console.log(
+              "🔍 [ONBOARDING] Missing website, going to website step"
+            )
+            setCurrentStep("website")
+            setOnboardingStarted(true)
+          } else if (!updated.keywords || updated.keywords.length === 0) {
+            console.log(
+              "🔍 [ONBOARDING] Missing keywords, going to keywords step"
+            )
+            setCurrentStep("keywords")
+            setOnboardingStarted(true)
+          } else {
+            console.log("🔍 [ONBOARDING] Fallback: going to complete step")
+            setCurrentStep("complete")
           }
-        }, 0)
+        }
 
         return updated
       })
@@ -514,28 +495,8 @@ export default function OnboardingPage() {
       return
     }
 
-    // Validate that all required data is present before completing
-    const hasRequiredData =
-      onboardingData.name &&
-      onboardingData.name !== "" &&
-      onboardingData.website &&
-      onboardingData.website !== "" &&
-      onboardingData.keywords &&
-      onboardingData.keywords.length > 0
-
-    console.log("🔍 [ONBOARDING] Pre-completion validation:")
-    console.log(
-      "🔍 [ONBOARDING] - name valid:",
-      !!(onboardingData.name && onboardingData.name !== "")
-    )
-    console.log(
-      "🔍 [ONBOARDING] - website valid:",
-      !!(onboardingData.website && onboardingData.website !== "")
-    )
-    console.log(
-      "🔍 [ONBOARDING] - keywords valid:",
-      !!(onboardingData.keywords && onboardingData.keywords.length > 0)
-    )
+    // Use centralized validation
+    const hasRequiredData = validateOnboardingData(onboardingData)
     console.log("🔍 [ONBOARDING] - hasRequiredData:", hasRequiredData)
 
     if (!hasRequiredData) {
@@ -543,11 +504,12 @@ export default function OnboardingPage() {
         "🔍 [ONBOARDING] Cannot complete onboarding - missing required data"
       )
       console.error("🔍 [ONBOARDING] Missing data details:")
-      if (!onboardingData.name) console.error("🔍 [ONBOARDING] - Missing name")
-      if (!onboardingData.website)
-        console.error("🔍 [ONBOARDING] - Missing website")
+      if (!onboardingData.name || onboardingData.name.trim() === "")
+        console.error("🔍 [ONBOARDING] - Missing or empty name")
+      if (!onboardingData.website || onboardingData.website.trim() === "")
+        console.error("🔍 [ONBOARDING] - Missing or empty website")
       if (!onboardingData.keywords || onboardingData.keywords.length === 0)
-        console.error("🔍 [ONBOARDING] - Missing keywords")
+        console.error("🔍 [ONBOARDING] - Missing or empty keywords")
       return
     }
 
