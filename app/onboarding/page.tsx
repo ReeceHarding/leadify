@@ -23,6 +23,7 @@ import {
   getProfileByUserIdAction,
   resetOnboardingAction
 } from "@/actions/db/profiles-actions"
+import { getRedditAccessTokenAction } from "@/actions/integrations/reddit-oauth-actions"
 
 type OnboardingStep =
   | "welcome"
@@ -74,6 +75,7 @@ export default function OnboardingPage() {
     name?: string
     website?: string
     keywords?: string[]
+    redditConnected?: boolean
   }) => {
     console.log("🔍 [ONBOARDING] validateOnboardingData() called with:", data)
 
@@ -84,7 +86,8 @@ export default function OnboardingPage() {
       data.website.trim() !== "" &&
       data.keywords &&
       data.keywords.length > 0 &&
-      data.keywords.every(k => k.trim() !== "")
+      data.keywords.every(k => k.trim() !== "") &&
+      data.redditConnected === true
     )
 
     console.log("🔍 [ONBOARDING] Validation result:")
@@ -100,9 +103,27 @@ export default function OnboardingPage() {
       "🔍 [ONBOARDING] - keywords valid:",
       !!(data.keywords && data.keywords.length > 0)
     )
+    console.log(
+      "🔍 [ONBOARDING] - reddit connected:",
+      data.redditConnected === true
+    )
     console.log("🔍 [ONBOARDING] - overall valid:", isValid)
 
     return isValid
+  }
+
+  // Check if Reddit is actually connected by verifying stored tokens
+  const checkRedditConnection = async () => {
+    console.log("🔍 [ONBOARDING] Checking Reddit connection status...")
+    try {
+      const tokenResult = await getRedditAccessTokenAction()
+      const isConnected = tokenResult.isSuccess
+      console.log("🔍 [ONBOARDING] Reddit connection status:", isConnected)
+      return isConnected
+    } catch (error) {
+      console.error("🔍 [ONBOARDING] Error checking Reddit connection:", error)
+      return false
+    }
   }
 
   // Load existing profile data when user is available
@@ -187,6 +208,27 @@ export default function OnboardingPage() {
 
           setOnboardingData(loadedData)
 
+          // Check actual Reddit connection status
+          console.log("🔍 [ONBOARDING] Checking Reddit connection...")
+          const isRedditConnected = await checkRedditConnection()
+
+          // Update Reddit connection status
+          setOnboardingData(prev => ({
+            ...prev,
+            redditConnected: isRedditConnected
+          }))
+
+          console.log(
+            "🔍 [ONBOARDING] Final Reddit connection status:",
+            isRedditConnected
+          )
+
+          // Use updated data for validation (including Reddit connection)
+          const finalData = {
+            ...loadedData,
+            redditConnected: isRedditConnected
+          }
+
           // Determine which step to start on based on existing data
           if (profileResult.data.onboardingCompleted) {
             console.log(
@@ -194,7 +236,7 @@ export default function OnboardingPage() {
             )
 
             // Use centralized validation with processed data
-            const hasCompleteData = validateOnboardingData(loadedData)
+            const hasCompleteData = validateOnboardingData(finalData)
             console.log("🔍 [ONBOARDING] - hasCompleteData:", hasCompleteData)
 
             if (hasCompleteData) {
@@ -240,14 +282,14 @@ export default function OnboardingPage() {
               setOnboardingStarted(true)
 
               // Determine step based on what data is missing (prioritize missing data)
-              if (!loadedData.website || loadedData.website.trim() === "") {
+              if (!finalData.website || finalData.website.trim() === "") {
                 console.log(
                   "🔍 [ONBOARDING] Missing website, starting from website step"
                 )
                 setCurrentStep("website")
               } else if (
-                !loadedData.keywords ||
-                loadedData.keywords.length === 0
+                !finalData.keywords ||
+                finalData.keywords.length === 0
               ) {
                 console.log(
                   "🔍 [ONBOARDING] Missing keywords, starting from keywords step"
@@ -263,9 +305,9 @@ export default function OnboardingPage() {
           } else {
             // Check if user has started onboarding (has any data beyond defaults)
             const hasStartedOnboarding =
-              (loadedData.name && loadedData.name !== "") ||
-              (loadedData.website && loadedData.website !== "") ||
-              (loadedData.keywords && loadedData.keywords.length > 0)
+              (finalData.name && finalData.name !== "") ||
+              (finalData.website && finalData.website !== "") ||
+              (finalData.keywords && finalData.keywords.length > 0)
 
             console.log(
               "🔍 [ONBOARDING] Has started onboarding:",
@@ -273,15 +315,15 @@ export default function OnboardingPage() {
             )
             console.log(
               "🔍 [ONBOARDING] Name exists:",
-              !!(loadedData.name && loadedData.name !== "")
+              !!(finalData.name && finalData.name !== "")
             )
             console.log(
               "🔍 [ONBOARDING] Website exists:",
-              !!(loadedData.website && loadedData.website !== "")
+              !!(finalData.website && finalData.website !== "")
             )
             console.log(
               "🔍 [ONBOARDING] Keywords exist:",
-              !!(loadedData.keywords && loadedData.keywords.length > 0)
+              !!(finalData.keywords && finalData.keywords.length > 0)
             )
 
             if (!hasStartedOnboarding) {
@@ -296,17 +338,17 @@ export default function OnboardingPage() {
               )
               setOnboardingStarted(true)
               // Determine step based on completed data
-              if (loadedData.keywords.length > 0) {
+              if (finalData.keywords.length > 0) {
                 console.log(
                   "🔍 [ONBOARDING] Keywords exist, starting on reddit step"
                 )
                 setCurrentStep("reddit")
-              } else if (loadedData.website) {
+              } else if (finalData.website) {
                 console.log(
                   "🔍 [ONBOARDING] Website exists, starting on keywords step"
                 )
                 setCurrentStep("keywords")
-              } else if (loadedData.name) {
+              } else if (finalData.name) {
                 console.log(
                   "🔍 [ONBOARDING] Name exists, starting on website step"
                 )
@@ -382,60 +424,80 @@ export default function OnboardingPage() {
     )
 
     if (success === "Reddit authentication successful") {
-      console.log("🔍 [ONBOARDING] Reddit auth successful, updating state")
+      console.log("🔍 [ONBOARDING] Reddit auth successful, verifying tokens...")
       console.log(
         "🔍 [ONBOARDING] Current onboardingData before Reddit update:",
         onboardingData
       )
 
-      // Update Reddit connection status and determine next step
-      setOnboardingData(prev => {
-        const updated = { ...prev, redditConnected: true }
+      // Verify Reddit connection with actual token check
+      const handleRedditSuccess = async () => {
+        const isRedditConnected = await checkRedditConnection()
         console.log(
-          "🔍 [ONBOARDING] Updated onboardingData after Reddit connect:",
-          updated
+          "🔍 [ONBOARDING] Verified Reddit connection:",
+          isRedditConnected
         )
 
-        // Use centralized validation with updated data
-        const hasCompleteData = validateOnboardingData(updated)
-        console.log("🔍 [ONBOARDING] - hasCompleteData:", hasCompleteData)
+        if (isRedditConnected) {
+          // Update Reddit connection status
+          setOnboardingData(prev => {
+            const updated = { ...prev, redditConnected: true }
+            console.log(
+              "🔍 [ONBOARDING] Updated onboardingData after Reddit connect:",
+              updated
+            )
 
-        // Determine next step based on validation result
-        if (hasCompleteData) {
-          console.log(
-            "🔍 [ONBOARDING] Data is complete, advancing to complete step"
-          )
-          setCurrentStep("complete")
+            // Use centralized validation with updated data
+            const hasCompleteData = validateOnboardingData(updated)
+            console.log("🔍 [ONBOARDING] - hasCompleteData:", hasCompleteData)
+
+            // Determine next step based on validation result
+            if (hasCompleteData) {
+              console.log(
+                "🔍 [ONBOARDING] All data complete, advancing to complete step"
+              )
+              setCurrentStep("complete")
+            } else {
+              console.log(
+                "🔍 [ONBOARDING] Data incomplete, determining appropriate step"
+              )
+
+              // Determine which step to go to based on missing data
+              if (!updated.name || updated.name === "") {
+                console.log(
+                  "🔍 [ONBOARDING] Missing name, going to profile step"
+                )
+                setCurrentStep("profile")
+                setOnboardingStarted(true)
+              } else if (!updated.website || updated.website === "") {
+                console.log(
+                  "🔍 [ONBOARDING] Missing website, going to website step"
+                )
+                setCurrentStep("website")
+                setOnboardingStarted(true)
+              } else if (!updated.keywords || updated.keywords.length === 0) {
+                console.log(
+                  "🔍 [ONBOARDING] Missing keywords, going to keywords step"
+                )
+                setCurrentStep("keywords")
+                setOnboardingStarted(true)
+              } else {
+                console.log(
+                  "🔍 [ONBOARDING] All data present, going to complete step"
+                )
+                setCurrentStep("complete")
+              }
+            }
+
+            return updated
+          })
         } else {
-          console.log(
-            "🔍 [ONBOARDING] Data incomplete, determining appropriate step"
-          )
-
-          // Determine which step to go to based on missing data
-          if (!updated.name || updated.name === "") {
-            console.log("🔍 [ONBOARDING] Missing name, going to profile step")
-            setCurrentStep("profile")
-            setOnboardingStarted(true)
-          } else if (!updated.website || updated.website === "") {
-            console.log(
-              "🔍 [ONBOARDING] Missing website, going to website step"
-            )
-            setCurrentStep("website")
-            setOnboardingStarted(true)
-          } else if (!updated.keywords || updated.keywords.length === 0) {
-            console.log(
-              "🔍 [ONBOARDING] Missing keywords, going to keywords step"
-            )
-            setCurrentStep("keywords")
-            setOnboardingStarted(true)
-          } else {
-            console.log("🔍 [ONBOARDING] Fallback: going to complete step")
-            setCurrentStep("complete")
-          }
+          console.error("🔍 [ONBOARDING] Reddit connection verification failed")
+          // Stay on current step, Reddit authentication didn't work
         }
+      }
 
-        return updated
-      })
+      handleRedditSuccess()
 
       // Clean up URL parameters
       const url = new URL(window.location.href)
