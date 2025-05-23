@@ -18,9 +18,7 @@ import {
   Calendar,
   ThumbsUp,
   Sparkles,
-  Loader2,
-  PanelLeft,
-  ChevronRight
+  Loader2
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -403,74 +401,29 @@ export default function LeadFinderDashboard() {
       {/* Main Content */}
       <div className="flex-1 p-6">
         <div className="space-y-6">
-          {/* Header */}
-          <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-            <div className="flex items-center gap-2 px-4">
-              <button
-                className="ring-offset-background focus-visible:ring-ring hover:bg-accent hover:text-accent-foreground -ml-1 inline-flex size-7 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
-                data-sidebar="trigger"
-              >
-                <PanelLeft className="size-4" />
-                <span className="sr-only">Toggle Sidebar</span>
-              </button>
-              <div
-                data-orientation="vertical"
-                role="none"
-                className="bg-border mr-2 h-4 w-[1px] shrink-0"
-              ></div>
-              <nav aria-label="breadcrumb">
-                <ol className="text-muted-foreground flex flex-wrap items-center gap-1.5 break-words text-sm sm:gap-2.5">
-                  <li className="hidden items-center gap-1.5 md:block">
-                    <a
-                      className="hover:text-foreground transition-colors"
-                      href="/dashboard"
-                    >
-                      Dashboard
-                    </a>
-                  </li>
-                  <li
-                    role="presentation"
-                    aria-hidden="true"
-                    className="hidden md:block [&>svg]:size-3.5"
-                  >
-                    <ChevronRight className="size-3.5" />
-                  </li>
-                  <li className="inline-flex items-center gap-1.5">
-                    <span
-                      role="link"
-                      aria-disabled="true"
-                      aria-current="page"
-                      className="text-foreground font-normal"
-                    >
-                      Leadify
-                    </span>
-                  </li>
-                </ol>
-              </nav>
-            </div>
-            <div className="ml-auto flex items-center gap-4 pr-4">
-              <Select
-                value={selectedLength}
-                onValueChange={(value: any) => setSelectedLength(value)}
-              >
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="micro">Micro</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="verbose">Verbose</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button
-                onClick={() => setCreateDialogOpen(true)}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 dark:from-blue-500 dark:to-purple-500 dark:hover:from-blue-600 dark:hover:to-purple-600"
-              >
-                <Plus className="mr-2 size-4" />
-                New Campaign
-              </Button>
-            </div>
-          </header>
+          {/* Campaign Controls */}
+          <div className="flex items-center justify-end gap-4">
+            <Select
+              value={selectedLength}
+              onValueChange={(value: any) => setSelectedLength(value)}
+            >
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="micro">Micro</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="verbose">Verbose</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button
+              onClick={() => setCreateDialogOpen(true)}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 dark:from-blue-500 dark:to-purple-500 dark:hover:from-blue-600 dark:hover:to-purple-600"
+            >
+              <Plus className="mr-2 size-4" />
+              New Campaign
+            </Button>
+          </div>
 
           {/* Show progress or results */}
           {workflowProgress.isLoading || leads.length === 0 ? (
