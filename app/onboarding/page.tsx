@@ -22,6 +22,7 @@ import {
   updateProfileAction,
   getProfileByUserIdAction
 } from "@/actions/db/profiles-actions"
+import { resetOnboardingAction } from "@/actions/db/debug-actions"
 
 type OnboardingStep =
   | "welcome"
@@ -55,6 +56,7 @@ export default function OnboardingPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [hasLoadedProfile, setHasLoadedProfile] = useState(false)
   const [onboardingStarted, setOnboardingStarted] = useState(false)
+  const [isAutoFixing, setIsAutoFixing] = useState(false)
 
   console.log("🔍 [ONBOARDING] Component initialized")
   console.log("🔍 [ONBOARDING] User ID:", user?.id)
@@ -64,6 +66,7 @@ export default function OnboardingPage() {
   console.log("🔍 [ONBOARDING] isLoading:", isLoading)
   console.log("🔍 [ONBOARDING] hasLoadedProfile:", hasLoadedProfile)
   console.log("🔍 [ONBOARDING] onboardingStarted:", onboardingStarted)
+  console.log("🔍 [ONBOARDING] isAutoFixing:", isAutoFixing)
   console.log("🔍 [ONBOARDING] currentStep:", currentStep)
 
   // Centralized validation function to eliminate duplication
@@ -202,9 +205,60 @@ export default function OnboardingPage() {
               return
             } else {
               console.log(
-                "🔍 [ONBOARDING] Onboarding marked complete but data is incomplete, continuing onboarding flow"
+                "🔍 [ONBOARDING] Onboarding marked complete but data is incomplete - FIXING INCONSISTENT STATE"
               )
-              // Continue with normal onboarding flow to fill missing data
+
+              // Automatically fix the inconsistent state by resetting onboarding flag
+              console.log(
+                "🔍 [ONBOARDING] Automatically resetting onboarding flag to fix database inconsistency"
+              )
+              setIsAutoFixing(true)
+
+              try {
+                const resetResult = await resetOnboardingAction(user.id)
+
+                if (resetResult.isSuccess) {
+                  console.log(
+                    "✅ [ONBOARDING] Successfully reset inconsistent onboarding state"
+                  )
+                } else {
+                  console.error(
+                    "❌ [ONBOARDING] Failed to reset onboarding state:",
+                    resetResult.message
+                  )
+                }
+              } catch (resetError) {
+                console.error(
+                  "❌ [ONBOARDING] Error resetting onboarding state:",
+                  resetError
+                )
+              } finally {
+                setIsAutoFixing(false)
+              }
+
+              // Set onboarding as started and determine appropriate step based on missing data
+              setOnboardingStarted(true)
+
+              // Determine step based on what data is missing (prioritize missing data)
+              if (!loadedData.website || loadedData.website.trim() === "") {
+                console.log(
+                  "🔍 [ONBOARDING] Missing website, starting from website step"
+                )
+                setCurrentStep("website")
+              } else if (
+                !loadedData.keywords ||
+                loadedData.keywords.length === 0
+              ) {
+                console.log(
+                  "🔍 [ONBOARDING] Missing keywords, starting from keywords step"
+                )
+                setCurrentStep("keywords")
+              } else {
+                console.log(
+                  "🔍 [ONBOARDING] Data seems complete now, going to reddit step"
+                )
+                setCurrentStep("reddit")
+              }
             }
           } else {
             // Check if user has started onboarding (has any data beyond defaults)
@@ -722,7 +776,7 @@ export default function OnboardingPage() {
   }
 
   // Show loading state while loading profile
-  if (isLoading) {
+  if (isLoading || isAutoFixing) {
     console.log("🔍 [ONBOARDING] Rendering loading state")
     return (
       <div className="mx-auto w-full max-w-lg space-y-12">
@@ -730,7 +784,11 @@ export default function OnboardingPage() {
           <div className="relative">
             <div className="size-8 animate-spin rounded-full border-2 border-gray-600 border-t-blue-600" />
           </div>
-          <p className="text-gray-400">Loading your profile...</p>
+          <p className="text-gray-400">
+            {isAutoFixing
+              ? "Fixing your profile data..."
+              : "Loading your profile..."}
+          </p>
         </div>
       </div>
     )
