@@ -46,7 +46,8 @@ import CampaignsList from "./campaigns-list"
 import { runFullLeadGenerationWorkflowAction } from "@/actions/lead-generation/workflow-actions"
 import {
   getGeneratedCommentsByCampaignAction,
-  createCampaignAction
+  createCampaignAction,
+  getCampaignsByUserIdAction
 } from "@/actions/db/lead-generation-actions"
 import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
 import { useUser } from "@clerk/nextjs"
@@ -224,58 +225,127 @@ export default function LeadFinderDashboard() {
       }
 
       setWorkflowProgress({
-        currentStep: "Creating campaign...",
+        currentStep: "Checking for existing campaigns...",
         completedSteps: 1,
         totalSteps: 6,
         isLoading: true
       })
 
-      // Step 2: Create real campaign with user data
-      const campaignResult = await createCampaignAction({
-        userId: user.id,
-        name: `Lead Generation - ${new Date().toLocaleDateString()}`,
-        website: profile.website,
-        keywords: keywords
-      })
+      // Step 2: Check for existing campaigns first
+      const existingCampaignsResult = await getCampaignsByUserIdAction(user.id)
+      let realCampaignId: string | null = null
+      let shouldRunWorkflow = false
 
-      if (!campaignResult.isSuccess) {
-        throw new Error("Failed to create campaign")
+      if (
+        existingCampaignsResult.isSuccess &&
+        existingCampaignsResult.data.length > 0
+      ) {
+        // Find the most recent completed campaign or use the latest one
+        const campaigns = existingCampaignsResult.data
+        const completedCampaign = campaigns.find(c => c.status === "completed")
+        const latestCampaign = campaigns[0] // Assuming they're ordered by creation date
+
+        if (completedCampaign) {
+          console.log(
+            "🔍 [LEAD-FINDER] Found existing completed campaign:",
+            completedCampaign.id
+          )
+          realCampaignId = completedCampaign.id
+          shouldRunWorkflow = false // Use existing results
+        } else if (latestCampaign) {
+          console.log(
+            "🔍 [LEAD-FINDER] Found existing campaign:",
+            latestCampaign.id
+          )
+          realCampaignId = latestCampaign.id
+
+          // Only re-run if campaign failed or is still running
+          shouldRunWorkflow =
+            latestCampaign.status === "error" ||
+            latestCampaign.status === "running"
+        }
       }
 
-      const realCampaignId = campaignResult.data.id
-      setCampaignId(realCampaignId)
-
-      setWorkflowProgress({
-        currentStep: "Starting lead generation workflow...",
-        completedSteps: 2,
-        totalSteps: 6,
-        isLoading: true
-      })
-
-      // Step 3: Run the real workflow with the actual campaign
-      const workflowResult =
-        await runFullLeadGenerationWorkflowAction(realCampaignId)
-
-      if (workflowResult.isSuccess) {
+      // Step 3: Create new campaign only if no suitable existing campaign found
+      if (!realCampaignId) {
+        console.log(
+          "🔍 [LEAD-FINDER] No suitable existing campaign found, creating new one"
+        )
         setWorkflowProgress({
-          currentStep: "Loading results...",
-          completedSteps: 5,
+          currentStep: "Creating new campaign...",
+          completedSteps: 2,
           totalSteps: 6,
           isLoading: true
         })
 
-        // Step 4: Fetch the real results
-        await fetchRealResults(realCampaignId)
-
-        setWorkflowProgress({
-          currentStep: "Complete!",
-          completedSteps: 6,
-          totalSteps: 6,
-          isLoading: false
+        const campaignResult = await createCampaignAction({
+          userId: user.id,
+          name: `Lead Generation - ${new Date().toLocaleDateString()}`,
+          website: profile.website,
+          keywords: keywords
         })
+
+        if (!campaignResult.isSuccess) {
+          throw new Error("Failed to create campaign")
+        }
+
+        realCampaignId = campaignResult.data.id
+        shouldRunWorkflow = true // New campaign needs workflow
       } else {
-        throw new Error(workflowResult.message || "Workflow failed")
+        console.log(
+          "🔍 [LEAD-FINDER] Using existing campaign, skipping creation"
+        )
       }
+
+      setCampaignId(realCampaignId)
+
+      // Step 4: Run workflow only if needed
+      if (shouldRunWorkflow) {
+        console.log(
+          "🔍 [LEAD-FINDER] Running workflow for campaign:",
+          realCampaignId
+        )
+        setWorkflowProgress({
+          currentStep: "Starting lead generation workflow...",
+          completedSteps: 3,
+          totalSteps: 6,
+          isLoading: true
+        })
+
+        const workflowResult =
+          await runFullLeadGenerationWorkflowAction(realCampaignId)
+
+        if (!workflowResult.isSuccess) {
+          throw new Error(workflowResult.message || "Workflow failed")
+        }
+      } else {
+        console.log(
+          "🔍 [LEAD-FINDER] Using existing campaign results, skipping workflow"
+        )
+        setWorkflowProgress({
+          currentStep: "Using existing results...",
+          completedSteps: 5,
+          totalSteps: 6,
+          isLoading: true
+        })
+      }
+
+      // Step 5: Fetch results (existing or new)
+      setWorkflowProgress({
+        currentStep: "Loading results...",
+        completedSteps: 5,
+        totalSteps: 6,
+        isLoading: true
+      })
+
+      await fetchRealResults(realCampaignId)
+
+      setWorkflowProgress({
+        currentStep: "Complete!",
+        completedSteps: 6,
+        totalSteps: 6,
+        isLoading: false
+      })
     } catch (error) {
       console.error("Error in lead generation:", error)
       setWorkflowProgress({

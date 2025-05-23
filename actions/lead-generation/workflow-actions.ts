@@ -82,32 +82,82 @@ export async function runFullLeadGenerationWorkflowAction(
     progress.currentStep = "Scraping website"
     console.log(`🔥 Step 2: Scraping website: ${campaign.website}`)
     
-    const scrapeResult = await scrapeWebsiteAction(campaign.website)
-    if (!scrapeResult.isSuccess) {
+    let websiteContent = campaign.websiteContent
+    let skipScraping = false
+    
+    // Check if we already have recent website content (less than 24 hours old)
+    if (websiteContent && campaign.updatedAt) {
+      // Handle both Timestamp and string types for updatedAt
+      const lastUpdate = campaign.updatedAt instanceof Date 
+        ? campaign.updatedAt 
+        : typeof campaign.updatedAt === 'string'
+        ? new Date(campaign.updatedAt)
+        : campaign.updatedAt.toDate() // Firestore Timestamp
+      
+      const now = new Date()
+      const hoursSinceUpdate = (now.getTime() - lastUpdate.getTime()) / (1000 * 60 * 60)
+      
+      if (hoursSinceUpdate < 24) {
+        console.log(`🔥 Using cached website content (${Math.round(hoursSinceUpdate)}h old)`)
+        skipScraping = true
+      } else {
+        console.log(`🔥 Website content is ${Math.round(hoursSinceUpdate)}h old, re-scraping...`)
+      }
+    }
+    
+    if (!skipScraping) {
+      console.log(`🔥 Scraping website: ${campaign.website}`)
+      const scrapeResult = await scrapeWebsiteAction(campaign.website)
+      if (!scrapeResult.isSuccess) {
+        progress.results.push({
+          step: "Scrape Website",
+          success: false,
+          message: scrapeResult.message
+        })
+        await updateCampaignAction(campaignId, { status: "error" })
+        progress.error = scrapeResult.message
+        return { isSuccess: false, message: `Website scraping failed: ${scrapeResult.message}` }
+      }
+
+      // Update campaign with fresh website content
+      websiteContent = scrapeResult.data.content
+      await updateCampaignAction(campaignId, { 
+        websiteContent: websiteContent 
+      })
+
+      progress.results.push({
+        step: "Scrape Website",
+        success: true,
+        message: `Website scraped: ${scrapeResult.data.content.length} characters`,
+        data: { 
+          title: scrapeResult.data.title,
+          contentLength: scrapeResult.data.content.length 
+        }
+      })
+    } else {
+      progress.results.push({
+        step: "Scrape Website",
+        success: true,
+        message: `Using cached website content: ${websiteContent?.length || 0} characters`,
+        data: { 
+          cached: true,
+          contentLength: websiteContent?.length || 0
+        }
+      })
+    }
+
+    // Ensure we have website content before proceeding
+    if (!websiteContent) {
       progress.results.push({
         step: "Scrape Website",
         success: false,
-        message: scrapeResult.message
+        message: "No website content available"
       })
       await updateCampaignAction(campaignId, { status: "error" })
-      progress.error = scrapeResult.message
-      return { isSuccess: false, message: `Website scraping failed: ${scrapeResult.message}` }
+      progress.error = "No website content available"
+      return { isSuccess: false, message: "No website content available" }
     }
-
-    // Update campaign with website content
-    await updateCampaignAction(campaignId, { 
-      websiteContent: scrapeResult.data.content 
-    })
-
-    progress.results.push({
-      step: "Scrape Website",
-      success: true,
-      message: `Website scraped: ${scrapeResult.data.content.length} characters`,
-      data: { 
-        title: scrapeResult.data.title,
-        contentLength: scrapeResult.data.content.length 
-      }
-    })
+    
     progress.completedSteps++
 
     // Step 3: Search for Reddit threads
@@ -245,7 +295,7 @@ export async function runFullLeadGenerationWorkflowAction(
       subreddit: thread.subreddit
     }))
 
-    const scoringResult = await batchScoreThreadsWithThreeTierCommentsAction(threadsForScoring, scrapeResult.data.content)
+    const scoringResult = await batchScoreThreadsWithThreeTierCommentsAction(threadsForScoring, websiteContent)
     if (!scoringResult.isSuccess) {
       progress.results.push({
         step: "Score and Generate Comments",
