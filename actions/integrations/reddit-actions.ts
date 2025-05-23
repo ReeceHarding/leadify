@@ -1,40 +1,13 @@
 /*
 <ai_context>
-Contains server actions for Reddit API integration using snoowrap to fetch thread content.
+Contains server actions for Reddit API integration using OAuth2 authentication to fetch thread content.
 </ai_context>
 */
 
 "use server"
 
-import Snoowrap from "snoowrap"
 import { ActionState } from "@/types"
-
-// Lazy initialization of Reddit client
-let redditClient: Snoowrap | null = null
-
-async function getRedditClient(): Promise<Snoowrap> {
-  if (!redditClient) {
-    if (!process.env.REDDIT_CLIENT_ID || !process.env.REDDIT_CLIENT_SECRET || !process.env.REDDIT_USER_AGENT) {
-      throw new Error("Reddit API credentials not configured")
-    }
-
-    // Use Application-Only authentication for read-only access
-    redditClient = await Snoowrap.fromApplicationOnlyAuth({
-      clientId: process.env.REDDIT_CLIENT_ID,
-      clientSecret: process.env.REDDIT_CLIENT_SECRET,
-      userAgent: process.env.REDDIT_USER_AGENT,
-      grantType: 'client_credentials'
-    })
-    
-    // Configure rate limiting to be respectful
-    redditClient.config({
-      requestDelay: 1000, // 1 second between requests
-      warnings: true
-    })
-  }
-  
-  return redditClient
-}
+import { getRedditAccessTokenAction, refreshRedditTokenAction } from "./reddit-oauth-actions"
 
 export interface RedditThreadData {
   id: string
@@ -52,32 +25,99 @@ export interface RedditThreadData {
   domain: string
 }
 
+async function makeRedditApiCall(endpoint: string): Promise<any> {
+  // Get access token
+  const tokenResult = await getRedditAccessTokenAction()
+  
+  if (!tokenResult.isSuccess) {
+    // Try to refresh token if available
+    const refreshResult = await refreshRedditTokenAction()
+    if (!refreshResult.isSuccess) {
+      throw new Error("No valid Reddit access token available. Please re-authenticate.")
+    }
+    // Get the new token
+    const newTokenResult = await getRedditAccessTokenAction()
+    if (!newTokenResult.isSuccess) {
+      throw new Error("Failed to get refreshed access token")
+    }
+  }
+
+  const accessToken = tokenResult.isSuccess ? tokenResult.data : 
+    (await getRedditAccessTokenAction()).data
+
+  const response = await fetch(`https://oauth.reddit.com${endpoint}`, {
+    headers: {
+      "Authorization": `Bearer ${accessToken}`,
+      "User-Agent": process.env.REDDIT_USER_AGENT || "reddit-lead-gen:v1.0.0"
+    }
+  })
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      // Token expired, try to refresh
+      const refreshResult = await refreshRedditTokenAction()
+      if (refreshResult.isSuccess) {
+        // Retry with new token
+        const newTokenResult = await getRedditAccessTokenAction()
+        if (newTokenResult.isSuccess) {
+          const retryResponse = await fetch(`https://oauth.reddit.com${endpoint}`, {
+            headers: {
+              "Authorization": `Bearer ${newTokenResult.data}`,
+              "User-Agent": process.env.REDDIT_USER_AGENT || "reddit-lead-gen:v1.0.0"
+            }
+          })
+          if (!retryResponse.ok) {
+            throw new Error(`Reddit API error: ${retryResponse.status}`)
+          }
+          return await retryResponse.json()
+        }
+      }
+      throw new Error("Reddit authentication expired. Please re-authenticate.")
+    }
+    throw new Error(`Reddit API error: ${response.status} ${response.statusText}`)
+  }
+
+  return await response.json()
+}
+
 export async function fetchRedditThreadAction(
   threadId: string,
   subreddit?: string
 ): Promise<ActionState<RedditThreadData>> {
   try {
-    const reddit = await getRedditClient()
-    
     console.log(`📖 Fetching Reddit thread: ${threadId} from r/${subreddit || 'unknown'}`)
     
-    // Fetch the submission with proper typing
-    const submission = await (reddit.getSubmission(threadId) as any).fetch()
+    // Construct the API endpoint
+    const endpoint = subreddit 
+      ? `/r/${subreddit}/comments/${threadId}.json`
+      : `/comments/${threadId}.json`
+    
+    const data = await makeRedditApiCall(endpoint)
+    
+    // Reddit returns an array with [post, comments]
+    const postData = data[0]?.data?.children?.[0]?.data
+    
+    if (!postData) {
+      return { 
+        isSuccess: false, 
+        message: `Reddit thread not found: ${threadId}` 
+      }
+    }
     
     const threadData: RedditThreadData = {
-      id: submission.id,
-      title: submission.title,
-      content: submission.selftext || submission.title, // Use selftext or fall back to title
-      author: submission.author?.name || '[deleted]',
-      subreddit: submission.subreddit?.display_name || 'unknown',
-      score: submission.score || 0,
-      numComments: submission.num_comments || 0,
-      url: `https://reddit.com${submission.permalink}`,
-      created: submission.created_utc || 0,
-      selfText: submission.selftext,
-      isVideo: submission.is_video || false,
-      isImage: submission.post_hint === 'image',
-      domain: submission.domain || ''
+      id: postData.id,
+      title: postData.title,
+      content: postData.selftext || postData.title,
+      author: postData.author || '[deleted]',
+      subreddit: postData.subreddit || 'unknown',
+      score: postData.score || 0,
+      numComments: postData.num_comments || 0,
+      url: `https://reddit.com${postData.permalink}`,
+      created: postData.created_utc || 0,
+      selfText: postData.selftext,
+      isVideo: postData.is_video || false,
+      isImage: postData.post_hint === 'image',
+      domain: postData.domain || ''
     }
     
     console.log(`✅ Reddit thread fetched: "${threadData.title}" (${threadData.content.length} chars)`)
@@ -90,8 +130,13 @@ export async function fetchRedditThreadAction(
   } catch (error) {
     console.error("Error fetching Reddit thread:", error)
     
-    // Handle specific Reddit API errors
     if (error instanceof Error) {
+      if (error.message.includes('authentication')) {
+        return { 
+          isSuccess: false, 
+          message: error.message
+        }
+      }
       if (error.message.includes('404')) {
         return { 
           isSuccess: false, 
@@ -161,21 +206,12 @@ export async function fetchMultipleRedditThreadsAction(
 
 export async function testRedditConnectionAction(): Promise<ActionState<{ status: string }>> {
   try {
-    if (!process.env.REDDIT_CLIENT_ID || !process.env.REDDIT_CLIENT_SECRET || !process.env.REDDIT_USER_AGENT) {
-      return { 
-        isSuccess: false, 
-        message: "Reddit API credentials not configured" 
-      }
-    }
-
-    const reddit = await getRedditClient()
-    
-    // Test by fetching a well-known subreddit with proper typing
-    const testSubreddit = await (reddit.getSubreddit('test') as any).fetch()
+    // Test by fetching user info
+    const data = await makeRedditApiCall("/api/v1/me")
     
     return {
       isSuccess: true,
-      message: "Reddit API connection test successful",
+      message: "Reddit OAuth connection test successful",
       data: { status: "connected" }
     }
   } catch (error) {
@@ -191,17 +227,17 @@ export async function getSubredditInfoAction(
   subredditName: string
 ): Promise<ActionState<{ name: string; description: string; subscribers: number }>> {
   try {
-    const reddit = await getRedditClient()
+    const data = await makeRedditApiCall(`/r/${subredditName}/about.json`)
     
-    const subreddit = await (reddit.getSubreddit(subredditName) as any).fetch()
+    const subredditData = data.data
     
     return {
       isSuccess: true,
       message: "Subreddit info retrieved successfully",
       data: {
-        name: subreddit.display_name || subredditName,
-        description: subreddit.public_description || '',
-        subscribers: subreddit.subscribers || 0
+        name: subredditData.display_name || subredditName,
+        description: subredditData.public_description || '',
+        subscribers: subredditData.subscribers || 0
       }
     }
   } catch (error) {
