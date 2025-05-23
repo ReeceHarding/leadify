@@ -43,7 +43,7 @@ export function TestimonialsSection() {
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
           <div className="space-y-2">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
+            <h2 className="text-3xl font-bold tracking-tighter text-gray-900 sm:text-5xl dark:text-gray-100">
               What Our Users Say
             </h2>
             <p className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
@@ -71,16 +71,16 @@ export function TestimonialsSection() {
                       />
                     ))}
                   </div>
-                  <blockquote className="mb-4 text-sm text-gray-600">
+                  <blockquote className="mb-4 text-sm text-gray-600 dark:text-gray-400">
                     "{testimonial.content}"
                   </blockquote>
                   <div className="flex items-center space-x-3">
                     <div className="text-2xl">{testimonial.avatar}</div>
                     <div>
-                      <div className="text-sm font-medium">
+                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                         {testimonial.name}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
                         {testimonial.role}
                       </div>
                     </div>

@@ -30,7 +30,8 @@ export const HeroSection = () => {
         className="flex items-center justify-center"
       >
         <AnimatedGradientText>
-          🎯 <hr className="mx-2 h-4 w-px shrink-0 bg-gray-300" />
+          🎯{" "}
+          <hr className="mx-2 h-4 w-px shrink-0 bg-gray-300 dark:bg-gray-600" />
           <span
             className={cn(
               `animate-gradient inline bg-gradient-to-r from-[#ffaa40] via-[#9c40ff] to-[#ffaa40] bg-[length:var(--bg-size)_100%] bg-clip-text text-transparent`
@@ -52,7 +53,7 @@ export const HeroSection = () => {
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
-          className="text-balance text-6xl font-bold"
+          className="text-balance text-6xl font-bold text-gray-900 dark:text-gray-100"
         >
           Find leads on Reddit with AI
         </motion.div>
@@ -61,7 +62,7 @@ export const HeroSection = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.6, ease: "easeOut" }}
-          className="max-w-xl text-balance text-xl"
+          className="max-w-xl text-balance text-xl text-gray-600 dark:text-gray-400"
         >
           Turn Reddit conversations into qualified leads. Our AI finds
           high-quality opportunities and generates personalized responses that
@@ -74,7 +75,7 @@ export const HeroSection = () => {
           transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
         >
           <Link href="/onboarding" onClick={handleGetStartedClick}>
-            <Button className="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-3 text-lg hover:from-blue-700 hover:to-purple-700">
+            <Button className="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-3 text-lg hover:from-blue-700 hover:to-purple-700 dark:from-blue-500 dark:to-purple-500 dark:hover:from-blue-600 dark:hover:to-purple-600">
               <Search className="mr-2 size-5" />
               Get Started &rarr;
             </Button>
@@ -86,7 +87,7 @@ export const HeroSection = () => {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, delay: 1, ease: "easeOut" }}
-        className="mx-auto mt-20 flex w-full max-w-screen-lg items-center justify-center rounded-lg border shadow-lg"
+        className="mx-auto mt-20 flex w-full max-w-screen-lg items-center justify-center rounded-lg border border-gray-200 shadow-lg dark:border-gray-700"
       >
         <HeroVideoDialog
           animationStyle="top-in-bottom-out"
