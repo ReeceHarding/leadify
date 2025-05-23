@@ -76,10 +76,8 @@ export default function ProfileStep({
       className="space-y-8 text-center"
     >
       <div className="space-y-3">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-          Your Profile
-        </h1>
-        <p className="text-base leading-relaxed text-gray-600 dark:text-gray-400">
+        <h1 className="text-3xl font-bold text-white">Your Profile</h1>
+        <p className="text-base leading-relaxed text-gray-400">
           Let's start by getting to know you a bit better.
         </p>
       </div>
@@ -89,12 +87,12 @@ export default function ProfileStep({
         <div className="flex flex-col items-center space-y-4">
           <Label
             htmlFor="profile-picture"
-            className="text-sm font-medium text-gray-700 dark:text-gray-300"
+            className="text-sm font-medium text-gray-300"
           >
             Avatar
           </Label>
           <div className="relative">
-            <Avatar className="size-20 border-2 border-gray-200 dark:border-gray-600">
+            <Avatar className="size-20 border-2 border-gray-600">
               <AvatarImage src={data.profilePictureUrl} alt={data.name} />
               <AvatarFallback className="bg-gradient-to-r from-blue-600 to-purple-600 text-lg text-white">
                 {getInitials(data.name) || "R"}
@@ -103,7 +101,7 @@ export default function ProfileStep({
             <Button
               type="button"
               size="icon"
-              className="absolute -bottom-1 -right-1 size-6 rounded-full bg-gray-800 shadow-sm hover:bg-gray-700 dark:bg-gray-600 dark:hover:bg-gray-500"
+              className="absolute -bottom-1 -right-1 size-6 rounded-full bg-gray-800 shadow-sm hover:bg-gray-700"
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading}
             >
@@ -114,7 +112,7 @@ export default function ProfileStep({
               )}
             </Button>
           </div>
-          <p className="max-w-xs text-sm text-gray-500 dark:text-gray-400">
+          <p className="max-w-xs text-sm text-gray-400">
             Click the circle or drop an image to it to upload your avatar.
           </p>
           <input
@@ -128,10 +126,7 @@ export default function ProfileStep({
 
         {/* Name Input */}
         <div className="space-y-3">
-          <Label
-            htmlFor="name"
-            className="text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
+          <Label htmlFor="name" className="text-sm font-medium text-gray-300">
             Name
           </Label>
           <Input
@@ -140,7 +135,7 @@ export default function ProfileStep({
             value={data.name}
             onChange={e => onUpdate({ name: e.target.value })}
             placeholder="Your full name"
-            className="rounded-lg border-gray-300 py-3 text-center text-base dark:border-gray-600"
+            className="rounded-lg border-gray-600 bg-gray-900 py-3 text-center text-base text-white placeholder:text-gray-500"
             required
           />
         </div>
@@ -148,7 +143,7 @@ export default function ProfileStep({
         {/* Continue Button */}
         <Button
           type="submit"
-          className="w-full rounded-lg bg-blue-600 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+          className="w-full rounded-lg bg-blue-600 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700"
           disabled={!data.name.trim()}
         >
           Continue →

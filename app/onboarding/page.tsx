@@ -158,11 +158,11 @@ export default function OnboardingPage() {
     <div className="mx-auto w-full max-w-lg space-y-12">
       {/* Progress Bar */}
       <div className="space-y-3">
-        <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400">
+        <div className="flex justify-between text-sm text-gray-400">
           <span>Setup Progress</span>
           <span>{Math.round(progress)}% Complete</span>
         </div>
-        <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700">
+        <div className="h-2 w-full rounded-full bg-gray-800">
           <div
             className="h-2 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 transition-all duration-300"
             style={{ width: `${progress}%` }}
@@ -189,9 +189,7 @@ export default function OnboardingPage() {
           <div
             key={step}
             className={`size-2 rounded-full transition-colors ${
-              index <= currentStepIndex
-                ? "bg-blue-600"
-                : "bg-gray-300 dark:bg-gray-600"
+              index <= currentStepIndex ? "bg-blue-600" : "bg-gray-600"
             }`}
           />
         ))}

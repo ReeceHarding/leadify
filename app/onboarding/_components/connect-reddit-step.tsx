@@ -77,10 +77,10 @@ export default function ConnectRedditStep({
       className="space-y-8 text-center"
     >
       <div className="space-y-3">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+        <h1 className="text-3xl font-bold text-white">
           Connect Your Reddit Account
         </h1>
-        <p className="text-base leading-relaxed text-gray-600 dark:text-gray-400">
+        <p className="text-base leading-relaxed text-gray-400">
           Connect your Reddit account to help us understand your style and
           voice.
         </p>
@@ -90,12 +90,10 @@ export default function ConnectRedditStep({
       {connectionStatus === "connecting" && (
         <div className="flex flex-col items-center space-y-4 py-12">
           <div className="relative">
-            <div className="size-8 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600 dark:border-gray-600 dark:border-t-blue-400" />
+            <div className="size-8 animate-spin rounded-full border-2 border-gray-600 border-t-blue-600" />
           </div>
-          <p className="text-gray-600 dark:text-gray-400">
-            Analyzing your Reddit account...
-          </p>
-          <p className="max-w-md text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-gray-400">Analyzing your Reddit account...</p>
+          <p className="max-w-md text-sm text-gray-400">
             We need your Reddit account to create content that sounds just like
             you. Don't worry, you can always update your Voice Profile later.
           </p>
@@ -104,16 +102,16 @@ export default function ConnectRedditStep({
 
       {connectionStatus === "connected" && (
         <div className="flex flex-col items-center space-y-4 py-12">
-          <CheckCircle2 className="size-8 text-green-600 dark:text-green-400" />
-          <p className="text-gray-600 dark:text-gray-400">
+          <CheckCircle2 className="size-8 text-green-400" />
+          <p className="text-gray-400">
             Reddit account connected successfully!
           </p>
         </div>
       )}
 
       {connectionStatus === "error" && (
-        <div className="rounded-lg bg-red-50 p-4 dark:bg-red-900/20">
-          <p className="text-red-600 dark:text-red-400">
+        <div className="rounded-lg bg-red-900/50 p-4">
+          <p className="text-red-400">
             Failed to connect to Reddit. Please try again.
           </p>
         </div>
@@ -122,7 +120,7 @@ export default function ConnectRedditStep({
       {/* Connect Button */}
       {connectionStatus === "idle" && (
         <div className="space-y-6">
-          <p className="mx-auto max-w-md text-sm text-gray-500 dark:text-gray-400">
+          <p className="mx-auto max-w-md text-sm text-gray-400">
             We need your Reddit account to create content that sounds just like
             you. Don't worry, you can always update your Voice Profile later.
           </p>
@@ -131,7 +129,7 @@ export default function ConnectRedditStep({
             <Button
               onClick={handleConnectReddit}
               disabled={isConnecting}
-              className="rounded-lg bg-[#FF4500] px-8 py-3 text-base font-medium text-white hover:bg-[#FF4500]/90 dark:bg-[#FF4500] dark:hover:bg-[#FF4500]/80"
+              className="rounded-lg bg-[#FF4500] px-8 py-3 text-base font-medium text-white hover:bg-[#FF4500]/90"
             >
               {isConnecting ? (
                 <>
@@ -151,7 +149,7 @@ export default function ConnectRedditStep({
         {connectionStatus === "connected" ? (
           <Button
             onClick={handleContinue}
-            className="w-full rounded-lg bg-blue-600 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+            className="w-full rounded-lg bg-blue-600 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700"
           >
             Continue →
           </Button>
@@ -160,7 +158,7 @@ export default function ConnectRedditStep({
             <Button
               onClick={handleSkip}
               variant="ghost"
-              className="w-full text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+              className="w-full text-gray-400 hover:text-gray-200"
             >
               Continue →
             </Button>
@@ -171,7 +169,7 @@ export default function ConnectRedditStep({
           type="button"
           variant="ghost"
           onClick={onPrevious}
-          className="flex w-full items-center justify-center text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+          className="flex w-full items-center justify-center text-gray-400 hover:text-gray-200"
           disabled={isConnecting}
         >
           <ArrowLeft className="mr-2 size-4" />

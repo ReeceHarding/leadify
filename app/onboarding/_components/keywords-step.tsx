@@ -118,10 +118,8 @@ export default function KeywordsStep({
       className="space-y-8 text-center"
     >
       <div className="space-y-3">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-          Target Keywords
-        </h1>
-        <p className="text-base leading-relaxed text-gray-600 dark:text-gray-400">
+        <h1 className="text-3xl font-bold text-white">Target Keywords</h1>
+        <p className="text-base leading-relaxed text-gray-400">
           {data.website
             ? "We've analyzed your website and generated relevant keywords that your potential customers might search for on Reddit."
             : "Add keywords that your potential customers might search for on Reddit."}
@@ -132,9 +130,9 @@ export default function KeywordsStep({
       {isGenerating && !hasGenerated && (
         <div className="flex flex-col items-center space-y-4 py-12">
           <div className="relative">
-            <div className="size-8 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600 dark:border-gray-600 dark:border-t-blue-400" />
+            <div className="size-8 animate-spin rounded-full border-2 border-gray-600 border-t-blue-600" />
           </div>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-gray-400">
             Analyzing your website and generating keywords...
           </p>
         </div>
@@ -144,7 +142,7 @@ export default function KeywordsStep({
       {(data.keywords.length > 0 || hasGenerated) && !isGenerating && (
         <div className="space-y-6">
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <h3 className="text-lg font-semibold text-white">
               Generated Keywords
             </h3>
             <div className="flex flex-wrap justify-center gap-3">
@@ -157,7 +155,7 @@ export default function KeywordsStep({
                   className="group relative"
                 >
                   {editingIndex === index ? (
-                    <div className="flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 dark:border-gray-600 dark:bg-gray-800">
+                    <div className="flex items-center rounded-lg border border-gray-600 bg-gray-800 px-3 py-2">
                       <input
                         type="text"
                         value={keyword}
@@ -168,13 +166,13 @@ export default function KeywordsStep({
                             setEditingIndex(null)
                           }
                         }}
-                        className="min-w-0 flex-1 border-none bg-transparent text-sm text-gray-900 outline-none dark:text-gray-100"
+                        className="min-w-0 flex-1 border-none bg-transparent text-sm text-white outline-none"
                         autoFocus
                         style={{ width: `${keyword.length + 2}ch` }}
                       />
                       <button
                         onClick={() => removeKeyword(keyword)}
-                        className="ml-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+                        className="ml-2 text-gray-500 hover:text-gray-300"
                       >
                         <X className="size-3" />
                       </button>
@@ -182,7 +180,7 @@ export default function KeywordsStep({
                   ) : (
                     <Badge
                       variant="outline"
-                      className="cursor-pointer rounded-lg px-3 py-2 text-sm transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
+                      className="cursor-pointer rounded-lg border-gray-600 bg-gray-800 px-3 py-2 text-sm text-white transition-colors hover:bg-gray-700"
                       onClick={() => handleKeywordClick(index)}
                     >
                       <span className="break-words">{keyword}</span>
@@ -204,7 +202,7 @@ export default function KeywordsStep({
 
           {/* AI Refinement */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <h3 className="text-lg font-semibold text-white">
               Refine Keywords
             </h3>
             <form onSubmit={handleRefinement} className="space-y-3">
@@ -212,13 +210,13 @@ export default function KeywordsStep({
                 value={refinementPrompt}
                 onChange={e => setRefinementPrompt(e.target.value)}
                 placeholder="Tell the AI how to adjust the keywords (e.g., 'focus more on technical keywords' or 'make them more specific to B2B customers')"
-                className="min-h-[80px] rounded-lg border-gray-300 dark:border-gray-600"
+                className="min-h-[80px] rounded-lg border-gray-600 bg-gray-900 text-white placeholder:text-gray-500"
                 disabled={isGenerating}
               />
               <Button
                 type="submit"
                 variant="outline"
-                className="w-full rounded-lg"
+                className="w-full rounded-lg border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
                 disabled={!refinementPrompt.trim() || isGenerating}
               >
                 {isGenerating ? (
@@ -238,7 +236,7 @@ export default function KeywordsStep({
 
           {/* Add Custom Keyword */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <h3 className="text-lg font-semibold text-white">
               Add Custom Keyword
             </h3>
             <form onSubmit={addKeyword} className="flex gap-2">
@@ -246,13 +244,13 @@ export default function KeywordsStep({
                 value={newKeyword}
                 onChange={e => setNewKeyword(e.target.value)}
                 placeholder="Add a custom keyword..."
-                className="flex-1 rounded-lg border-gray-300 dark:border-gray-600"
+                className="flex-1 rounded-lg border-gray-600 bg-gray-900 text-white placeholder:text-gray-500"
               />
               <Button
                 type="submit"
                 variant="outline"
                 disabled={!newKeyword.trim()}
-                className="rounded-lg"
+                className="rounded-lg border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
               >
                 <Plus className="size-4" />
               </Button>
@@ -269,13 +267,13 @@ export default function KeywordsStep({
               value={newKeyword}
               onChange={e => setNewKeyword(e.target.value)}
               placeholder="Enter a keyword your customers might search for..."
-              className="flex-1 rounded-lg border-gray-300 dark:border-gray-600"
+              className="flex-1 rounded-lg border-gray-600 bg-gray-900 text-white placeholder:text-gray-500"
             />
             <Button
               type="submit"
               variant="outline"
               disabled={!newKeyword.trim()}
-              className="rounded-lg"
+              className="rounded-lg border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
             >
               <Plus className="size-4" />
             </Button>
@@ -288,7 +286,7 @@ export default function KeywordsStep({
         <form onSubmit={handleSubmit} className="space-y-4">
           <Button
             type="submit"
-            className="w-full rounded-lg bg-blue-600 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+            className="w-full rounded-lg bg-blue-600 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700"
             disabled={data.keywords.length === 0}
           >
             Continue →
@@ -298,7 +296,7 @@ export default function KeywordsStep({
             type="button"
             variant="ghost"
             onClick={onPrevious}
-            className="flex w-full items-center justify-center text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+            className="flex w-full items-center justify-center text-gray-400 hover:text-gray-200"
           >
             <ArrowLeft className="mr-2 size-4" />
             Back

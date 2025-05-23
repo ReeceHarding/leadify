@@ -53,43 +53,35 @@ export default function CompleteStep({
           🎉
         </motion.div>
 
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-          Setup Complete!
-        </h1>
+        <h1 className="text-2xl font-bold text-white">Setup Complete!</h1>
 
-        <p className="mx-auto max-w-md text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+        <p className="mx-auto max-w-md text-sm leading-relaxed text-gray-400">
           You're ready to find and engage with potential customers on Reddit.
         </p>
       </div>
 
       {/* Summary of Setup */}
-      <div className="space-y-4 rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
-        <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+      <div className="space-y-4 rounded-lg bg-gray-800 p-4">
+        <h3 className="text-base font-semibold text-white">
           Your Setup Summary
         </h3>
 
         <div className="grid grid-cols-2 gap-3 text-left text-sm">
           <div>
-            <p className="font-medium text-gray-700 dark:text-gray-300">
-              Profile
-            </p>
-            <p className="text-gray-600 dark:text-gray-400">{data.name}</p>
+            <p className="font-medium text-gray-300">Profile</p>
+            <p className="text-gray-400">{data.name}</p>
           </div>
 
           <div>
-            <p className="font-medium text-gray-700 dark:text-gray-300">
-              Reddit Connected
-            </p>
+            <p className="font-medium text-gray-300">Reddit Connected</p>
             <Badge variant={data.redditConnected ? "default" : "secondary"}>
               {data.redditConnected ? "Connected" : "Not Connected"}
             </Badge>
           </div>
 
           <div className="col-span-2">
-            <p className="font-medium text-gray-700 dark:text-gray-300">
-              Keywords Generated
-            </p>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="font-medium text-gray-300">Keywords Generated</p>
+            <p className="text-gray-400">
               {data.keywords.length} keywords ready
             </p>
           </div>
@@ -127,7 +119,7 @@ export default function CompleteStep({
         <Button
           onClick={handleComplete}
           disabled={isCompleting}
-          className="w-full rounded-lg bg-blue-600 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+          className="w-full rounded-lg bg-blue-600 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700"
         >
           {isCompleting ? (
             <>
@@ -143,7 +135,7 @@ export default function CompleteStep({
           type="button"
           variant="ghost"
           onClick={onPrevious}
-          className="flex w-full items-center justify-center text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+          className="flex w-full items-center justify-center text-gray-400 hover:text-gray-200"
           disabled={isCompleting}
         >
           <ArrowLeft className="mr-2 size-4" />
