@@ -8,20 +8,22 @@ export default async function OnboardingLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-white">
+      <div className="container mx-auto px-4 py-12">
         {/* Logo */}
-        <div className="flex justify-center">
-          <div className="flex items-center gap-2">
-            <div className="rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 p-2">
-              <div className="text-xl font-bold text-white">🚀</div>
+        <div className="mb-16 flex justify-center">
+          <div className="flex items-center gap-3">
+            <div className="rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 p-3">
+              <div className="text-2xl">✨</div>
             </div>
-            <span className="text-xl font-bold text-gray-900">Lead Finder</span>
+            <span className="text-2xl font-bold text-gray-900">
+              Lead Finder
+            </span>
           </div>
         </div>
 
         {/* Main Content */}
-        <div className="flex min-h-[80vh] items-center justify-center">
+        <div className="flex min-h-[60vh] items-start justify-center">
           {children}
         </div>
       </div>

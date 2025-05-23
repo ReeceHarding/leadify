@@ -41,23 +41,23 @@ export default function CompleteStep({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="space-y-6 text-center"
+      className="space-y-8 text-center"
     >
       <div className="space-y-4">
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
-          className="text-6xl"
+          className="text-5xl"
         >
           🎉
         </motion.div>
 
-        <h1 className="text-4xl font-bold text-gray-900">
+        <h1 className="text-3xl font-bold text-gray-900">
           Congratulations! You're ready to start creating with Lead Finder!
         </h1>
 
-        <p className="mx-auto max-w-lg text-lg text-gray-600">
+        <p className="mx-auto max-w-lg text-base leading-relaxed text-gray-600">
           Turn any Reddit opportunity into engaging content in seconds. Simply
           paste a link below to transform it into ready-to-share posts.
         </p>
@@ -153,11 +153,11 @@ export default function CompleteStep({
         <Button
           onClick={handleComplete}
           disabled={isCompleting}
-          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 py-4 text-lg font-medium text-white hover:from-blue-700 hover:to-purple-700"
+          className="w-full rounded-lg bg-blue-600 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700"
         >
           {isCompleting ? (
             <>
-              <Loader2 className="mr-2 size-5 animate-spin" />
+              <Loader2 className="mr-2 size-4 animate-spin" />
               Setting up your campaign...
             </>
           ) : (
@@ -169,7 +169,7 @@ export default function CompleteStep({
           type="button"
           variant="ghost"
           onClick={onPrevious}
-          className="flex items-center text-gray-600 hover:text-gray-800"
+          className="flex w-full items-center justify-center text-gray-600 hover:text-gray-800"
           disabled={isCompleting}
         >
           <ArrowLeft className="mr-2 size-4" />

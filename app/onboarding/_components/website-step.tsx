@@ -92,11 +92,11 @@ export default function WebsiteStep({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="space-y-6 text-center"
+      className="space-y-8 text-center"
     >
-      <div className="space-y-4">
-        <h1 className="text-4xl font-bold text-gray-900">Your Brand Source</h1>
-        <p className="mx-auto max-w-lg text-lg text-gray-600">
+      <div className="space-y-3">
+        <h1 className="text-3xl font-bold text-gray-900">Your Brand Source</h1>
+        <p className="text-base leading-relaxed text-gray-600">
           Let's add your website to help us understand your brand better. This
           will be used as a reference for accurate content generation.
         </p>
@@ -104,7 +104,7 @@ export default function WebsiteStep({
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Website Input */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           <div className="relative">
             <Input
               id="website"
@@ -112,7 +112,7 @@ export default function WebsiteStep({
               value={data.website}
               onChange={e => onUpdate({ website: e.target.value })}
               placeholder="https://yourwebsite.com"
-              className="py-3 pl-12 text-center text-lg"
+              className="rounded-lg border-gray-300 py-3 pl-12 text-center text-base"
             />
             <Globe className="absolute left-4 top-1/2 size-5 -translate-y-1/2 text-gray-400" />
           </div>
@@ -128,7 +128,7 @@ export default function WebsiteStep({
         <div className="flex flex-col space-y-3">
           <Button
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 py-3 text-lg font-medium text-white hover:from-blue-700 hover:to-purple-700"
+            className="w-full rounded-lg bg-blue-600 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700"
             disabled={isValidating}
           >
             {isValidating ? (
@@ -157,7 +157,7 @@ export default function WebsiteStep({
           type="button"
           variant="ghost"
           onClick={onPrevious}
-          className="flex items-center text-gray-600 hover:text-gray-800"
+          className="flex w-full items-center justify-center text-gray-600 hover:text-gray-800"
           disabled={isValidating}
         >
           <ArrowLeft className="mr-2 size-4" />

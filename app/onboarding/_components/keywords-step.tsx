@@ -115,11 +115,11 @@ export default function KeywordsStep({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="space-y-6 text-center"
+      className="space-y-8 text-center"
     >
-      <div className="space-y-4">
-        <h1 className="text-4xl font-bold text-gray-900">Target Keywords</h1>
-        <p className="mx-auto max-w-lg text-lg text-gray-600">
+      <div className="space-y-3">
+        <h1 className="text-3xl font-bold text-gray-900">Target Keywords</h1>
+        <p className="text-base leading-relaxed text-gray-600">
           {data.website
             ? "We've analyzed your website and generated relevant keywords that your potential customers might search for on Reddit."
             : "Add keywords that your potential customers might search for on Reddit."}
@@ -128,8 +128,10 @@ export default function KeywordsStep({
 
       {/* Loading State */}
       {isGenerating && !hasGenerated && (
-        <div className="flex flex-col items-center space-y-4 py-8">
-          <Loader2 className="size-8 animate-spin text-blue-600" />
+        <div className="flex flex-col items-center space-y-4 py-12">
+          <div className="relative">
+            <div className="size-8 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600" />
+          </div>
           <p className="text-gray-600">
             Analyzing your website and generating keywords...
           </p>
@@ -153,7 +155,7 @@ export default function KeywordsStep({
                   className="group relative"
                 >
                   {editingIndex === index ? (
-                    <div className="flex items-center rounded-md border border-gray-300 bg-white px-3 py-2">
+                    <div className="flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2">
                       <input
                         type="text"
                         value={keyword}
@@ -178,7 +180,7 @@ export default function KeywordsStep({
                   ) : (
                     <Badge
                       variant="outline"
-                      className="cursor-pointer px-3 py-2 text-sm transition-colors hover:bg-gray-50"
+                      className="cursor-pointer rounded-lg px-3 py-2 text-sm transition-colors hover:bg-gray-50"
                       onClick={() => handleKeywordClick(index)}
                     >
                       <span className="break-words">{keyword}</span>
@@ -208,13 +210,13 @@ export default function KeywordsStep({
                 value={refinementPrompt}
                 onChange={e => setRefinementPrompt(e.target.value)}
                 placeholder="Tell the AI how to adjust the keywords (e.g., 'focus more on technical keywords' or 'make them more specific to B2B customers')"
-                className="min-h-[80px]"
+                className="min-h-[80px] rounded-lg border-gray-300"
                 disabled={isGenerating}
               />
               <Button
                 type="submit"
                 variant="outline"
-                className="w-full"
+                className="w-full rounded-lg"
                 disabled={!refinementPrompt.trim() || isGenerating}
               >
                 {isGenerating ? (
@@ -242,12 +244,13 @@ export default function KeywordsStep({
                 value={newKeyword}
                 onChange={e => setNewKeyword(e.target.value)}
                 placeholder="Add a custom keyword..."
-                className="flex-1"
+                className="flex-1 rounded-lg border-gray-300"
               />
               <Button
                 type="submit"
                 variant="outline"
                 disabled={!newKeyword.trim()}
+                className="rounded-lg"
               >
                 <Plus className="size-4" />
               </Button>
@@ -264,12 +267,13 @@ export default function KeywordsStep({
               value={newKeyword}
               onChange={e => setNewKeyword(e.target.value)}
               placeholder="Enter a keyword your customers might search for..."
-              className="flex-1"
+              className="flex-1 rounded-lg border-gray-300"
             />
             <Button
               type="submit"
               variant="outline"
               disabled={!newKeyword.trim()}
+              className="rounded-lg"
             >
               <Plus className="size-4" />
             </Button>
@@ -282,7 +286,7 @@ export default function KeywordsStep({
         <form onSubmit={handleSubmit} className="space-y-4">
           <Button
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 py-3 text-lg font-medium text-white hover:from-blue-700 hover:to-purple-700"
+            className="w-full rounded-lg bg-blue-600 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700"
             disabled={data.keywords.length === 0}
           >
             Continue →
@@ -292,7 +296,7 @@ export default function KeywordsStep({
             type="button"
             variant="ghost"
             onClick={onPrevious}
-            className="flex items-center text-gray-600 hover:text-gray-800"
+            className="flex w-full items-center justify-center text-gray-600 hover:text-gray-800"
           >
             <ArrowLeft className="mr-2 size-4" />
             Back

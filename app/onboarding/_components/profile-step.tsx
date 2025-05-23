@@ -73,16 +73,16 @@ export default function ProfileStep({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="space-y-6 text-center"
+      className="space-y-8 text-center"
     >
-      <div className="space-y-4">
-        <h1 className="text-4xl font-bold text-gray-900">Your Profile</h1>
-        <p className="mx-auto max-w-lg text-lg text-gray-600">
+      <div className="space-y-3">
+        <h1 className="text-3xl font-bold text-gray-900">Your Profile</h1>
+        <p className="text-base leading-relaxed text-gray-600">
           Let's start by getting to know you a bit better.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-8">
         {/* Profile Picture */}
         <div className="flex flex-col items-center space-y-4">
           <Label
@@ -92,27 +92,27 @@ export default function ProfileStep({
             Avatar
           </Label>
           <div className="relative">
-            <Avatar className="size-24 border-4 border-white shadow-lg">
+            <Avatar className="size-20 border-2 border-gray-200">
               <AvatarImage src={data.profilePictureUrl} alt={data.name} />
-              <AvatarFallback className="bg-gradient-to-r from-blue-600 to-purple-600 text-xl text-white">
-                {getInitials(data.name) || "?"}
+              <AvatarFallback className="bg-gradient-to-r from-blue-600 to-purple-600 text-lg text-white">
+                {getInitials(data.name) || "R"}
               </AvatarFallback>
             </Avatar>
             <Button
               type="button"
               size="icon"
-              className="absolute -bottom-2 -right-2 size-8 rounded-full bg-gray-800 hover:bg-gray-700"
+              className="absolute -bottom-1 -right-1 size-6 rounded-full bg-gray-800 shadow-sm hover:bg-gray-700"
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading}
             >
               {uploading ? (
-                <div className="size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                <div className="size-3 animate-spin rounded-full border border-white border-t-transparent" />
               ) : (
-                <Camera className="size-4 text-white" />
+                <Camera className="size-3 text-white" />
               )}
             </Button>
           </div>
-          <p className="text-sm text-gray-500">
+          <p className="max-w-xs text-sm text-gray-500">
             Click the circle or drop an image to it to upload your avatar.
           </p>
           <input
@@ -125,7 +125,7 @@ export default function ProfileStep({
         </div>
 
         {/* Name Input */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           <Label htmlFor="name" className="text-sm font-medium text-gray-700">
             Name
           </Label>
@@ -135,7 +135,7 @@ export default function ProfileStep({
             value={data.name}
             onChange={e => onUpdate({ name: e.target.value })}
             placeholder="Your full name"
-            className="py-3 text-center text-lg"
+            className="rounded-lg border-gray-300 py-3 text-center text-base"
             required
           />
         </div>
@@ -143,7 +143,7 @@ export default function ProfileStep({
         {/* Continue Button */}
         <Button
           type="submit"
-          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 py-3 text-lg font-medium text-white hover:from-blue-700 hover:to-purple-700"
+          className="w-full rounded-lg bg-blue-600 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700"
           disabled={!data.name.trim()}
         >
           Continue →

@@ -155,14 +155,19 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-8">
+    <div className="mx-auto w-full max-w-lg space-y-12">
       {/* Progress Bar */}
-      <div className="space-y-2">
+      <div className="space-y-3">
         <div className="flex justify-between text-sm text-gray-500">
           <span>Setup Progress</span>
           <span>{Math.round(progress)}% Complete</span>
         </div>
-        <Progress value={progress} className="w-full" />
+        <div className="h-2 w-full rounded-full bg-gray-200">
+          <div
+            className="h-2 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
       </div>
 
       {/* Step Content */}
@@ -183,10 +188,8 @@ export default function OnboardingPage() {
         {stepOrder.map((step, index) => (
           <div
             key={step}
-            className={`h-2 w-8 rounded-full transition-colors ${
-              index <= currentStepIndex
-                ? "bg-gradient-to-r from-blue-600 to-purple-600"
-                : "bg-gray-200"
+            className={`size-2 rounded-full transition-colors ${
+              index <= currentStepIndex ? "bg-blue-600" : "bg-gray-300"
             }`}
           />
         ))}
