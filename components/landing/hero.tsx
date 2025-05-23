@@ -75,7 +75,7 @@ export const HeroSection = () => {
           transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
         >
           <Link href="/onboarding" onClick={handleGetStartedClick}>
-            <Button className="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-3 text-lg hover:from-blue-700 hover:to-purple-700 dark:from-blue-500 dark:to-purple-500 dark:hover:from-blue-600 dark:hover:to-purple-600">
+            <Button className="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-3 text-lg hover:from-blue-700 hover:to-blue-800 dark:from-blue-500 dark:to-blue-600 dark:hover:from-blue-600 dark:hover:to-blue-700">
               <Search className="mr-2 size-5" />
               Get Started &rarr;
             </Button>

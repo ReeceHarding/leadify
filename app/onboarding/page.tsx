@@ -557,7 +557,7 @@ export default function OnboardingPage() {
         className="space-y-8 text-center"
       >
         <div className="space-y-4">
-          <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-purple-600">
+          <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-blue-700">
             <Target className="size-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-white">Welcome to Leadify</h1>
@@ -734,7 +734,7 @@ export default function OnboardingPage() {
           </div>
           <div className="h-2 w-full rounded-full bg-gray-800">
             <div
-              className="h-2 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 transition-all duration-300"
+              className="h-2 rounded-full bg-gradient-to-r from-blue-600 to-blue-700 transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>

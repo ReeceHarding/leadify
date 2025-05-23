@@ -485,7 +485,7 @@ export default function LeadFinderDashboard() {
               </Select>
               <Button
                 onClick={() => setCreateDialogOpen(true)}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 dark:from-blue-500 dark:to-purple-500 dark:hover:from-blue-600 dark:hover:to-purple-600"
+                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
               >
                 <Plus className="mr-2 size-4" />
                 New Campaign

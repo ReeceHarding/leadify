@@ -94,7 +94,7 @@ export default function ProfileStep({
           <div className="relative">
             <Avatar className="size-20 border-2 border-gray-600">
               <AvatarImage src={data.profilePictureUrl} alt={data.name} />
-              <AvatarFallback className="bg-gradient-to-r from-blue-600 to-purple-600 text-lg text-white">
+              <AvatarFallback className="bg-gradient-to-r from-blue-600 to-blue-700 text-lg text-white">
                 {getInitials(data.name) || "R"}
               </AvatarFallback>
             </Avatar>

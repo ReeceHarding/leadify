@@ -54,7 +54,7 @@ export default function Header() {
         <div className="flex items-center space-x-2 hover:cursor-pointer hover:opacity-80">
           <Rocket className="size-6" />
           <Link href="/" className="flex items-center space-x-2">
-            <div className="size-6 rounded-full bg-gradient-to-r from-blue-600 to-purple-600" />
+            <div className="size-6 rounded-full bg-gradient-to-r from-blue-600 to-blue-700" />
             <span className="text-xl font-bold">Leadify</span>
           </Link>
         </div>
