@@ -24,7 +24,8 @@ import {
   Hash,
   Edit2,
   PlusCircle,
-  RefreshCw
+  RefreshCw,
+  Send
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -75,6 +76,10 @@ import {
 } from "@/actions/db/campaign-actions"
 import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
 import { regenerateCommentsWithToneAction } from "@/actions/integrations/openai-actions"
+import { 
+  postCommentAndUpdateStatusAction,
+  testRedditPostingAction 
+} from "@/actions/integrations/reddit-posting-actions"
 import { useUser } from "@clerk/nextjs"
 import { db } from "@/db/db"
 import {
@@ -144,6 +149,7 @@ export default function LeadFinderDashboard() {
   const [toneInstruction, setToneInstruction] = useState("")
   const [regeneratingId, setRegeneratingId] = useState<string | null>(null)
   const [websiteContent, setWebsiteContent] = useState<string>("")
+  const [activeTab, setActiveTab] = useState<"all" | "queue">("all")
 
   // Get keywords from profile and start real workflow
   useEffect(() => {
@@ -612,6 +618,51 @@ export default function LeadFinderDashboard() {
     }
   }
 
+  // Handle posting comment now
+  const handlePostNow = async (lead: LeadResult) => {
+    try {
+      // Extract thread ID from URL
+      const urlMatch = lead.postUrl.match(/\/comments\/([a-zA-Z0-9]+)/)
+      const threadId = urlMatch ? urlMatch[1] : lead.originalData?.threadId
+      
+      if (!threadId) {
+        toast.error("Could not extract thread ID from URL")
+        return
+      }
+
+      // Check if user is authenticated with Reddit
+      const testResult = await testRedditPostingAction()
+      if (!testResult.isSuccess) {
+        toast.error("Please authenticate with Reddit first")
+        // Redirect to Reddit auth
+        window.location.href = "/api/reddit/auth"
+        return
+      }
+
+      const comment = getDisplayComment(lead)
+      
+      // Post comment and update status
+      const result = await postCommentAndUpdateStatusAction(
+        lead.id,
+        threadId,
+        comment
+      )
+      
+      if (result.isSuccess) {
+        toast.success("Comment posted successfully!")
+        // Optionally open the posted comment in a new tab
+        if (result.data.link) {
+          window.open(result.data.link, "_blank")
+        }
+      } else {
+        toast.error(result.message)
+      }
+    } catch (error) {
+      toast.error("Failed to post comment")
+      console.error("Error posting comment:", error)
+    }
+  }
+
   // Handle tone regeneration for all comments
   const handleToneRegeneration = async () => {
     if (!toneInstruction.trim() || !websiteContent) {
@@ -654,6 +705,11 @@ export default function LeadFinderDashboard() {
   const filteredAndSortedLeads = useMemo(() => {
     let filtered = leads
 
+    // Filter by tab
+    if (activeTab === "queue") {
+      filtered = filtered.filter(lead => lead.status === "approved")
+    }
+
     // Filter by keyword
     if (filterKeyword) {
       filtered = filtered.filter(lead => 
@@ -682,7 +738,7 @@ export default function LeadFinderDashboard() {
     })
 
     return sorted
-  }, [leads, filterKeyword, filterScore, sortBy])
+  }, [leads, filterKeyword, filterScore, sortBy, activeTab])
 
   // Paginated leads
   const paginatedLeads = useMemo(() => {
@@ -798,44 +854,54 @@ export default function LeadFinderDashboard() {
       {/* Main Content */}
       <div className="flex-1 p-6">
         <div className="space-y-6">
-          {/* Campaign Controls */}
-          <div className="flex items-center justify-between gap-4">
-            {/* Left side - Onboarding button (only show when no keywords error) */}
-            {workflowProgress.error?.includes("No keywords found") && (
-              <Button
-                variant="outline"
-                onClick={() => (window.location.href = "/onboarding")}
-                className="border-orange-500 text-orange-600 hover:bg-orange-50 hover:text-orange-700 dark:border-orange-400 dark:text-orange-400 dark:hover:bg-orange-900/20 dark:hover:text-orange-300"
-              >
-                <Target className="mr-2 size-4" />
-                Start Onboarding Here
-              </Button>
-            )}
+          {/* Tabs */}
+          <Tabs value={activeTab} onValueChange={(value: any) => setActiveTab(value)}>
+            <div className="flex items-center justify-between">
+              <TabsList>
+                <TabsTrigger value="all">All Leads</TabsTrigger>
+                <TabsTrigger value="queue">
+                  Queue ({leads.filter(l => l.status === "approved").length})
+                </TabsTrigger>
+              </TabsList>
+              
+              {/* Campaign Controls */}
+              <div className="flex items-center gap-4">
+                {/* Onboarding button (only show when no keywords error) */}
+                {workflowProgress.error?.includes("No keywords found") && (
+                  <Button
+                    variant="outline"
+                    onClick={() => (window.location.href = "/onboarding")}
+                    className="border-orange-500 text-orange-600 hover:bg-orange-50 hover:text-orange-700 dark:border-orange-400 dark:text-orange-400 dark:hover:bg-orange-900/20 dark:hover:text-orange-300"
+                  >
+                    <Target className="mr-2 size-4" />
+                    Start Onboarding Here
+                  </Button>
+                )}
 
-            {/* Right side - Existing controls */}
-            <div className="ml-auto flex items-center gap-4">
-              <Select
-                value={selectedLength}
-                onValueChange={(value: any) => setSelectedLength(value)}
-              >
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="micro">Micro</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="verbose">Verbose</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button
-                onClick={() => setCreateDialogOpen(true)}
-                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
-              >
-                <Plus className="mr-2 size-4" />
-                New Campaign
-              </Button>
+                {/* Right side - Existing controls */}
+                <Select
+                  value={selectedLength}
+                  onValueChange={(value: any) => setSelectedLength(value)}
+                >
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="micro">Micro</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="verbose">Verbose</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button
+                  onClick={() => setCreateDialogOpen(true)}
+                  className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+                >
+                  <Plus className="mr-2 size-4" />
+                  New Campaign
+                </Button>
+              </div>
             </div>
-          </div>
+          </Tabs>
 
           {/* Tone Regeneration Box */}
           {leads.length > 0 && (
@@ -980,6 +1046,12 @@ export default function LeadFinderDashboard() {
                         <div className="flex items-center justify-between">
                           <span className="text-xs text-gray-500 dark:text-gray-400">
                             Generated Comment
+                            {lead.status === "used" && (
+                              <Badge variant="outline" className="ml-2 text-xs">
+                                <CheckCircle2 className="mr-1 size-3" />
+                                Posted
+                              </Badge>
+                            )}
                           </span>
                           <div className="flex items-center gap-2">
                             <Badge 
@@ -988,14 +1060,27 @@ export default function LeadFinderDashboard() {
                             >
                               Score: {lead.relevanceScore}
                             </Badge>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleAddToQueue(lead)}
-                            >
-                              <PlusCircle className="mr-1 size-3" />
-                              Add to queue
-                            </Button>
+                            {lead.status !== "used" && (
+                              <>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleAddToQueue(lead)}
+                                  disabled={lead.status === "approved"}
+                                >
+                                  <PlusCircle className="mr-1 size-3" />
+                                  {lead.status === "approved" ? "In Queue" : "Queue"}
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handlePostNow(lead)}
+                                >
+                                  <Send className="mr-1 size-3" />
+                                  Post Now
+                                </Button>
+                              </>
+                            )}
                           </div>
                         </div>
                         
