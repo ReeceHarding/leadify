@@ -190,17 +190,11 @@ Return response in this exact JSON format:
         parsedResult.customerGroups
       )
 
-      const finalKeywords = parsedResult.keywords.slice(0, 2); // Enforce 2 keyword limit
-      console.log(
-        "🔍 [KEYWORDS-ACTION] Sliced keywords (first 2):",
-        finalKeywords
-      )
-
       const successResult = {
         isSuccess: true as const,
         message: "Natural search terms generated successfully with o3-mini",
         data: {
-          keywords: finalKeywords, // Use sliced keywords
+          keywords: parsedResult.keywords,
           coreProblem: parsedResult.coreProblem || "",
           customerGroups: parsedResult.customerGroups || [],
           // Keep backwards compatibility for existing components

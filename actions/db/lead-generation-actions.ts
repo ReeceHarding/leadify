@@ -70,11 +70,16 @@ export interface SerializedGeneratedCommentDocument {
   campaignId: string
   redditThreadId: string
   threadId: string
+  postUrl: string
+  postTitle: string
+  postAuthor: string
+  postContentSnippet: string
   relevanceScore: number
   reasoning: string
   microComment: string
   mediumComment: string
   verboseComment: string
+  status: "new" | "viewed" | "approved" | "rejected" | "used"
   selectedLength?: "micro" | "medium" | "verbose"
   approved: boolean
   used: boolean
@@ -225,23 +230,34 @@ export async function createGeneratedCommentAction(
   try {
     const commentRef = doc(collection(db, LEAD_COLLECTIONS.GENERATED_COMMENTS))
 
-    const commentData = {
-      id: commentRef.id,
+    const commentData: Omit<GeneratedCommentDocument, "createdAt" | "updatedAt" | "id"> & { createdAt?: any; updatedAt?: any } = {
       campaignId: data.campaignId,
       redditThreadId: data.redditThreadId,
       threadId: data.threadId,
+      postUrl: data.postUrl,
+      postTitle: data.postTitle,
+      postAuthor: data.postAuthor,
+      postContentSnippet: data.postContentSnippet,
       relevanceScore: data.relevanceScore,
       reasoning: data.reasoning,
       microComment: data.microComment,
       mediumComment: data.mediumComment,
       verboseComment: data.verboseComment,
-      approved: false,
-      used: false,
+      status: data.status || "new", // Default to 'new'
+      approved: false, // Default to false, can be updated later
+      used: false, // Default to false
+      // Timestamps will be added by serverTimestamp or directly
+    }
+    
+    const finalCommentData = {
+      id: commentRef.id,
+      ...commentData,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     }
 
-    await setDoc(commentRef, removeUndefinedValues(commentData))
+
+    await setDoc(commentRef, removeUndefinedValues(finalCommentData))
 
     const createdDoc = await getDoc(commentRef)
     return {

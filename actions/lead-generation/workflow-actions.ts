@@ -20,7 +20,8 @@ import {
   LEAD_COLLECTIONS,
   CreateSearchResultData,
   CreateRedditThreadData,
-  CreateGeneratedCommentData
+  CreateGeneratedCommentData,
+  RedditThreadDocument
 } from "@/db/schema"
 import { db } from "@/db/db"
 import {
@@ -31,6 +32,8 @@ import {
   writeBatch
 } from "firebase/firestore"
 import { removeUndefinedValues } from "@/lib/firebase-utils"
+import { createGeneratedCommentAction } from "@/actions/db/lead-generation-actions"
+import { scoreThreadAndGenerateThreeTierCommentsAction } from "@/actions/integrations/openai-actions"
 
 export interface WorkflowStepResult {
   step: string
@@ -259,130 +262,130 @@ export async function runFullLeadGenerationWorkflowAction(
     }
 
     // Save Reddit thread data to database
-    const redditThreads = fetchResult.data || []
+    const redditThreadsFromApi = fetchResult.data || []
     const threadBatch = writeBatch(db)
+    const processedRedditThreads: Array<RedditThreadDocument & { threadIdFromReddit: string }> = []
 
-    for (const thread of redditThreads) {
+    for (const apiThread of redditThreadsFromApi) {
       const threadRef = doc(collection(db, LEAD_COLLECTIONS.REDDIT_THREADS))
-      const searchResult = allSearchResults.find(
-        sr => sr.threadId === thread.id
-      )
+      // Find the original search result to link, if necessary (though searchResultId is 'unknown' currently)
+      // const searchResult = allSearchResults.find(sr => sr.threadId === apiThread.id);
 
-      if (searchResult) {
-        const threadDoc = removeUndefinedValues({
-          id: threadRef.id,
-          campaignId,
-          searchResultId: "unknown", // We'd need to track this better in production
-          threadId: thread.id,
-          subreddit: thread.subreddit,
-          title: thread.title,
-          content: thread.content,
-          author: thread.author,
-          score: thread.score,
-          numComments: thread.numComments,
-          url: thread.url,
-          processed: false,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
-        })
-        threadBatch.set(threadRef, threadDoc)
+      const threadDocData: Omit<RedditThreadDocument, "id" | "createdAt" | "updatedAt"> = {
+        campaignId,
+        searchResultId: "unknown", // Placeholder, ideally map to actual searchResult doc ID
+        threadId: apiThread.id, // This is the actual Reddit thread ID like "t3_xxxxxx"
+        subreddit: apiThread.subreddit,
+        title: apiThread.title,
+        content: apiThread.content,
+        author: apiThread.author,
+        score: apiThread.score,
+        numComments: apiThread.numComments,
+        url: apiThread.url,
+        processed: false,
+        // relevanceScore will be added after OpenAI processing if needed here
       }
+      
+      const fullThreadDoc = {
+        id: threadRef.id,
+        ...threadDocData,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      }
+      threadBatch.set(threadRef, removeUndefinedValues(fullThreadDoc))
+      processedRedditThreads.push({ 
+        ...fullThreadDoc,
+        // Ensure timestamps are handled if spread directly, or reconstruct
+        // For simplicity, assuming structure matches after spreading serverTimestamp placeholders
+        // Actual data read back from Firestore would have proper Timestamps.
+        // This array is for immediate use in Step 5.
+        threadIdFromReddit: apiThread.id // Explicitly store the original Reddit ID for clarity
+      } as RedditThreadDocument & { threadIdFromReddit: string }) // Cast needed if timestamps aren't real Timestamps yet
     }
     await threadBatch.commit()
 
+    // Update campaign with the count of threads successfully fetched and attempted to be saved
     await updateCampaignAction(campaignId, {
-      totalThreadsAnalyzed: redditThreads.length
+      totalThreadsAnalyzed: processedRedditThreads.length 
     })
 
     progress.results.push({
       step: "Fetch Reddit Content",
       success: true,
-      message: `Fetched ${redditThreads.length} Reddit threads`,
+      message: `Fetched and processed ${processedRedditThreads.length} Reddit threads for saving`,
       data: {
-        threadsFound: redditThreads.length,
+        threadsFound: processedRedditThreads.length,
         totalAttempted: threadsToFetch.length
       }
     })
     progress.completedSteps++
 
-    // Step 5: Score threads and generate comments
+    // Step 5: Score threads and generate comments individually
     progress.currentStep = "Scoring and generating comments"
     console.log(
-      `🤖 Step 5: Scoring threads and generating comments for ${redditThreads.length} threads`
+      `🤖 Step 5: Scoring threads and generating comments individually for ${processedRedditThreads.length} threads`
     )
 
-    const threadsForScoring = redditThreads.map(thread => ({
-      threadTitle: thread.title,
-      threadContent: thread.content,
-      subreddit: thread.subreddit
-    }))
+    let commentsGeneratedCount = 0
+    let totalScoreSum = 0
 
-    const scoringResult = await batchScoreThreadsWithThreeTierCommentsAction(
-      threadsForScoring,
-      websiteContent
-    )
-    if (!scoringResult.isSuccess) {
-      progress.results.push({
-        step: "Score and Generate Comments",
-        success: false,
-        message: scoringResult.message
-      })
-      await updateCampaignAction(campaignId, { status: "error" })
-      progress.error = scoringResult.message
-      return {
-        isSuccess: false,
-        message: `Comment generation failed: ${scoringResult.message}`
+    for (const thread of processedRedditThreads) { // Iterate over processedRedditThreads now
+      console.log(`Processing thread: ${thread.title}`)
+      const scoringResult = await scoreThreadAndGenerateThreeTierCommentsAction(
+        thread.title,
+        thread.content,
+        thread.subreddit,
+        websiteContent // Ensured websiteContent is available here
+      )
+
+      if (scoringResult.isSuccess) {
+        const scoringData = scoringResult.data
+        const commentPayload: CreateGeneratedCommentData = {
+          campaignId,
+          redditThreadId: thread.id, // This is now the Firestore document ID of the RedditThreadDocument
+          threadId: thread.threadIdFromReddit, // This is the actual Reddit thread ID (e.g., "t3_xxxxxx")
+          postUrl: thread.url, // Direct URL to the post
+          postTitle: thread.title,
+          postAuthor: thread.author,
+          postContentSnippet: thread.content.substring(0, 200), // Snippet
+          relevanceScore: scoringData.score,
+          reasoning: scoringData.reasoning,
+          microComment: scoringData.microComment,
+          mediumComment: scoringData.mediumComment,
+          verboseComment: scoringData.verboseComment,
+          status: "new"
+        }
+
+        const saveCommentResult = await createGeneratedCommentAction(commentPayload)
+        if (saveCommentResult.isSuccess) {
+          commentsGeneratedCount++
+          totalScoreSum += scoringData.score
+          console.log(`✅ Comment generated and saved for thread: ${thread.title}`)
+        } else {
+          console.error(
+            `Failed to save comment for thread ${thread.title}: ${saveCommentResult.message}`
+          )
+        }
+      } else {
+        console.error(
+          `Failed to score thread ${thread.title}: ${scoringResult.message}`
+        )
       }
     }
 
-    // Save generated comments to database
-    const commentBatch = writeBatch(db)
-    const scoringResults = scoringResult.data || []
-
-    for (
-      let i = 0;
-      i < scoringResults.length && i < redditThreads.length;
-      i++
-    ) {
-      const scoring = scoringResults[i]
-      const thread = redditThreads[i]
-
-      const commentRef = doc(
-        collection(db, LEAD_COLLECTIONS.GENERATED_COMMENTS)
-      )
-      const commentDoc = removeUndefinedValues({
-        id: commentRef.id,
-        campaignId,
-        redditThreadId: "unknown", // Would need better tracking
-        threadId: thread.id,
-        relevanceScore: scoring.score,
-        reasoning: scoring.reasoning,
-        microComment: scoring.microComment,
-        mediumComment: scoring.mediumComment,
-        verboseComment: scoring.verboseComment,
-        approved: false,
-        used: false,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      })
-      commentBatch.set(commentRef, commentDoc)
-    }
-    await commentBatch.commit()
-
+    // Update campaign with final counts
     await updateCampaignAction(campaignId, {
-      totalCommentsGenerated: scoringResults.length,
-      status: "completed"
+      totalCommentsGenerated: commentsGeneratedCount,
+      status: commentsGeneratedCount > 0 ? "completed" : "error"
     })
 
     progress.results.push({
       step: "Score and Generate Comments",
-      success: true,
-      message: `Generated ${scoringResults.length} comments`,
+      success: commentsGeneratedCount > 0,
+      message: `Generated ${commentsGeneratedCount} comments individually`,
       data: {
-        commentsGenerated: scoringResults.length,
-        averageScore:
-          scoringResults.reduce((sum, r) => sum + r.score, 0) /
-          scoringResults.length
+        commentsGenerated: commentsGeneratedCount,
+        averageScore: commentsGeneratedCount > 0 ? totalScoreSum / commentsGeneratedCount : 0
       }
     })
     progress.completedSteps++
@@ -398,8 +401,8 @@ export async function runFullLeadGenerationWorkflowAction(
       message: "Lead generation workflow completed successfully",
       data: {
         totalSearchResults: allSearchResults.length,
-        totalThreadsAnalyzed: redditThreads.length,
-        totalCommentsGenerated: scoringResults.length
+        totalThreadsAnalyzed: processedRedditThreads.length,
+        totalCommentsGenerated: commentsGeneratedCount
       }
     })
 

@@ -3655,3 +3655,44 @@
 [2025-05-23T20:23:09.020Z] ==================================================
 [2025-05-23T20:23:09.020Z] COMMAND FINISHED: next build (exit code: 0)
 [2025-05-23T20:23:09.020Z] ==================================================
+[2025-05-23T20:36:02.690Z] ==================================================
+[2025-05-23T20:36:02.691Z] COMMAND STARTED: next build
+[2025-05-23T20:36:02.691Z] ==================================================
+[2025-05-23T20:36:03.062Z] STDOUT: ▲ Next.js 15.3.2
+[2025-05-23T20:36:03.062Z] STDOUT: - Environments: .env.local
+[2025-05-23T20:36:03.100Z] STDOUT: Creating an optimized production build ...
+[2025-05-23T20:36:08.101Z] STDOUT: ✓ Compiled successfully in 3.0s
+[2025-05-23T20:36:08.102Z] STDOUT: Linting and checking validity of types ...
+[2025-05-23T20:36:11.494Z] STDOUT: Collecting page data ...
+[2025-05-23T20:36:13.023Z] STDOUT: Generating static pages (0/15) ...
+[2025-05-23T20:36:13.333Z] STDOUT: Generating static pages (3/15)
+[2025-05-23T20:36:13.341Z] STDOUT: Generating static pages (7/15)
+[2025-05-23T20:36:13.382Z] STDOUT: Generating static pages (11/15)
+[2025-05-23T20:36:13.414Z] STDOUT: ✓ Generating static pages (15/15)
+[2025-05-23T20:36:13.591Z] STDOUT: Finalizing page optimization ...
+[2025-05-23T20:36:13.591Z] STDOUT: Collecting build traces ...
+[2025-05-23T20:36:15.584Z] STDOUT: Route (app)                                 Size  First Load JS
+[2025-05-23T20:36:15.584Z] STDOUT: ┌ ƒ /                                    5.26 kB         234 kB
+[2025-05-23T20:36:15.584Z] STDOUT: ├ ƒ /_not-found                            990 B         103 kB
+[2025-05-23T20:36:15.584Z] STDOUT: ├ ƒ /about                                 164 B         102 kB
+[2025-05-23T20:36:15.584Z] STDOUT: ├ ƒ /api/reddit/callback                   164 B         102 kB
+[2025-05-23T20:36:15.584Z] STDOUT: ├ ƒ /api/stripe/webhooks                   164 B         102 kB
+[2025-05-23T20:36:15.584Z] STDOUT: ├ ƒ /contact                               164 B         102 kB
+[2025-05-23T20:36:15.584Z] STDOUT: ├ ƒ /dashboard                             164 B         102 kB
+[2025-05-23T20:36:15.584Z] STDOUT: ├ ƒ /firebase-test                       5.11 kB         252 kB
+[2025-05-23T20:36:15.584Z] STDOUT: ├ ƒ /login/[[...login]]                    343 B         135 kB
+[2025-05-23T20:36:15.584Z] STDOUT: ├ ƒ /onboarding                          12.9 kB         185 kB
+[2025-05-23T20:36:15.584Z] STDOUT: ├ ƒ /pricing                               164 B         102 kB
+[2025-05-23T20:36:15.584Z] STDOUT: ├ ƒ /reddit-auth                          2.1 kB         112 kB
+[2025-05-23T20:36:15.584Z] STDOUT: ├ ƒ /reddit-test                         2.33 kB         112 kB
+[2025-05-23T20:36:15.584Z] STDOUT: ├ ƒ /reddit/lead-finder                  44.9 kB         350 kB
+[2025-05-23T20:36:15.584Z] STDOUT: └ ƒ /signup/[[...signup]]                  342 B         135 kB
+[2025-05-23T20:36:15.584Z] STDOUT: + First Load JS shared by all             102 kB
+[2025-05-23T20:36:15.584Z] STDOUT: ├ chunks/1684-5f90f09e504d39af.js      46.4 kB
+[2025-05-23T20:36:15.584Z] STDOUT: ├ chunks/4bd1b696-f69415ef8c27d011.js  53.2 kB
+[2025-05-23T20:36:15.584Z] STDOUT: └ other shared chunks (total)          2.01 kB
+[2025-05-23T20:36:15.584Z] STDOUT: ƒ Middleware                             75.3 kB
+[2025-05-23T20:36:15.585Z] STDOUT: ƒ  (Dynamic)  server-rendered on demand
+[2025-05-23T20:36:15.601Z] ==================================================
+[2025-05-23T20:36:15.601Z] COMMAND FINISHED: next build (exit code: 0)
+[2025-05-23T20:36:15.601Z] ==================================================

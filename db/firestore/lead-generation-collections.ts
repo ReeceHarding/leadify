@@ -121,8 +121,12 @@ export interface CreateRedditThreadData {
 export interface GeneratedCommentDocument {
   id: string
   campaignId: string
-  redditThreadId: string
-  threadId: string // Reddit thread ID
+  redditThreadId: string // ID of the document in REDDIT_THREADS collection
+  threadId: string // Actual Reddit thread ID (e.g., "t3_xxxxxx")
+  postUrl: string // Direct URL to the specific Reddit post or comment
+  postTitle: string
+  postAuthor: string
+  postContentSnippet: string // Short snippet of the original post for context
   relevanceScore: number // 1-100 score (critical scoring)
   reasoning: string // AI reasoning for the score
 
@@ -132,8 +136,9 @@ export interface GeneratedCommentDocument {
   verboseComment: string // Comprehensive, valuable advice (100-200 words)
 
   // Metadata
+  status: "new" | "viewed" | "approved" | "rejected" | "used" // Lead status
   selectedLength?: "micro" | "medium" | "verbose" // Which length the user selected
-  approved: boolean
+  approved: boolean // Kept for potential direct approval, 'status' is more granular
   used: boolean // Whether the user has used this comment
   createdAt: Timestamp
   updatedAt: Timestamp
@@ -144,11 +149,16 @@ export interface CreateGeneratedCommentData {
   campaignId: string
   redditThreadId: string
   threadId: string
+  postUrl: string
+  postTitle:string
+  postAuthor: string
+  postContentSnippet: string
   relevanceScore: number
   reasoning: string
   microComment: string
   mediumComment: string
   verboseComment: string
+  status?: "new" | "viewed" | "approved" | "rejected" | "used" // Default to 'new'
 }
 
 // Update generated comment data

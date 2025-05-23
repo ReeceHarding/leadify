@@ -51,21 +51,35 @@ import {
 } from "@/actions/db/campaign-actions"
 import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
 import { useUser } from "@clerk/nextjs"
+import { db } from "@/db/db"
+import {
+  collection,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
+  Timestamp
+} from "firebase/firestore"
+import { LEAD_COLLECTIONS } from "@/db/schema"
+import { SerializedGeneratedCommentDocument } from "@/actions/db/lead-generation-actions"
 
 interface LeadResult {
   id: string
-  author: string
+  campaignId: string
+  postUrl: string
+  postTitle: string
+  postAuthor: string
+  postContentSnippet: string
   subreddit: string
-  title: string
-  content: string
-  score: number
-  comments: number
-  timeAgo: string
-  generatedComment: string
-  commentLength: "micro" | "medium" | "verbose"
-  url: string
   relevanceScore: number
-  originalData?: any
+  reasoning: string
+  microComment: string
+  mediumComment: string
+  verboseComment: string
+  status: "new" | "viewed" | "approved" | "rejected" | "used"
+  selectedLength: "micro" | "medium" | "verbose"
+  timeAgo: string
+  originalData?: SerializedGeneratedCommentDocument
 }
 
 interface WorkflowProgress {
@@ -168,28 +182,86 @@ export default function LeadFinderDashboard() {
     initializeLeadGeneration()
   }, [user?.id])
 
-  // Update leads when comment length selection changes
+  // Real-time listener for leads
   useEffect(() => {
-    if (leads.length > 0) {
-      const updatedLeads = leads.map(lead => ({
-        ...lead,
-        generatedComment: getCommentForLength(lead, selectedLength),
-        commentLength: selectedLength
-      }))
-      setLeads(updatedLeads)
+    if (!campaignId) {
+      setLeads([]) // Clear leads if no campaign is selected
+      return
     }
-  }, [selectedLength])
 
-  const getCommentForLength = (
-    lead: any,
-    length: "micro" | "medium" | "verbose"
-  ) => {
-    // Handle both the original result data and transformed lead data
-    const result = lead.originalData || lead
-    return (
-      result[`${length}Comment`] || result.mediumComment || "Great insights!"
+    setWorkflowProgress((prev: any) => ({ ...prev, isLoading: true, error: null }))
+    console.log(`🔥 Setting up real-time listener for campaign: ${campaignId}`)
+
+    const q = query(
+      collection(db, LEAD_COLLECTIONS.GENERATED_COMMENTS),
+      where("campaignId", "==", campaignId),
+      orderBy("createdAt", "desc") // Show newest leads first
     )
-  }
+
+    const unsubscribe = onSnapshot(
+      q,
+      querySnapshot => {
+        console.log(`🔥 Firestore snapshot received: ${querySnapshot.docs.length} docs for campaign ${campaignId}`)
+        const fetchedLeads: LeadResult[] = querySnapshot.docs.map(doc => {
+          const data = doc.data() as SerializedGeneratedCommentDocument
+          // Derive subreddit from postUrl if possible, or use a placeholder
+          let subreddit = "unknown"
+          try {
+            const url = new URL(data.postUrl)
+            const match = url.pathname.match(/\/r\/([^\/]+)/)
+            if (match && match[1]) {
+              subreddit = match[1]
+            }
+          } catch (e) {
+            console.warn("Could not parse subreddit from URL:", data.postUrl)
+          }
+
+          return {
+            id: doc.id,
+            campaignId: data.campaignId,
+            postUrl: data.postUrl,
+            postTitle: data.postTitle,
+            postAuthor: data.postAuthor,
+            postContentSnippet: data.postContentSnippet,
+            subreddit: subreddit, 
+            relevanceScore: data.relevanceScore,
+            reasoning: data.reasoning,
+            microComment: data.microComment,
+            mediumComment: data.mediumComment,
+            verboseComment: data.verboseComment,
+            status: data.status,
+            selectedLength: selectedLength, // Use current dashboard selection
+            timeAgo: getTimeAgo(data.createdAt), // Make sure getTimeAgo handles string ISO date
+            originalData: data 
+          }
+        })
+        setLeads(fetchedLeads)
+        setWorkflowProgress((prev: any) => ({
+          ...prev,
+          isLoading: false,
+          // Optionally update a message like "Results loaded" or clear error
+        }))
+        if (fetchedLeads.length === 0 && !workflowProgress.isLoading) {
+            // This condition might need refinement based on workflow state
+            console.log("🔥 No leads found in snapshot, workflow might be running or no results yet.")
+        }
+      },
+      error => {
+        console.error("Error fetching real-time leads:", error)
+        setWorkflowProgress((prev: any) => ({
+          ...prev,
+          isLoading: false,
+          error: "Failed to load real-time results. Please refresh or try again."
+        }))
+      }
+    )
+
+    // Cleanup listener on component unmount or when campaignId changes
+    return () => {
+      console.log(`🔥 Unsubscribing from real-time listener for campaign: ${campaignId}`)
+      unsubscribe()
+    }
+  }, [campaignId, selectedLength]) // Added selectedLength to re-map leads if it changes
 
   const startRealLeadGeneration = async (keywords: string[]) => {
     if (!user?.id) {
@@ -369,18 +441,21 @@ export default function LeadFinderDashboard() {
         const transformedLeads: LeadResult[] = results.data.map(
           (result: any) => ({
             id: result.id,
-            author: result.author || "unknown",
-            subreddit: `r/${result.subreddit || "entrepreneur"}`,
-            title: result.title || "Reddit Thread",
-            content: result.content || "No content available",
-            score: result.relevanceScore || 85,
-            comments: result.numComments || 25,
-            timeAgo: getTimeAgo(result.createdAt),
-            generatedComment: getCommentForLength(result, selectedLength),
-            commentLength: selectedLength,
-            url: result.url || "#",
+            campaignId: result.campaignId,
+            postUrl: result.postUrl,
+            postTitle: result.postTitle,
+            postAuthor: result.postAuthor,
+            postContentSnippet: result.postContentSnippet,
+            subreddit: result.subreddit || "entrepreneur",
             relevanceScore: result.relevanceScore || 85,
-            originalData: result // Store original data for comment length switching
+            reasoning: result.reasoning || "",
+            microComment: result.microComment || "",
+            mediumComment: result.mediumComment || "",
+            verboseComment: result.verboseComment || "",
+            status: result.status || "new",
+            selectedLength: result.selectedLength || "medium",
+            timeAgo: getTimeAgo(result.createdAt),
+            originalData: result as SerializedGeneratedCommentDocument
           })
         )
         setLeads(transformedLeads)
@@ -404,7 +479,15 @@ export default function LeadFinderDashboard() {
   const getTimeAgo = (timestamp: any): string => {
     // Simple time ago calculation
     const now = Date.now()
-    const diff = now - (timestamp?.seconds * 1000 || now - 7200000) // Default to 2h ago
+    let then: number;
+    if (typeof timestamp === 'string') {
+      then = new Date(timestamp).getTime();
+    } else if (timestamp && typeof timestamp.seconds === 'number') { // Firestore Timestamp like
+      then = timestamp.seconds * 1000;
+    } else {
+      then = now - 7200000; // Default to 2h ago if invalid
+    }
+    const diff = now - then
     const hours = Math.floor(diff / (1000 * 60 * 60))
 
     if (hours < 1) return "Just now"
@@ -519,6 +602,20 @@ export default function LeadFinderDashboard() {
     </div>
   )
 
+  // Function to determine which comment to display based on selected length
+  const getDisplayComment = (lead: LeadResult): string => {
+    if (!lead.originalData) return lead.mediumComment; // Fallback
+    switch (lead.selectedLength) {
+      case "micro":
+        return lead.originalData.microComment;
+      case "verbose":
+        return lead.originalData.verboseComment;
+      case "medium":
+      default:
+        return lead.originalData.mediumComment;
+    }
+  };
+
   return (
     <div className="flex h-full">
       {/* Main Content */}
@@ -579,14 +676,14 @@ export default function LeadFinderDashboard() {
                       <div className="flex items-center gap-2">
                         <Avatar className="size-6">
                           <AvatarFallback className="text-xs">
-                            {lead.author.substring(0, 2).toUpperCase()}
+                            {lead.postAuthor.substring(0, 2).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
                         <span className="text-sm font-medium dark:text-gray-100">
-                          {lead.author}
+                          {lead.postAuthor}
                         </span>
                         <span className="text-sm text-gray-500 dark:text-gray-400">
-                          @{lead.author}
+                          @{lead.postAuthor}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
@@ -600,19 +697,15 @@ export default function LeadFinderDashboard() {
                     {/* Post Content */}
                     <div className="space-y-2">
                       <h3 className="text-sm font-medium dark:text-gray-100">
-                        {lead.title}
+                        {lead.postTitle}
                       </h3>
                       <p className="line-clamp-3 text-sm text-gray-600 dark:text-gray-400">
-                        {lead.content}
+                        {lead.postContentSnippet}
                       </p>
                       <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
                         <span className="flex items-center gap-1">
                           <ThumbsUp className="size-3" />
-                          {lead.score}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <MessageSquare className="size-3" />
-                          {lead.comments}
+                          {lead.relevanceScore}
                         </span>
                         <span className="flex items-center gap-1">
                           <Clock className="size-3" />
@@ -635,7 +728,7 @@ export default function LeadFinderDashboard() {
                             variant="ghost"
                             size="sm"
                             onClick={() =>
-                              copyToClipboard(lead.generatedComment)
+                              copyToClipboard(getDisplayComment(lead))
                             }
                           >
                             Add to drafts
@@ -643,15 +736,15 @@ export default function LeadFinderDashboard() {
                         </div>
                       </div>
                       <p className="rounded-md bg-gray-50 p-3 text-sm dark:bg-gray-800 dark:text-gray-200">
-                        {lead.generatedComment}
+                        {getDisplayComment(lead)}
                       </p>
                       <div className="flex items-center justify-between">
                         <span className="text-xs capitalize text-gray-500 dark:text-gray-400">
-                          {lead.commentLength} length
+                          {lead.selectedLength} length
                         </span>
                         <Button variant="ghost" size="sm" asChild>
                           <a
-                            href={lead.url}
+                            href={lead.postUrl}
                             target="_blank"
                             rel="noopener noreferrer"
                           >
