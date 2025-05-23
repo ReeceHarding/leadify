@@ -85,6 +85,8 @@ export interface SerializedGeneratedCommentDocument {
   used: boolean
   createdAt: string
   updatedAt: string
+  postScore?: number
+  keyword?: string
 }
 
 // Serialization helper functions
@@ -271,18 +273,106 @@ export async function createGeneratedCommentAction(
   }
 }
 
+export async function updateGeneratedCommentAction(
+  id: string,
+  data: {
+    microComment?: string
+    mediumComment?: string
+    verboseComment?: string
+    status?: "new" | "viewed" | "approved" | "rejected" | "used"
+    selectedLength?: "micro" | "medium" | "verbose"
+    approved?: boolean
+    used?: boolean
+  }
+): Promise<ActionState<GeneratedCommentDocument>> {
+  try {
+    console.log(`📝 [LEAD-GEN] Updating generated comment ${id}`)
+    
+    const commentRef = doc(db, LEAD_COLLECTIONS.GENERATED_COMMENTS, id)
+    
+    const updateData = {
+      ...data,
+      updatedAt: serverTimestamp()
+    }
+
+    await updateDoc(commentRef, removeUndefinedValues(updateData))
+    
+    const updatedDoc = await getDoc(commentRef)
+    if (!updatedDoc.exists()) {
+      return {
+        isSuccess: false,
+        message: "Comment not found after update"
+      }
+    }
+    
+    console.log(`✅ [LEAD-GEN] Successfully updated comment ${id}`)
+    
+    return {
+      isSuccess: true,
+      message: "Generated comment updated successfully",
+      data: updatedDoc.data() as GeneratedCommentDocument
+    }
+  } catch (error) {
+    console.error("Error updating generated comment:", error)
+    return { isSuccess: false, message: "Failed to update generated comment" }
+  }
+}
+
 export async function getGeneratedCommentsByCampaignAction(
   campaignId: string
 ): Promise<ActionState<SerializedGeneratedCommentDocument[]>> {
   try {
+    console.log(`📖 [LEAD-GEN] Fetching generated comments for campaign ${campaignId}`)
+    
+    // Fetch generated comments
     const commentsRef = collection(db, LEAD_COLLECTIONS.GENERATED_COMMENTS)
     const q = query(commentsRef, where("campaignId", "==", campaignId))
     const querySnapshot = await getDocs(q)
 
+    // Fetch Reddit threads for this campaign to get scores
+    const threadsRef = collection(db, LEAD_COLLECTIONS.REDDIT_THREADS)
+    const threadsQuery = query(threadsRef, where("campaignId", "==", campaignId))
+    const threadsSnapshot = await getDocs(threadsQuery)
+    
+    // Create a map of thread ID to thread data for quick lookup
+    const threadMap = new Map<string, RedditThreadDocument>()
+    threadsSnapshot.docs.forEach(doc => {
+      const thread = doc.data() as RedditThreadDocument
+      threadMap.set(doc.id, thread)
+    })
+    
+    // Fetch search results to get keywords
+    const searchResultsRef = collection(db, LEAD_COLLECTIONS.SEARCH_RESULTS)
+    const searchQuery = query(searchResultsRef, where("campaignId", "==", campaignId))
+    const searchSnapshot = await getDocs(searchQuery)
+    
+    // Create a map of thread URL to keyword for lookup
+    const keywordMap = new Map<string, string>()
+    searchSnapshot.docs.forEach(doc => {
+      const searchResult = doc.data() as SearchResultDocument
+      keywordMap.set(searchResult.redditUrl, searchResult.keyword)
+    })
+
     const comments = querySnapshot.docs.map(doc => {
       const rawComment = doc.data() as GeneratedCommentDocument
-      return serializeGeneratedCommentDocument(rawComment)
+      const serializedComment = serializeGeneratedCommentDocument(rawComment)
+      
+      // Add Reddit thread score if available
+      const thread = threadMap.get(rawComment.redditThreadId)
+      if (thread) {
+        serializedComment.postScore = thread.score
+        
+        // Try to get keyword from the thread URL
+        const keyword = keywordMap.get(thread.url)
+        if (keyword) {
+          serializedComment.keyword = keyword
+        }
+      }
+      
+      return serializedComment
     })
+    
+    console.log(`✅ [LEAD-GEN] Found ${comments.length} comments with enriched data`)
 
     return {
       isSuccess: true,

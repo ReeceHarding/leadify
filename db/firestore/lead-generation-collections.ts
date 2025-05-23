@@ -150,7 +150,7 @@ export interface CreateGeneratedCommentData {
   redditThreadId: string
   threadId: string
   postUrl: string
-  postTitle:string
+  postTitle: string
   postAuthor: string
   postContentSnippet: string
   relevanceScore: number

@@ -39,9 +39,9 @@ export async function scoreThreadAndGenerateThreeTierCommentsAction(
       `🤖 Critically scoring thread and generating 3-tier comments for: "${threadTitle.slice(0, 50)}..."`
     )
 
-    const prompt = `You are an extremely critical expert at analyzing Reddit threads for authentic lead generation opportunities.
+    const prompt = `You are a genuine Reddit user who has personally dealt with the problem being discussed and has tried many solutions. You want to help others by sharing what worked for you.
 
-COMPANY CONTEXT (Gauntlet AI from website):
+COMPANY CONTEXT (Your current solution - Gauntlet AI):
 ${websiteContent.slice(0, 2000)}
 
 REDDIT THREAD:
@@ -51,30 +51,45 @@ Content: ${threadContent.slice(0, 2000)}
 
 CRITICAL SCORING (1-100) - BE HARSH:
 - 90-100: Thread directly asks for exactly what Gauntlet AI offers (rare)
-- 70-89: Thread problem strongly aligns, CEO input would be genuinely valuable
+- 70-89: Thread problem strongly aligns, your experience would be genuinely valuable
 - 50-69: Some relevance but would feel forced or salesy to comment
 - 30-49: Weak connection, commenting would be obvious self-promotion  
 - 1-29: No relevant connection, would be spam to comment
 
 GENERATE 3 COMMENT LENGTH OPTIONS (only for scores 70+, authentic, helpful, non-salesy):
 
-IF SCORE IS 70+, GENERATE ALL THREE:
-1. MICRO COMMENT: Ultra-brief helpful advice (5-15 words)
-2. MEDIUM COMMENT: Balanced response with good detail (30-80 words)  
-3. VERBOSE COMMENT: Comprehensive, valuable advice (100-200 words)
+IF SCORE IS 70+, GENERATE ALL THREE in this natural format:
+1. MICRO COMMENT: Ultra-brief helpful tip based on your experience (5-15 words)
+2. MEDIUM COMMENT: Share your experience trying different solutions:
+   - Start with empathy ("I've been there..." or "I struggled with this too...")
+   - Mention a free option you tried (what worked/didn't work)
+   - Mention Gauntlet AI as the medium option that worked for you (be specific about why)
+   - Mention a premium/enterprise alternative for completeness
+   - End with encouragement or offer to help
+   (30-80 words total, conversational tone)
+3. VERBOSE COMMENT: Comprehensive advice sharing your full journey:
+   - Open with strong empathy and understanding
+   - Detail your struggle with the problem
+   - List solutions you tried with honest pros/cons:
+     * Free option (GitHub tools, open source, etc.)
+     * Gauntlet AI (what specifically helped you)
+     * Premium option (for those with bigger budgets)
+   - Share specific results or improvements you saw
+   - Offer to answer questions or share more details
+   (100-200 words, genuinely helpful tone)
 
-IF SCORE IS BELOW 70, GENERATE ONLY:
+IF SCORE IS BELOW 70:
 1. MICRO COMMENT: Generic brief advice (5-15 words)
 2. MEDIUM COMMENT: "Not recommended - low relevance score"
 3. VERBOSE COMMENT: "Not recommended - low relevance score"
 
-ALL COMMENTS MUST BE:
-- Sound authentic and genuinely helpful
-- Reddit-appropriate (casual, not corporate)
-- Never pushy or salesy
-- Provide real value with natural mention of CEO experience
-- For 70+ scores: Naturally weave in Gauntlet AI as ONE option among others
-- For <70 scores: Keep generic, no company mention
+CRITICAL RULES:
+- Write like a real person sharing their experience, not a salesperson
+- Never use marketing language or superlatives
+- Be honest about pros/cons of each option
+- Focus on being helpful first, mentioning products second
+- Use Reddit-appropriate casual language
+- Never pressure or push any specific solution
 
 PRIORITIZE AUTHENTICITY AND VALUE. Most threads should score 30-60 unless they're perfect matches.`
 
@@ -280,4 +295,109 @@ export async function batchScoreThreadsAction(
   }
 
   return result as any
+}
+
+export async function regenerateCommentsWithToneAction(
+  threadTitle: string,
+  threadContent: string,
+  subreddit: string,
+  websiteContent: string,
+  toneInstruction: string
+): Promise<ActionState<ThreeTierCommentResult>> {
+  try {
+    console.log(
+      `🤖 Regenerating comments with custom tone for: "${threadTitle.slice(0, 50)}..."`
+    )
+    console.log(`🎨 Tone instruction: ${toneInstruction}`)
+
+    const prompt = `You are a genuine Reddit user who has personally dealt with the problem being discussed and has tried many solutions. You want to help others by sharing what worked for you.
+
+IMPORTANT TONE INSTRUCTION FROM USER: ${toneInstruction}
+
+COMPANY CONTEXT (Your current solution - Gauntlet AI):
+${websiteContent.slice(0, 2000)}
+
+REDDIT THREAD:
+Subreddit: r/${subreddit}
+Title: ${threadTitle}
+Content: ${threadContent.slice(0, 2000)}
+
+CRITICAL SCORING (1-100) - BE HARSH:
+- 90-100: Thread directly asks for exactly what Gauntlet AI offers (rare)
+- 70-89: Thread problem strongly aligns, your experience would be genuinely valuable
+- 50-69: Some relevance but would feel forced or salesy to comment
+- 30-49: Weak connection, commenting would be obvious self-promotion  
+- 1-29: No relevant connection, would be spam to comment
+
+GENERATE 3 COMMENT LENGTH OPTIONS following the TONE INSTRUCTION above:
+
+IF SCORE IS 70+, GENERATE ALL THREE in this natural format:
+1. MICRO COMMENT: Ultra-brief helpful tip based on your experience (5-15 words)
+2. MEDIUM COMMENT: Share your experience trying different solutions:
+   - Start with empathy ("I've been there..." or "I struggled with this too...")
+   - Mention a free option you tried (what worked/didn't work)
+   - Mention Gauntlet AI as the medium option that worked for you (be specific about why)
+   - Mention a premium/enterprise alternative for completeness
+   - End with encouragement or offer to help
+   (30-80 words total, conversational tone)
+3. VERBOSE COMMENT: Comprehensive advice sharing your full journey:
+   - Open with strong empathy and understanding
+   - Detail your struggle with the problem
+   - List solutions you tried with honest pros/cons:
+     * Free option (GitHub tools, open source, etc.)
+     * Gauntlet AI (what specifically helped you)
+     * Premium option (for those with bigger budgets)
+   - Share specific results or improvements you saw
+   - Offer to answer questions or share more details
+   (100-200 words, genuinely helpful tone)
+
+IF SCORE IS BELOW 70:
+1. MICRO COMMENT: Generic brief advice (5-15 words)
+2. MEDIUM COMMENT: "Not recommended - low relevance score"
+3. VERBOSE COMMENT: "Not recommended - low relevance score"
+
+CRITICAL RULES:
+- FOLLOW THE TONE INSTRUCTION PROVIDED
+- Write like a real person sharing their experience, not a salesperson
+- Never use marketing language or superlatives
+- Be honest about pros/cons of each option
+- Focus on being helpful first, mentioning products second
+- Use Reddit-appropriate casual language
+- Never pressure or push any specific solution
+
+PRIORITIZE AUTHENTICITY AND VALUE. Most threads should score 30-60 unless they're perfect matches.`
+
+    const { object } = await generateObject({
+      model: openai("o3-mini"),
+      schema: ThreadAnalysisSchema,
+      prompt,
+      providerOptions: {
+        openai: { reasoningEffort: "medium" }
+      }
+    })
+
+    const result: ThreeTierCommentResult = {
+      score: Math.max(1, Math.min(100, object.score)),
+      reasoning: object.reasoning,
+      microComment: object.microComment,
+      mediumComment: object.mediumComment,
+      verboseComment: object.verboseComment
+    }
+
+    console.log(
+      `✅ Comments regenerated with custom tone: ${result.score}/100`
+    )
+
+    return {
+      isSuccess: true,
+      message: "Comments regenerated with custom tone successfully",
+      data: result
+    }
+  } catch (error) {
+    console.error("Error regenerating comments with tone:", error)
+    return {
+      isSuccess: false,
+      message: `Failed to regenerate comments: ${error instanceof Error ? error.message : "Unknown error"}`
+    }
+  }
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import React, { useState, useEffect, useMemo } from "react"
 import {
   Plus,
   Search,
@@ -18,7 +18,13 @@ import {
   Calendar,
   ThumbsUp,
   Sparkles,
-  Loader2
+  Loader2,
+  Filter,
+  ArrowUpDown,
+  Hash,
+  Edit2,
+  PlusCircle,
+  RefreshCw
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -41,15 +47,34 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { toast } from "sonner"
 import CreateCampaignDialog from "./create-campaign-dialog"
 import CampaignsList from "./campaigns-list"
+import PostDetailPopup from "./post-detail-popup"
+import CommentEditor from "./comment-editor"
+import AnimatedCopyButton from "./animated-copy-button"
 import { runFullLeadGenerationWorkflowAction } from "@/actions/lead-generation/workflow-actions"
-import { getGeneratedCommentsByCampaignAction } from "@/actions/db/lead-generation-actions"
+import { 
+  getGeneratedCommentsByCampaignAction,
+  updateGeneratedCommentAction
+} from "@/actions/db/lead-generation-actions"
 import {
   createCampaignAction,
-  getCampaignsByUserIdAction
+  getCampaignsByUserIdAction,
+  getCampaignByIdAction
 } from "@/actions/db/campaign-actions"
 import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
+import { regenerateCommentsWithToneAction } from "@/actions/integrations/openai-actions"
 import { useUser } from "@clerk/nextjs"
 import { db } from "@/db/db"
 import {
@@ -80,6 +105,8 @@ interface LeadResult {
   selectedLength: "micro" | "medium" | "verbose"
   timeAgo: string
   originalData?: SerializedGeneratedCommentDocument
+  postScore?: number
+  keyword?: string
 }
 
 interface WorkflowProgress {
@@ -89,6 +116,8 @@ interface WorkflowProgress {
   isLoading: boolean
   error?: string
 }
+
+const ITEMS_PER_PAGE = 10
 
 export default function LeadFinderDashboard() {
   const { user } = useUser()
@@ -104,6 +133,17 @@ export default function LeadFinderDashboard() {
     isLoading: false
   })
   const [campaignId, setCampaignId] = useState<string | null>(null)
+  
+  // New state variables
+  const [currentPage, setCurrentPage] = useState(1)
+  const [sortBy, setSortBy] = useState<"relevance" | "upvotes" | "time">("relevance")
+  const [filterKeyword, setFilterKeyword] = useState<string>("")
+  const [filterScore, setFilterScore] = useState<number>(0)
+  const [selectedPost, setSelectedPost] = useState<LeadResult | null>(null)
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null)
+  const [toneInstruction, setToneInstruction] = useState("")
+  const [regeneratingId, setRegeneratingId] = useState<string | null>(null)
+  const [websiteContent, setWebsiteContent] = useState<string>("")
 
   // Get keywords from profile and start real workflow
   useEffect(() => {
@@ -230,19 +270,19 @@ export default function LeadFinderDashboard() {
             mediumComment: data.mediumComment,
             verboseComment: data.verboseComment,
             status: data.status,
-            selectedLength: selectedLength, // Use current dashboard selection
-            timeAgo: getTimeAgo(data.createdAt), // Make sure getTimeAgo handles string ISO date
-            originalData: data 
+            selectedLength: data.selectedLength || selectedLength,
+            timeAgo: getTimeAgo(data.createdAt),
+            originalData: data,
+            postScore: data.postScore,
+            keyword: data.keyword
           }
         })
         setLeads(fetchedLeads)
         setWorkflowProgress((prev: any) => ({
           ...prev,
           isLoading: false,
-          // Optionally update a message like "Results loaded" or clear error
         }))
         if (fetchedLeads.length === 0 && !workflowProgress.isLoading) {
-            // This condition might need refinement based on workflow state
             console.log("🔥 No leads found in snapshot, workflow might be running or no results yet.")
         }
       },
@@ -261,7 +301,25 @@ export default function LeadFinderDashboard() {
       console.log(`🔥 Unsubscribing from real-time listener for campaign: ${campaignId}`)
       unsubscribe()
     }
-  }, [campaignId, selectedLength]) // Added selectedLength to re-map leads if it changes
+  }, [campaignId, selectedLength])
+
+  // Load website content when campaign is set
+  useEffect(() => {
+    const loadWebsiteContent = async () => {
+      if (!campaignId) return
+      
+      try {
+        const campaignResult = await getCampaignByIdAction(campaignId)
+        if (campaignResult.isSuccess && campaignResult.data.websiteContent) {
+          setWebsiteContent(campaignResult.data.websiteContent)
+        }
+      } catch (error) {
+        console.error("Error loading website content:", error)
+      }
+    }
+    
+    loadWebsiteContent()
+  }, [campaignId])
 
   const startRealLeadGeneration = async (keywords: string[]) => {
     if (!user?.id) {
@@ -455,7 +513,9 @@ export default function LeadFinderDashboard() {
             status: result.status || "new",
             selectedLength: result.selectedLength || "medium",
             timeAgo: getTimeAgo(result.createdAt),
-            originalData: result as SerializedGeneratedCommentDocument
+            originalData: result as SerializedGeneratedCommentDocument,
+            postScore: result.postScore,
+            keyword: result.keyword
           })
         )
         setLeads(transformedLeads)
@@ -495,10 +555,142 @@ export default function LeadFinderDashboard() {
     return `${Math.floor(hours / 24)}d`
   }
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-    // You could add a toast notification here
+  // Function to determine which comment to display based on selected length
+  const getDisplayComment = (lead: LeadResult): string => {
+    switch (lead.selectedLength || selectedLength) {
+      case "micro":
+        return lead.microComment;
+      case "verbose":
+        return lead.verboseComment;
+      case "medium":
+      default:
+        return lead.mediumComment;
+    }
+  };
+
+  // Handle comment editing
+  const handleCommentEdit = async (leadId: string, newComment: string) => {
+    const lead = leads.find(l => l.id === leadId)
+    if (!lead) return
+
+    const updateData: any = {}
+    const currentLength = lead.selectedLength || selectedLength
+    
+    switch (currentLength) {
+      case "micro":
+        updateData.microComment = newComment
+        break
+      case "verbose":
+        updateData.verboseComment = newComment
+        break
+      case "medium":
+      default:
+        updateData.mediumComment = newComment
+    }
+
+    const result = await updateGeneratedCommentAction(leadId, updateData)
+    
+    if (result.isSuccess) {
+      toast.success("Comment updated successfully")
+      setEditingCommentId(null)
+    } else {
+      toast.error("Failed to update comment")
+    }
   }
+
+  // Handle adding to queue
+  const handleAddToQueue = async (lead: LeadResult) => {
+    const result = await updateGeneratedCommentAction(lead.id, {
+      status: "approved",
+      selectedLength: lead.selectedLength || selectedLength
+    })
+    
+    if (result.isSuccess) {
+      toast.success("Added to posting queue")
+    } else {
+      toast.error("Failed to add to queue")
+    }
+  }
+
+  // Handle tone regeneration for all comments
+  const handleToneRegeneration = async () => {
+    if (!toneInstruction.trim() || !websiteContent) {
+      toast.error("Please enter tone instructions")
+      return
+    }
+
+    setRegeneratingId("all")
+    
+    try {
+      // Regenerate comments for each lead
+      for (const lead of leads) {
+        const result = await regenerateCommentsWithToneAction(
+          lead.postTitle,
+          lead.postContentSnippet,
+          lead.subreddit,
+          websiteContent,
+          toneInstruction
+        )
+        
+        if (result.isSuccess) {
+          await updateGeneratedCommentAction(lead.id, {
+            microComment: result.data.microComment,
+            mediumComment: result.data.mediumComment,
+            verboseComment: result.data.verboseComment
+          })
+        }
+      }
+      
+      toast.success("All comments regenerated with new tone")
+      setToneInstruction("")
+    } catch (error) {
+      toast.error("Failed to regenerate comments")
+    } finally {
+      setRegeneratingId(null)
+    }
+  }
+
+  // Filter and sort leads
+  const filteredAndSortedLeads = useMemo(() => {
+    let filtered = leads
+
+    // Filter by keyword
+    if (filterKeyword) {
+      filtered = filtered.filter(lead => 
+        lead.keyword?.toLowerCase().includes(filterKeyword.toLowerCase())
+      )
+    }
+
+    // Filter by minimum score
+    if (filterScore > 0) {
+      filtered = filtered.filter(lead => lead.relevanceScore >= filterScore)
+    }
+
+    // Sort
+    const sorted = [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case "relevance":
+          return b.relevanceScore - a.relevanceScore
+        case "upvotes":
+          return (b.postScore || 0) - (a.postScore || 0)
+        case "time":
+          // Assuming newer items have higher index in original array
+          return leads.indexOf(b) - leads.indexOf(a)
+        default:
+          return 0
+      }
+    })
+
+    return sorted
+  }, [leads, filterKeyword, filterScore, sortBy])
+
+  // Paginated leads
+  const paginatedLeads = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+    return filteredAndSortedLeads.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+  }, [filteredAndSortedLeads, currentPage])
+
+  const totalPages = Math.ceil(filteredAndSortedLeads.length / ITEMS_PER_PAGE)
 
   const renderLoadingSkeleton = () => (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -509,7 +701,6 @@ export default function LeadFinderDashboard() {
               <div className="flex items-center gap-2">
                 <Skeleton className="size-6 rounded-full" />
                 <Skeleton className="h-4 w-20" />
-                <Skeleton className="h-4 w-16" />
               </div>
               <Skeleton className="size-10" />
             </div>
@@ -602,20 +793,6 @@ export default function LeadFinderDashboard() {
     </div>
   )
 
-  // Function to determine which comment to display based on selected length
-  const getDisplayComment = (lead: LeadResult): string => {
-    if (!lead.originalData) return lead.mediumComment; // Fallback
-    switch (lead.selectedLength) {
-      case "micro":
-        return lead.originalData.microComment;
-      case "verbose":
-        return lead.originalData.verboseComment;
-      case "medium":
-      default:
-        return lead.originalData.mediumComment;
-    }
-  };
-
   return (
     <div className="flex h-full">
       {/* Main Content */}
@@ -660,106 +837,268 @@ export default function LeadFinderDashboard() {
             </div>
           </div>
 
+          {/* Tone Regeneration Box */}
+          {leads.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Regenerate All Comments</CardTitle>
+                <CardDescription>
+                  Adjust the tone of all generated comments
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="e.g., make the comments less salesy, more casual, more technical..."
+                    value={toneInstruction}
+                    onChange={(e) => setToneInstruction(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleToneRegeneration()
+                      }
+                    }}
+                  />
+                  <Button
+                    onClick={handleToneRegeneration}
+                    disabled={regeneratingId === "all" || !toneInstruction.trim()}
+                  >
+                    {regeneratingId === "all" ? (
+                      <Loader2 className="mr-2 size-4 animate-spin" />
+                    ) : (
+                      <RefreshCw className="mr-2 size-4" />
+                    )}
+                    Regenerate
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Filters and Sorting */}
+          {leads.length > 0 && (
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Filter className="size-4 text-gray-500" />
+                <Input
+                  placeholder="Filter by keyword..."
+                  value={filterKeyword}
+                  onChange={(e) => setFilterKeyword(e.target.value)}
+                  className="w-48"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-500">Min Score:</span>
+                <Input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={filterScore}
+                  onChange={(e) => setFilterScore(Number(e.target.value))}
+                  className="w-20"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <ArrowUpDown className="size-4 text-gray-500" />
+                <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="relevance">Relevance</SelectItem>
+                    <SelectItem value="upvotes">Upvotes</SelectItem>
+                    <SelectItem value="time">Time</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="ml-auto text-sm text-gray-500">
+                Showing {paginatedLeads.length} of {filteredAndSortedLeads.length} results
+              </div>
+            </div>
+          )}
+
           {/* Show progress or results */}
-          {workflowProgress.isLoading || leads.length === 0 ? (
+          {workflowProgress.isLoading || (leads.length === 0 && !workflowProgress.error) ? (
             renderWorkflowProgress()
           ) : (
-            /* Results Grid */
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-              {leads.map(lead => (
-                <Card
-                  key={lead.id}
-                  className="transition-shadow hover:shadow-md"
-                >
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-2">
-                        <Avatar className="size-6">
-                          <AvatarFallback className="text-xs">
-                            {lead.postAuthor.substring(0, 2).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="text-sm font-medium dark:text-gray-100">
-                          {lead.postAuthor}
-                        </span>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                          @{lead.postAuthor}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="icon">
-                          <Copy className="size-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {/* Post Content */}
-                    <div className="space-y-2">
-                      <h3 className="text-sm font-medium dark:text-gray-100">
-                        {lead.postTitle}
-                      </h3>
-                      <p className="line-clamp-3 text-sm text-gray-600 dark:text-gray-400">
-                        {lead.postContentSnippet}
-                      </p>
-                      <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
-                        <span className="flex items-center gap-1">
-                          <ThumbsUp className="size-3" />
-                          {lead.relevanceScore}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Clock className="size-3" />
-                          {lead.timeAgo}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Generated Comment */}
-                    <div className="space-y-2 border-t pt-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                          Generated Comment
-                        </span>
+            <>
+              {/* Results Grid */}
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                {paginatedLeads.map(lead => (
+                  <Card
+                    key={lead.id}
+                    className="cursor-pointer transition-shadow hover:shadow-md"
+                    onClick={() => setSelectedPost(lead)}
+                  >
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between">
                         <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="text-xs">
-                            Score: {lead.relevanceScore}
-                          </Badge>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() =>
-                              copyToClipboard(getDisplayComment(lead))
-                            }
+                          <Avatar className="size-6">
+                            <AvatarFallback className="text-xs">
+                              {lead.postAuthor.substring(0, 2).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="text-sm font-medium dark:text-gray-100">
+                            u/{lead.postAuthor}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                          <AnimatedCopyButton text={getDisplayComment(lead)} />
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {/* Post Content */}
+                      <div className="space-y-2">
+                        <h3 className="text-sm font-medium dark:text-gray-100">
+                          {lead.postTitle}
+                        </h3>
+                        <p className="line-clamp-3 text-sm text-gray-600 dark:text-gray-400">
+                          {lead.postContentSnippet}
+                        </p>
+                        <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+                          {lead.postScore !== undefined && (
+                            <span className="flex items-center gap-1">
+                              <ThumbsUp className="size-3" />
+                              {lead.postScore}
+                            </span>
+                          )}
+                          <span className="flex items-center gap-1">
+                            <Clock className="size-3" />
+                            {lead.timeAgo}
+                          </span>
+                          {lead.keyword && (
+                            <Badge variant="secondary" className="text-xs">
+                              <Hash className="mr-1 size-3" />
+                              {lead.keyword}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Generated Comment */}
+                      <div className="space-y-2 border-t pt-3" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            Generated Comment
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <Badge 
+                              variant={lead.relevanceScore >= 70 ? "default" : "secondary"} 
+                              className="text-xs"
+                            >
+                              Score: {lead.relevanceScore}
+                            </Badge>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleAddToQueue(lead)}
+                            >
+                              <PlusCircle className="mr-1 size-3" />
+                              Add to queue
+                            </Button>
+                          </div>
+                        </div>
+                        
+                        {editingCommentId === lead.id ? (
+                          <CommentEditor
+                            initialValue={getDisplayComment(lead)}
+                            onSave={(value) => handleCommentEdit(lead.id, value)}
+                            onCancel={() => setEditingCommentId(null)}
+                          />
+                        ) : (
+                          <div 
+                            className="group relative cursor-text rounded-md bg-gray-50 p-3 text-sm dark:bg-gray-800 dark:text-gray-200"
+                            onClick={() => setEditingCommentId(lead.id)}
                           >
-                            Add to drafts
+                            <p>{getDisplayComment(lead)}</p>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="absolute right-2 top-2 opacity-0 transition-opacity group-hover:opacity-100"
+                            >
+                              <Edit2 className="size-3" />
+                            </Button>
+                          </div>
+                        )}
+                        
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs capitalize text-gray-500 dark:text-gray-400">
+                            {lead.selectedLength || selectedLength} length
+                          </span>
+                          <Button variant="ghost" size="sm" asChild>
+                            <a
+                              href={lead.postUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <ExternalLink className="size-3" />
+                            </a>
                           </Button>
                         </div>
                       </div>
-                      <p className="rounded-md bg-gray-50 p-3 text-sm dark:bg-gray-800 dark:text-gray-200">
-                        {getDisplayComment(lead)}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs capitalize text-gray-500 dark:text-gray-400">
-                          {lead.selectedLength} length
-                        </span>
-                        <Button variant="ghost" size="sm" asChild>
-                          <a
-                            href={lead.postUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="mt-6 flex justify-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                  >
+                    Previous
+                  </Button>
+                  <div className="flex items-center gap-2">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter(page => {
+                        // Show first, last, current, and adjacent pages
+                        return page === 1 || 
+                               page === totalPages || 
+                               Math.abs(page - currentPage) <= 1
+                      })
+                      .map((page, index, array) => (
+                        <React.Fragment key={page}>
+                          {index > 0 && array[index - 1] !== page - 1 && (
+                            <span className="text-gray-400">...</span>
+                          )}
+                          <Button
+                            variant={page === currentPage ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setCurrentPage(page)}
                           >
-                            <ExternalLink className="size-3" />
-                          </a>
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                            {page}
+                          </Button>
+                        </React.Fragment>
+                      ))}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </Button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
+
+      {/* Post Detail Popup */}
+      {selectedPost && (
+        <PostDetailPopup
+          open={!!selectedPost}
+          onOpenChange={(open) => !open && setSelectedPost(null)}
+          lead={selectedPost}
+        />
+      )}
 
       {/* Create Campaign Dialog */}
       <CreateCampaignDialog
@@ -771,4 +1110,4 @@ export default function LeadFinderDashboard() {
       />
     </div>
   )
-}
+} 
