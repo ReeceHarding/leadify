@@ -2,7 +2,7 @@
 
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/sidebar/app-sidebar"
-import Header from "@/components/header"
+import RedditHeader from "@/components/reddit-header"
 
 export default async function RedditLayout({
   children
@@ -13,7 +13,7 @@ export default async function RedditLayout({
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <Header />
+        <RedditHeader />
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">{children}</div>
       </SidebarInset>
     </SidebarProvider>
