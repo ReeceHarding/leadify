@@ -44,7 +44,12 @@ import {
 import CreateCampaignDialog from "./create-campaign-dialog"
 import CampaignsList from "./campaigns-list"
 import { runFullLeadGenerationWorkflowAction } from "@/actions/lead-generation/workflow-actions"
-import { getGeneratedCommentsByCampaignAction } from "@/actions/db/lead-generation-actions"
+import {
+  getGeneratedCommentsByCampaignAction,
+  createCampaignAction
+} from "@/actions/db/lead-generation-actions"
+import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
+import { useUser } from "@clerk/nextjs"
 
 interface LeadResult {
   id: string
@@ -59,6 +64,7 @@ interface LeadResult {
   commentLength: "micro" | "medium" | "verbose"
   url: string
   relevanceScore: number
+  originalData?: any
 }
 
 interface WorkflowProgress {
@@ -70,6 +76,7 @@ interface WorkflowProgress {
 }
 
 export default function LeadFinderDashboard() {
+  const { user } = useUser()
   const [selectedLength, setSelectedLength] = useState<
     "micro" | "medium" | "verbose"
   >("medium")
@@ -83,39 +90,130 @@ export default function LeadFinderDashboard() {
   })
   const [campaignId, setCampaignId] = useState<string | null>(null)
 
-  // Get keywords from URL params
+  // Get keywords from URL params and start real workflow
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)
     const keywordsParam = urlParams.get("keywords")
 
-    if (keywordsParam) {
-      const keywords = JSON.parse(decodeURIComponent(keywordsParam))
-      if (keywords.length > 0) {
-        startLeadGeneration(keywords)
+    if (keywordsParam && user?.id) {
+      try {
+        const keywords = JSON.parse(decodeURIComponent(keywordsParam))
+        if (keywords.length > 0) {
+          startRealLeadGeneration(keywords)
+        }
+      } catch (error) {
+        console.error("Error parsing keywords:", error)
+        setWorkflowProgress({
+          currentStep: "Error occurred",
+          completedSteps: 0,
+          totalSteps: 6,
+          isLoading: false,
+          error: "Invalid keywords parameter"
+        })
       }
     }
-  }, [])
+  }, [user?.id])
 
-  const startLeadGeneration = async (keywords: string[]) => {
+  // Update leads when comment length selection changes
+  useEffect(() => {
+    if (leads.length > 0) {
+      const updatedLeads = leads.map(lead => ({
+        ...lead,
+        generatedComment: getCommentForLength(lead, selectedLength),
+        commentLength: selectedLength
+      }))
+      setLeads(updatedLeads)
+    }
+  }, [selectedLength])
+
+  const getCommentForLength = (
+    lead: any,
+    length: "micro" | "medium" | "verbose"
+  ) => {
+    // Handle both the original result data and transformed lead data
+    const result = lead.originalData || lead
+    return (
+      result[`${length}Comment`] || result.mediumComment || "Great insights!"
+    )
+  }
+
+  const startRealLeadGeneration = async (keywords: string[]) => {
+    if (!user?.id) {
+      setWorkflowProgress({
+        currentStep: "Error occurred",
+        completedSteps: 0,
+        totalSteps: 6,
+        isLoading: false,
+        error: "User not authenticated"
+      })
+      return
+    }
+
     try {
       setWorkflowProgress({
-        currentStep: "Starting lead generation workflow...",
+        currentStep: "Getting user profile...",
         completedSteps: 0,
         totalSteps: 6,
         isLoading: true
       })
 
-      // For now, we'll create a campaign with the keywords
-      // In a real implementation, this would come from the onboarding flow
-      const mockCampaignId = "campaign_" + Date.now()
-      setCampaignId(mockCampaignId)
+      // Step 1: Get real user profile data
+      const profileResult = await getProfileByUserIdAction(user.id)
+      if (!profileResult.isSuccess) {
+        throw new Error("Failed to get user profile")
+      }
 
-      // Start the workflow
-      const result = await runFullLeadGenerationWorkflowAction(mockCampaignId)
+      const profile = profileResult.data
+      if (!profile.website) {
+        throw new Error(
+          "User profile missing website - please complete onboarding"
+        )
+      }
 
-      if (result.isSuccess) {
-        // Fetch the results
-        await fetchResults(mockCampaignId)
+      setWorkflowProgress({
+        currentStep: "Creating campaign...",
+        completedSteps: 1,
+        totalSteps: 6,
+        isLoading: true
+      })
+
+      // Step 2: Create real campaign with user data
+      const campaignResult = await createCampaignAction({
+        userId: user.id,
+        name: `Lead Generation - ${new Date().toLocaleDateString()}`,
+        website: profile.website,
+        keywords: keywords
+      })
+
+      if (!campaignResult.isSuccess) {
+        throw new Error("Failed to create campaign")
+      }
+
+      const realCampaignId = campaignResult.data.id
+      setCampaignId(realCampaignId)
+
+      setWorkflowProgress({
+        currentStep: "Starting lead generation workflow...",
+        completedSteps: 2,
+        totalSteps: 6,
+        isLoading: true
+      })
+
+      // Step 3: Run the real workflow with the actual campaign
+      const workflowResult =
+        await runFullLeadGenerationWorkflowAction(realCampaignId)
+
+      if (workflowResult.isSuccess) {
+        setWorkflowProgress({
+          currentStep: "Loading results...",
+          completedSteps: 5,
+          totalSteps: 6,
+          isLoading: true
+        })
+
+        // Step 4: Fetch the real results
+        await fetchRealResults(realCampaignId)
+
         setWorkflowProgress({
           currentStep: "Complete!",
           completedSteps: 6,
@@ -123,13 +221,7 @@ export default function LeadFinderDashboard() {
           isLoading: false
         })
       } else {
-        setWorkflowProgress({
-          currentStep: "Error occurred",
-          completedSteps: 0,
-          totalSteps: 6,
-          isLoading: false,
-          error: result.message
-        })
+        throw new Error(workflowResult.message || "Workflow failed")
       }
     } catch (error) {
       console.error("Error in lead generation:", error)
@@ -138,39 +230,51 @@ export default function LeadFinderDashboard() {
         completedSteps: 0,
         totalSteps: 6,
         isLoading: false,
-        error: "Failed to start lead generation"
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to start lead generation"
       })
     }
   }
 
-  const fetchResults = async (campaignId: string) => {
+  const fetchRealResults = async (campaignId: string) => {
     try {
       const results = await getGeneratedCommentsByCampaignAction(campaignId)
-      if (results.isSuccess) {
-        // Transform the results into our display format
+      if (results.isSuccess && results.data.length > 0) {
+        // Transform the real results into our display format
         const transformedLeads: LeadResult[] = results.data.map(
           (result: any) => ({
             id: result.id,
             author: result.author || "unknown",
-            subreddit: result.subreddit || "entrepreneur",
-            title: result.title,
-            content: result.content,
-            score: result.relevanceScore || result.score || 85,
+            subreddit: `r/${result.subreddit || "entrepreneur"}`,
+            title: result.title || "Reddit Thread",
+            content: result.content || "No content available",
+            score: result.relevanceScore || 85,
             comments: result.numComments || 25,
             timeAgo: getTimeAgo(result.createdAt),
-            generatedComment:
-              result[`${selectedLength}Comment`] ||
-              result.mediumComment ||
-              "Great insights!",
+            generatedComment: getCommentForLength(result, selectedLength),
             commentLength: selectedLength,
             url: result.url || "#",
-            relevanceScore: result.relevanceScore || 85
+            relevanceScore: result.relevanceScore || 85,
+            originalData: result // Store original data for comment length switching
           })
         )
         setLeads(transformedLeads)
+      } else {
+        // If no results yet, show a message
+        setWorkflowProgress(prev => ({
+          ...prev,
+          error:
+            "No lead generation results found. The workflow may still be processing."
+        }))
       }
     } catch (error) {
       console.error("Error fetching results:", error)
+      setWorkflowProgress(prev => ({
+        ...prev,
+        error: "Failed to fetch results"
+      }))
     }
   }
 
