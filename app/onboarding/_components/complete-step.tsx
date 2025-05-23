@@ -73,21 +73,21 @@ export default function CompleteStep({
       transition={{ duration: 0.6, ease: "easeOut" }}
       className="space-y-6 text-center"
     >
-      <div className="space-y-3">
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-          className="text-4xl"
-        >
-          🎉
-        </motion.div>
+      <div className="space-y-4">
+        <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-gradient-to-r from-green-600 to-green-700">
+          <span className="text-2xl">🎉</span>
+        </div>
 
-        <h1 className="text-2xl font-bold text-white">Setup Complete!</h1>
+        <h1 className="text-3xl font-bold text-white">You're All Set!</h1>
 
-        <p className="mx-auto max-w-md text-sm leading-relaxed text-gray-400">
-          You're ready to find and engage with potential customers on Reddit.
+        <p className="mx-auto max-w-md text-base leading-relaxed text-gray-400">
+          Your Reddit lead generation system is ready. Let's create your first campaign and start finding customers who need exactly what you offer.
         </p>
+        <div className="mx-auto max-w-md rounded-lg border border-green-600/20 bg-green-600/5 p-3">
+          <p className="text-sm text-green-200">
+            ✨ <strong>What's next:</strong> We'll search Reddit for active discussions matching your keywords and help you engage authentically
+          </p>
+        </div>
       </div>
 
       {/* Professional Setup Summary */}
@@ -195,15 +195,15 @@ export default function CompleteStep({
         <Button
           onClick={handleComplete}
           disabled={isCompleting}
-          className="w-full rounded-lg bg-blue-600 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700"
+          className="w-full rounded-lg bg-green-600 py-4 text-lg font-semibold text-white transition-colors hover:bg-green-700"
         >
           {isCompleting ? (
             <>
-              <Loader2 className="mr-2 size-4 animate-spin" />
-              Setting up your campaign...
+              <Loader2 className="mr-2 size-5 animate-spin" />
+              Launching Your Lead Finder...
             </>
           ) : (
-            "Create My First Campaign"
+            "🚀 Start Finding Leads Now"
           )}
         </Button>
 

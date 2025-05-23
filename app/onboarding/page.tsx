@@ -590,15 +590,35 @@ export default function OnboardingPage() {
       </AnimatePresence>
 
       {/* Step Indicators */}
-      <div className="flex justify-center space-x-2">
-        {stepOrder.map((step, index) => (
-          <div
-            key={step}
-            className={`size-2 rounded-full transition-colors ${
-              index <= currentStepIndex ? "bg-blue-600" : "bg-gray-600"
-            }`}
-          />
-        ))}
+      <div className="flex flex-col items-center space-y-4">
+        <div className="flex justify-center space-x-2">
+          {stepOrder.map((step, index) => (
+            <div
+              key={step}
+              className={`size-3 rounded-full transition-colors ${
+                index <= currentStepIndex ? "bg-blue-600" : "bg-gray-600"
+              }`}
+            />
+          ))}
+        </div>
+        <div className="flex justify-center space-x-8 text-xs text-gray-500">
+          {[
+            "Profile", 
+            "Website", 
+            "Keywords", 
+            "Reddit", 
+            "Launch"
+          ].map((stepName, index) => (
+            <span
+              key={stepName}
+              className={`${
+                index <= currentStepIndex ? "text-blue-400" : "text-gray-600"
+              }`}
+            >
+              {stepName}
+            </span>
+          ))}
+        </div>
       </div>
     </div>
   )

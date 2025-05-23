@@ -75,11 +75,19 @@ export default function ProfileStep({
       transition={{ duration: 0.6, ease: "easeOut" }}
       className="space-y-8 text-center"
     >
-      <div className="space-y-3">
-        <h1 className="text-3xl font-bold text-white">Your Profile</h1>
+      <div className="space-y-4">
+        <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-blue-700">
+          <span className="text-2xl font-bold text-white">1</span>
+        </div>
+        <h1 className="text-3xl font-bold text-white">Set Up Your Profile</h1>
         <p className="text-base leading-relaxed text-gray-400">
-          Let's start by getting to know you a bit better.
+          First, let's create your professional profile. This helps us personalize your Reddit lead generation experience.
         </p>
+        <div className="mx-auto max-w-md rounded-lg border border-blue-600/20 bg-blue-600/5 p-3">
+          <p className="text-sm text-blue-200">
+            ⏱️ <strong>Takes 30 seconds</strong> • We'll use this to create authentic comments that sound like you
+          </p>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
@@ -113,7 +121,7 @@ export default function ProfileStep({
             </Button>
           </div>
           <p className="max-w-xs text-sm text-gray-400">
-            Click the circle or drop an image to it to upload your avatar.
+            <strong>Optional:</strong> Click the camera icon to upload your photo. This helps build trust when engaging with prospects.
           </p>
           <input
             ref={fileInputRef}
@@ -127,17 +135,20 @@ export default function ProfileStep({
         {/* Name Input */}
         <div className="space-y-3">
           <Label htmlFor="name" className="text-sm font-medium text-gray-300">
-            Name
+            What should we call you? <span className="text-red-400">*</span>
           </Label>
           <Input
             id="name"
             type="text"
             value={data.name}
             onChange={e => onUpdate({ name: e.target.value })}
-            placeholder="Your full name"
+            placeholder="Enter your full name (e.g., John Smith)"
             className="rounded-lg border-gray-600 bg-gray-900 py-3 text-center text-base text-white placeholder:text-gray-500"
             required
           />
+          <p className="text-xs text-gray-500">
+            This appears in your Reddit comments and helps establish credibility
+          </p>
         </div>
 
         {/* Continue Button */}

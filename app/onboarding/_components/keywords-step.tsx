@@ -173,17 +173,21 @@ export default function KeywordsStep({
       transition={{ duration: 0.6, ease: "easeOut" }}
       className="space-y-8 text-center"
     >
-      <div className="space-y-3">
+      <div className="space-y-4">
         <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-blue-700">
-          <Target className="size-8 text-white" />
+          <span className="text-2xl font-bold text-white">3</span>
         </div>
         <h1 className="text-3xl font-bold text-white">
-          Strategic Keyword Generation
+          Generate Your Keywords
         </h1>
         <p className="text-base leading-relaxed text-gray-400">
-          AI-powered analysis of your website to generate highly targeted Reddit
-          keywords for organic lead generation.
+          Our AI will analyze your website and create targeted Reddit search terms to find prospects who need exactly what you offer.
         </p>
+        <div className="mx-auto max-w-md rounded-lg border border-blue-600/20 bg-blue-600/5 p-3">
+          <p className="text-sm text-blue-200">
+            ⏱️ <strong>Takes 2-3 minutes</strong> • Uses o3-mini AI with Jeopardy strategy for high-value keywords
+          </p>
+        </div>
       </div>
 
       {!hasGenerated && (

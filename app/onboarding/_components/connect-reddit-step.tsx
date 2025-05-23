@@ -76,14 +76,21 @@ export default function ConnectRedditStep({
       transition={{ duration: 0.6, ease: "easeOut" }}
       className="space-y-8 text-center"
     >
-      <div className="space-y-3">
+      <div className="space-y-4">
+        <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-blue-700">
+          <span className="text-2xl font-bold text-white">4</span>
+        </div>
         <h1 className="text-3xl font-bold text-white">
-          Connect Your Reddit Account
+          Connect to Reddit
         </h1>
         <p className="text-base leading-relaxed text-gray-400">
-          Connect your Reddit account to help us understand your style and
-          voice.
+          Link your Reddit account so we can post and comment on your behalf when you find promising leads.
         </p>
+        <div className="mx-auto max-w-md rounded-lg border border-blue-600/20 bg-blue-600/5 p-3">
+          <p className="text-sm text-blue-200">
+            ⏱️ <strong>Takes 30 seconds</strong> • Secure OAuth connection • We only access posting permissions
+          </p>
+        </div>
       </div>
 
       {/* Connection Status */}
@@ -120,10 +127,17 @@ export default function ConnectRedditStep({
       {/* Connect Button */}
       {connectionStatus === "idle" && (
         <div className="space-y-6">
-          <p className="mx-auto max-w-md text-sm text-gray-400">
-            We need your Reddit account to create content that sounds just like
-            you. Don't worry, you can always update your Voice Profile later.
-          </p>
+          <div className="mx-auto max-w-md rounded-lg border border-amber-600/20 bg-amber-600/5 p-4">
+            <h3 className="mb-2 text-sm font-semibold text-amber-200">What we'll access:</h3>
+            <ul className="space-y-1 text-xs text-amber-200">
+              <li>• Post comments and replies on your behalf</li>
+              <li>• Read your comment history to match your tone</li>
+              <li>• Submit posts to relevant subreddits</li>
+            </ul>
+            <p className="mt-2 text-xs text-amber-300">
+              You control everything - we never post without your approval
+            </p>
+          </div>
 
           <div className="flex justify-center">
             <Button

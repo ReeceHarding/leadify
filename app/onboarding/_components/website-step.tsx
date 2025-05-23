@@ -94,35 +94,48 @@ export default function WebsiteStep({
       transition={{ duration: 0.6, ease: "easeOut" }}
       className="space-y-8 text-center"
     >
-      <div className="space-y-3">
-        <h1 className="text-3xl font-bold text-white">Your Brand Source</h1>
+      <div className="space-y-4">
+        <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-blue-700">
+          <span className="text-2xl font-bold text-white">2</span>
+        </div>
+        <h1 className="text-3xl font-bold text-white">Connect Your Website</h1>
         <p className="text-base leading-relaxed text-gray-400">
-          Let's add your website to help us understand your brand better. This
-          will be used as a reference for accurate content generation.
+          Add your business website so our AI can learn about your products, services, and unique value proposition.
         </p>
+        <div className="mx-auto max-w-md rounded-lg border border-blue-600/20 bg-blue-600/5 p-3">
+          <p className="text-sm text-blue-200">
+            ⏱️ <strong>Takes 1 minute</strong> • We'll analyze your website to understand what makes your business unique
+          </p>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Website Input */}
         <div className="space-y-3">
+          <Label htmlFor="website" className="text-sm font-medium text-gray-300">
+            What's your business website?
+          </Label>
           <div className="relative">
             <Input
               id="website"
               type="text"
               value={data.website}
               onChange={e => onUpdate({ website: e.target.value })}
-              placeholder="https://yourwebsite.com"
+              placeholder="Enter your website URL (e.g., https://mycompany.com)"
               className="rounded-lg border-gray-600 bg-gray-900 py-3 pl-12 text-center text-base text-white placeholder:text-gray-500"
             />
             <Globe className="absolute left-4 top-1/2 size-5 -translate-y-1/2 text-gray-500" />
           </div>
+          <p className="text-xs text-gray-500">
+            Our AI will study your website to understand your services, target market, and brand voice
+          </p>
         </div>
 
-        <p className="mx-auto max-w-md text-sm text-gray-400">
-          We'll analyze your website to create a knowledge base of key
-          information for your brand. Don't worry, you can always add or update
-          your knowledge base later in the app.
-        </p>
+        <div className="mx-auto max-w-md rounded-lg border border-amber-600/20 bg-amber-600/5 p-3">
+          <p className="text-sm text-amber-200">
+            💡 <strong>Why we need this:</strong> The AI creates personalized responses by understanding exactly what you offer and how you help customers.
+          </p>
+        </div>
 
         {/* Buttons */}
         <div className="flex flex-col space-y-3">

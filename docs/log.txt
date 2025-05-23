@@ -2955,3 +2955,36 @@
 [2025-05-23T19:07:03.280Z] NEXTJS_STDOUT: ✅ Reddit thread fetched: "Who’s the nicest artists you have ever met??" (17 chars)
 [2025-05-23T19:07:04.281Z] NEXTJS_STDOUT: 📖 Fetching Reddit thread: 17nw3q3 from r/guitarpedals
 [2025-05-23T19:07:05.547Z] NEXTJS_STDOUT: ✅ Reddit thread fetched: "Do you really need a pedalboard?" (241 chars)
+[2025-05-23T19:07:06.057Z] NEXTJS_STDOUT: ✓ Compiled in 234ms (3028 modules)
+[2025-05-23T19:07:06.548Z] NEXTJS_STDOUT: 📖 Fetching Reddit thread: 125y9bs from r/Sadhguru
+[2025-05-23T19:07:07.148Z] NEXTJS_STDOUT: ✅ Reddit thread fetched: "I started volunteering and I'm not totally comfortable with whats being asked by Isha - starting to question the organization" (1783 chars)
+[2025-05-23T19:07:08.149Z] NEXTJS_STDOUT: 📖 Fetching Reddit thread: 12dvqik from r/Antwerpen
+[2025-05-23T19:07:08.810Z] NEXTJS_STDOUT: ✅ Reddit thread fetched: "“I’m in Antwerp for a weekend and looking for …” megathread" (613 chars)
+[2025-05-23T19:07:09.811Z] NEXTJS_STDOUT: 📖 Fetching Reddit thread: 1biocbo from r/Vacations
+[2025-05-23T19:07:10.940Z] NEXTJS_STDOUT: ✅ Reddit thread fetched: "Stay Away from Monster Reservation Group" (1525 chars)
+[2025-05-23T19:07:11.940Z] NEXTJS_STDOUT: 📖 Fetching Reddit thread: 15ek96u from r/PuntaCana
+[2025-05-23T19:07:12.893Z] NEXTJS_STDOUT: ✅ Reddit thread fetched: "TIPPING IN DR RESORTS" (725 chars)
+[2025-05-23T19:07:13.894Z] NEXTJS_STDOUT: 📖 Fetching Reddit thread: 1ioomqc from r/femaletravels
+[2025-05-23T19:07:14.141Z] NEXTJS_STDOUT: ✅ Reddit thread fetched: "all inclusive resorts in dominican republic" (668 chars)
+[2025-05-23T19:07:15.142Z] NEXTJS_STDOUT: 📖 Fetching Reddit thread: 1jp5jnt from r/AllInclusiveResorts
+[2025-05-23T19:07:15.444Z] NEXTJS_STDOUT: ✅ Reddit thread fetched: "Dominican Republic All Inclusive Resort Suggestions!" (200 chars)
+[2025-05-23T19:07:16.445Z] NEXTJS_STDOUT: 📖 Fetching Reddit thread: 12f8npj from r/travel
+[2025-05-23T19:07:17.391Z] NEXTJS_STDOUT: ✅ Reddit thread fetched: "Are all-inclusive resorts worth it?" (129 chars)
+[2025-05-23T19:07:18.392Z] NEXTJS_STDOUT: 📖 Fetching Reddit thread: 1bg46p7 from r/AllInclusiveResorts
+[2025-05-23T19:07:18.830Z] NEXTJS_STDOUT: ✅ Reddit thread fetched: "What is the best all inclusive in the Dominican Republic? And why?!" (50 chars)
+[2025-05-23T19:07:19.831Z] NEXTJS_STDOUT: 📖 Fetching Reddit thread: 13kwv4k from r/solotravel
+[2025-05-23T19:07:20.653Z] NEXTJS_STDOUT: ✅ Reddit thread fetched: "Opinions on solo trips to all inclusive resorts?" (718 chars)
+[2025-05-23T19:07:21.655Z] NEXTJS_STDOUT: 📖 Fetching Reddit thread: 1jiyozo from r/AllInclusiveResorts
+[2025-05-23T19:07:21.996Z] NEXTJS_STDOUT: ✅ Reddit thread fetched: "All Inclusive Dominican Republic Suggestions." (475 chars)
+[2025-05-23T19:07:22.998Z] NEXTJS_STDOUT: 📖 Fetching Reddit thread: 1ils80h from r/AllInclusiveResorts
+[2025-05-23T19:07:23.228Z] NEXTJS_STDOUT: ✅ Reddit thread fetched: "All inclusive in the Dominican!" (311 chars)
+[2025-05-23T19:07:23.435Z] DEV_INTERRUPT: Development server interrupted by user (Ctrl+C)
+[2025-05-23T19:07:23.436Z] DEV_INTERRUPT: Development server interrupted by user (Ctrl+C)
+[2025-05-23T19:07:23.513Z] NEXTJS_STDOUT: [?25h
+[2025-05-23T19:07:23.522Z] NEXTJS_CLOSE: Next.js dev server stopped with exit code: 0
+[2025-05-23T19:11:40.307Z] ==================================================
+[2025-05-23T19:11:40.310Z] COMMAND STARTED: tsc --noEmit
+[2025-05-23T19:11:40.310Z] ==================================================
+[2025-05-23T19:11:42.102Z] ==================================================
+[2025-05-23T19:11:42.102Z] COMMAND FINISHED: tsc --noEmit (exit code: 0)
+[2025-05-23T19:11:42.102Z] ==================================================
