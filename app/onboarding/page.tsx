@@ -6,6 +6,13 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
+import {
+  ArrowRight,
+  CheckCircle,
+  Globe,
+  Target,
+  MessageCircle
+} from "lucide-react"
 import ProfileStep from "./_components/profile-step"
 import WebsiteStep from "./_components/website-step"
 import KeywordsStep from "./_components/keywords-step"
@@ -16,9 +23,16 @@ import {
   getProfileByUserIdAction
 } from "@/actions/db/profiles-actions"
 
-type OnboardingStep = "profile" | "website" | "keywords" | "reddit" | "complete"
+type OnboardingStep =
+  | "welcome"
+  | "profile"
+  | "website"
+  | "keywords"
+  | "reddit"
+  | "complete"
 
 const stepOrder: OnboardingStep[] = [
+  "welcome",
   "profile",
   "website",
   "keywords",
@@ -30,7 +44,7 @@ export default function OnboardingPage() {
   const { user } = useUser()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [currentStep, setCurrentStep] = useState<OnboardingStep>("profile")
+  const [currentStep, setCurrentStep] = useState<OnboardingStep>("welcome")
   const [onboardingData, setOnboardingData] = useState({
     name: "",
     profilePictureUrl: "",
@@ -40,6 +54,7 @@ export default function OnboardingPage() {
   })
   const [isLoading, setIsLoading] = useState(true)
   const [hasLoadedProfile, setHasLoadedProfile] = useState(false)
+  const [onboardingStarted, setOnboardingStarted] = useState(false)
 
   console.log("🔍 [ONBOARDING] Component initialized")
   console.log("🔍 [ONBOARDING] User ID:", user?.id)
@@ -48,6 +63,8 @@ export default function OnboardingPage() {
   console.log("🔍 [ONBOARDING] Initial onboardingData:", onboardingData)
   console.log("🔍 [ONBOARDING] isLoading:", isLoading)
   console.log("🔍 [ONBOARDING] hasLoadedProfile:", hasLoadedProfile)
+  console.log("🔍 [ONBOARDING] onboardingStarted:", onboardingStarted)
+  console.log("🔍 [ONBOARDING] currentStep:", currentStep)
 
   // Load existing profile data when user is available
   useEffect(() => {
@@ -74,10 +91,18 @@ export default function OnboardingPage() {
       try {
         const profileResult = await getProfileByUserIdAction(user.id)
         console.log("🔍 [ONBOARDING] Profile load result:", profileResult)
+        console.log(
+          "🔍 [ONBOARDING] Profile load success:",
+          profileResult.isSuccess
+        )
 
         if (profileResult.isSuccess && profileResult.data) {
           console.log("🔍 [ONBOARDING] Profile loaded successfully")
           console.log("🔍 [ONBOARDING] Profile data:", profileResult.data)
+          console.log(
+            "🔍 [ONBOARDING] Profile onboardingCompleted:",
+            profileResult.data.onboardingCompleted
+          )
           console.log(
             "🔍 [ONBOARDING] Profile keywords:",
             profileResult.data.keywords
@@ -85,6 +110,11 @@ export default function OnboardingPage() {
           console.log(
             "🔍 [ONBOARDING] Profile keywords length:",
             profileResult.data.keywords?.length || 0
+          )
+          console.log("🔍 [ONBOARDING] Profile name:", profileResult.data.name)
+          console.log(
+            "🔍 [ONBOARDING] Profile website:",
+            profileResult.data.website
           )
 
           // Update onboarding data with existing profile data
@@ -125,28 +155,77 @@ export default function OnboardingPage() {
             )
             router.push("/reddit/lead-finder")
             return
-          } else if (loadedData.keywords.length > 0) {
-            console.log(
-              "🔍 [ONBOARDING] Keywords exist, starting on reddit step"
-            )
-            setCurrentStep("reddit")
-          } else if (loadedData.website) {
-            console.log(
-              "🔍 [ONBOARDING] Website exists, starting on keywords step"
-            )
-            setCurrentStep("keywords")
-          } else if (loadedData.name) {
-            console.log("🔍 [ONBOARDING] Name exists, starting on website step")
-            setCurrentStep("website")
           } else {
-            console.log("🔍 [ONBOARDING] Starting from profile step")
-            setCurrentStep("profile")
+            // Check if user has started onboarding (has any data beyond defaults)
+            const hasStartedOnboarding =
+              (profileResult.data.name && profileResult.data.name !== "") ||
+              (profileResult.data.website &&
+                profileResult.data.website !== "") ||
+              (profileResult.data.keywords &&
+                profileResult.data.keywords.length > 0)
+
+            console.log(
+              "🔍 [ONBOARDING] Has started onboarding:",
+              hasStartedOnboarding
+            )
+            console.log(
+              "🔍 [ONBOARDING] Name exists:",
+              !!(profileResult.data.name && profileResult.data.name !== "")
+            )
+            console.log(
+              "🔍 [ONBOARDING] Website exists:",
+              !!(
+                profileResult.data.website && profileResult.data.website !== ""
+              )
+            )
+            console.log(
+              "🔍 [ONBOARDING] Keywords exist:",
+              !!(
+                profileResult.data.keywords &&
+                profileResult.data.keywords.length > 0
+              )
+            )
+
+            if (!hasStartedOnboarding) {
+              console.log(
+                "🔍 [ONBOARDING] User hasn't started onboarding, showing welcome screen"
+              )
+              setCurrentStep("welcome")
+              setOnboardingStarted(false)
+            } else {
+              console.log(
+                "🔍 [ONBOARDING] User has started onboarding, determining step"
+              )
+              setOnboardingStarted(true)
+              // Determine step based on completed data
+              if (loadedData.keywords.length > 0) {
+                console.log(
+                  "🔍 [ONBOARDING] Keywords exist, starting on reddit step"
+                )
+                setCurrentStep("reddit")
+              } else if (loadedData.website) {
+                console.log(
+                  "🔍 [ONBOARDING] Website exists, starting on keywords step"
+                )
+                setCurrentStep("keywords")
+              } else if (loadedData.name) {
+                console.log(
+                  "🔍 [ONBOARDING] Name exists, starting on website step"
+                )
+                setCurrentStep("website")
+              } else {
+                console.log("🔍 [ONBOARDING] Starting from profile step")
+                setCurrentStep("profile")
+              }
+            }
           }
         } else {
           console.log(
             "🔍 [ONBOARDING] No existing profile found or failed to load"
           )
-          console.log("🔍 [ONBOARDING] Setting default data from Clerk user")
+          console.log(
+            "🔍 [ONBOARDING] Setting default data from Clerk user and showing welcome"
+          )
           // Set default data from Clerk user
           setOnboardingData({
             name: user.fullName || "",
@@ -155,6 +234,8 @@ export default function OnboardingPage() {
             keywords: [],
             redditConnected: false
           })
+          setCurrentStep("welcome")
+          setOnboardingStarted(false)
         }
       } catch (error) {
         console.error("🔍 [ONBOARDING] Error loading profile:", error)
@@ -166,10 +247,17 @@ export default function OnboardingPage() {
           keywords: [],
           redditConnected: false
         })
+        setCurrentStep("welcome")
+        setOnboardingStarted(false)
       } finally {
         setIsLoading(false)
         setHasLoadedProfile(true)
         console.log("🔍 [ONBOARDING] Profile loading completed")
+        console.log("🔍 [ONBOARDING] Final currentStep:", currentStep)
+        console.log(
+          "🔍 [ONBOARDING] Final onboardingStarted:",
+          onboardingStarted
+        )
       }
     }
 
@@ -178,6 +266,9 @@ export default function OnboardingPage() {
 
   const currentStepIndex = stepOrder.indexOf(currentStep)
   const progress = ((currentStepIndex + 1) / stepOrder.length) * 100
+
+  console.log("🔍 [ONBOARDING] Current step index:", currentStepIndex)
+  console.log("🔍 [ONBOARDING] Progress:", progress)
 
   // Handle Reddit OAuth callback
   useEffect(() => {
@@ -228,6 +319,17 @@ export default function OnboardingPage() {
     }
   }, [searchParams])
 
+  const startOnboarding = () => {
+    console.log("🔍 [ONBOARDING] startOnboarding() called")
+    console.log("🔍 [ONBOARDING] Setting onboardingStarted to true")
+    console.log("🔍 [ONBOARDING] Moving to profile step")
+
+    setOnboardingStarted(true)
+    setCurrentStep("profile")
+
+    console.log("🔍 [ONBOARDING] Onboarding started successfully")
+  }
+
   const nextStep = () => {
     console.log("🔍 [ONBOARDING] nextStep() called")
     console.log("🔍 [ONBOARDING] Current step:", currentStep)
@@ -246,10 +348,15 @@ export default function OnboardingPage() {
     console.log("🔍 [ONBOARDING] Current step:", currentStep)
 
     const currentIndex = stepOrder.indexOf(currentStep)
-    if (currentIndex > 0) {
+    if (currentIndex > 1) {
+      // Changed from 0 to 1 to prevent going back to welcome
       const prevStepName = stepOrder[currentIndex - 1]
       console.log("🔍 [ONBOARDING] Moving to previous step:", prevStepName)
       setCurrentStep(prevStepName)
+    } else {
+      console.log(
+        "🔍 [ONBOARDING] Cannot go back further (at beginning of onboarding)"
+      )
     }
   }
 
@@ -361,6 +468,91 @@ export default function OnboardingPage() {
     }
   }
 
+  // Welcome screen component
+  const WelcomeStep = () => {
+    console.log("🔍 [ONBOARDING] Rendering WelcomeStep")
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="space-y-8 text-center"
+      >
+        <div className="space-y-4">
+          <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-purple-600">
+            <Target className="size-8 text-white" />
+          </div>
+          <h1 className="text-3xl font-bold text-white">Welcome to Leadify</h1>
+          <p className="text-lg leading-relaxed text-gray-400">
+            Let's set up your account to start finding high-quality leads on
+            Reddit. This will only take a few minutes.
+          </p>
+        </div>
+
+        <div className="grid gap-6 text-left">
+          <div className="flex items-start space-x-4">
+            <div className="mt-1 flex size-8 items-center justify-center rounded-full bg-gray-800">
+              <CheckCircle className="size-4 text-blue-500" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-white">Profile Setup</h3>
+              <p className="text-sm text-gray-400">
+                Add your name and profile picture to personalize your experience
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start space-x-4">
+            <div className="mt-1 flex size-8 items-center justify-center rounded-full bg-gray-800">
+              <Globe className="size-4 text-blue-500" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-white">Website Analysis</h3>
+              <p className="text-sm text-gray-400">
+                Connect your website so we can understand your business better
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start space-x-4">
+            <div className="mt-1 flex size-8 items-center justify-center rounded-full bg-gray-800">
+              <Target className="size-4 text-blue-500" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-white">Keyword Generation</h3>
+              <p className="text-sm text-gray-400">
+                AI-powered keyword generation to find your ideal customers
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start space-x-4">
+            <div className="mt-1 flex size-8 items-center justify-center rounded-full bg-gray-800">
+              <MessageCircle className="size-4 text-blue-500" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-white">Reddit Connection</h3>
+              <p className="text-sm text-gray-400">
+                Connect your Reddit account to start engaging with leads
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="pt-4">
+          <Button
+            onClick={startOnboarding}
+            className="w-full rounded-lg bg-blue-600 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700"
+          >
+            Start Onboarding
+            <ArrowRight className="ml-2 size-4" />
+          </Button>
+        </div>
+      </motion.div>
+    )
+  }
+
   const renderCurrentStep = () => {
     console.log(
       "🔍 [ONBOARDING] renderCurrentStep() called for step:",
@@ -380,6 +572,8 @@ export default function OnboardingPage() {
     )
 
     switch (currentStep) {
+      case "welcome":
+        return <WelcomeStep />
       case "profile":
         return (
           <ProfileStep
@@ -446,22 +640,29 @@ export default function OnboardingPage() {
   console.log("🔍 [ONBOARDING] Rendering main component")
   console.log("🔍 [ONBOARDING] Final render onboardingData:", onboardingData)
   console.log("🔍 [ONBOARDING] Final render keywords:", onboardingData.keywords)
+  console.log("🔍 [ONBOARDING] Final render currentStep:", currentStep)
+  console.log(
+    "🔍 [ONBOARDING] Final render onboardingStarted:",
+    onboardingStarted
+  )
 
   return (
     <div className="mx-auto w-full max-w-lg space-y-12">
-      {/* Progress Bar */}
-      <div className="space-y-3">
-        <div className="flex justify-between text-sm text-gray-400">
-          <span>Setup Progress</span>
-          <span>{Math.round(progress)}% Complete</span>
+      {/* Progress Bar - only show if onboarding has started */}
+      {onboardingStarted && currentStep !== "welcome" && (
+        <div className="space-y-3">
+          <div className="flex justify-between text-sm text-gray-400">
+            <span>Setup Progress</span>
+            <span>{Math.round(progress)}% Complete</span>
+          </div>
+          <div className="h-2 w-full rounded-full bg-gray-800">
+            <div
+              className="h-2 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
         </div>
-        <div className="h-2 w-full rounded-full bg-gray-800">
-          <div
-            className="h-2 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 transition-all duration-300"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      </div>
+      )}
 
       {/* Step Content */}
       <AnimatePresence mode="wait">
@@ -476,17 +677,24 @@ export default function OnboardingPage() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Step Indicators */}
-      <div className="flex justify-center space-x-2">
-        {stepOrder.map((step, index) => (
-          <div
-            key={step}
-            className={`size-2 rounded-full transition-colors ${
-              index <= currentStepIndex ? "bg-blue-600" : "bg-gray-600"
-            }`}
-          />
-        ))}
-      </div>
+      {/* Step Indicators - only show if onboarding has started */}
+      {onboardingStarted && currentStep !== "welcome" && (
+        <div className="flex justify-center space-x-2">
+          {stepOrder.slice(1).map(
+            (
+              step,
+              index // Skip welcome step in indicators
+            ) => (
+              <div
+                key={step}
+                className={`size-2 rounded-full transition-colors ${
+                  index + 1 <= currentStepIndex ? "bg-blue-600" : "bg-gray-600"
+                }`}
+              />
+            )
+          )}
+        </div>
+      )}
     </div>
   )
 }
