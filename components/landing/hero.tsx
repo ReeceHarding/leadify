@@ -9,7 +9,7 @@ This client component provides the hero section for the landing page.
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
-import { ChevronRight, Rocket } from "lucide-react"
+import { ChevronRight, Rocket, Search } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import posthog from "posthog-js"
@@ -29,19 +29,17 @@ export const HeroSection = () => {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="flex items-center justify-center"
       >
-        <Link href="https://github.com/mckaywrigley/mckays-app-template">
-          <AnimatedGradientText>
-            🚀 <hr className="mx-2 h-4 w-px shrink-0 bg-gray-300" />
-            <span
-              className={cn(
-                `animate-gradient inline bg-gradient-to-r from-[#ffaa40] via-[#9c40ff] to-[#ffaa40] bg-[length:var(--bg-size)_100%] bg-clip-text text-transparent`
-              )}
-            >
-              View Demo
-            </span>
-            <ChevronRight className="ml-1 size-3 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
-          </AnimatedGradientText>
-        </Link>
+        <AnimatedGradientText>
+          🎯 <hr className="mx-2 h-4 w-px shrink-0 bg-gray-300" />
+          <span
+            className={cn(
+              `animate-gradient inline bg-gradient-to-r from-[#ffaa40] via-[#9c40ff] to-[#ffaa40] bg-[length:var(--bg-size)_100%] bg-clip-text text-transparent`
+            )}
+          >
+            AI-Powered Lead Generation
+          </span>
+          <ChevronRight className="ml-1 size-3 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
+        </AnimatedGradientText>
       </motion.div>
 
       <motion.div
@@ -56,7 +54,7 @@ export const HeroSection = () => {
           transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
           className="text-balance text-6xl font-bold"
         >
-          Save time and start building.
+          Find leads on Reddit with AI
         </motion.div>
 
         <motion.div
@@ -65,8 +63,9 @@ export const HeroSection = () => {
           transition={{ duration: 0.6, delay: 0.6, ease: "easeOut" }}
           className="max-w-xl text-balance text-xl"
         >
-          Use Mckay's app template to save time and get started with your next
-          project.
+          Turn Reddit conversations into qualified leads. Our AI finds
+          high-quality opportunities and generates personalized responses that
+          convert.
         </motion.div>
 
         <motion.div
@@ -74,9 +73,9 @@ export const HeroSection = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
         >
-          <Link href="/dashboard" onClick={handleGetStartedClick}>
-            <Button className="bg-blue-500 text-lg hover:bg-blue-600">
-              <Rocket className="mr-2 size-5" />
+          <Link href="/onboarding" onClick={handleGetStartedClick}>
+            <Button className="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-3 text-lg hover:from-blue-700 hover:to-purple-700">
+              <Search className="mr-2 size-5" />
               Get Started &rarr;
             </Button>
           </Link>

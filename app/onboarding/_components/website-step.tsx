@@ -1,0 +1,169 @@
+"use client"
+
+import { useState } from "react"
+import { motion } from "framer-motion"
+import { ArrowLeft, Globe, Loader2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+
+interface WebsiteStepProps {
+  data: {
+    name: string
+    profilePictureUrl: string
+    website: string
+    keywords: string[]
+    redditConnected: boolean
+  }
+  onUpdate: (data: Partial<WebsiteStepProps["data"]>) => void
+  onNext: () => void
+  onPrevious: () => void
+}
+
+export default function WebsiteStep({
+  data,
+  onUpdate,
+  onNext,
+  onPrevious
+}: WebsiteStepProps) {
+  const [isValidating, setIsValidating] = useState(false)
+
+  const normalizeUrl = (url: string): string => {
+    if (!url) return ""
+
+    // Remove whitespace
+    url = url.trim()
+
+    // Add https:// if no protocol is specified
+    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+      url = "https://" + url
+    }
+
+    // Remove www. and add it back consistently
+    url = url.replace(/https?:\/\/(www\.)?/, "https://")
+
+    return url
+  }
+
+  const validateUrl = (url: string): boolean => {
+    try {
+      const normalized = normalizeUrl(url)
+      new URL(normalized)
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!data.website.trim()) {
+      onNext() // Allow skipping website
+      return
+    }
+
+    const normalizedUrl = normalizeUrl(data.website)
+
+    if (!validateUrl(normalizedUrl)) {
+      alert("Please enter a valid website URL")
+      return
+    }
+
+    setIsValidating(true)
+
+    // Update the website URL and proceed
+    onUpdate({ website: normalizedUrl })
+
+    // Simulate validation delay
+    setTimeout(() => {
+      setIsValidating(false)
+      onNext()
+    }, 1000)
+  }
+
+  const handleSkip = () => {
+    onUpdate({ website: "" })
+    onNext()
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="space-y-6 text-center"
+    >
+      <div className="space-y-4">
+        <h1 className="text-4xl font-bold text-gray-900">Your Brand Source</h1>
+        <p className="mx-auto max-w-lg text-lg text-gray-600">
+          Let's add your website to help us understand your brand better. This
+          will be used as a reference for accurate content generation.
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Website Input */}
+        <div className="space-y-2">
+          <div className="relative">
+            <Input
+              id="website"
+              type="text"
+              value={data.website}
+              onChange={e => onUpdate({ website: e.target.value })}
+              placeholder="https://yourwebsite.com"
+              className="py-3 pl-12 text-center text-lg"
+            />
+            <Globe className="absolute left-4 top-1/2 size-5 -translate-y-1/2 text-gray-400" />
+          </div>
+        </div>
+
+        <p className="mx-auto max-w-md text-sm text-gray-500">
+          We'll analyze your website to create a knowledge base of key
+          information for your brand. Don't worry, you can always add or update
+          your knowledge base later in the app.
+        </p>
+
+        {/* Buttons */}
+        <div className="flex flex-col space-y-3">
+          <Button
+            type="submit"
+            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 py-3 text-lg font-medium text-white hover:from-blue-700 hover:to-purple-700"
+            disabled={isValidating}
+          >
+            {isValidating ? (
+              <>
+                <Loader2 className="mr-2 size-4 animate-spin" />
+                Analyzing Website...
+              </>
+            ) : (
+              "Continue →"
+            )}
+          </Button>
+
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={handleSkip}
+            className="w-full text-gray-600 hover:text-gray-800"
+            disabled={isValidating}
+          >
+            Skip for now →
+          </Button>
+        </div>
+
+        {/* Back Button */}
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={onPrevious}
+          className="flex items-center text-gray-600 hover:text-gray-800"
+          disabled={isValidating}
+        >
+          <ArrowLeft className="mr-2 size-4" />
+          Back
+        </Button>
+      </form>
+    </motion.div>
+  )
+}

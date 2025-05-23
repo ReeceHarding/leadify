@@ -20,6 +20,13 @@ export interface ProfileDocument {
   membership: MembershipType
   stripeCustomerId?: string
   stripeSubscriptionId?: string
+
+  // Onboarding fields
+  name?: string
+  profilePictureUrl?: string
+  website?: string
+  onboardingCompleted?: boolean
+
   createdAt: Timestamp
   updatedAt: Timestamp
 }
@@ -30,6 +37,10 @@ export interface CreateProfileData {
   membership?: MembershipType
   stripeCustomerId?: string
   stripeSubscriptionId?: string
+  name?: string
+  profilePictureUrl?: string
+  website?: string
+  onboardingCompleted?: boolean
 }
 
 // Types for updating profiles (all optional except userId for identification)
@@ -37,5 +48,9 @@ export interface UpdateProfileData {
   membership?: MembershipType
   stripeCustomerId?: string
   stripeSubscriptionId?: string
+  name?: string
+  profilePictureUrl?: string
+  website?: string
+  onboardingCompleted?: boolean
   updatedAt?: Timestamp
 }

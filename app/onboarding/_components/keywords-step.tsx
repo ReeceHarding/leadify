@@ -1,0 +1,268 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { motion } from "framer-motion"
+import { ArrowLeft, Loader2, X, Plus, Wand2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { Textarea } from "@/components/ui/textarea"
+import { generateKeywordsAction } from "@/actions/lead-generation/keywords-actions"
+
+interface KeywordsStepProps {
+  data: {
+    name: string
+    profilePictureUrl: string
+    website: string
+    keywords: string[]
+    redditConnected: boolean
+  }
+  onUpdate: (data: Partial<KeywordsStepProps["data"]>) => void
+  onNext: () => void
+  onPrevious: () => void
+}
+
+export default function KeywordsStep({
+  data,
+  onUpdate,
+  onNext,
+  onPrevious
+}: KeywordsStepProps) {
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [newKeyword, setNewKeyword] = useState("")
+  const [refinementPrompt, setRefinementPrompt] = useState("")
+  const [hasGenerated, setHasGenerated] = useState(false)
+
+  // Auto-generate keywords when component mounts if website is provided
+  useEffect(() => {
+    if (data.website && !hasGenerated && data.keywords.length === 0) {
+      generateKeywords()
+    }
+  }, [data.website])
+
+  const generateKeywords = async (refinement?: string) => {
+    setIsGenerating(true)
+    try {
+      const result = await generateKeywordsAction({
+        website: data.website,
+        refinement: refinement || undefined
+      })
+
+      if (result.isSuccess) {
+        onUpdate({ keywords: result.data.keywords })
+        setHasGenerated(true)
+      }
+    } catch (error) {
+      console.error("Error generating keywords:", error)
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
+  const handleRefinement = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (refinementPrompt.trim()) {
+      await generateKeywords(refinementPrompt)
+      setRefinementPrompt("")
+    }
+  }
+
+  const addKeyword = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (newKeyword.trim() && !data.keywords.includes(newKeyword.trim())) {
+      onUpdate({ keywords: [...data.keywords, newKeyword.trim()] })
+      setNewKeyword("")
+    }
+  }
+
+  const removeKeyword = (keywordToRemove: string) => {
+    onUpdate({
+      keywords: data.keywords.filter(keyword => keyword !== keywordToRemove)
+    })
+  }
+
+  const editKeyword = (index: number, newValue: string) => {
+    const updatedKeywords = [...data.keywords]
+    updatedKeywords[index] = newValue
+    onUpdate({ keywords: updatedKeywords })
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (data.keywords.length > 0) {
+      onNext()
+    }
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="space-y-6 text-center"
+    >
+      <div className="space-y-4">
+        <h1 className="text-4xl font-bold text-gray-900">Target Keywords</h1>
+        <p className="mx-auto max-w-lg text-lg text-gray-600">
+          {data.website
+            ? "We've analyzed your website and generated relevant keywords that your potential customers might search for on Reddit."
+            : "Add keywords that your potential customers might search for on Reddit."}
+        </p>
+      </div>
+
+      {/* Loading State */}
+      {isGenerating && !hasGenerated && (
+        <div className="flex flex-col items-center space-y-4 py-8">
+          <Loader2 className="size-8 animate-spin text-blue-600" />
+          <p className="text-gray-600">
+            Analyzing your website and generating keywords...
+          </p>
+        </div>
+      )}
+
+      {/* Keywords Display */}
+      {(data.keywords.length > 0 || hasGenerated) && !isGenerating && (
+        <div className="space-y-6">
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900">
+              Generated Keywords
+            </h3>
+            <div className="flex flex-wrap justify-center gap-2">
+              {data.keywords.map((keyword, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <Badge
+                    variant="outline"
+                    className="group relative cursor-pointer px-3 py-1 text-sm"
+                  >
+                    <input
+                      type="text"
+                      value={keyword}
+                      onChange={e => editKeyword(index, e.target.value)}
+                      className="w-full border-none bg-transparent outline-none"
+                      onBlur={e => {
+                        if (e.target.value.trim() === "") {
+                          removeKeyword(keyword)
+                        }
+                      }}
+                    />
+                    <button
+                      onClick={() => removeKeyword(keyword)}
+                      className="ml-2 opacity-0 transition-opacity group-hover:opacity-100"
+                    >
+                      <X className="size-3" />
+                    </button>
+                  </Badge>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* AI Refinement */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900">
+              Refine Keywords
+            </h3>
+            <form onSubmit={handleRefinement} className="space-y-3">
+              <Textarea
+                value={refinementPrompt}
+                onChange={e => setRefinementPrompt(e.target.value)}
+                placeholder="Tell the AI how to adjust the keywords (e.g., 'focus more on technical keywords' or 'make them more specific to B2B customers')"
+                className="min-h-[80px]"
+                disabled={isGenerating}
+              />
+              <Button
+                type="submit"
+                variant="outline"
+                className="w-full"
+                disabled={!refinementPrompt.trim() || isGenerating}
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="mr-2 size-4 animate-spin" />
+                    Regenerating...
+                  </>
+                ) : (
+                  <>
+                    <Wand2 className="mr-2 size-4" />
+                    Regenerate Keywords
+                  </>
+                )}
+              </Button>
+            </form>
+          </div>
+
+          {/* Add Custom Keyword */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900">
+              Add Custom Keyword
+            </h3>
+            <form onSubmit={addKeyword} className="flex gap-2">
+              <Input
+                value={newKeyword}
+                onChange={e => setNewKeyword(e.target.value)}
+                placeholder="Add a custom keyword..."
+                className="flex-1"
+              />
+              <Button
+                type="submit"
+                variant="outline"
+                disabled={!newKeyword.trim()}
+              >
+                <Plus className="size-4" />
+              </Button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Manual Keywords Entry (if no website) */}
+      {!data.website && data.keywords.length === 0 && !isGenerating && (
+        <div className="space-y-4">
+          <form onSubmit={addKeyword} className="flex gap-2">
+            <Input
+              value={newKeyword}
+              onChange={e => setNewKeyword(e.target.value)}
+              placeholder="Enter a keyword your customers might search for..."
+              className="flex-1"
+            />
+            <Button
+              type="submit"
+              variant="outline"
+              disabled={!newKeyword.trim()}
+            >
+              <Plus className="size-4" />
+            </Button>
+          </form>
+        </div>
+      )}
+
+      {/* Navigation */}
+      {(data.keywords.length > 0 || !isGenerating) && (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Button
+            type="submit"
+            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 py-3 text-lg font-medium text-white hover:from-blue-700 hover:to-purple-700"
+            disabled={data.keywords.length === 0}
+          >
+            Continue →
+          </Button>
+
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={onPrevious}
+            className="flex items-center text-gray-600 hover:text-gray-800"
+          >
+            <ArrowLeft className="mr-2 size-4" />
+            Back
+          </Button>
+        </form>
+      )}
+    </motion.div>
+  )
+}
