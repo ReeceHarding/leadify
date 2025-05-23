@@ -99,7 +99,7 @@ Key Points:
 - For example: "tips for planning a wedding" = BAD (can't naturally recommend venue)
 - "recommendations for wedding venues in caribbean" = GOOD (can naturally mention venue)
 
-Generate 10-15 search terms based on the website provided.
+Generate 2 search terms based on the website provided.
 
 Return response in this exact JSON format:
 {
@@ -190,11 +190,17 @@ Return response in this exact JSON format:
         parsedResult.customerGroups
       )
 
+      const finalKeywords = parsedResult.keywords.slice(0, 2); // Enforce 2 keyword limit
+      console.log(
+        "🔍 [KEYWORDS-ACTION] Sliced keywords (first 2):",
+        finalKeywords
+      )
+
       const successResult = {
         isSuccess: true as const,
         message: "Natural search terms generated successfully with o3-mini",
         data: {
-          keywords: parsedResult.keywords,
+          keywords: finalKeywords, // Use sliced keywords
           coreProblem: parsedResult.coreProblem || "",
           customerGroups: parsedResult.customerGroups || [],
           // Keep backwards compatibility for existing components
@@ -336,9 +342,9 @@ function extractKeywordsFromText(text: string): string[] {
     return defaults
   }
 
-  const finalKeywords = keywords.slice(0, 15) // Limit to 15 search terms as requested
+  const finalKeywords = keywords.slice(0, 2) // Limit to 2 search terms for testing
   console.log(
-    "🔍 [KEYWORDS-ACTION] Final natural search terms (limited to 15):",
+    "🔍 [KEYWORDS-ACTION] Final natural search terms (limited to 2):",
     finalKeywords
   )
   return finalKeywords
