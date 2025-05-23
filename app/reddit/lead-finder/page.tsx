@@ -9,9 +9,7 @@ export default async function LeadFinderPage() {
     <div className="flex size-full flex-col">
       <div className="flex items-center justify-between space-y-2">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">
-            Reddit Lead Finder
-          </h2>
+          <h2 className="text-2xl font-bold tracking-tight">Reddit Leadify</h2>
           <p className="text-muted-foreground">
             Find and engage with high-quality leads on Reddit using AI-powered
             analysis

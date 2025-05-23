@@ -442,7 +442,7 @@ export default function LeadFinderDashboard() {
                       aria-current="page"
                       className="text-foreground font-normal"
                     >
-                      Lead Finder
+                      Leadify
                     </span>
                   </li>
                 </ol>

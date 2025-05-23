@@ -95,7 +95,7 @@ export default function OnboardingPage() {
         onboardingCompleted: true
       })
 
-      // Redirect to lead finder with the keywords ready to create a campaign
+      // Redirect to leadify with the keywords ready to create a campaign
       router.push(
         `/reddit/lead-finder?keywords=${encodeURIComponent(JSON.stringify(onboardingData.keywords))}`
       )

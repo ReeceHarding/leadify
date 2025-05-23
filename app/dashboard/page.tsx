@@ -71,7 +71,7 @@ export default async function DashboardPage() {
 
       <Card className="flex-1">
         <CardHeader>
-          <CardTitle>Welcome to Lead Finder</CardTitle>
+          <CardTitle>Welcome to Leadify</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">
@@ -84,7 +84,7 @@ export default async function DashboardPage() {
               <strong>Available features:</strong>
             </div>
             <ul className="text-muted-foreground ml-4 list-disc text-sm">
-              <li>Reddit Lead Finder - AI-powered lead generation on Reddit</li>
+              <li>Reddit Leadify - AI-powered lead generation on Reddit</li>
               <li>
                 Campaign Management - Track and organize your lead generation
                 efforts
