@@ -95,12 +95,22 @@ const config = {
           to: {
             backgroundPosition: "var(--bg-size) 0"
           }
+        },
+        "scroll-slow": {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" }
+        },
+        "scroll-fast": {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" }
         }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        gradient: "gradient 8s linear infinite"
+        gradient: "gradient 8s linear infinite",
+        "scroll-slow": "scroll-slow 40s linear infinite",
+        "scroll-fast": "scroll-fast 25s linear infinite"
       }
     }
   },

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
 import { ChevronRight, Rocket } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 import posthog from "posthog-js"
 import AnimatedGradientText from "../magicui/animated-gradient-text"
@@ -91,7 +92,7 @@ export const HeroSection = () => {
         <HeroVideoDialog
           animationStyle="top-in-bottom-out"
           videoSrc="https://www.youtube.com/embed/9yS0dR0kP-s"
-          thumbnailSrc="hero.png"
+          thumbnailSrc="/hero.png"
           thumbnailAlt="Hero Video"
         />
       </motion.div>

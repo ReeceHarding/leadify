@@ -8,13 +8,16 @@ This server page is the marketing homepage.
 
 import { FeaturesSection } from "@/components/landing/features"
 import { HeroSection } from "@/components/landing/hero"
+import { LogoCarousel } from "@/components/landing/logo-carousel"
+import { TestimonialsSection } from "@/components/landing/testimonials"
 
 export default async function HomePage() {
   return (
     <div className="pb-20">
       <HeroSection />
-      {/* social proof */}
+      <LogoCarousel />
       <FeaturesSection />
+      <TestimonialsSection />
       {/* pricing */}
       {/* faq */}
       {/* blog */}
