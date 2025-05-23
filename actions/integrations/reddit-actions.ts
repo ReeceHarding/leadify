@@ -12,16 +12,18 @@ import { ActionState } from "@/types"
 // Lazy initialization of Reddit client
 let redditClient: Snoowrap | null = null
 
-function getRedditClient(): Snoowrap {
+async function getRedditClient(): Promise<Snoowrap> {
   if (!redditClient) {
     if (!process.env.REDDIT_CLIENT_ID || !process.env.REDDIT_CLIENT_SECRET || !process.env.REDDIT_USER_AGENT) {
       throw new Error("Reddit API credentials not configured")
     }
 
-    redditClient = new Snoowrap({
+    // Use Application-Only authentication for read-only access
+    redditClient = await Snoowrap.fromApplicationOnlyAuth({
       clientId: process.env.REDDIT_CLIENT_ID,
       clientSecret: process.env.REDDIT_CLIENT_SECRET,
-      userAgent: process.env.REDDIT_USER_AGENT
+      userAgent: process.env.REDDIT_USER_AGENT,
+      grantType: 'client_credentials'
     })
     
     // Configure rate limiting to be respectful
@@ -55,7 +57,7 @@ export async function fetchRedditThreadAction(
   subreddit?: string
 ): Promise<ActionState<RedditThreadData>> {
   try {
-    const reddit = getRedditClient()
+    const reddit = await getRedditClient()
     
     console.log(`📖 Fetching Reddit thread: ${threadId} from r/${subreddit || 'unknown'}`)
     
@@ -166,7 +168,7 @@ export async function testRedditConnectionAction(): Promise<ActionState<{ status
       }
     }
 
-    const reddit = getRedditClient()
+    const reddit = await getRedditClient()
     
     // Test by fetching a well-known subreddit with proper typing
     const testSubreddit = await (reddit.getSubreddit('test') as any).fetch()
@@ -189,7 +191,7 @@ export async function getSubredditInfoAction(
   subredditName: string
 ): Promise<ActionState<{ name: string; description: string; subscribers: number }>> {
   try {
-    const reddit = getRedditClient()
+    const reddit = await getRedditClient()
     
     const subreddit = await (reddit.getSubreddit(subredditName) as any).fetch()
     

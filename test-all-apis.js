@@ -1,13 +1,12 @@
 require('dotenv').config({ path: '.env.local' });
 
-async function testFirecrawl() {
-  console.log('🔥 Testing Firecrawl API...');
-  
-  if (!process.env.FIRECRAWL_API_KEY) {
-    console.log('❌ FIRECRAWL_API_KEY not found in environment');
-    return false;
-  }
+async function testAllAPIs() {
+  console.log('🧪 Testing all API integrations with new credentials...\n');
 
+  const results = {};
+
+  // Test Firecrawl
+  console.log('1️⃣ Testing Firecrawl...');
   try {
     const FirecrawlApp = require('@mendable/firecrawl-js').default;
     const firecrawl = new FirecrawlApp({
@@ -21,26 +20,18 @@ async function testFirecrawl() {
 
     if (result && result.success) {
       console.log('✅ Firecrawl: Connected successfully');
-      return true;
+      results.firecrawl = true;
     } else {
-      console.log('❌ Firecrawl: Failed to scrape test page');
-      console.log('   Error:', result?.error || 'Unknown error');
-      return false;
+      console.log('❌ Firecrawl: Failed');
+      results.firecrawl = false;
     }
   } catch (error) {
     console.log('❌ Firecrawl: Error -', error.message);
-    return false;
-  }
-}
-
-async function testGoogleSearch() {
-  console.log('\n🔍 Testing Google Custom Search API...');
-  
-  if (!process.env.GOOGLE_SEARCH_API_KEY || !process.env.GOOGLE_SEARCH_ENGINE_ID) {
-    console.log('❌ Google Search API credentials not found in environment');
-    return false;
+    results.firecrawl = false;
   }
 
+  // Test Google Search
+  console.log('\n2️⃣ Testing Google Search...');
   try {
     const apiUrl = new URL('https://www.googleapis.com/customsearch/v1');
     apiUrl.searchParams.set('key', process.env.GOOGLE_SEARCH_API_KEY);
@@ -54,55 +45,41 @@ async function testGoogleSearch() {
       const data = await response.json();
       console.log('✅ Google Search: Connected successfully');
       console.log(`   Found ${data.items ? data.items.length : 0} test results`);
-      return true;
+      results.googleSearch = true;
     } else {
-      console.log('❌ Google Search: API Error -', response.status, response.statusText);
-      const errorText = await response.text();
-      console.log('   Details:', errorText.slice(0, 200));
-      return false;
+      console.log('❌ Google Search: API Error -', response.status);
+      results.googleSearch = false;
     }
   } catch (error) {
     console.log('❌ Google Search: Error -', error.message);
-    return false;
-  }
-}
-
-async function testReddit() {
-  console.log('\n📖 Testing Reddit API...');
-  
-  if (!process.env.REDDIT_CLIENT_ID || !process.env.REDDIT_CLIENT_SECRET) {
-    console.log('❌ Reddit API credentials not found in environment');
-    console.log('   Add REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET to test Reddit');
-    return false;
+    results.googleSearch = false;
   }
 
+  // Test Reddit
+  console.log('\n3️⃣ Testing Reddit...');
   try {
     const Snoowrap = require('snoowrap');
-    const reddit = new Snoowrap({
+    
+    // Use fromApplicationOnlyAuth for read-only access with better User-Agent
+    const reddit = await Snoowrap.fromApplicationOnlyAuth({
       clientId: process.env.REDDIT_CLIENT_ID,
       clientSecret: process.env.REDDIT_CLIENT_SECRET,
-      userAgent: process.env.REDDIT_USER_AGENT || 'RedditLeadGen/1.0.0'
+      userAgent: process.env.REDDIT_USER_AGENT,
+      // Use explicit grant type constant
+      grantType: 'client_credentials'
     });
 
     const testSubreddit = await reddit.getSubreddit('test').fetch();
     console.log('✅ Reddit: Connected successfully');
     console.log(`   Test subreddit has ${testSubreddit.subscribers} subscribers`);
-    return true;
+    results.reddit = true;
   } catch (error) {
     console.log('❌ Reddit: Error -', error.message);
-    return false;
-  }
-}
-
-async function testOpenAI() {
-  console.log('\n🤖 Testing OpenAI API...');
-  
-  if (!process.env.OPENAI_API_KEY) {
-    console.log('❌ OPENAI_API_KEY not found in environment');
-    console.log('   Add OPENAI_API_KEY to test OpenAI');
-    return false;
+    results.reddit = false;
   }
 
+  // Test OpenAI
+  console.log('\n4️⃣ Testing OpenAI...');
   try {
     const OpenAI = require('openai');
     const openai = new OpenAI({
@@ -118,40 +95,63 @@ async function testOpenAI() {
     if (completion.choices[0]?.message?.content) {
       console.log('✅ OpenAI: Connected successfully');
       console.log('   Response:', completion.choices[0].message.content.trim());
-      return true;
+      results.openai = true;
     } else {
       console.log('❌ OpenAI: No response received');
-      return false;
+      results.openai = false;
     }
   } catch (error) {
     console.log('❌ OpenAI: Error -', error.message);
-    return false;
+    results.openai = false;
   }
-}
 
-async function runTests() {
-  console.log('🧪 Testing API integrations directly...\n');
-  
-  const results = {
-    firecrawl: await testFirecrawl(),
-    googleSearch: await testGoogleSearch(),
-    reddit: await testReddit(),
-    openai: await testOpenAI()
-  };
+  // Test Firebase
+  console.log('\n5️⃣ Testing Firebase...');
+  try {
+    const { initializeApp, getApps } = require('firebase/app');
+    const { getFirestore } = require('firebase/firestore');
+    
+    const firebaseConfig = {
+      apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+      authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+      storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+      messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+      appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
+    };
 
+    let app;
+    if (getApps().length === 0) {
+      app = initializeApp(firebaseConfig);
+    } else {
+      app = getApps()[0];
+    }
+    
+    const db = getFirestore(app);
+    console.log('✅ Firebase: Connected successfully');
+    console.log(`   Project ID: ${firebaseConfig.projectId}`);
+    results.firebase = true;
+  } catch (error) {
+    console.log('❌ Firebase: Error -', error.message);
+    results.firebase = false;
+  }
+
+  // Summary
   console.log('\n📊 Results Summary:');
   Object.entries(results).forEach(([service, success]) => {
     console.log(`   ${success ? '✅' : '❌'} ${service}: ${success ? 'Working' : 'Failed'}`);
   });
 
   const workingCount = Object.values(results).filter(Boolean).length;
-  console.log(`\n🏁 ${workingCount}/4 services are working correctly`);
+  console.log(`\n🏁 ${workingCount}/5 services are working correctly`);
   
-  if (workingCount >= 2) {
-    console.log('✅ Sufficient services working to proceed with testing!');
+  if (workingCount >= 4) {
+    console.log('🎉 All critical services working! Reddit lead generation is ready to go!');
   } else {
-    console.log('⚠️  Add more API credentials to test the full workflow');
+    console.log('⚠️  Some services need attention');
   }
+
+  return results;
 }
 
-runTests().catch(console.error); 
+testAllAPIs().catch(console.error); 
