@@ -465,10 +465,13 @@ export default function OnboardingPage() {
     console.log("🔍 [ONBOARDING] Onboarding started successfully")
   }
 
-  const nextStep = () => {
+  const nextStep = async () => {
     console.log("🔍 [ONBOARDING] nextStep() called")
     console.log("🔍 [ONBOARDING] Current step:", currentStep)
     console.log("🔍 [ONBOARDING] Current onboardingData:", onboardingData)
+
+    // Save progress before moving to next step
+    await saveProgress()
 
     const currentIndex = stepOrder.indexOf(currentStep)
     if (currentIndex < stepOrder.length - 1) {
@@ -495,8 +498,12 @@ export default function OnboardingPage() {
     }
   }
 
-  const updateData = (data: Partial<typeof onboardingData>) => {
+  const updateData = (
+    data: Partial<typeof onboardingData>,
+    autoSave: boolean = false
+  ) => {
     console.log("🔍 [ONBOARDING] updateData() called with:", data)
+    console.log("🔍 [ONBOARDING] Auto-save requested:", autoSave)
     console.log(
       "🔍 [ONBOARDING] Current onboardingData before update:",
       onboardingData
@@ -527,8 +534,62 @@ export default function OnboardingPage() {
         "🔍 [ONBOARDING] Keywords stringified:",
         JSON.stringify(updated.keywords)
       )
+
+      // Auto-save important updates like keywords generation
+      if (autoSave && user?.id) {
+        console.log("💾 [ONBOARDING] Triggering immediate auto-save...")
+        saveProgress(updated)
+      }
+
       return updated
     })
+  }
+
+  // NEW: Progressive save function to save data after each step
+  const saveProgress = async (dataToSave?: Partial<typeof onboardingData>) => {
+    if (!user?.id) {
+      console.log("🔍 [ONBOARDING] No user ID available for saving progress")
+      return
+    }
+
+    // Use provided data or current onboarding data
+    const currentData = dataToSave || onboardingData
+
+    console.log("💾 [ONBOARDING] Saving progress to Firebase...")
+    console.log("💾 [ONBOARDING] Data to save:", currentData)
+    console.log("💾 [ONBOARDING] Keywords to save:", currentData.keywords)
+    console.log(
+      "💾 [ONBOARDING] Keywords length:",
+      currentData.keywords?.length || 0
+    )
+
+    try {
+      const savePayload = {
+        name: currentData.name || "",
+        profilePictureUrl: currentData.profilePictureUrl || "",
+        website: currentData.website || "",
+        keywords: currentData.keywords || [],
+        // DON'T mark as completed yet - this is just progress saving
+        onboardingCompleted: false
+      }
+
+      console.log("💾 [ONBOARDING] Save payload:", savePayload)
+      console.log("💾 [ONBOARDING] Payload keywords:", savePayload.keywords)
+
+      const result = await updateProfileAction(user.id, savePayload)
+
+      if (result.isSuccess) {
+        console.log("✅ [ONBOARDING] Progress saved successfully to Firebase")
+        console.log("✅ [ONBOARDING] Saved profile data:", result.data)
+      } else {
+        console.error(
+          "❌ [ONBOARDING] Failed to save progress:",
+          result.message
+        )
+      }
+    } catch (error) {
+      console.error("❌ [ONBOARDING] Error saving progress:", error)
+    }
   }
 
   const completeOnboarding = async () => {
@@ -748,7 +809,11 @@ export default function OnboardingPage() {
         return (
           <KeywordsStep
             data={onboardingData}
-            onUpdate={updateData}
+            onUpdate={data => {
+              // Auto-save when keywords are updated since they're AI-generated
+              const shouldAutoSave = data.keywords && data.keywords.length > 0
+              updateData(data, shouldAutoSave)
+            }}
             onNext={nextStep}
             onPrevious={previousStep}
           />
