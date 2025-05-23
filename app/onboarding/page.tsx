@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
-import { CheckCircle2 } from "lucide-react"
+import { CheckCircle2, User, Globe, Tag, Settings, Trophy } from "lucide-react"
 import ProfileStep from "./_components/profile-step"
 import WebsiteStep from "./_components/website-step"
 import KeywordsStep from "./_components/keywords-step"
@@ -30,6 +30,22 @@ const stepLabels = {
   keywords: "Keywords",
   reddit: "Connect",
   complete: "Complete"
+}
+
+const stepIcons = {
+  profile: User,
+  website: Globe,
+  keywords: Tag,
+  reddit: Settings,
+  complete: Trophy
+}
+
+const stepDescriptions = {
+  profile: "Set up your profile",
+  website: "Add your website",
+  keywords: "Define target keywords",
+  reddit: "Connect your Reddit account",
+  complete: "You're all set!"
 }
 
 export default function OnboardingPage() {
@@ -164,73 +180,101 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Progress Section */}
-      <div className="space-y-4">
+    <div className="space-y-12">
+      {/* Enhanced Progress Section */}
+      <div className="space-y-8">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-foreground font-medium">
+          <span className="text-foreground font-semibold">
             Step {currentStepIndex + 1} of {stepOrder.length}
           </span>
-          <span className="text-muted-foreground">
+          <span className="text-muted-foreground font-medium">
             {Math.round(progress)}% Complete
           </span>
         </div>
 
-        {/* Progress Bar */}
+        {/* Enhanced Progress Bar */}
         <div className="relative">
-          <Progress value={progress} className="bg-muted h-2" />
-          <motion.div
-            className="from-primary to-primary/80 absolute left-0 top-0 h-2 rounded-full bg-gradient-to-r"
-            initial={{ width: 0 }}
-            animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-          />
+          <div className="bg-muted h-3 overflow-hidden rounded-full">
+            <motion.div
+              className="h-full rounded-full bg-gradient-to-r from-blue-500 to-blue-600 shadow-sm"
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+            />
+          </div>
         </div>
 
-        {/* Step Indicators */}
-        <div className="flex justify-between">
-          {stepOrder.map((step, index) => (
-            <div key={step} className="flex flex-col items-center gap-2">
-              <div
-                className={`
-                  flex size-8 items-center justify-center rounded-full text-xs font-medium transition-all duration-300
-                  ${
-                    index < currentStepIndex
-                      ? "bg-primary text-primary-foreground"
-                      : index === currentStepIndex
-                        ? "bg-primary text-primary-foreground ring-primary/20 ring-4"
-                        : "bg-muted text-muted-foreground"
-                  }
-                `}
+        {/* Enhanced Step Indicators */}
+        <div className="grid grid-cols-5 gap-4">
+          {stepOrder.map((step, index) => {
+            const StepIcon = stepIcons[step]
+            const isCompleted = index < currentStepIndex
+            const isCurrent = index === currentStepIndex
+
+            return (
+              <motion.div
+                key={step}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="flex flex-col items-center gap-3"
               >
-                {index < currentStepIndex ? (
-                  <CheckCircle2 className="size-4" />
-                ) : (
-                  index + 1
-                )}
-              </div>
-              <span
-                className={`text-xs font-medium ${
-                  index <= currentStepIndex
-                    ? "text-foreground"
-                    : "text-muted-foreground"
-                }`}
-              >
-                {stepLabels[step]}
-              </span>
-            </div>
-          ))}
+                <div
+                  className={`
+                    relative flex size-12 items-center justify-center rounded-xl transition-all duration-300
+                    ${
+                      isCompleted
+                        ? "bg-green-500 text-white shadow-lg shadow-green-500/25"
+                        : isCurrent
+                          ? "bg-primary text-primary-foreground ring-primary/20 shadow-lg ring-4"
+                          : "bg-muted text-muted-foreground"
+                    }
+                  `}
+                >
+                  {isCompleted ? (
+                    <CheckCircle2 className="size-6" />
+                  ) : (
+                    <StepIcon className="size-6" />
+                  )}
+
+                  {isCurrent && (
+                    <motion.div
+                      className="bg-primary/20 absolute inset-0 rounded-xl"
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    />
+                  )}
+                </div>
+
+                <div className="text-center">
+                  <div
+                    className={`text-sm font-semibold transition-colors ${
+                      index <= currentStepIndex
+                        ? "text-foreground"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    {stepLabels[step]}
+                  </div>
+                  <div className="text-muted-foreground mt-1 text-xs">
+                    {stepDescriptions[step]}
+                  </div>
+                </div>
+              </motion.div>
+            )
+          })}
         </div>
       </div>
 
-      {/* Step Content */}
+      {/* Enhanced Step Content */}
       <AnimatePresence mode="wait">
         <motion.div
           key={currentStep}
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -20 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="glass shadow-glow rounded-2xl p-8"
         >
           {renderCurrentStep()}
         </motion.div>

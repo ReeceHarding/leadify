@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import {
   ArrowLeft,
   Loader2,
@@ -10,12 +10,18 @@ import {
   Wand2,
   Hash,
   Sparkles,
-  Target
+  Target,
+  Edit2,
+  Check,
+  Zap,
+  TrendingUp
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
+import { Card, CardContent } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
 import { generateKeywordsAction } from "@/actions/lead-generation/keywords-actions"
 
 interface KeywordsStepProps {
@@ -119,230 +125,364 @@ export default function KeywordsStep({
     }
   }
 
+  const suggestedKeywords = [
+    "marketing automation",
+    "lead generation",
+    "CRM software",
+    "sales funnel",
+    "customer acquisition"
+  ]
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="space-y-6"
+      className="space-y-8"
     >
-      {/* Header */}
-      <div className="space-y-2 text-center">
-        <div className="mb-4 flex justify-center">
-          <div className="bg-primary/10 rounded-full p-3">
-            <Hash className="text-primary size-6" />
+      {/* Enhanced Header */}
+      <div className="space-y-4 text-center">
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="flex justify-center"
+        >
+          <div className="shadow-glow rounded-2xl bg-gradient-to-br from-purple-50 to-purple-100 p-4 dark:from-purple-950 dark:to-purple-900">
+            <Hash className="size-8 text-purple-600" />
           </div>
+        </motion.div>
+
+        <div className="space-y-2">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+            Target Keywords
+          </h2>
+          <p className="text-muted-foreground mx-auto max-w-2xl text-lg leading-relaxed">
+            {data.website
+              ? "AI-generated keywords based on your website analysis. These help identify relevant Reddit conversations."
+              : "Add keywords that your potential customers search for on Reddit to find relevant leads."}
+          </p>
         </div>
-        <h2 className="text-2xl font-bold">Target Keywords</h2>
-        <p className="text-muted-foreground">
-          {data.website
-            ? "AI-generated keywords based on your website analysis"
-            : "Add keywords that your potential customers search for on Reddit"}
-        </p>
       </div>
 
-      {/* Loading State */}
+      {/* Enhanced Loading State */}
       {isGenerating && !hasGenerated && (
-        <div className="flex flex-col items-center space-y-4 py-12">
-          <div className="relative">
-            <div className="border-muted border-t-primary size-12 animate-spin rounded-full border-4" />
-            <Sparkles className="text-primary absolute inset-0 m-auto size-6 animate-pulse" />
-          </div>
-          <div className="space-y-2 text-center">
-            <p className="font-medium">AI is analyzing your website</p>
-            <p className="text-muted-foreground text-sm">
-              Generating relevant keywords for Reddit lead generation...
-            </p>
-          </div>
-        </div>
+        <Card className="shadow-glow border-0 bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-900 dark:to-gray-800/50">
+          <CardContent className="p-12">
+            <div className="flex flex-col items-center space-y-6">
+              <div className="relative">
+                <div className="border-muted size-16 animate-spin rounded-full border-4 border-t-purple-600" />
+                <Sparkles className="absolute inset-0 m-auto size-8 animate-pulse text-purple-600" />
+              </div>
+              <div className="space-y-2 text-center">
+                <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  AI is analyzing your website
+                </p>
+                <p className="text-muted-foreground">
+                  Generating relevant keywords for Reddit lead generation...
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
-      {/* Keywords Display */}
+      {/* Enhanced Keywords Display */}
       {(data.keywords.length > 0 || hasGenerated) && !isGenerating && (
-        <div className="space-y-6">
+        <div className="space-y-8">
           {/* Keywords Grid */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Target className="text-primary size-4" />
-              <h3 className="font-semibold">
-                Your Keywords ({data.keywords.length})
-              </h3>
-            </div>
+          <Card className="shadow-glow border-0 bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-900 dark:to-gray-800/50">
+            <CardContent className="p-8">
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <Target className="size-5 text-purple-600" />
+                  <Label className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                    Your Keywords ({data.keywords.length})
+                  </Label>
+                </div>
 
-            <div className="grid gap-3">
-              {data.keywords.map((keyword, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.05, duration: 0.2 }}
-                  className="group"
-                >
-                  {editingIndex === index ? (
-                    <div className="bg-card flex items-center gap-2 rounded-xl border p-3">
-                      <Hash className="text-muted-foreground size-4" />
-                      <input
-                        type="text"
-                        value={keyword}
-                        onChange={e => editKeyword(index, e.target.value)}
-                        onBlur={e => handleKeywordBlur(e, index, keyword)}
-                        onKeyDown={e => {
-                          if (e.key === "Enter") {
-                            setEditingIndex(null)
-                          }
-                        }}
-                        className="flex-1 border-none bg-transparent text-sm outline-none"
-                        autoFocus
-                      />
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => removeKeyword(keyword)}
-                        className="text-muted-foreground hover:text-destructive size-6"
+                <div className="grid gap-3">
+                  <AnimatePresence mode="popLayout">
+                    {data.keywords.map((keyword, index) => (
+                      <motion.div
+                        key={keyword}
+                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: -20 }}
+                        transition={{ delay: index * 0.05, duration: 0.3 }}
+                        layout
+                        className="group"
                       >
-                        <X className="size-3" />
-                      </Button>
-                    </div>
-                  ) : (
-                    <div
-                      className="bg-card hover:bg-muted/50 group flex cursor-pointer items-center gap-2 rounded-xl border p-3 transition-colors"
-                      onClick={() => handleKeywordClick(index)}
-                    >
-                      <Hash className="text-muted-foreground size-4" />
-                      <span className="flex-1 text-sm">{keyword}</span>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={e => {
-                          e.stopPropagation()
-                          removeKeyword(keyword)
-                        }}
-                        className="text-muted-foreground hover:text-destructive size-6 opacity-0 transition-opacity group-hover:opacity-100"
-                      >
-                        <X className="size-3" />
-                      </Button>
-                    </div>
-                  )}
-                </motion.div>
-              ))}
-            </div>
-          </div>
+                        {editingIndex === index ? (
+                          <div className="flex items-center gap-3 rounded-xl border-2 border-blue-200 bg-blue-50 p-4 shadow-sm dark:border-blue-800 dark:bg-blue-950/20">
+                            <Hash className="size-5 text-blue-600" />
+                            <input
+                              type="text"
+                              value={keyword}
+                              onChange={e => editKeyword(index, e.target.value)}
+                              onBlur={e => handleKeywordBlur(e, index, keyword)}
+                              onKeyDown={e => {
+                                if (e.key === "Enter") {
+                                  setEditingIndex(null)
+                                }
+                              }}
+                              className="flex-1 border-none bg-transparent text-base font-medium outline-none"
+                              autoFocus
+                            />
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => setEditingIndex(null)}
+                              className="size-8 text-blue-600 hover:text-blue-700"
+                            >
+                              <Check className="size-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="glass hover:shadow-glow-lg group flex cursor-pointer items-center gap-3 rounded-xl p-4 transition-all duration-300 hover:-translate-y-1">
+                            <Hash className="text-muted-foreground size-5" />
+                            <span className="flex-1 text-base font-medium text-gray-900 dark:text-gray-100">
+                              {keyword}
+                            </span>
+                            <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                onClick={() => handleKeywordClick(index)}
+                                className="text-muted-foreground size-8 hover:text-blue-600"
+                              >
+                                <Edit2 className="size-4" />
+                              </Button>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                onClick={() => removeKeyword(keyword)}
+                                className="text-muted-foreground size-8 hover:text-red-600"
+                              >
+                                <X className="size-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-          {/* AI Refinement */}
-          <div className="bg-muted/30 space-y-4 rounded-xl p-4">
-            <div className="flex items-center gap-2">
-              <Wand2 className="text-primary size-4" />
-              <h3 className="font-semibold">Refine with AI</h3>
-            </div>
-            <form onSubmit={handleRefinement} className="space-y-3">
-              <Textarea
-                value={refinementPrompt}
-                onChange={e => setRefinementPrompt(e.target.value)}
-                placeholder="Tell AI how to adjust keywords (e.g., 'focus on B2B terms' or 'make them more technical')"
-                className="focus-ring min-h-[80px] resize-none"
-                disabled={isGenerating}
-              />
-              <Button
-                type="submit"
-                variant="outline"
-                className="w-full"
-                disabled={!refinementPrompt.trim() || isGenerating}
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="mr-2 size-4 animate-spin" />
-                    Regenerating...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="mr-2 size-4" />
-                    Regenerate Keywords
-                  </>
+          {/* Enhanced AI Refinement */}
+          <Card className="shadow-glow border-0 bg-gradient-to-br from-indigo-50 to-indigo-100/50 dark:from-indigo-950/20 dark:to-indigo-900/20">
+            <CardContent className="p-8">
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <Wand2 className="size-5 text-indigo-600" />
+                  <Label className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                    Refine with AI
+                  </Label>
+                </div>
+                <p className="text-muted-foreground">
+                  Tell our AI how to adjust your keywords for better targeting
+                </p>
+
+                <form onSubmit={handleRefinement} className="space-y-4">
+                  <Textarea
+                    value={refinementPrompt}
+                    onChange={e => setRefinementPrompt(e.target.value)}
+                    placeholder="Tell AI how to adjust keywords (e.g., 'focus more on B2B terms', 'make them more technical', 'add industry-specific language')"
+                    className="min-h-[100px] resize-none rounded-xl border-2 border-indigo-200 text-base focus:border-indigo-500 dark:border-indigo-800 dark:focus:border-indigo-400"
+                    disabled={isGenerating}
+                  />
+                  <Button
+                    type="submit"
+                    className="h-12 w-full bg-gradient-to-r from-indigo-600 to-indigo-700 shadow-lg hover:from-indigo-700 hover:to-indigo-800"
+                    disabled={!refinementPrompt.trim() || isGenerating}
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="mr-2 size-5 animate-spin" />
+                        Regenerating Keywords...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="mr-2 size-5" />
+                        Regenerate Keywords
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Enhanced Add Custom Keyword */}
+          <Card className="shadow-glow border-0 bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-900 dark:to-gray-800/50">
+            <CardContent className="p-8">
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <Plus className="size-5 text-green-600" />
+                  <Label className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                    Add Custom Keyword
+                  </Label>
+                </div>
+
+                <form onSubmit={addKeyword} className="flex gap-3">
+                  <Input
+                    value={newKeyword}
+                    onChange={e => setNewKeyword(e.target.value)}
+                    placeholder="Enter a custom keyword..."
+                    className="h-12 flex-1 rounded-xl border-2 border-gray-200 text-base focus:border-green-500 dark:border-gray-700 dark:focus:border-green-400"
+                  />
+                  <Button
+                    type="submit"
+                    size="lg"
+                    className="bg-gradient-to-r from-green-600 to-green-700 px-6 hover:from-green-700 hover:to-green-800"
+                    disabled={!newKeyword.trim()}
+                  >
+                    <Plus className="size-5" />
+                  </Button>
+                </form>
+
+                {/* Suggested Keywords */}
+                {data.keywords.length < 3 && (
+                  <div className="space-y-3">
+                    <p className="text-muted-foreground text-sm font-medium">
+                      Popular suggestions:
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {suggestedKeywords
+                        .filter(
+                          suggestion => !data.keywords.includes(suggestion)
+                        )
+                        .slice(0, 3)
+                        .map((suggestion, index) => (
+                          <Button
+                            key={suggestion}
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setNewKeyword(suggestion)
+                            }}
+                            className="h-8 text-xs hover:border-green-200 hover:bg-green-50 dark:hover:bg-green-950/20"
+                          >
+                            <Zap className="mr-1 size-3" />
+                            {suggestion}
+                          </Button>
+                        ))}
+                    </div>
+                  </div>
                 )}
-              </Button>
-            </form>
-          </div>
-
-          {/* Add Custom Keyword */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Plus className="text-primary size-4" />
-              <h3 className="font-semibold">Add Custom Keyword</h3>
-            </div>
-            <form onSubmit={addKeyword} className="flex gap-2">
-              <Input
-                value={newKeyword}
-                onChange={e => setNewKeyword(e.target.value)}
-                placeholder="Enter a custom keyword..."
-                className="focus-ring flex-1"
-              />
-              <Button
-                type="submit"
-                variant="outline"
-                size="icon"
-                disabled={!newKeyword.trim()}
-              >
-                <Plus className="size-4" />
-              </Button>
-            </form>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       )}
 
-      {/* Manual Keywords Entry (if no website) */}
+      {/* Enhanced Manual Keywords Entry (if no website) */}
       {!data.website && data.keywords.length === 0 && !isGenerating && (
-        <div className="space-y-4 rounded-xl border border-dashed p-6 text-center">
-          <div className="space-y-2">
-            <Hash className="text-muted-foreground mx-auto size-8" />
-            <h3 className="font-semibold">Add Your First Keyword</h3>
-            <p className="text-muted-foreground text-sm">
-              Start by adding keywords your customers might search for on Reddit
-            </p>
-          </div>
+        <Card className="border-2 border-dashed border-gray-300 bg-gradient-to-br from-white to-gray-50/50 dark:border-gray-700 dark:from-gray-900 dark:to-gray-800/50">
+          <CardContent className="p-12 text-center">
+            <div className="space-y-6">
+              <div className="space-y-3">
+                <div className="mx-auto w-fit rounded-2xl bg-gradient-to-br from-purple-50 to-purple-100 p-4 dark:from-purple-950 dark:to-purple-900">
+                  <Hash className="size-12 text-purple-600" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                  Add Your First Keyword
+                </h3>
+                <p className="text-muted-foreground mx-auto max-w-md">
+                  Start by adding keywords your customers might search for on
+                  Reddit. These help us find relevant conversations where you
+                  can engage.
+                </p>
+              </div>
 
-          <form onSubmit={addKeyword} className="mx-auto flex max-w-md gap-2">
-            <Input
-              value={newKeyword}
-              onChange={e => setNewKeyword(e.target.value)}
-              placeholder="e.g., marketing automation"
-              className="focus-ring flex-1"
-            />
-            <Button type="submit" disabled={!newKeyword.trim()}>
-              <Plus className="mr-2 size-4" />
-              Add
-            </Button>
-          </form>
-        </div>
+              <form
+                onSubmit={addKeyword}
+                className="mx-auto flex max-w-md gap-3"
+              >
+                <Input
+                  value={newKeyword}
+                  onChange={e => setNewKeyword(e.target.value)}
+                  placeholder="e.g., marketing automation"
+                  className="h-12 flex-1 rounded-xl border-2 border-gray-200 text-base focus:border-purple-500 dark:border-gray-700 dark:focus:border-purple-400"
+                />
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="bg-gradient-to-r from-purple-600 to-purple-700 px-6 hover:from-purple-700 hover:to-purple-800"
+                  disabled={!newKeyword.trim()}
+                >
+                  <Plus className="mr-2 size-5" />
+                  Add
+                </Button>
+              </form>
+
+              {/* Suggested Keywords for new users */}
+              <div className="space-y-3">
+                <p className="text-muted-foreground text-sm font-medium">
+                  Popular keywords to get started:
+                </p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {suggestedKeywords.map(suggestion => (
+                    <Button
+                      key={suggestion}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setNewKeyword(suggestion)}
+                      className="h-8 text-xs hover:border-purple-200 hover:bg-purple-50 dark:hover:bg-purple-950/20"
+                    >
+                      {suggestion}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
-      {/* Navigation */}
+      {/* Enhanced Navigation */}
       {(data.keywords.length > 0 || !isGenerating) && (
-        <div className="space-y-4">
-          <Button
-            onClick={handleSubmit}
-            className="h-12 w-full rounded-xl text-base font-semibold"
-            disabled={data.keywords.length === 0}
+        <div className="space-y-6">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
           >
-            Continue
-          </Button>
+            <Button
+              onClick={handleSubmit}
+              className="h-14 w-full rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 text-lg font-semibold shadow-lg transition-all duration-300 hover:scale-105 hover:from-purple-700 hover:to-purple-800 hover:shadow-xl disabled:transform-none disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={data.keywords.length === 0}
+            >
+              Continue to Reddit Connection
+            </Button>
+          </motion.div>
 
-          <div className="flex justify-between pt-4">
+          <div className="flex items-center justify-between">
             <Button
               type="button"
               variant="ghost"
               onClick={onPrevious}
-              className="text-muted-foreground hover:text-foreground flex items-center gap-2"
+              className="text-muted-foreground hover:text-foreground flex items-center gap-2 rounded-lg px-4 py-2 transition-colors"
             >
               <ArrowLeft className="size-4" />
-              Back
+              Back to Website
             </Button>
 
-            {data.keywords.length > 0 && (
-              <div className="text-muted-foreground text-sm">
-                {data.keywords.length} keyword
-                {data.keywords.length !== 1 ? "s" : ""} added
-              </div>
-            )}
+            <div className="flex items-center gap-3">
+              {data.keywords.length > 0 && (
+                <div className="text-muted-foreground flex items-center gap-2 text-sm">
+                  <TrendingUp className="size-4 text-green-600" />
+                  <span>
+                    {data.keywords.length} keyword
+                    {data.keywords.length !== 1 ? "s" : ""} ready
+                  </span>
+                </div>
+              )}
+              <div className="text-muted-foreground text-sm">Step 3 of 5</div>
+            </div>
           </div>
         </div>
       )}
