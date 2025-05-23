@@ -6,7 +6,15 @@ This client component provides the sidebar for the app.
 
 "use client"
 
-import { BookOpen, Building2, Settings2, User, Users } from "lucide-react"
+import {
+  BookOpen,
+  Building2,
+  Settings2,
+  User,
+  Users,
+  MessageSquare,
+  Target
+} from "lucide-react"
 import * as React from "react"
 
 import {
@@ -38,13 +46,19 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "/",
+      url: "/dashboard",
       icon: User,
       isActive: true,
       items: [
-        { title: "Overview", url: "/" },
+        { title: "Overview", url: "/dashboard" },
         { title: "Profile", url: "/profile" }
       ]
+    },
+    {
+      title: "Reddit",
+      url: "/reddit",
+      icon: MessageSquare,
+      items: [{ title: "Lead Finder", url: "/reddit/lead-finder" }]
     },
     {
       title: "Team",
