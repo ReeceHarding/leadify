@@ -1,0 +1,31 @@
+# Terminal Command Logs
+
+This file captures all terminal command outputs from the Leadify project.
+It gets cleared automatically when `npm run dev` is started to provide a fresh log for each development session.
+
+The logging system captures:
+- Command start/finish times with timestamps
+- All stdout and stderr output
+- Exit codes and error information
+- Process interruptions and terminations
+
+This comprehensive log can be fed to AI models for debugging and analysis purposes.
+
+================================================================================
+READY FOR LOGGING - RUN `npm run dev` TO START
+================================================================================ [2025-05-23T18:53:49.605Z] ==================================================
+[2025-05-23T18:53:49.606Z] COMMAND STARTED: echo Testing logging system
+[2025-05-23T18:53:49.606Z] ==================================================
+[2025-05-23T18:53:49.613Z] STDOUT: Testing logging system
+[2025-05-23T18:53:49.614Z] ==================================================
+[2025-05-23T18:53:49.614Z] COMMAND FINISHED: echo Testing logging system (exit code: 0)
+[2025-05-23T18:53:49.614Z] ==================================================
+[2025-05-23T18:54:33.946Z] ==================================================
+[2025-05-23T18:54:33.947Z] COMMAND STARTED: tsc --noEmit
+[2025-05-23T18:54:33.947Z] ==================================================
+[2025-05-23T18:54:35.992Z] STDOUT: .next/types/app/api/test-keywords/route.ts(2,24): error TS2307: Cannot find module '../../../../../app/api/test-keywords/route.js' or its corresponding type declarations.
+[2025-05-23T18:54:35.992Z] STDOUT: .next/types/app/api/test-keywords/route.ts(5,29): error TS2307: Cannot find module '../../../../../app/api/test-keywords/route.js' or its corresponding type declarations.
+[2025-05-23T18:54:36.009Z] ==================================================
+[2025-05-23T18:54:36.010Z] COMMAND FINISHED: tsc --noEmit (exit code: 2)
+[2025-05-23T18:54:36.010Z] ==================================================
+[2025-05-23T18:54:36.010Z] ERROR: Command failed with exit code 2
