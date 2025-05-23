@@ -1,6 +1,6 @@
 /*
 <ai_context>
-This client component provides a scrolling testimonials section for the landing page.
+This client component provides testimonials section for the landing page.
 </ai_context>
 */
 
@@ -8,94 +8,96 @@ This client component provides a scrolling testimonials section for the landing 
 
 import { motion } from "framer-motion"
 import { Star } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
 
 const testimonials = [
   {
-    name: "Sarah Johnson",
-    company: "TechCorp",
+    name: "Sarah Chen",
+    role: "Founder, TechStart",
     content:
-      "This template saved us weeks of development time. Incredible quality.",
-    rating: 5
+      "This lead generation tool completely transformed how we find prospects on Reddit. We've seen a 300% increase in qualified leads.",
+    rating: 5,
+    avatar: "👩‍💼"
   },
   {
-    name: "Mike Chen",
-    company: "StartupXYZ",
-    content: "Clean code, modern design. Everything we needed to get started.",
-    rating: 5
+    name: "Mike Rodriguez",
+    role: "Marketing Director, Growth Co",
+    content:
+      "The AI-generated comments are so natural and relevant. We've engaged with more potential customers in one month than the previous six.",
+    rating: 5,
+    avatar: "👨‍💻"
   },
   {
-    name: "Emma Davis",
-    company: "DesignStudio",
-    content: "The best Next.js template I've used. Highly recommended.",
-    rating: 5
-  },
-  {
-    name: "Alex Rivera",
-    company: "DevAgency",
-    content: "Perfect for rapid prototyping. Great documentation too.",
-    rating: 5
-  },
-  {
-    name: "Lisa Park",
-    company: "CloudTech",
-    content: "Saved our team countless hours. Worth every penny.",
-    rating: 5
+    name: "Emily Davis",
+    role: "Sales Lead, Innovation Labs",
+    content:
+      "Finding quality leads used to take hours. Now it takes minutes, and the quality is actually better than manual research.",
+    rating: 5,
+    avatar: "👩‍🚀"
   }
 ]
 
-// Duplicate testimonials for seamless scroll
-const scrollingTestimonials = [...testimonials, ...testimonials]
-
 export const TestimonialsSection = () => {
   return (
-    <section className="overflow-hidden bg-white py-20 dark:bg-black">
+    <section className="bg-white py-20">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="mb-12 text-center"
+          className="mb-16 text-center"
         >
-          <h2 className="mb-4 text-4xl font-bold">What Our Users Say</h2>
-          <p className="text-muted-foreground mx-auto max-w-2xl text-xl">
-            Join thousands of developers who trust our template
+          <h2 className="mb-4 text-4xl font-bold text-gray-900">
+            What Our Users Say
+          </h2>
+          <p className="mx-auto max-w-2xl text-xl text-gray-600">
+            See how teams are using our AI-powered lead generation to grow their
+            business
           </p>
         </motion.div>
 
-        {/* Scrolling testimonials container */}
-        <div className="relative">
-          <div className="overflow-hidden whitespace-nowrap">
-            <div className="animate-scroll-slow inline-flex space-x-6 hover:[animation-play-state:paused]">
-              {scrollingTestimonials.map((testimonial, index) => (
-                <div
-                  key={index}
-                  className="bg-card inline-block w-80 whitespace-normal rounded-lg border p-6 shadow-sm"
-                >
-                  <div className="mb-3 flex">
+        <div className="grid gap-8 md:grid-cols-3">
+          {testimonials.map((testimonial, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.8,
+                delay: index * 0.2,
+                ease: "easeOut"
+              }}
+            >
+              <Card className="h-full transition-shadow duration-300 hover:shadow-lg">
+                <CardContent className="p-6">
+                  <div className="mb-4 flex items-center">
                     {[...Array(testimonial.rating)].map((_, i) => (
                       <Star
                         key={i}
-                        className="size-4 fill-yellow-400 text-yellow-400"
+                        className="size-5 fill-current text-yellow-400"
                       />
                     ))}
                   </div>
-                  <p className="text-muted-foreground mb-4 line-clamp-3 text-sm">
+
+                  <p className="mb-6 leading-relaxed text-gray-700">
                     "{testimonial.content}"
                   </p>
-                  <div>
-                    <p className="text-sm font-semibold">{testimonial.name}</p>
-                    <p className="text-muted-foreground text-xs">
-                      {testimonial.company}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
 
-          {/* Gradient overlays for fade effect */}
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-white to-transparent dark:from-black" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-white to-transparent dark:from-black" />
+                  <div className="flex items-center">
+                    <div className="mr-3 text-3xl">{testimonial.avatar}</div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">
+                        {testimonial.name}
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        {testimonial.role}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>
