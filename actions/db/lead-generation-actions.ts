@@ -219,9 +219,9 @@ export async function createGeneratedCommentAction(
       threadId: data.threadId,
       relevanceScore: data.relevanceScore,
       reasoning: data.reasoning,
-      freeComment: data.freeComment,
+      microComment: data.microComment,
       mediumComment: data.mediumComment,
-      premiumComment: data.premiumComment,
+      verboseComment: data.verboseComment,
       approved: false,
       used: false,
       createdAt: serverTimestamp(),
@@ -263,15 +263,15 @@ export async function getGeneratedCommentsByCampaignAction(
   }
 }
 
-export async function updateGeneratedCommentTierAction(
+export async function updateGeneratedCommentLengthAction(
   id: string,
-  selectedTier: 'free' | 'medium' | 'premium'
+  selectedLength: 'micro' | 'medium' | 'verbose'
 ): Promise<ActionState<GeneratedCommentDocument>> {
   try {
     const commentRef = doc(db, LEAD_COLLECTIONS.GENERATED_COMMENTS, id)
     
     const updateData = {
-      selectedTier,
+      selectedLength,
       updatedAt: serverTimestamp()
     }
 
@@ -280,12 +280,12 @@ export async function updateGeneratedCommentTierAction(
     const updatedDoc = await getDoc(commentRef)
     return {
       isSuccess: true,
-      message: "Comment tier updated successfully",
+      message: "Comment length updated successfully",
       data: updatedDoc.data() as GeneratedCommentDocument
     }
   } catch (error) {
-    console.error("Error updating comment tier:", error)
-    return { isSuccess: false, message: "Failed to update comment tier" }
+    console.error("Error updating comment length:", error)
+    return { isSuccess: false, message: "Failed to update comment length" }
   }
 }
 

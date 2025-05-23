@@ -15,17 +15,17 @@ import { ActionState } from "@/types"
 const ThreadAnalysisSchema = z.object({
   score: z.number().min(1).max(100),
   reasoning: z.string(),
-  freeComment: z.string(),
+  microComment: z.string(),
   mediumComment: z.string(), 
-  premiumComment: z.string()
+  verboseComment: z.string()
 })
 
 export interface ThreeTierCommentResult {
   score: number // 1-100
   reasoning: string
-  freeComment: string      // Generic helpful comment
-  mediumComment: string    // Subtle mention of Gauntlet AI
-  premiumComment: string   // Natural integration of Gauntlet AI
+  microComment: string      // Ultra-brief helpful advice (5-15 words)
+  mediumComment: string     // Balanced response with good detail (30-80 words)
+  verboseComment: string    // Comprehensive, valuable advice (100-200 words)
 }
 
 export async function scoreThreadAndGenerateThreeTierCommentsAction(
@@ -54,22 +54,27 @@ CRITICAL SCORING (1-100) - BE HARSH:
 - 30-49: Weak connection, commenting would be obvious self-promotion  
 - 1-29: No relevant connection, would be spam to comment
 
-GENERATE 3 COMMENT TIERS (ULTRA-SHORT, authentic, helpful, non-salesy):
+GENERATE 3 COMMENT LENGTH OPTIONS (only for scores 70+, authentic, helpful, non-salesy):
 
-1. FREE COMMENT: Ultra-minimal helpful advice (1-10 words IDEAL, max 15 words)
-2. MEDIUM COMMENT: Minimal advice with subtle CEO mention (1-10 words IDEAL, max 15 words)
-3. PREMIUM COMMENT: Brief advice mentioning Gauntlet AI naturally (1-10 words IDEAL, max 20 words)
+IF SCORE IS 70+, GENERATE ALL THREE:
+1. MICRO COMMENT: Ultra-brief helpful advice (5-15 words)
+2. MEDIUM COMMENT: Balanced response with good detail (30-80 words)  
+3. VERBOSE COMMENT: Comprehensive, valuable advice (100-200 words)
+
+IF SCORE IS BELOW 70, GENERATE ONLY:
+1. MICRO COMMENT: Generic brief advice (5-15 words)
+2. MEDIUM COMMENT: "Not recommended - low relevance score"
+3. VERBOSE COMMENT: "Not recommended - low relevance score"
 
 ALL COMMENTS MUST BE:
-- EXTREMELY MINIMAL (1-10 words is PERFECT)
 - Sound authentic and genuinely helpful
 - Reddit-appropriate (casual, not corporate)
-- Provide real value despite extreme brevity
 - Never pushy or salesy
-- Get straight to the core point
-- If score is below 50, make comments very generic with minimal/no company mention
+- Provide real value with natural mention of CEO experience
+- For 70+ scores: Naturally weave in Gauntlet AI as ONE option among others
+- For <70 scores: Keep generic, no company mention
 
-PRIORITIZE EXTREME BREVITY - EVERY WORD MUST COUNT. Most threads should score 30-60 unless they're perfect matches.`
+PRIORITIZE AUTHENTICITY AND VALUE. Most threads should score 30-60 unless they're perfect matches.`
 
     const { object } = await generateObject({
       model: openai('o3-mini'),
@@ -83,9 +88,9 @@ PRIORITIZE EXTREME BREVITY - EVERY WORD MUST COUNT. Most threads should score 30
     const result: ThreeTierCommentResult = {
       score: Math.max(1, Math.min(100, object.score)),
       reasoning: object.reasoning,
-      freeComment: object.freeComment,
+      microComment: object.microComment,
       mediumComment: object.mediumComment,
-      premiumComment: object.premiumComment
+      verboseComment: object.verboseComment
     }
 
     console.log(`✅ Thread critically scored: ${result.score}/100 - ${result.reasoning.slice(0, 50)}...`)

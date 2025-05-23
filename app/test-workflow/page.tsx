@@ -14,20 +14,23 @@ export default async function TestWorkflowPage() {
             </h1>
             <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
               <h2 className="mb-2 text-lg font-semibold text-blue-900">
-                Enhanced with o3-mini Critical Scoring & Micro-Comments
+                Enhanced with o3-mini Critical Scoring & Length Options
               </h2>
               <ul className="space-y-1 text-blue-800">
                 <li>
                   • More critical scoring (expect lower scores, higher quality)
                 </li>
                 <li>
-                  • Three comment tiers: Free, Medium (subtle CEO mention),
-                  Premium (natural Gauntlet AI integration)
+                  • Three length options for quality leads (70+ score): Micro,
+                  Medium, Verbose
                 </li>
                 <li>
-                  • Ultra-minimal comments (1-10 words ideal, max 15-20 words)
+                  • Micro (5-15 words), Medium (30-80 words), Verbose (100-200
+                  words)
                 </li>
-                <li>• Maximum impact with minimum words - every word counts</li>
+                <li>
+                  • Only generates all options for high-quality opportunities
+                </li>
               </ul>
             </div>
           </div>

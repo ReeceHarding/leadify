@@ -28,7 +28,7 @@ export default function TestWorkflowForm() {
 
       // Test configuration
       const testData = {
-        campaignName: "Software Developer Lead Gen Test (Micro-Comments)",
+        campaignName: "Software Developer Lead Gen Test (Length Options)",
         website: "gauntletai.com",
         keywords: ["where to find software developers"],
         userId: "test-user-123"
@@ -86,18 +86,18 @@ export default function TestWorkflowForm() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             🚀 Enhanced End-to-End Test
-            <Badge variant="secondary">o3-mini + Micro-Comments</Badge>
+            <Badge variant="secondary">o3-mini + Length Options</Badge>
           </CardTitle>
           <CardDescription>
-            Test the complete workflow with critical scoring and micro-comment
-            generation (1-10 words ideal)
+            Test the complete workflow with critical scoring and length-based
+            comment generation for quality leads
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
               <strong>Campaign:</strong> Software Developer Lead Gen Test
-              (Micro-Comments)
+              (Length Options)
             </div>
             <div>
               <strong>Website:</strong> gauntletai.com
@@ -106,7 +106,8 @@ export default function TestWorkflowForm() {
               <strong>Keywords:</strong> "where to find software developers"
             </div>
             <div>
-              <strong>AI Model:</strong> OpenAI o3-mini (1-10 Word Comments)
+              <strong>AI Model:</strong> OpenAI o3-mini (3 Length Options for
+              70+)
             </div>
           </div>
 
@@ -293,34 +294,40 @@ export default function TestWorkflowForm() {
               <TabsContent value="comments" className="space-y-4">
                 <div>
                   <h3 className="mb-2 font-medium">
-                    💬 Micro-Comment System Preview
+                    💬 Length-Based Comment System Preview
                   </h3>
                   <div className="space-y-4">
                     <div className="rounded-lg border border-green-200 bg-green-50 p-4">
                       <h4 className="mb-2 font-semibold text-green-800">
-                        🆓 Free Tier
+                        ⚡ Micro Option
                       </h4>
                       <p className="text-sm text-green-700">
-                        Ultra-minimal advice (1-10 words ideal). No company
-                        mention. Perfect for quick karma building.
+                        Ultra-brief helpful advice (5-15 words). Quick and
+                        punchy for fast engagement.
                       </p>
                     </div>
                     <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
                       <h4 className="mb-2 font-semibold text-blue-800">
-                        💼 Medium Tier
+                        💼 Medium Option
                       </h4>
                       <p className="text-sm text-blue-700">
-                        Minimal advice with subtle CEO mention (1-10 words
-                        ideal). Maximum authenticity in minimum words.
+                        Balanced response with good detail (30-80 words). Sweet
+                        spot of value and brevity.
                       </p>
                     </div>
                     <div className="rounded-lg border border-purple-200 bg-purple-50 p-4">
                       <h4 className="mb-2 font-semibold text-purple-800">
-                        💎 Premium Tier
+                        📝 Verbose Option
                       </h4>
                       <p className="text-sm text-purple-700">
-                        Micro-advice mentioning Gauntlet AI naturally (1-10
-                        words ideal). Every word delivers impact.
+                        Comprehensive, valuable advice (100-200 words). Deep
+                        insights with natural authority positioning.
+                      </p>
+                    </div>
+                    <div className="rounded-lg border border-orange-200 bg-orange-50 p-4">
+                      <p className="text-sm text-orange-700">
+                        <strong>Note:</strong> All three options are only
+                        generated for high-quality leads (70+ relevance score).
                       </p>
                     </div>
                   </div>

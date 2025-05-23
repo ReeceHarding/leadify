@@ -123,16 +123,16 @@ export interface GeneratedCommentDocument {
   campaignId: string
   redditThreadId: string
   threadId: string // Reddit thread ID
-  relevanceScore: number // 1-100 score (now more critical)
+  relevanceScore: number // 1-100 score (critical scoring)
   reasoning: string // AI reasoning for the score
 
-  // Three-tier comment system
-  freeComment: string // Generic helpful comment (no company mention)
-  mediumComment: string // Subtle mention of being CEO/having experience
-  premiumComment: string // Natural integration of Gauntlet AI mention
+  // Three-tier LENGTH-BASED comment system
+  microComment: string // Ultra-brief helpful advice (5-15 words)
+  mediumComment: string // Balanced response with good detail (30-80 words)
+  verboseComment: string // Comprehensive, valuable advice (100-200 words)
 
   // Metadata
-  selectedTier?: "free" | "medium" | "premium" // Which tier the user selected
+  selectedLength?: "micro" | "medium" | "verbose" // Which length the user selected
   approved: boolean
   used: boolean // Whether the user has used this comment
   createdAt: Timestamp
@@ -146,9 +146,9 @@ export interface CreateGeneratedCommentData {
   threadId: string
   relevanceScore: number
   reasoning: string
-  freeComment: string
+  microComment: string
   mediumComment: string
-  premiumComment: string
+  verboseComment: string
 }
 
 // Update generated comment data
