@@ -188,6 +188,8 @@ export default function LeadFinderDashboard() {
     initialLoadAttemptedRef.current = false
     setLeads([]) // Clear previous leads
     latestLeadsRef.current = []
+    // Sync the ref with the state when campaign ID changes
+    currentCampaignIdRef.current = campaignId
     // Don't set loading state - we'll jump straight to complete
     if (campaignId) {
       console.log("🔄 [CAMPAIGN-CHANGE] Campaign selected, polling will start automatically")
