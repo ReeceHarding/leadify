@@ -27,8 +27,6 @@ import {
   RefreshCw,
   Send,
   PlayCircle,
-  Pause,
-  X,
   MinusCircle
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -85,6 +83,11 @@ import {
   postCommentAndUpdateStatusAction,
   testRedditPostingAction 
 } from "@/actions/integrations/reddit-posting-actions"
+import {
+  processPostWithRateLimit,
+  queuePostsForAsyncProcessing,
+  getPostingQueueStatus
+} from "@/actions/integrations/reddit-posting-queue"
 import { useUser } from "@clerk/nextjs"
 import { db } from "@/db/db"
 import {
@@ -184,15 +187,8 @@ export default function LeadFinderDashboard() {
   const [activeTab, setActiveTab] = useState<"all" | "queue">("all")
   const [newLeadIds, setNewLeadIds] = useState<Set<string>>(new Set())
   
-  // New state for batch posting
+  // State for async queue posting
   const [isBatchPosting, setIsBatchPosting] = useState(false)
-  const [batchPostingProgress, setBatchPostingProgress] = useState({
-    current: 0,
-    total: 0,
-    isPaused: false
-  })
-  const batchPostingRef = useRef<boolean>(false)
-  const [batchDelay, setBatchDelay] = useState(10) // New state for configurable delay
 
   // Get keywords from profile and start real workflow
   useEffect(() => {
@@ -797,8 +793,13 @@ export default function LeadFinderDashboard() {
     }
   }
 
-  // Handle posting comment now
+  // Handle posting comment now with rate limiting
   const handlePostNow = async (lead: LeadResult) => {
+    if (!user?.id) {
+      toast.error("Please log in to post comments")
+      return
+    }
+
     try {
       // Extract thread ID from URL
       const urlMatch = lead.postUrl.match(/\/comments\/([a-zA-Z0-9]+)/)
@@ -820,8 +821,9 @@ export default function LeadFinderDashboard() {
 
       const comment = getDisplayComment(lead)
       
-      // Post comment and update status
-      const result = await postCommentAndUpdateStatusAction(
+      // Post comment with rate limiting
+      const result = await processPostWithRateLimit(
+        user.id,
         lead.id,
         threadId,
         comment
@@ -836,19 +838,21 @@ export default function LeadFinderDashboard() {
           keyword: lead.keyword,
           comment_length: lead.selectedLength || selectedLength,
           campaign_id: lead.campaignId,
-          subreddit: lead.subreddit
+          subreddit: lead.subreddit,
+          rate_limited: false
         })
         // Optionally open the posted comment in a new tab
-        if (result.data.link) {
+        if (result.data?.link) {
           window.open(result.data.link, "_blank")
         }
       } else {
         toast.error(result.message)
-        // Track failure
+        // Track failure or rate limit
         posthog.capture("lead_post_failed", {
           lead_id: lead.id,
           error_message: result.message,
-          campaign_id: lead.campaignId
+          campaign_id: lead.campaignId,
+          rate_limited: result.message.includes("Rate limited")
         })
       }
     } catch (error) {
@@ -895,9 +899,14 @@ export default function LeadFinderDashboard() {
     }
   }
 
-  // Batch posting functionality
+  // Async batch posting functionality with rate limiting
   const handleBatchPostQueue = async () => {
-    console.log("🚀 [BATCH-POST] Starting batch posting of queue")
+    if (!user?.id) {
+      toast.error("Please log in to post comments")
+      return
+    }
+
+    console.log("🚀 [BATCH-POST] Starting async batch posting of queue")
     
     const queuedLeads = leads.filter(lead => lead.status === "approved")
     if (queuedLeads.length === 0) {
@@ -913,97 +922,78 @@ export default function LeadFinderDashboard() {
       return
     }
 
-    setIsBatchPosting(true)
-    setBatchPostingProgress({
-      current: 0,
-      total: queuedLeads.length,
-      isPaused: false
-    })
-    batchPostingRef.current = true
-
-    let successCount = 0
-    let failureCount = 0
-
-    for (let i = 0; i < queuedLeads.length; i++) {
-      // Check if batch posting was cancelled
-      if (!batchPostingRef.current || batchPostingProgress.isPaused) {
-        console.log("🛑 [BATCH-POST] Batch posting cancelled or paused")
-        break
+    // Prepare posts for queueing
+    const postsToQueue = queuedLeads.map(lead => {
+      const urlMatch = lead.postUrl.match(/\/comments\/([a-zA-Z0-9]+)/)
+      const threadId = urlMatch ? urlMatch[1] : lead.originalData?.threadId || ""
+      
+      return {
+        leadId: lead.id,
+        threadId,
+        comment: getDisplayComment(lead)
       }
+    }).filter(post => post.threadId) // Filter out posts without thread IDs
 
-      const lead = queuedLeads[i]
-      setBatchPostingProgress(prev => ({ ...prev, current: i + 1 }))
+    if (postsToQueue.length === 0) {
+      toast.error("No valid posts to queue")
+      return
+    }
 
-      try {
-        // Extract thread ID from URL
-        const urlMatch = lead.postUrl.match(/\/comments\/([a-zA-Z0-9]+)/)
-        const threadId = urlMatch ? urlMatch[1] : lead.originalData?.threadId
-        
-        if (!threadId) {
-          console.error(`❌ [BATCH-POST] Could not extract thread ID for lead ${lead.id}`)
-          failureCount++
-          continue
-        }
-
-        const comment = getDisplayComment(lead)
-        console.log(`📝 [BATCH-POST] Posting comment ${i + 1}/${queuedLeads.length} for lead ${lead.id}`)
-        
-        // Post comment
-        const result = await postCommentAndUpdateStatusAction(
-          lead.id,
-          threadId,
-          comment
+    setIsBatchPosting(true)
+    
+    try {
+      // Queue all posts for async processing
+      const result = await queuePostsForAsyncProcessing(user.id, postsToQueue)
+      
+      if (result.isSuccess) {
+        const { queuedCount, estimatedTime } = result.data
+        toast.success(
+          `Queued ${queuedCount} posts for processing`,
+          {
+            description: `Estimated completion time: ${estimatedTime} minutes. Posts will be sent automatically with 5-7 minute delays.`
+          }
         )
         
-        if (result.isSuccess) {
-          successCount++
-          console.log(`✅ [BATCH-POST] Successfully posted comment ${i + 1}`)
-        } else {
-          failureCount++
-          console.error(`❌ [BATCH-POST] Failed to post comment ${i + 1}: ${result.message}`)
-        }
+        // Track batch posting queued
+        posthog.capture("batch_posting_queued", {
+          total_posts: queuedCount,
+          estimated_minutes: estimatedTime,
+          campaign_id: campaignId
+        })
+        
+        // Update UI to show posts are queued
+        setIsBatchPosting(false)
+        
+        // Optionally refresh queue status
+        checkQueueStatus()
+      } else {
+        toast.error(result.message)
+        setIsBatchPosting(false)
+      }
+    } catch (error) {
+      console.error("❌ [BATCH-POST] Error queueing posts:", error)
+      toast.error("Failed to queue posts")
+      setIsBatchPosting(false)
+    }
+  }
 
-        // Add delay between posts to avoid rate limiting
-        if (i < queuedLeads.length - 1) {
-          console.log(`⏳ [BATCH-POST] Waiting ${batchDelay} seconds before next post...`)
-          await new Promise(resolve => setTimeout(resolve, batchDelay * 1000))
-        }
-      } catch (error) {
-        console.error(`❌ [BATCH-POST] Error posting comment for lead ${lead.id}:`, error)
-        failureCount++
+  // Check posting queue status
+  const checkQueueStatus = async () => {
+    if (!user?.id) return
+    
+    const result = await getPostingQueueStatus(user.id)
+    if (result.isSuccess) {
+      const { pending, processing, completed, failed, nextPostTime } = result.data
+      console.log(`📊 [QUEUE-STATUS] Pending: ${pending}, Processing: ${processing}, Completed: ${completed}, Failed: ${failed}`)
+      
+      if (nextPostTime && nextPostTime > new Date()) {
+        const waitMinutes = Math.ceil((nextPostTime.getTime() - Date.now()) / 60000)
+        console.log(`⏳ [QUEUE-STATUS] Next post allowed in ${waitMinutes} minutes`)
       }
     }
-
-    setIsBatchPosting(false)
-    batchPostingRef.current = false
-    
-    // Track batch posting completion
-    posthog.capture("batch_posting_completed", {
-      total_posts: queuedLeads.length,
-      success_count: successCount,
-      failure_count: failureCount,
-      delay_seconds: batchDelay,
-      campaign_id: campaignId,
-      was_cancelled: !batchPostingRef.current
-    })
-    
-    if (successCount > 0) {
-      toast.success(`Posted ${successCount} comments successfully${failureCount > 0 ? `, ${failureCount} failed` : ''}`)
-    } else {
-      toast.error("Failed to post any comments")
-    }
   }
 
-  const handlePauseBatchPosting = () => {
-    setBatchPostingProgress(prev => ({ ...prev, isPaused: !prev.isPaused }))
-  }
 
-  const handleCancelBatchPosting = () => {
-    batchPostingRef.current = false
-    setIsBatchPosting(false)
-    setBatchPostingProgress({ current: 0, total: 0, isPaused: false })
-    toast.info("Batch posting cancelled")
-  }
 
   // Filter and sort leads
   const filteredAndSortedLeads = useMemo(() => {
@@ -1320,98 +1310,67 @@ export default function LeadFinderDashboard() {
             <CardHeader className="border-b bg-amber-50/50 p-4 dark:border-gray-700 dark:bg-amber-900/20">
               <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-800 dark:text-gray-100">
                 <PlayCircle className="size-5 text-amber-600 dark:text-amber-400" />
-                Batch Posting
+                Async Queue Posting
               </CardTitle>
               <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
-                Post all queued comments automatically with rate limiting
+                Queue all comments for automatic posting with 5-7 minute randomized delays
               </CardDescription>
             </CardHeader>
             <CardContent className="p-4">
-              {!isBatchPosting ? (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
-                      <p>{leads.filter(l => l.status === "approved").length} comments ready to post</p>
-                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
-                        Each comment will be posted with a {batchDelay}-second delay to avoid rate limits
-                      </p>
-                    </div>
-                    <Button
-                      onClick={handleBatchPostQueue}
-                      className="gap-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-md transition-all hover:from-amber-600 hover:to-amber-700 hover:shadow-lg"
-                    >
-                      <PlayCircle className="size-4" />
-                      Start Posting
-                    </Button>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="font-medium">{leads.filter(l => l.status === "approved").length} comments ready to queue</p>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
+                      Posts will be sent automatically with 5-7 minute randomized delays to comply with Reddit's rate limits
+                    </p>
                   </div>
-                  <div className="flex items-center gap-4 rounded-md border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800">
-                    <label htmlFor="batch-delay" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Delay between posts:
-                    </label>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        id="batch-delay"
-                        type="number"
-                        min="5"
-                        max="30"
-                        value={batchDelay}
-                        onChange={(e) => setBatchDelay(Number(e.target.value))}
-                        className="h-8 w-16 text-center"
-                      />
-                      <span className="text-sm text-gray-600 dark:text-gray-400">seconds</span>
-                    </div>
-                    <div className="ml-auto text-xs text-gray-500 dark:text-gray-500">
-                      Recommended: 10-15 seconds
+                  <Button
+                    onClick={handleBatchPostQueue}
+                    disabled={isBatchPosting}
+                    className="gap-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-md transition-all hover:from-amber-600 hover:to-amber-700 hover:shadow-lg disabled:opacity-50"
+                  >
+                    {isBatchPosting ? (
+                      <>
+                        <Loader2 className="size-4 animate-spin" />
+                        Queueing...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="size-4" />
+                        Queue All Posts
+                      </>
+                    )}
+                  </Button>
+                </div>
+                
+                {/* Rate Limit Info */}
+                <div className="rounded-md border border-blue-200 bg-blue-50 p-3 dark:border-blue-700 dark:bg-blue-900/20">
+                  <div className="flex items-start gap-2">
+                    <AlertCircle className="mt-0.5 size-4 shrink-0 text-blue-600 dark:text-blue-400" />
+                    <div className="space-y-1 text-xs text-gray-700 dark:text-gray-300">
+                      <p className="font-medium">Rate Limiting Protection:</p>
+                      <ul className="ml-4 list-disc space-y-0.5 text-gray-600 dark:text-gray-400">
+                        <li>Maximum 1 post per account every 5 minutes</li>
+                        <li>Randomized delays between 5-7 minutes to avoid patterns</li>
+                        <li>Posts are queued and processed asynchronously</li>
+                        <li>You'll be notified when all posts are completed</li>
+                      </ul>
                     </div>
                   </div>
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Posting comment {batchPostingProgress.current} of {batchPostingProgress.total}
-                      </p>
-                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
-                        {batchPostingProgress.isPaused ? 'Paused' : 'Processing...'}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handlePauseBatchPosting}
-                        className="gap-1.5"
-                      >
-                        {batchPostingProgress.isPaused ? (
-                          <>
-                            <Play className="size-3.5" />
-                            Resume
-                          </>
-                        ) : (
-                          <>
-                            <Pause className="size-3.5" />
-                            Pause
-                          </>
-                        )}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleCancelBatchPosting}
-                        className="gap-1.5 border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700 dark:border-red-400 dark:text-red-400 dark:hover:bg-red-900/20"
-                      >
-                        <X className="size-3.5" />
-                        Cancel
-                      </Button>
-                    </div>
+                
+                {/* Estimated Time */}
+                {leads.filter(l => l.status === "approved").length > 0 && (
+                  <div className="rounded-md border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      <Clock className="mb-1 mr-2 inline-block size-4" />
+                      <span className="font-medium">Estimated completion time:</span>{" "}
+                      {Math.ceil(leads.filter(l => l.status === "approved").length * 6)} minutes
+                    </p>
                   </div>
-                  <Progress
-                    value={(batchPostingProgress.current / batchPostingProgress.total) * 100}
-                    className="h-2.5 w-full [&>div]:bg-gradient-to-r [&>div]:from-amber-400 [&>div]:to-amber-600"
-                  />
-                </div>
-              )}
+                )}
+              </div>
             </CardContent>
           </Card>
         )}

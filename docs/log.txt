@@ -721,3 +721,735 @@
 [2025-05-24T01:07:51.853Z] NEXTJS_STDOUT: ✓ Compiled in 197ms (714 modules)
 [2025-05-24T01:08:05.579Z] NEXTJS_STDOUT: ✓ Compiled in 248ms (714 modules)
 [2025-05-24T01:08:20.059Z] NEXTJS_STDOUT: ✓ Compiled in 218ms (714 modules)
+[2025-05-24T01:08:30.268Z] ==================================================
+[2025-05-24T01:08:30.269Z] COMMAND STARTED: next lint --fix
+[2025-05-24T01:08:30.269Z] ==================================================
+[2025-05-24T01:08:31.797Z] STDOUT: ✔ No ESLint warnings or errors
+[2025-05-24T01:08:31.854Z] ==================================================
+[2025-05-24T01:08:31.855Z] COMMAND FINISHED: next lint --fix (exit code: 0)
+[2025-05-24T01:08:31.855Z] ==================================================
+[2025-05-24T01:08:32.036Z] ==================================================
+[2025-05-24T01:08:32.037Z] COMMAND STARTED: prettier --write {app,lib,db,components,context,types}/**/*.{ts,tsx} --cache
+[2025-05-24T01:08:32.037Z] ==================================================
+[2025-05-24T01:08:32.110Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.110Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.110Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.110Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.110Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.111Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.111Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.113Z] STDOUT: app/api/reddit/auth/route.ts 1ms (unchanged) (cached)
+[2025-05-24T01:08:32.113Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.113Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.114Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.114Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.114Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.114Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.114Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.115Z] STDOUT: app/api/reddit/callback/route.ts 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.116Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.116Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.116Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.116Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.116Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.116Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.116Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.117Z] STDOUT: app/api/stripe/webhooks/route.ts 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.119Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.119Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.119Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.119Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.119Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.119Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.119Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.120Z] STDOUT: app/(auth)/layout.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.121Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.121Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.121Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.121Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.121Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.121Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.121Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.122Z] STDOUT: app/(marketing)/layout.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.123Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.123Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.123Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.123Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.123Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.123Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.123Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.124Z] STDOUT: app/(marketing)/page.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.125Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.125Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.125Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.126Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.126Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.126Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.126Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.127Z] STDOUT: app/dashboard/layout.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.127Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.127Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.127Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.127Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.127Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.127Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.127Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.129Z] STDOUT: app/dashboard/page.tsx 1ms (unchanged) (cached)
+[2025-05-24T01:08:32.130Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.130Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.130Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.130Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.130Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.130Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.130Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.131Z] STDOUT: app/firebase-test/page.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.132Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.132Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.132Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.132Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.132Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.132Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.132Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.132Z] STDOUT: app/onboarding/layout.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.133Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.133Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.133Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.133Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.133Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.133Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.133Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.134Z] STDOUT: app/onboarding/page.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.135Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.135Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.135Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.135Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.135Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.135Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.135Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.136Z] STDOUT: app/reddit-auth/page.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.137Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.137Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.137Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.137Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.137Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.137Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.137Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.138Z] STDOUT: app/reddit-test/page.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.139Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.139Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.139Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.139Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.139Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.139Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.139Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.140Z] STDOUT: app/reddit/layout.tsx 1ms (unchanged) (cached)
+[2025-05-24T01:08:32.141Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.141Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.141Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.141Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.141Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.141Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.141Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.141Z] STDOUT: lib/hooks/use-toast.ts 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.142Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.142Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.142Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.142Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.142Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.142Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.143Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.143Z] STDOUT: lib/hooks/use-copy-to-clipboard.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.144Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.144Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.144Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.144Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.144Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.144Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.144Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.145Z] STDOUT: lib/hooks/use-mobile.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.146Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.146Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.147Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.147Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.147Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.147Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.147Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.147Z] STDOUT: db/firestore/collections.ts 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.148Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.148Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.148Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.148Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.148Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.148Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.148Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.149Z] STDOUT: db/firestore/lead-generation-collections.ts 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.149Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.149Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.150Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.150Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.150Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.150Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.150Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.150Z] STDOUT: db/schema/index.ts 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.151Z] STDERR: [error] No files matching the pattern were found: "db/**/*.tsx".
+[2025-05-24T01:08:32.152Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.152Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.152Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.152Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.152Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.152Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.152Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.153Z] STDOUT: components/ui/use-toast.ts 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.154Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.154Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.154Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.154Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.154Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.154Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.154Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.155Z] STDOUT: components/landing/hero.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.155Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.155Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.155Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.156Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.156Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.156Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.156Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.156Z] STDOUT: components/landing/logo-carousel.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.157Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.157Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.157Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.157Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.157Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.157Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.157Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.157Z] STDOUT: components/landing/testimonials.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.158Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.158Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.158Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.158Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.158Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.158Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.158Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.159Z] STDOUT: components/magicui/animated-gradient-text.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.159Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.159Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.159Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.159Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.159Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.160Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.160Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.160Z] STDOUT: components/magicui/hero-video-dialog.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.161Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.161Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.161Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.161Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.161Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.161Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.161Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.162Z] STDOUT: components/sidebar/app-sidebar.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.162Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.162Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.162Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.162Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.162Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.162Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.163Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.163Z] STDOUT: components/sidebar/nav-main.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.163Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.163Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.163Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.163Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.164Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.164Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.164Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.164Z] STDOUT: components/sidebar/nav-projects.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.165Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.165Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.165Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.165Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.165Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.165Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.165Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.165Z] STDOUT: components/sidebar/nav-user.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.166Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.166Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.166Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.166Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.166Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.166Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.166Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.166Z] STDOUT: components/sidebar/team-switcher.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.167Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.167Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.167Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.167Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.167Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.167Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.167Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.168Z] STDOUT: components/ui/accordion.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.169Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.169Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.169Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.169Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.169Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.169Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.169Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.170Z] STDOUT: components/ui/alert-dialog.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.171Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.171Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.171Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.171Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.171Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.171Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.171Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.171Z] STDOUT: components/ui/alert.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.172Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.172Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.172Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.172Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.172Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.172Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.172Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.172Z] STDOUT: components/ui/aspect-ratio.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.173Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.173Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.173Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.173Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.173Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.173Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.173Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.173Z] STDOUT: components/ui/avatar.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.174Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.174Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.174Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.174Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.174Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.174Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.174Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.174Z] STDOUT: components/ui/badge.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.175Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.175Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.175Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.175Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.175Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.175Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.175Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.175Z] STDOUT: components/ui/breadcrumb.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.176Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.176Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.176Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.176Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.176Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.176Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.176Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.176Z] STDOUT: components/ui/button.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.177Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.177Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.177Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.177Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.177Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.177Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.177Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.177Z] STDOUT: components/ui/calendar.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.178Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.178Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.178Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.178Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.178Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.178Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.178Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.179Z] STDOUT: components/ui/card.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.179Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.179Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.179Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.180Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.180Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.180Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.180Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.180Z] STDOUT: components/ui/carousel.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.181Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.181Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.181Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.181Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.181Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.181Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.181Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.181Z] STDOUT: components/ui/chart.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.182Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.182Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.182Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.182Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.182Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.182Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.182Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.183Z] STDOUT: components/ui/checkbox.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.183Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.183Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.183Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.183Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.183Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.183Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.183Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.184Z] STDOUT: components/ui/collapsible.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.184Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.184Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.184Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.184Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.184Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.184Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.184Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.185Z] STDOUT: components/ui/command.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.185Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.185Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.185Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.185Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.185Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.185Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.185Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.186Z] STDOUT: components/ui/context-menu.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.186Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.186Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.186Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.186Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.186Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.187Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.187Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.187Z] STDOUT: components/ui/dialog.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.187Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.187Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.187Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.188Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.188Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.188Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.188Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.188Z] STDOUT: components/ui/drawer.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.188Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.188Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.188Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.189Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.189Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.189Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.189Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.189Z] STDOUT: components/ui/dropdown-menu.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.190Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.190Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.190Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.190Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.190Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.190Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.190Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.190Z] STDOUT: components/ui/form.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.191Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.191Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.191Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.191Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.191Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.191Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.191Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.191Z] STDOUT: components/ui/hover-card.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.192Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.192Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.192Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.192Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.192Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.192Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.192Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.193Z] STDOUT: components/ui/input-otp.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.193Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.193Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.193Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.193Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.193Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.193Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.193Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.194Z] STDOUT: components/ui/input.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.194Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.194Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.194Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.194Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.194Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.194Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.194Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.195Z] STDOUT: components/ui/label.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.195Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.195Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.195Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.195Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.195Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.195Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.195Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.196Z] STDOUT: components/ui/menubar.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.196Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.196Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.196Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.196Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.196Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.196Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.196Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.197Z] STDOUT: components/ui/navigation-menu.tsx 1ms (unchanged) (cached)
+[2025-05-24T01:08:32.197Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.197Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.197Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.197Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.197Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.197Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.197Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.198Z] STDOUT: components/ui/pagination.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.198Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.198Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.198Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.198Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.198Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.198Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.198Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.199Z] STDOUT: components/ui/popover.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.199Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.199Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.199Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.199Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.199Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.199Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.199Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.200Z] STDOUT: components/ui/progress.tsx 1ms (unchanged) (cached)
+[2025-05-24T01:08:32.200Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.200Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.200Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.200Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.200Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.200Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.200Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.201Z] STDOUT: components/ui/radio-group.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.201Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.201Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.201Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.201Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.201Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.201Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.201Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.201Z] STDOUT: components/ui/resizable.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.202Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.202Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.202Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.202Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.202Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.202Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.202Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.202Z] STDOUT: components/ui/scroll-area.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.203Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.203Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.203Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.203Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.203Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.203Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.203Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.204Z] STDOUT: components/ui/select.tsx 1ms (unchanged) (cached)
+[2025-05-24T01:08:32.204Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.204Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.204Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.204Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.204Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.204Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.204Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.205Z] STDOUT: components/ui/separator.tsx 1ms (unchanged) (cached)
+[2025-05-24T01:08:32.205Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.205Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.205Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.205Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.205Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.205Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.205Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.206Z] STDOUT: components/ui/sheet.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.206Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.206Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.206Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.206Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.206Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.206Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.206Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.207Z] STDOUT: components/ui/sidebar.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.207Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.208Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.208Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.208Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.208Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.208Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.208Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.208Z] STDOUT: components/ui/skeleton.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.208Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.208Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.208Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.208Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.208Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.208Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.208Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.209Z] STDOUT: components/ui/slider.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.209Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.209Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.209Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.209Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.209Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.209Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.209Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.210Z] STDOUT: components/ui/sonner.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.210Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.210Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.210Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.210Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.210Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.210Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.210Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.211Z] STDOUT: components/ui/switch.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.211Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.211Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.211Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.211Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.211Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.211Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.211Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.212Z] STDOUT: components/ui/table.tsx 1ms (unchanged) (cached)
+[2025-05-24T01:08:32.212Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.212Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.212Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.212Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.212Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.212Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.212Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.212Z] STDOUT: components/ui/tabs.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.213Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.213Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.213Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.213Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.213Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.213Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.213Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.213Z] STDOUT: components/ui/textarea.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.214Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.214Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.214Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.214Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.214Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.214Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.214Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.214Z] STDOUT: components/ui/toast.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.215Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.215Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.215Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.215Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.215Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.215Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.215Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.215Z] STDOUT: components/ui/toaster.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.216Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.216Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.216Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.216Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.216Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.216Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.216Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.216Z] STDOUT: components/ui/toggle-group.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.217Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.217Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.217Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.217Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.217Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.217Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.217Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.218Z] STDOUT: components/ui/toggle.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.218Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.218Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.218Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.218Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.218Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.218Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.218Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.219Z] STDOUT: components/ui/tooltip.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.219Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.219Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.220Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.220Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.220Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.220Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.220Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.220Z] STDOUT: components/utilities/providers.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.220Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.220Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.221Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.221Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.221Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.221Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.221Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.221Z] STDOUT: components/utilities/tailwind-indicator.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.221Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.221Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.221Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.221Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.222Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.222Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.222Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.222Z] STDOUT: components/utilities/theme-switcher.tsx 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.222Z] STDERR: [error] No files matching the pattern were found: "context/**/*.ts".
+[2025-05-24T01:08:32.223Z] STDERR: [error] No files matching the pattern were found: "context/**/*.tsx".
+[2025-05-24T01:08:32.223Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.223Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.223Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.223Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.223Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.223Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.223Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.224Z] STDOUT: types/index.ts 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.224Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
+[2025-05-24T01:08:32.224Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
+[2025-05-24T01:08:32.224Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
+[2025-05-24T01:08:32.224Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
+[2025-05-24T01:08:32.224Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
+[2025-05-24T01:08:32.224Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
+[2025-05-24T01:08:32.224Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
+[2025-05-24T01:08:32.225Z] STDOUT: types/server-action-types.ts 0ms (unchanged) (cached)
+[2025-05-24T01:08:32.225Z] STDERR: [error] No files matching the pattern were found: "types/**/*.tsx".
+[2025-05-24T01:08:32.244Z] ==================================================
+[2025-05-24T01:08:32.244Z] COMMAND FINISHED: prettier --write {app,lib,db,components,context,types}/**/*.{ts,tsx} --cache (exit code: 2)
+[2025-05-24T01:08:32.244Z] ==================================================
+[2025-05-24T01:08:32.244Z] ERROR: Command failed with exit code 2
+[2025-05-24T01:10:09.334Z] NEXTJS_STDOUT: ✓ Compiled /reddit/lead-finder in 383ms (1657 modules)
+[2025-05-24T01:10:09.641Z] NEXTJS_STDOUT: 🍞 [REDDIT-HEADER] Current pathname: /reddit/lead-finder
+[2025-05-24T01:10:09.643Z] NEXTJS_STDOUT: 🍞 [REDDIT-HEADER] Generating breadcrumbs for: /reddit/lead-finder
+[2025-05-24T01:10:09.643Z] NEXTJS_STDOUT: 🍞 [REDDIT-HEADER] Generated breadcrumbs: [
+[2025-05-24T01:10:09.643Z] NEXTJS_STDOUT: { label: 'Dashboard', href: '/dashboard', isActive: false },
+[2025-05-24T01:10:09.643Z] NEXTJS_STDOUT: { label: 'Reddit', href: '/reddit', isActive: false },
+[2025-05-24T01:10:09.643Z] NEXTJS_STDOUT: { label: 'Lead Finder', href: '/reddit/lead-finder', isActive: true }
+[2025-05-24T01:10:09.644Z] NEXTJS_STDOUT: ]
+[2025-05-24T01:10:09.817Z] NEXTJS_STDOUT: GET /reddit/lead-finder 200 in 870ms
+[2025-05-24T01:17:56.793Z] NEXTJS_STDOUT: ✓ Compiled in 442ms (714 modules)
+[2025-05-24T01:17:56.934Z] NEXTJS_STDOUT: ✓ Compiled in 141ms (714 modules)
+[2025-05-24T01:18:25.827Z] NEXTJS_STDOUT: ✓ Compiled in 390ms (715 modules)
+[2025-05-24T01:18:25.962Z] NEXTJS_STDOUT: ✓ Compiled in 134ms (715 modules)
+[2025-05-24T01:19:11.898Z] NEXTJS_STDOUT: ✓ Compiled in 410ms (715 modules)
+[2025-05-24T01:20:06.928Z] NEXTJS_STDOUT: ✓ Compiled in 369ms (713 modules)
+[2025-05-24T01:20:23.087Z] NEXTJS_STDOUT: ✓ Compiled in 190ms (713 modules)
+[2025-05-24T01:20:33.076Z] NEXTJS_STDOUT: ✓ Compiled in 228ms (713 modules)
+[2025-05-24T01:20:44.609Z] NEXTJS_STDOUT: ✓ Compiled in 156ms (713 modules)
+[2025-05-24T01:21:28.524Z] NEXTJS_STDOUT: ✓ Compiled in 474ms (968 modules)
+[2025-05-24T01:21:29.699Z] NEXTJS_STDOUT: ✓ Compiled in 121ms (713 modules)
+[2025-05-24T01:23:11.813Z] NEXTJS_STDERR: ⚠ ./db/schema/index.ts
+[2025-05-24T01:23:11.814Z] NEXTJS_STDERR: The requested module '../firestore/posting-queue-collections' contains conflicting star exports for the name 'COLLECTIONS' with the previous requested module '../firestore/collections'
+[2025-05-24T01:23:11.814Z] NEXTJS_STDERR: Import trace for requested module:
+[2025-05-24T01:23:11.814Z] NEXTJS_STDERR: ./db/schema/index.ts
+[2025-05-24T01:23:11.814Z] NEXTJS_STDERR: ./app/reddit/lead-finder/_components/lead-finder-dashboard.tsx
+[2025-05-24T01:23:19.104Z] NEXTJS_STDOUT: ✓ Compiled in 63ms (700 modules)
+[2025-05-24T01:23:49.429Z] NEXTJS_STDOUT: ✓ Compiled in 176ms (700 modules)
+[2025-05-24T01:23:49.573Z] NEXTJS_STDOUT: ✓ Compiled in 51ms (700 modules)
+[2025-05-24T01:24:01.826Z] NEXTJS_STDOUT: ✓ Compiled in 137ms (700 modules)
+[2025-05-24T01:24:02.030Z] NEXTJS_STDOUT: ✓ Compiled in 64ms (700 modules)
+[2025-05-24T01:24:08.633Z] NEXTJS_STDOUT: ✓ Compiled in 48ms (700 modules)
+[2025-05-24T01:24:08.962Z] NEXTJS_STDOUT: ✓ Compiled in 46ms (700 modules)
+[2025-05-24T01:24:19.806Z] NEXTJS_STDOUT: ✓ Compiled in 283ms (714 modules)
+[2025-05-24T01:24:26.444Z] NEXTJS_STDOUT: ✓ Compiled in 116ms (714 modules)
+[2025-05-24T01:24:26.643Z] NEXTJS_STDOUT: ✓ Compiled in 112ms (714 modules)
+[2025-05-24T01:24:40.602Z] NEXTJS_STDOUT: ✓ Compiled in 111ms (714 modules)
+[2025-05-24T01:24:40.764Z] NEXTJS_STDOUT: ✓ Compiled in 107ms (714 modules)
+[2025-05-24T01:24:50.012Z] NEXTJS_STDOUT: ✓ Compiled in 200ms (714 modules)
+[2025-05-24T01:25:02.900Z] NEXTJS_STDOUT: ✓ Compiled in 179ms (714 modules)
+[2025-05-24T01:25:03.114Z] NEXTJS_STDOUT: ✓ Compiled in 108ms (714 modules)
+[2025-05-24T01:25:12.142Z] NEXTJS_STDOUT: ✓ Compiled in 115ms (714 modules)
+[2025-05-24T01:25:12.404Z] NEXTJS_STDOUT: ✓ Compiled in 99ms (714 modules)
