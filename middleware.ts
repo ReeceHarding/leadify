@@ -7,35 +7,38 @@ Using clerkMiddleware to handle authentication across the app.
 
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
 
-const isPublicRoute = createRouteMatcher([
-  '/',
-  '/about',
-  '/contact', 
-  '/pricing',
-  '/onboarding(.*)',
-  '/reddit/lead-finder(.*)',
-  '/reddit-test(.*)',
-  '/login(.*)',
-  '/signup(.*)',
-  '/api/stripe/webhooks',
-  '/api/reddit/callback'
+const isProtectedRoute = createRouteMatcher([
+  "/dashboard(.*)",
+  "/api(.*)",
+  "/onboarding(.*)",
+  "/reddit(.*)",
+  "/firebase-test(.*)",
+  "/reddit-auth(.*)"
 ])
 
 export default clerkMiddleware(async (auth, req) => {
-  // Allow public routes
-  if (isPublicRoute(req)) {
-    return
-  }
+  console.log("🔥🔥🔥 [MIDDLEWARE] Request URL:", req.url)
+  console.log("🔥🔥🔥 [MIDDLEWARE] Pathname:", req.nextUrl.pathname)
   
-  // Protect all other routes
-  await auth.protect()
+  const { userId } = await auth()
+  console.log("🔥🔥🔥 [MIDDLEWARE] Auth userId:", userId)
+  console.log("🔥🔥🔥 [MIDDLEWARE] Is protected route:", isProtectedRoute(req))
+  
+  if (isProtectedRoute(req)) {
+    await auth.protect()
+  }
 })
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
-    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-    // Always run for API routes
-    '/(api|trpc)(.*)',
-  ],
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public folder
+     * - api/stripe/webhooks
+     */
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$|api/stripe/webhooks).*)"
+  ]
 }
