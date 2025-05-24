@@ -136,6 +136,9 @@ export default function LeadFinderDashboard() {
     console.log(`🔧 [WORKFLOW-PROGRESS] State changed:`, workflowProgress)
   }, [workflowProgress])
   const [campaignId, setCampaignId] = useState<string | null>(null)
+  
+  // Add a ref to track the current campaign ID to avoid closure issues
+  const currentCampaignIdRef = useRef<string | null>(null)
 
   // New state variables
   const [currentPage, setCurrentPage] = useState(1)
@@ -170,6 +173,13 @@ export default function LeadFinderDashboard() {
   const latestLeadsRef = useRef<LeadResult[]>([])
   const isFirstFetchRef = useRef(true)
   const initialLoadAttemptedRef = useRef(false)
+
+  // Helper function to update both state and ref for campaign ID
+  const updateCampaignId = (newCampaignId: string | null) => {
+    console.log(`🔄 [UPDATE-CAMPAIGN-ID] Updating campaign ID from ${currentCampaignIdRef.current} to ${newCampaignId}`)
+    currentCampaignIdRef.current = newCampaignId
+    setCampaignId(newCampaignId)
+  }
 
   // Reset first-fetch and initial load trackers when campaignId changes
   useEffect(() => {
@@ -328,17 +338,26 @@ export default function LeadFinderDashboard() {
     console.log(`🔄 [POLLING] Collection path will be: generated_comments`)
 
     const fetchLeads = async () => {
+      // Use the ref to get the most current campaign ID
+      const currentCampaign = currentCampaignIdRef.current
+      
       console.log(`\n🔄 [POLLING] ====== FETCHING LEADS ======`)
-      console.log(`🔄 [POLLING] Campaign ID: ${campaignId}`)
+      console.log(`🔄 [POLLING] Campaign ID (from ref): ${currentCampaign}`)
       console.log(`🔄 [POLLING] User ID: ${user?.id}`)
       console.log(`🔄 [POLLING] Time: ${new Date().toISOString()}`)
       console.log(`🔄 [POLLING] isFirstFetchRef.current: ${isFirstFetchRef.current}`)
       console.log(`🔄 [POLLING] initialLoadAttemptedRef.current: ${initialLoadAttemptedRef.current}`)
 
+      // Skip if no campaign ID
+      if (!currentCampaign) {
+        console.log("🚫 [POLLING] No campaign ID in ref, skipping fetch")
+        return
+      }
+
       setIsPolling(true);
 
       try {
-        const result = await getGeneratedCommentsByCampaignAction(campaignId)
+        const result = await getGeneratedCommentsByCampaignAction(currentCampaign)
         
         console.log(`🔄 [POLLING] Action returned:`, {
           isSuccess: result.isSuccess,
@@ -368,8 +387,8 @@ export default function LeadFinderDashboard() {
         if (result.data.length > 0) {
           const campaignIds = new Set(result.data.map((item: any) => item.campaignId))
           console.log(`🔄 [POLLING] Campaign IDs in fetched data:`, Array.from(campaignIds))
-          console.log(`🔄 [POLLING] Our campaign ID: ${campaignId}`)
-          console.log(`🔄 [POLLING] Do they match? ${Array.from(campaignIds).includes(campaignId)}`)
+          console.log(`🔄 [POLLING] Our campaign ID: ${currentCampaign}`)
+          console.log(`🔄 [POLLING] Do they match? ${Array.from(campaignIds).includes(currentCampaign)}`)
         }
 
         // Track new leads for animation
@@ -479,7 +498,7 @@ export default function LeadFinderDashboard() {
     fetchLeads(); // Initial fetch
     const interval = setInterval(fetchLeads, 5000);
     return () => {
-      console.log(`🔄 [POLLING-EFFECT] Cleanup: Stopping polling for campaign: ${campaignId}`)
+      console.log(`🔄 [POLLING-EFFECT] Cleanup: Stopping polling for campaign: ${campaignId} (ref: ${currentCampaignIdRef.current})`)
       clearInterval(interval);
     };
   }, [campaignId, user?.id]); // user?.id is important if action depends on it implicitly or for re-auth
@@ -626,7 +645,7 @@ export default function LeadFinderDashboard() {
       console.log(`🎯 [FRONTEND] User ID: ${user.id}`)
       console.log(`🎯 [FRONTEND] Campaign name: ${realCampaignId ? (existingCampaignsResult.data?.find(c => c.id === realCampaignId)?.name || 'New campaign') : 'Unknown'}`)
       console.log(`🎯 [FRONTEND] ============================\n`)
-      setCampaignId(realCampaignId)
+      updateCampaignId(realCampaignId)
 
       // Step 4: Run workflow only if needed (fire-and-forget so UI is not blocked)
       if (shouldRunWorkflow) {
