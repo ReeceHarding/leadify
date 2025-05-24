@@ -14,7 +14,14 @@ export interface LeadResult {
   microComment: string
   mediumComment: string
   verboseComment: string
-  status: "new" | "viewed" | "approved" | "rejected" | "used"
+  status:
+    | "new"
+    | "viewed"
+    | "approved"
+    | "rejected"
+    | "used"
+    | "queued"
+    | "posted"
   selectedLength: "micro" | "medium" | "verbose"
   timeAgo: string
   originalData?: SerializedGeneratedCommentDocument // Raw data from backend

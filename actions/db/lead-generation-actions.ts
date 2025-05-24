@@ -79,7 +79,7 @@ export interface SerializedGeneratedCommentDocument {
   microComment: string
   mediumComment: string
   verboseComment: string
-  status: "new" | "viewed" | "approved" | "rejected" | "used"
+  status: "new" | "viewed" | "approved" | "rejected" | "used" | "queued" | "posted"
   selectedLength?: "micro" | "medium" | "verbose"
   approved: boolean
   used: boolean
@@ -330,7 +330,7 @@ export async function updateGeneratedCommentAction(
     microComment?: string
     mediumComment?: string
     verboseComment?: string
-    status?: "new" | "viewed" | "approved" | "rejected" | "used"
+    status?: "new" | "viewed" | "approved" | "rejected" | "used" | "queued" | "posted"
     selectedLength?: "micro" | "medium" | "verbose"
     approved?: boolean
     used?: boolean

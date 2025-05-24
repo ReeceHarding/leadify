@@ -136,7 +136,14 @@ export interface GeneratedCommentDocument {
   verboseComment: string // Comprehensive, valuable advice (100-200 words)
 
   // Metadata
-  status: "new" | "viewed" | "approved" | "rejected" | "used" // Lead status
+  status:
+    | "new"
+    | "viewed"
+    | "approved"
+    | "rejected"
+    | "used"
+    | "queued"
+    | "posted" // Lead status
   selectedLength?: "micro" | "medium" | "verbose" // Which length the user selected
   approved: boolean // Kept for potential direct approval, 'status' is more granular
   used: boolean // Whether the user has used this comment
@@ -162,7 +169,14 @@ export interface CreateGeneratedCommentData {
   microComment: string
   mediumComment: string
   verboseComment: string
-  status?: "new" | "viewed" | "approved" | "rejected" | "used" // Default to 'new'
+  status?:
+    | "new"
+    | "viewed"
+    | "approved"
+    | "rejected"
+    | "used"
+    | "queued"
+    | "posted" // Default to 'new'
   keyword?: string // Optional: which keyword led to this post
   postScore?: number // Optional: Reddit post score
 }
