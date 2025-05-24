@@ -142,7 +142,7 @@ export interface GeneratedCommentDocument {
   used: boolean // Whether the user has used this comment
   createdAt: Timestamp
   updatedAt: Timestamp
-  
+
   // Optional tracking fields
   keyword?: string // Which keyword led to finding this post
   postScore?: number // Reddit post score/upvotes

@@ -23,7 +23,9 @@ export async function GET(request: NextRequest) {
 
     // Reddit OAuth configuration
     const REDDIT_CLIENT_ID = process.env.REDDIT_CLIENT_ID
-    const REDDIT_REDIRECT_URI = process.env.REDDIT_REDIRECT_URI || `${process.env.NEXT_PUBLIC_APP_URL}/api/reddit/callback`
+    const REDDIT_REDIRECT_URI =
+      process.env.REDDIT_REDIRECT_URI ||
+      `${process.env.NEXT_PUBLIC_APP_URL}/api/reddit/callback`
 
     if (!REDDIT_CLIENT_ID) {
       console.error("Reddit client ID not configured")
@@ -67,4 +69,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     )
   }
-} 
+}

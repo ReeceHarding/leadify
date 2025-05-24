@@ -90,19 +90,37 @@ export interface SerializedGeneratedCommentDocument {
 }
 
 // Serialization helper functions
+function serializeTimestampToISOBoilerplate(timestamp: any): string {
+  if (timestamp instanceof Timestamp) {
+    return timestamp.toDate().toISOString()
+  }
+  if (typeof timestamp === 'string') {
+    // Attempt to parse to validate and re-serialize to ensure consistent format
+    try {
+      return new Date(timestamp).toISOString()
+    } catch (e) {
+      // If parsing fails, it's not a valid date string
+      console.warn("[TIMESTAMP_SERIALIZE] Invalid date string provided, using epoch as fallback:", timestamp);
+      return new Date(0).toISOString(); 
+    }
+  }
+  if (timestamp && typeof timestamp.seconds === 'number' && typeof timestamp.nanoseconds === 'number') {
+    return new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000).toISOString()
+  }
+  console.warn("[TIMESTAMP_SERIALIZE] Unexpected timestamp format, using epoch as fallback:", timestamp);
+  return new Date(0).toISOString(); // Fallback for unexpected types
+}
+
 function serializeSearchResultDocument(
   searchResult: SearchResultDocument
 ): SerializedSearchResultDocument {
   return {
     ...searchResult,
-    createdAt:
-      searchResult.createdAt instanceof Timestamp
-        ? searchResult.createdAt.toDate().toISOString()
-        : new Date().toISOString(),
-    updatedAt:
-      searchResult.updatedAt instanceof Timestamp
-        ? searchResult.updatedAt.toDate().toISOString()
-        : new Date().toISOString()
+    // Ensure all required fields of SerializedSearchResultDocument are present
+    // and correctly typed, even if optional in SearchResultDocument
+    threadId: searchResult.threadId || undefined, 
+    createdAt: serializeTimestampToISOBoilerplate(searchResult.createdAt),
+    updatedAt: serializeTimestampToISOBoilerplate(searchResult.updatedAt)
   }
 }
 
@@ -111,30 +129,39 @@ function serializeRedditThreadDocument(
 ): SerializedRedditThreadDocument {
   return {
     ...thread,
-    createdAt:
-      thread.createdAt instanceof Timestamp
-        ? thread.createdAt.toDate().toISOString()
-        : new Date().toISOString(),
-    updatedAt:
-      thread.updatedAt instanceof Timestamp
-        ? thread.updatedAt.toDate().toISOString()
-        : new Date().toISOString()
+    // Ensure all required fields of SerializedRedditThreadDocument are present
+    relevanceScore: thread.relevanceScore || undefined,
+    createdAt: serializeTimestampToISOBoilerplate(thread.createdAt),
+    updatedAt: serializeTimestampToISOBoilerplate(thread.updatedAt)
   }
 }
 
 function serializeGeneratedCommentDocument(
   comment: GeneratedCommentDocument
 ): SerializedGeneratedCommentDocument {
+   // Explicitly map to ensure structure and handle undefined optionals
   return {
-    ...comment,
-    createdAt:
-      comment.createdAt instanceof Timestamp
-        ? comment.createdAt.toDate().toISOString()
-        : new Date().toISOString(),
-    updatedAt:
-      comment.updatedAt instanceof Timestamp
-        ? comment.updatedAt.toDate().toISOString()
-        : new Date().toISOString()
+    id: comment.id,
+    campaignId: comment.campaignId,
+    redditThreadId: comment.redditThreadId,
+    threadId: comment.threadId,
+    postUrl: comment.postUrl,
+    postTitle: comment.postTitle,
+    postAuthor: comment.postAuthor,
+    postContentSnippet: comment.postContentSnippet,
+    relevanceScore: comment.relevanceScore,
+    reasoning: comment.reasoning,
+    microComment: comment.microComment,
+    mediumComment: comment.mediumComment,
+    verboseComment: comment.verboseComment,
+    status: comment.status,
+    selectedLength: comment.selectedLength || undefined, // Handle optional
+    approved: comment.approved,
+    used: comment.used,
+    createdAt: serializeTimestampToISOBoilerplate(comment.createdAt),
+    updatedAt: serializeTimestampToISOBoilerplate(comment.updatedAt),
+    postScore: comment.postScore || undefined, // Handle optional
+    keyword: comment.keyword || undefined, // Handle optional
   }
 }
 
