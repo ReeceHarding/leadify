@@ -106,7 +106,8 @@ import {
   getPostingQueueStatus
 } from "@/actions/integrations/reddit-posting-queue"
 import { useUser } from "@clerk/nextjs"
-import { Timestamp } from "firebase/firestore"
+import { Timestamp, onSnapshot, collection, query, where, doc } from "firebase/firestore"
+import { db } from "@/lib/firebase"
 import LeadCard from "./dashboard/lead-card"
 import DashboardHeader from "./dashboard/dashboard-header"
 import ToneCustomizer from "./dashboard/tone-customizer"
@@ -198,7 +199,6 @@ export default function LeadFinderDashboard() {
   const { user, isLoaded: userLoaded } = useUser()
   const [state, setState] = useState<DashboardState>(initialState)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
-  const pollingInterval = useRef<NodeJS.Timeout | null>(null)
   const newLeadIds = useRef(new Set<string>())
   
   // Debug logging
@@ -210,177 +210,44 @@ export default function LeadFinderDashboard() {
     if (state.debugMode) {
       setState(prev => ({
         ...prev,
-        debugLogs: [...prev.debugLogs.slice(-99), logEntry] // Keep last 100 logs
+        debugLogs: [...prev.debugLogs.slice(-99), logEntry]
       }))
     }
   }, [state.debugMode])
-  
-  // Fetch leads
-  const fetchLeads = useCallback(async () => {
-    if (!state.campaignId) {
-      addDebugLog("No campaign ID, skipping fetch")
+
+  // Create and run campaign (MOVED TO BE BEFORE INITIALIZE useEffect)
+  const createAndRunCampaign = useCallback(async (keywords: string[]) => {
+    if (!user) {
+      addDebugLog("createAndRunCampaign: User not available")
       return
     }
-    
-    addDebugLog("Fetching leads for campaign", { campaignId: state.campaignId })
-    
-    try {
-      const result = await getGeneratedCommentsByCampaignAction(state.campaignId)
-      
-      if (result.isSuccess) {
-        addDebugLog("Fetch successful", { 
-          count: result.data.length,
-          campaignId: state.campaignId 
-        })
-        
-        const transformedLeads: LeadResult[] = result.data.map(comment => ({
-          id: comment.id,
-          campaignId: comment.campaignId,
-          postUrl: comment.postUrl,
-          postTitle: comment.postTitle,
-          postAuthor: comment.postAuthor,
-          postContentSnippet: comment.postContentSnippet,
-          subreddit: comment.postUrl.match(/r\/([^/]+)/)?.[1] || "Unknown",
-          relevanceScore: comment.relevanceScore,
-          reasoning: comment.reasoning,
-          microComment: comment.microComment,
-          mediumComment: comment.mediumComment,
-          verboseComment: comment.verboseComment,
-          status: comment.status || "new",
-          selectedLength: comment.selectedLength || "medium",
-          timeAgo: getTimeAgo(comment.createdAt),
-          originalData: comment,
-          postScore: comment.postScore,
-          keyword: comment.keyword
-        }))
-        
-        // Track new leads
-        transformedLeads.forEach(lead => {
-          if (!state.leads.find(l => l.id === lead.id)) {
-            newLeadIds.current.add(lead.id)
-          }
-        })
-        
-        setState(prev => ({
-          ...prev,
-          leads: transformedLeads,
-          lastPolledAt: new Date(),
-          error: null
-        }))
-      } else {
-        addDebugLog("Fetch failed", { 
-          error: result.message,
-          campaignId: state.campaignId 
-        })
-        setState(prev => ({ ...prev, error: result.message }))
-      }
-    } catch (error) {
-      addDebugLog("Fetch error", { 
-        error: error instanceof Error ? error.message : "Unknown error",
-        campaignId: state.campaignId 
-      })
-      setState(prev => ({ 
-        ...prev, 
-        error: "Failed to fetch leads" 
-      }))
-    }
-  }, [state.campaignId, state.leads, addDebugLog])
-  
-  // Initialize dashboard
-  useEffect(() => {
-    const initialize = async () => {
-      if (!userLoaded || !user) {
-        addDebugLog("User not loaded yet")
-        return
-      }
-      
-      addDebugLog("Initializing dashboard", { userId: user.id })
-      setState(prev => ({ ...prev, isLoading: true }))
-      
-      try {
-        // Get campaigns
-        const campaignsResult = await getCampaignsByUserIdAction(user.id)
-        
-        if (campaignsResult.isSuccess && campaignsResult.data.length > 0) {
-          const latestCampaign = campaignsResult.data[0]
-          addDebugLog("Found existing campaign", { 
-            campaignId: latestCampaign.id,
-            status: latestCampaign.status 
-          })
-          
-          setState(prev => ({
-            ...prev,
-            campaignId: latestCampaign.id,
-            workflowRunning: latestCampaign.status === "running"
-          }))
-          
-          // Fetch leads for the campaign
-          await fetchLeads()
-        } else {
-          addDebugLog("No campaigns found")
-          
-          // Check if user has keywords set up
-          const profileResult = await getProfileByUserIdAction(user.id)
-          const keywords = profileResult.data?.keywords || []
-          if (profileResult.isSuccess && keywords.length > 0) {
-            addDebugLog("User has keywords, creating campaign", {
-              keywords: keywords
-            })
-            await createAndRunCampaign(keywords)
-          } else {
-            addDebugLog("No keywords found, showing error")
-            setState(prev => ({
-              ...prev,
-              error: "No keywords found. Please complete onboarding first.",
-              isLoading: false
-            }))
-          }
-        }
-      } catch (error) {
-        addDebugLog("Initialization error", { 
-          error: error instanceof Error ? error.message : "Unknown error" 
-        })
-        setState(prev => ({
-          ...prev,
-          error: "Failed to initialize dashboard",
-          isLoading: false
-        }))
-      }
-    }
-    
-    initialize()
-  }, [userLoaded, user, addDebugLog])
-  
-  // Create and run campaign
-  const createAndRunCampaign = async (keywords: string[]) => {
-    if (!user) return
     
     addDebugLog("Creating new campaign", { keywords })
     
     try {
       setState(prev => ({ 
         ...prev, 
+        isLoading: true, 
         workflowRunning: true,
         error: null 
       }))
 
-      // Get profile for website
       const profileResult = await getProfileByUserIdAction(user.id)
-      if (!profileResult.isSuccess || !profileResult.data.website) {
-        toast.error("Profile missing website information for campaign creation")
-        setState(prev => ({...prev, workflowRunning: false, error: "Profile missing website"}))
+      if (!profileResult.isSuccess || !profileResult.data?.website) {
+        toast.error("User profile is missing website information. Cannot create campaign.")
+        addDebugLog("Profile missing website for campaign creation", { userId: user.id })
+        setState(prev => ({...prev, workflowRunning: false, isLoading: false, error: "Profile missing website"}))
         return
       }
       
-      // Create campaign first
       const campaignResult = await createCampaignAction({
         userId: user.id,
         name: `Lead Gen - ${new Date().toLocaleDateString()}`,
         website: profileResult.data.website,
-        keywords: keywords
+        keywords: keywords,
       })
 
-      if (!campaignResult.isSuccess) {
+      if (!campaignResult.isSuccess || !campaignResult.data?.id) {
         throw new Error(`Campaign creation failed: ${campaignResult.message}`)
       }
       
@@ -389,11 +256,10 @@ export default function LeadFinderDashboard() {
       
       setState(prev => ({
         ...prev,
-        campaignId: newCampaignId, // Set the new campaign ID here
-        workflowRunning: true // Workflow will be started next
+        campaignId: newCampaignId,
+        workflowRunning: true, 
       }))
       
-      // Now run the workflow with the new campaign ID
       const workflowRunResult = await runFullLeadGenerationWorkflowAction(newCampaignId)
       
       if (workflowRunResult.isSuccess) {
@@ -401,10 +267,9 @@ export default function LeadFinderDashboard() {
           campaignId: newCampaignId,
           workflowProgress: workflowRunResult.data 
         })
-        toast.success("Lead generation started! New leads will appear as they're found.")
-        // Polling will pick up from here if enabled by campaignId change
+        toast.success("Lead generation campaign started! New leads will appear in real-time.")
       } else {
-        throw new Error(`Workflow start failed: ${workflowRunResult.message}`)
+        throw new Error(`Workflow start failed for new campaign ${newCampaignId}: ${workflowRunResult.message}`)
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Failed to create and run campaign"
@@ -412,16 +277,181 @@ export default function LeadFinderDashboard() {
       setState(prev => ({
         ...prev,
         error: errorMessage,
-        workflowRunning: false
+        workflowRunning: false,
+        isLoading: false, 
       }))
       toast.error(errorMessage)
     }
-  }
+  }, [user, addDebugLog])
+  
+  // Real-time leads listener using Firestore onSnapshot
+  useEffect(() => {
+    if (!state.campaignId) {
+      addDebugLog("No campaign ID, skipping Firestore listener setup")
+      return
+    }
+
+    addDebugLog("Setting up Firestore listener for campaign", { campaignId: state.campaignId })
+    setState(prev => ({ ...prev, isLoading: true }))
+
+    const commentsQuery = query(
+      collection(db, "generated_comments"),
+      where("campaignId", "==", state.campaignId)
+    )
+
+    const unsubscribe = onSnapshot(
+      commentsQuery,
+      querySnapshot => {
+        addDebugLog("Firestore snapshot received", {
+          count: querySnapshot.size,
+          campaignId: state.campaignId
+        })
+        const transformedLeads: LeadResult[] = querySnapshot.docs.map(docSnap => {
+          const comment = docSnap.data() as any // TODO: Replace 'any' with a proper Firestore document type for generated_comments
+          let createdAtISO: string | undefined = undefined
+          if (comment.createdAt) {
+            if (comment.createdAt instanceof Timestamp) {
+              createdAtISO = comment.createdAt.toDate().toISOString()
+            } else if (typeof comment.createdAt === 'string') { // Handle if it's already a string (e.g., from previous serialization)
+              createdAtISO = comment.createdAt
+            } else if (typeof comment.createdAt.seconds === 'number' && typeof comment.createdAt.nanoseconds === 'number') {
+              // Handle plain object representation of Timestamp
+              createdAtISO = new Timestamp(comment.createdAt.seconds, comment.createdAt.nanoseconds).toDate().toISOString()
+            }
+          }
+
+          return {
+            id: docSnap.id,
+            campaignId: comment.campaignId || null,
+            postUrl: comment.postUrl || "",
+            postTitle: comment.postTitle || "Untitled Post",
+            postAuthor: comment.postAuthor || "Unknown Author",
+            postContentSnippet: comment.postContentSnippet || "",
+            subreddit: comment.postUrl?.match(/r\/([^/]+)/)?.[1] || "Unknown",
+            relevanceScore: comment.relevanceScore || 0,
+            reasoning: comment.reasoning || "",
+            microComment: comment.microComment || "",
+            mediumComment: comment.mediumComment || "",
+            verboseComment: comment.verboseComment || "",
+            status: comment.status || "new",
+            selectedLength: comment.selectedLength || "medium",
+            timeAgo: createdAtISO ? getTimeAgo(createdAtISO) : "Unknown",
+            originalData: { ...comment, id: docSnap.id, createdAt: createdAtISO },
+            postScore: comment.postScore || 0,
+            keyword: comment.keyword || "",
+            createdAt: createdAtISO,
+          } as LeadResult // Explicit cast to ensure all fields are covered or provide defaults
+        })
+
+        transformedLeads.forEach(lead => {
+          if (!state.leads.find(l => l.id === lead.id)) {
+            newLeadIds.current.add(lead.id)
+          }
+        })
+
+        setState(prev => ({
+          ...prev,
+          leads: transformedLeads,
+          isLoading: false, // Data received, stop loading
+          lastPolledAt: new Date(), // Can be renamed to lastUpdatedAt
+          error: null,
+        }))
+      },
+      error => {
+        addDebugLog("Firestore listener error", {
+          error: error.message,
+          campaignId: state.campaignId
+        })
+        setState(prev => ({
+          ...prev,
+          error: "Failed to listen for real-time lead updates.",
+          isLoading: false,
+        }))
+      }
+    )
+
+    // Cleanup listener on component unmount or when campaignId changes
+    return () => {
+      addDebugLog("Cleaning up Firestore listener for campaign", { campaignId: state.campaignId })
+      unsubscribe()
+    }
+  }, [state.campaignId, addDebugLog]) // Dependencies: re-run if campaignId or addDebugLog changes.
+  
+  // Initialize dashboard: Fetches initial campaign or creates one.
+  useEffect(() => {
+    const initialize = async () => {
+      if (!userLoaded || !user) {
+        addDebugLog("User not loaded yet for initialization")
+        return
+      }
+      
+      addDebugLog("Initializing dashboard", { userId: user.id })
+      // Set isLoading to true at the start of initialization.
+      // The onSnapshot listener will set it to false once data is loaded or an error occurs.
+      setState(prev => ({ ...prev, isLoading: true }))
+      
+      try {
+        const campaignsResult = await getCampaignsByUserIdAction(user.id)
+        
+        if (campaignsResult.isSuccess && campaignsResult.data.length > 0) {
+          const latestCampaign = campaignsResult.data.sort((a, b) => {
+            // Assuming createdAt is a string (ISO format) or Timestamp
+            const dateA = typeof a.createdAt === 'string' ? new Date(a.createdAt) : (a.createdAt as Timestamp)?.toDate()
+            const dateB = typeof b.createdAt === 'string' ? new Date(b.createdAt) : (b.createdAt as Timestamp)?.toDate()
+            return (dateB?.getTime() || 0) - (dateA?.getTime() || 0)
+          })[0]
+
+          addDebugLog("Found existing campaign(s), selecting latest", {
+            campaignId: latestCampaign.id,
+            status: latestCampaign.status,
+          })
+          
+          setState(prev => ({
+            ...prev,
+            campaignId: latestCampaign.id,
+            workflowRunning: latestCampaign.status === "running",
+            // isLoading will be handled by the onSnapshot listener effect
+          }))
+          // No explicit fetchLeads() call needed here, onSnapshot effect will trigger
+        } else {
+          addDebugLog("No campaigns found for user.")
+          const profileResult = await getProfileByUserIdAction(user.id)
+          const keywords = profileResult.data?.keywords || []
+
+          if (profileResult.isSuccess && keywords.length > 0) {
+            addDebugLog("User has keywords, creating new campaign automatically", {
+              keywords: keywords,
+            })
+            // createAndRunCampaign will set campaignId, triggering the onSnapshot listener
+            await createAndRunCampaign(keywords)
+          } else {
+            addDebugLog("No keywords found, user needs to complete onboarding.")
+            setState(prev => ({
+              ...prev,
+              error: "No keywords found. Please complete onboarding to start generating leads.",
+              isLoading: false, // Stop loading as there's nothing to load/listen for yet
+            }))
+          }
+        }
+      } catch (error) {
+        addDebugLog("Initialization error", {
+          error: error instanceof Error ? error.message : "Unknown error",
+        })
+        setState(prev => ({
+          ...prev,
+          error: "Failed to initialize dashboard. Please try refreshing.",
+          isLoading: false, // Stop loading on error
+        }))
+      }
+    }
+    
+    initialize()
+  }, [userLoaded, user, addDebugLog, createAndRunCampaign]) // Added createAndRunCampaign to dependencies
   
   // Manual test data creation
   const createTestData = async () => {
     if (!state.campaignId || !user) {
-      toast.error("No campaign selected")
+      toast.error("No campaign selected or user not available")
       return
     }
     
@@ -443,15 +473,17 @@ export default function LeadFinderDashboard() {
         verboseComment: "I understand you're looking for business tools. Based on what you've described, I'd strongly recommend taking a look at our platform. We've helped dozens of similar businesses streamline their operations and increase efficiency. Our solution offers comprehensive features including automated workflows, real-time analytics, and seamless integrations with your existing tools. Happy to share more details if you're interested!",
         status: "new" as const,
         keyword: "test keyword",
-        postScore: 42
+        postScore: 42,
+        // Ensure all fields of CreateGeneratedCommentData are present if that type is strict
       }
       
-      const result = await createGeneratedCommentAction(testComment)
+      // Assuming createGeneratedCommentAction expects a compatible type
+      const result = await createGeneratedCommentAction(testComment as any) // Cast to any if types are misaligned temporarily
       
       if (result.isSuccess) {
         addDebugLog("Test data created successfully", { id: result.data.id })
         toast.success("Test lead created successfully!")
-        await fetchLeads()
+        // await fetchLeads() // Removed: onSnapshot will pick up changes
       } else {
         throw new Error(result.message)
       }
@@ -465,7 +497,10 @@ export default function LeadFinderDashboard() {
   
   // Manual workflow trigger
   const manualRunWorkflow = async () => {
-    if (!user) return
+    if (!user) {
+      toast.error("User not available")
+      return
+    }
     
     addDebugLog("Manually triggering workflow")
     
@@ -484,42 +519,6 @@ export default function LeadFinderDashboard() {
       toast.error("Failed to run workflow")
     }
   }
-  
-  // Polling effect
-  useEffect(() => {
-    if (state.pollingEnabled && state.campaignId) {
-      addDebugLog("Starting polling", { 
-        campaignId: state.campaignId,
-        interval: "5 seconds" 
-      })
-      
-      // Initial fetch
-      fetchLeads()
-      
-      // Set up interval
-      pollingInterval.current = setInterval(() => {
-        fetchLeads()
-      }, 5000) // Poll every 5 seconds
-      
-      return () => {
-        if (pollingInterval.current) {
-          addDebugLog("Stopping polling")
-          clearInterval(pollingInterval.current)
-          pollingInterval.current = null
-        }
-      }
-    }
-  }, [state.pollingEnabled, state.campaignId, fetchLeads, addDebugLog])
-  
-  // Campaign change effect
-  useEffect(() => {
-    if (state.campaignId) {
-      addDebugLog("Campaign changed, enabling polling", { 
-        campaignId: state.campaignId 
-      })
-      setState(prev => ({ ...prev, pollingEnabled: true, isLoading: false }))
-    }
-  }, [state.campaignId, addDebugLog])
   
   // Helper to update state
   const updateState = (updates: Partial<DashboardState>) => {
@@ -542,14 +541,14 @@ export default function LeadFinderDashboard() {
     
     const lead = state.leads.find(l => l.id === leadId)
     if (!lead) return
-    
+
     try {
       const lengthField = `${lead.selectedLength || state.selectedLength}Comment`
       const result = await updateGeneratedCommentAction(leadId, {
         [lengthField]: newComment
       })
-      
-      if (result.isSuccess) {
+
+    if (result.isSuccess) {
         setState(prev => ({
           ...prev,
           leads: prev.leads.map(l =>
@@ -564,8 +563,8 @@ export default function LeadFinderDashboard() {
           editingCommentId: null
         }))
         toast.success("Comment updated")
-      } else {
-        toast.error("Failed to update comment")
+    } else {
+      toast.error("Failed to update comment")
       }
     } catch (error) {
       console.error("✏️ [EDIT] Error:", error)
@@ -582,7 +581,7 @@ export default function LeadFinderDashboard() {
       const result = await updateGeneratedCommentAction(lead.id, {
         status: "queued"
       })
-      
+
       if (result.isSuccess) {
         setState(prev => ({
           ...prev,
@@ -597,7 +596,7 @@ export default function LeadFinderDashboard() {
       }
     } catch (error) {
       console.error("➕ [QUEUE] Error:", error)
-      toast.error("Failed to add to queue")
+        toast.error("Failed to add to queue")
       updateState({ queuingLeadId: null })
     }
   }
@@ -611,7 +610,7 @@ export default function LeadFinderDashboard() {
       const result = await updateGeneratedCommentAction(lead.id, {
         status: "new"
       })
-      
+
       if (result.isSuccess) {
         setState(prev => ({
           ...prev,
@@ -626,7 +625,7 @@ export default function LeadFinderDashboard() {
       }
     } catch (error) {
       console.error("➖ [QUEUE] Error:", error)
-      toast.error("Failed to remove from queue")
+        toast.error("Failed to remove from queue")
       updateState({ removingLeadId: null })
     }
   }
@@ -643,7 +642,7 @@ export default function LeadFinderDashboard() {
         lead.postUrl,
         comment
       )
-      
+
       if (result.isSuccess) {
         setState(prev => ({
           ...prev,
@@ -673,7 +672,7 @@ export default function LeadFinderDashboard() {
       toast.error("Please enter tone instructions")
       return
     }
-    
+
     console.log("🎨 [TONE] Regenerating with instruction:", state.toneInstruction)
     updateState({ regeneratingId: state.selectedPost.id })
     
@@ -684,21 +683,21 @@ export default function LeadFinderDashboard() {
         throw new Error("Website content not available")
       }
       
-      const result = await regenerateCommentsWithToneAction(
+        const result = await regenerateCommentsWithToneAction(
         state.selectedPost.postTitle,
         state.selectedPost.postContentSnippet,
         state.selectedPost.subreddit,
         campaignResult.data.websiteContent,
         state.toneInstruction
-      )
-      
-      if (result.isSuccess) {
+        )
+
+        if (result.isSuccess) {
         // Update the comment in the database
         await updateGeneratedCommentAction(state.selectedPost.id, {
-          microComment: result.data.microComment,
-          mediumComment: result.data.mediumComment,
-          verboseComment: result.data.verboseComment
-        })
+            microComment: result.data.microComment,
+            mediumComment: result.data.mediumComment,
+            verboseComment: result.data.verboseComment
+          })
         
         setState(prev => ({
           ...prev,
@@ -732,26 +731,26 @@ export default function LeadFinderDashboard() {
       toast.error("Please log in to post comments")
       return
     }
-    
+
     const queuedLeads = state.leads.filter(l => l.status === "queued")
-    
+
     if (queuedLeads.length === 0) {
       toast.error("No comments in queue")
       return
     }
-    
+
     console.log("📦 [BATCH] Starting batch post for", queuedLeads.length, "leads")
     updateState({ isBatchPosting: true })
     
     try {
       const posts = queuedLeads.map(lead => ({
-        leadId: lead.id,
+          leadId: lead.id,
         threadId: lead.postUrl.match(/\/comments\/([a-zA-Z0-9]+)/)?.[1] || "",
-        comment: getDisplayComment(lead)
+          comment: getDisplayComment(lead)
       }))
       
       const result = await queuePostsForAsyncProcessing(user.id, posts)
-      
+
       if (result.isSuccess) {
         toast.success(`Processing ${result.data.queuedCount} comments`)
         posthog.capture("reddit_batch_post_started", {
@@ -774,11 +773,11 @@ export default function LeadFinderDashboard() {
   // Check queue status
   const checkQueueStatus = async () => {
     if (!user?.id) return
-    
+
     try {
-      const result = await getPostingQueueStatus(user.id)
+    const result = await getPostingQueueStatus(user.id)
       
-      if (result.isSuccess) {
+    if (result.isSuccess) {
         const { pending, processing, completed, failed } = result.data
         
         // Update lead statuses based on queue stats
@@ -860,8 +859,8 @@ export default function LeadFinderDashboard() {
           error={state.error}
           onRetry={() => window.location.reload()}
         />
-      </div>
-    )
+    </div>
+  )
   }
 
   return (
@@ -918,7 +917,7 @@ export default function LeadFinderDashboard() {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={fetchLeads}
+                onClick={() => addDebugLog("Fetch Now button clicked - no direct action with onSnapshot.")}
                 disabled={!state.campaignId}
               >
                 <RefreshCw className="mr-2 size-4" />
@@ -952,7 +951,7 @@ export default function LeadFinderDashboard() {
       </div>
       
       {/* Your existing dashboard components */}
-      <DashboardHeader
+        <DashboardHeader 
         campaignId={state.campaignId}
         leadsCount={state.leads.length}
         approvedLeadsCount={state.leads.filter(l => l.status === "queued").length}
@@ -961,11 +960,11 @@ export default function LeadFinderDashboard() {
         activeTab={state.activeTab}
         onTabChange={(value) => updateState({ activeTab: value as "all" | "queue" })}
         workflowProgressError={state.error || undefined}
-        onCompleteOnboardingClick={() => window.location.href = "/onboarding"}
+          onCompleteOnboardingClick={() => window.location.href = "/onboarding"}
         selectedCommentLength={state.selectedLength}
         onCommentLengthChange={(value) => updateState({ selectedLength: value as "micro" | "medium" | "verbose" })}
-        onNewCampaignClick={() => setCreateDialogOpen(true)}
-      />
+          onNewCampaignClick={() => setCreateDialogOpen(true)}
+        />
       
       <div className="grid gap-4">
         <FiltersAndSorting
@@ -1040,7 +1039,7 @@ export default function LeadFinderDashboard() {
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
         onSuccess={() => {
-          fetchLeads()
+          addDebugLog("New campaign created or existing selected, onSnapshot will update leads.")
           setCreateDialogOpen(false)
         }}
       />

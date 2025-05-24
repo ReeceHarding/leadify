@@ -1,7 +1,7 @@
 "use server"
 
 import { Suspense } from "react"
-import LeadFinderDashboard from "./_components/lead-finder-dashboard"
+import CampaignSelector from "./_components/campaign-selector"
 import { Skeleton } from "@/components/ui/skeleton"
 
 export default async function LeadFinderPage() {
@@ -25,7 +25,7 @@ export default async function LeadFinderPage() {
           </div>
         }
       >
-        <LeadFinderDashboard />
+        <CampaignSelector />
       </Suspense>
     </div>
   )
