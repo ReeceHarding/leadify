@@ -51,4 +51,4 @@ export interface UpdatePostingQueueData {
   lastErrorAt?: Timestamp
   resultLink?: string
   updatedAt?: Timestamp
-} 
+}

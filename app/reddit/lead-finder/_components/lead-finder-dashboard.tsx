@@ -67,6 +67,17 @@ import PostDetailPopup from "./post-detail-popup"
 import CommentEditor from "./comment-editor"
 import AnimatedCopyButton from "./animated-copy-button"
 import posthog from "posthog-js"
+import { 
+  EnhancedLeadSkeleton,
+  GenerationProgress,
+  InlineLoading,
+  ProcessingIndicator
+} from "./enhanced-loading-states"
+import { 
+  EnhancedErrorState,
+  InlineError,
+  EmptyState
+} from "./enhanced-error-states"
 import { runFullLeadGenerationWorkflowAction } from "@/actions/lead-generation/workflow-actions"
 import { 
   getGeneratedCommentsByCampaignAction,
@@ -189,6 +200,11 @@ export default function LeadFinderDashboard() {
   
   // State for async queue posting
   const [isBatchPosting, setIsBatchPosting] = useState(false)
+  
+  // State for individual loading operations
+  const [postingLeadId, setPostingLeadId] = useState<string | null>(null)
+  const [queuingLeadId, setQueuingLeadId] = useState<string | null>(null)
+  const [removingLeadId, setRemovingLeadId] = useState<string | null>(null)
 
   // Get keywords from profile and start real workflow
   useEffect(() => {
@@ -767,29 +783,39 @@ export default function LeadFinderDashboard() {
 
   // Handle adding to queue
   const handleAddToQueue = async (lead: LeadResult) => {
-    const result = await updateGeneratedCommentAction(lead.id, {
-      status: "approved",
-      selectedLength: lead.selectedLength || selectedLength
-    })
-    
-    if (result.isSuccess) {
-      toast.success("Added to posting queue")
-    } else {
-      toast.error("Failed to add to queue")
+    setQueuingLeadId(lead.id)
+    try {
+      const result = await updateGeneratedCommentAction(lead.id, {
+        status: "approved",
+        selectedLength: lead.selectedLength || selectedLength
+      })
+      
+      if (result.isSuccess) {
+        toast.success("Added to posting queue")
+      } else {
+        toast.error("Failed to add to queue")
+      }
+    } finally {
+      setQueuingLeadId(null)
     }
   }
 
   // Handle removing from queue
   const handleRemoveFromQueue = async (lead: LeadResult) => {
-    const result = await updateGeneratedCommentAction(lead.id, {
-      status: "new",
-      selectedLength: lead.selectedLength || selectedLength
-    })
-    
-    if (result.isSuccess) {
-      toast.success("Removed from queue")
-    } else {
-      toast.error("Failed to remove from queue")
+    setRemovingLeadId(lead.id)
+    try {
+      const result = await updateGeneratedCommentAction(lead.id, {
+        status: "new",
+        selectedLength: lead.selectedLength || selectedLength
+      })
+      
+      if (result.isSuccess) {
+        toast.success("Removed from queue")
+      } else {
+        toast.error("Failed to remove from queue")
+      }
+    } finally {
+      setRemovingLeadId(null)
     }
   }
 
@@ -800,6 +826,7 @@ export default function LeadFinderDashboard() {
       return
     }
 
+    setPostingLeadId(lead.id)
     try {
       // Extract thread ID from URL
       const urlMatch = lead.postUrl.match(/\/comments\/([a-zA-Z0-9]+)/)
@@ -858,6 +885,8 @@ export default function LeadFinderDashboard() {
     } catch (error) {
       toast.error("Failed to post comment")
       console.error("Error posting comment:", error)
+    } finally {
+      setPostingLeadId(null)
     }
   }
 
@@ -1042,117 +1071,25 @@ export default function LeadFinderDashboard() {
 
   const totalPages = Math.ceil(filteredAndSortedLeads.length / ITEMS_PER_PAGE)
 
-  const renderLoadingSkeleton = () => (
-    <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
-      {[...Array(6)].map((_, index) => (
-        <Card key={index} className="flex flex-col rounded-xl border bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
-          <CardHeader className="pb-4">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <Skeleton className="size-8 rounded-full" />
-                <Skeleton className="h-5 w-24 rounded-md" />
-              </div>
-              <Skeleton className="size-9 rounded-md" />
-            </div>
-          </CardHeader>
-          <CardContent className="flex grow flex-col space-y-5">
-            <div className="space-y-2">
-              <Skeleton className="h-5 w-full rounded-md" />
-              <Skeleton className="h-4 w-full rounded-md" />
-              <Skeleton className="h-4 w-3/4 rounded-md" />
-              <div className="flex items-center gap-4 pt-1">
-                <Skeleton className="h-4 w-10 rounded-md" />
-                <Skeleton className="h-4 w-10 rounded-md" />
-                <Skeleton className="h-4 w-16 rounded-md" />
-              </div>
-            </div>
-            <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-700 dark:bg-blue-900/30">
-              <div className="mb-1.5 flex items-center justify-between">
-                <Skeleton className="h-4 w-20 rounded-md" />
-                <Skeleton className="h-5 w-16 rounded-md" />
-              </div>
-              <Skeleton className="h-3 w-full rounded-md" />
-              <Skeleton className="mt-1 h-3 w-5/6 rounded-md" />
-            </div>
-            <div className="grow space-y-3 border-t border-gray-200 pt-4 dark:border-gray-700">
-              <div className="flex items-center justify-between">
-                <Skeleton className="h-4 w-28 rounded-md" />
-                <div className="flex items-center gap-2">
-                  <Skeleton className="h-8 w-20 rounded-md" />
-                  <Skeleton className="h-8 w-24 rounded-md" />
-                </div>
-              </div>
-              <Skeleton className="h-20 w-full rounded-lg" /> 
-              <div className="flex items-center justify-between pt-1">
-                <Skeleton className="h-4 w-24 rounded-md" />
-                <Skeleton className="size-7 rounded-md" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  )
+  const renderLoadingSkeleton = () => <EnhancedLeadSkeleton />
 
   const renderWorkflowProgress = () => (
     <div className="space-y-6">
-      <Card className="shadow-lg dark:border-gray-700">
-        <CardHeader className="border-b p-4 dark:border-gray-700">
-          <CardTitle className="flex items-center gap-3 text-lg font-semibold text-gray-800 dark:text-gray-100">
-            {workflowProgress.isLoading ? (
-              <Loader2 className="size-5 animate-spin text-blue-500" />
-            ) : workflowProgress.error ? (
-              <AlertCircle className="size-5 text-red-500" />
-            ) : (
-              <CheckCircle2 className="size-5 text-green-500" />
-            )}
-            Lead Generation Status
-          </CardTitle>
-          <CardDescription className="pt-1 text-sm text-gray-600 dark:text-gray-400">
-            {workflowProgress.error
-              ? "An error occurred during lead generation."
-              : workflowProgress.currentStep}
-            {workflowProgress.isLoading && workflowProgress.currentStep.includes("Scoring") && leads.length > 0 && (
-              <span className="ml-2 text-xs font-medium text-blue-600 dark:text-blue-400">
-                ( {leads.length} leads found so far )
-              </span>
-            )}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-4">
-          <div className="space-y-3">
-            <div className="flex justify-between text-sm font-medium text-gray-700 dark:text-gray-300">
-              <span>Overall Progress</span>
-              <span>
-                {Math.round(
-                  (workflowProgress.completedSteps /
-                    workflowProgress.totalSteps) *
-                    100
-                )}%
-              </span>
-            </div>
-            <Progress
-              value={
-                (workflowProgress.completedSteps /
-                  workflowProgress.totalSteps) *
-                100
-              }
-              className="h-2.5 w-full [&>div]:bg-gradient-to-r [&>div]:from-blue-400 [&>div]:to-blue-600 dark:[&>div]:from-blue-500 dark:[&>div]:to-blue-700"
-            />
-            {workflowProgress.error && (
-              <div className="mt-3 rounded-md border border-red-200 bg-red-50 p-3 dark:border-red-700/50 dark:bg-red-900/30">
-                <p className="text-sm font-medium text-red-700 dark:text-red-300">
-                  {workflowProgress.error}
-                </p>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      {workflowProgress.error ? (
+        <EnhancedErrorState 
+          error={workflowProgress.error} 
+          onRetry={() => window.location.reload()}
+        />
+      ) : (
+        <GenerationProgress
+          currentStep={workflowProgress.currentStep}
+          completedSteps={workflowProgress.completedSteps}
+          totalSteps={workflowProgress.totalSteps}
+          foundLeads={leads.length}
+        />
+      )}
 
       {workflowProgress.isLoading && renderLoadingSkeleton()}
-      
-      {/* Live Progress Indicator - now integrated into the main progress card or skeleton */}
     </div>
   )
 
@@ -1408,23 +1345,17 @@ export default function LeadFinderDashboard() {
             
             {/* Show error if any */}
             {workflowProgress.error && (
-              <Card className="border-red-200 bg-red-50 shadow-lg dark:border-red-700/50 dark:bg-red-900/30">
-                <CardHeader className="p-4">
-                  <CardTitle className="flex items-center gap-3 text-lg font-semibold text-red-700 dark:text-red-300">
-                    <AlertCircle className="size-5" />
-                    Error
-                  </CardTitle>
-                  <CardDescription className="text-sm text-red-600 dark:text-red-400">
-                    {workflowProgress.error}
-                  </CardDescription>
-                </CardHeader>
-              </Card>
+              <EnhancedErrorState 
+                error={workflowProgress.error} 
+                onRetry={() => window.location.reload()}
+              />
             )}
 
             {/* Results Grid - Always show if we have leads */}
-            {leads.length > 0 && (
-              <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
-                {paginatedLeads.map(lead => (
+            {leads.length > 0 ? (
+              filteredAndSortedLeads.length > 0 ? (
+                <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
+                  {paginatedLeads.map(lead => (
                   <Card
                     key={lead.id}
                     className={`flex flex-col rounded-xl border bg-white shadow-lg transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-2xl dark:border-gray-700 dark:bg-gray-800 ${
@@ -1506,30 +1437,45 @@ export default function LeadFinderDashboard() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="gap-1.5 rounded-md border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700 dark:border-red-400 dark:text-red-400 dark:hover:bg-red-900/20"
+                                disabled={removingLeadId === lead.id}
+                                className="gap-1.5 rounded-md border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700 dark:border-red-400 dark:text-red-400 dark:hover:bg-red-900/20 disabled:opacity-50"
                                 onClick={(e) => { e.stopPropagation(); handleRemoveFromQueue(lead); }}
                               >
-                                <MinusCircle className="size-3.5" />
+                                {removingLeadId === lead.id ? (
+                                  <Loader2 className="size-3.5 animate-spin" />
+                                ) : (
+                                  <MinusCircle className="size-3.5" />
+                                )}
                                 Remove
                               </Button>
                             ) : (
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="gap-1.5 rounded-md border-sky-500 text-sky-600 hover:bg-sky-50 hover:text-sky-700 dark:border-sky-400 dark:text-sky-300 dark:hover:bg-sky-900/50 dark:hover:text-sky-200"
+                                disabled={queuingLeadId === lead.id}
+                                className="gap-1.5 rounded-md border-sky-500 text-sky-600 hover:bg-sky-50 hover:text-sky-700 dark:border-sky-400 dark:text-sky-300 dark:hover:bg-sky-900/50 dark:hover:text-sky-200 disabled:opacity-50"
                                 onClick={(e) => { e.stopPropagation(); handleAddToQueue(lead); }}
                               >
-                                <PlusCircle className="size-3.5" />
+                                {queuingLeadId === lead.id ? (
+                                  <Loader2 className="size-3.5 animate-spin" />
+                                ) : (
+                                  <PlusCircle className="size-3.5" />
+                                )}
                                 Queue
                               </Button>
                             )}
                             <Button
                               variant="default"
                               size="sm"
-                              className="gap-1.5 rounded-md bg-green-600 text-white hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600"
+                              disabled={postingLeadId === lead.id}
+                              className="gap-1.5 rounded-md bg-green-600 text-white hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 disabled:opacity-50"
                               onClick={(e) => { e.stopPropagation(); handlePostNow(lead); }}
                             >
-                              <Send className="size-3.5" />
+                              {postingLeadId === lead.id ? (
+                                <Loader2 className="size-3.5 animate-spin" />
+                              ) : (
+                                <Send className="size-3.5" />
+                              )}
                               Post Now
                             </Button>
                           </div>
@@ -1576,8 +1522,22 @@ export default function LeadFinderDashboard() {
                     </CardContent>
                   </Card>
                 ))}
-              </div>
-            )}
+                              </div>
+              ) : (
+                <EmptyState 
+                  title="No leads match your filters"
+                  description="Try adjusting your keyword filter or minimum score"
+                  icon={<MessageSquare className="size-12" />}
+                  action={{
+                    label: "Clear Filters",
+                    onClick: () => {
+                      setFilterKeyword("")
+                      setFilterScore(0)
+                    }
+                  }}
+                />
+              )
+            ) : null}
 
             {/* Pagination */}
             {totalPages > 1 && (
