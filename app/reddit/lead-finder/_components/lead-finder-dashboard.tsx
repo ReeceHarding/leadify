@@ -124,6 +124,7 @@ import {
   DialogTitle,
   DialogTrigger
 } from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
 
 // Import newly created types and utils
 import { LeadResult, WorkflowProgress } from "./dashboard/types"
@@ -362,42 +363,58 @@ export default function LeadFinderDashboard() {
         workflowRunning: true,
         error: null 
       }))
-      
-      const result = await runFullLeadGenerationWorkflowAction(
-        user.id,
-        keywords
-      )
-      
-      if (result.isSuccess && result.data) {
-        addDebugLog("Campaign created successfully", { 
-          campaignId: result.data.campaignId 
-        })
-        
-        setState(prev => ({
-          ...prev,
-          campaignId: result.data.campaignId,
-          workflowRunning: true
-        }))
-        
-        // Start polling immediately
-        setState(prev => ({ ...prev, pollingEnabled: true }))
-        
-        toast.success("Lead generation started! New leads will appear as they're found.")
-      } else {
-        throw new Error(result.message)
+
+      // Get profile for website
+      const profileResult = await getProfileByUserIdAction(user.id)
+      if (!profileResult.isSuccess || !profileResult.data.website) {
+        toast.error("Profile missing website information for campaign creation")
+        setState(prev => ({...prev, workflowRunning: false, error: "Profile missing website"}))
+        return
       }
-    } catch (error) {
-      addDebugLog("Campaign creation error", { 
-        error: error instanceof Error ? error.message : "Unknown error" 
+      
+      // Create campaign first
+      const campaignResult = await createCampaignAction({
+        userId: user.id,
+        name: `Lead Gen - ${new Date().toLocaleDateString()}`,
+        website: profileResult.data.website,
+        keywords: keywords
       })
+
+      if (!campaignResult.isSuccess) {
+        throw new Error(`Campaign creation failed: ${campaignResult.message}`)
+      }
+      
+      const newCampaignId = campaignResult.data.id
+      addDebugLog("Campaign created successfully", { campaignId: newCampaignId })
       
       setState(prev => ({
         ...prev,
-        error: error instanceof Error ? error.message : "Failed to start lead generation",
-        workflowRunning: false
+        campaignId: newCampaignId, // Set the new campaign ID here
+        workflowRunning: true // Workflow will be started next
       }))
       
-      toast.error("Failed to start lead generation")
+      // Now run the workflow with the new campaign ID
+      const workflowRunResult = await runFullLeadGenerationWorkflowAction(newCampaignId)
+      
+      if (workflowRunResult.isSuccess) {
+        addDebugLog("Workflow started successfully for new campaign", { 
+          campaignId: newCampaignId,
+          workflowProgress: workflowRunResult.data 
+        })
+        toast.success("Lead generation started! New leads will appear as they're found.")
+        // Polling will pick up from here if enabled by campaignId change
+      } else {
+        throw new Error(`Workflow start failed: ${workflowRunResult.message}`)
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to create and run campaign"
+      addDebugLog("Campaign creation/run error", { error: errorMessage })
+      setState(prev => ({
+        ...prev,
+        error: errorMessage,
+        workflowRunning: false
+      }))
+      toast.error(errorMessage)
     }
   }
   
@@ -848,13 +865,13 @@ export default function LeadFinderDashboard() {
   }
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="container mx-auto space-y-6 py-6">
       {/* Debug Panel */}
       {state.debugMode && (
         <Card className="border-orange-500 bg-orange-50 dark:bg-orange-900/20">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Bug className="h-5 w-5" />
+              <Bug className="size-5" />
               Debug Panel
             </CardTitle>
           </CardHeader>
@@ -887,7 +904,7 @@ export default function LeadFinderDashboard() {
                 onClick={createTestData}
                 disabled={!state.campaignId}
               >
-                <Database className="h-4 w-4 mr-2" />
+                <Database className="mr-2 size-4" />
                 Create Test Lead
               </Button>
               <Button
@@ -895,7 +912,7 @@ export default function LeadFinderDashboard() {
                 variant="outline"
                 onClick={manualRunWorkflow}
               >
-                <Zap className="h-4 w-4 mr-2" />
+                <Zap className="mr-2 size-4" />
                 Run Workflow
               </Button>
               <Button
@@ -904,7 +921,7 @@ export default function LeadFinderDashboard() {
                 onClick={fetchLeads}
                 disabled={!state.campaignId}
               >
-                <RefreshCw className="h-4 w-4 mr-2" />
+                <RefreshCw className="mr-2 size-4" />
                 Fetch Now
               </Button>
             </div>
@@ -929,7 +946,7 @@ export default function LeadFinderDashboard() {
           onClick={() => updateState({ debugMode: !state.debugMode })}
           className="text-muted-foreground"
         >
-          <Bug className="h-4 w-4 mr-2" />
+          <Bug className="mr-2 size-4" />
           {state.debugMode ? "Hide" : "Show"} Debug
         </Button>
       </div>
@@ -958,6 +975,9 @@ export default function LeadFinderDashboard() {
           onFilterKeywordChange={(value) => updateState({ filterKeyword: value })}
           onFilterScoreChange={(value) => updateState({ filterScore: value })}
           onSortByChange={(value) => updateState({ sortBy: value as "relevance" | "upvotes" | "time" })}
+          paginatedLeadsCount={paginatedLeads.length}
+          totalFilteredLeadsCount={filteredAndSortedLeads.length}
+          disabled={state.isLoading || state.workflowRunning}
         />
 
         {state.activeTab === "queue" && (
@@ -979,7 +999,7 @@ export default function LeadFinderDashboard() {
           leads={state.leads}
           filteredAndSortedLeads={filteredAndSortedLeads}
           paginatedLeads={paginatedLeads}
-          newLeadIds={newLeadIds}
+          newLeadIds={newLeadIds.current}
           activeTab={state.activeTab}
           campaignId={state.campaignId}
           selectedLength={state.selectedLength}

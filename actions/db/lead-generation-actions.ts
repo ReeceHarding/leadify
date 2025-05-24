@@ -255,7 +255,7 @@ export async function createRedditThreadAction(
 
 export async function createGeneratedCommentAction(
   data: CreateGeneratedCommentData
-): Promise<ActionState<GeneratedCommentDocument>> {
+): Promise<ActionState<SerializedGeneratedCommentDocument>> {
   try {
     console.log(`\n💾 [LEAD-GEN-DB] ====== CREATING GENERATED COMMENT ======`)
     console.log(`💾 [LEAD-GEN-DB] Campaign ID: ${data.campaignId}`)
@@ -316,7 +316,7 @@ export async function createGeneratedCommentAction(
     return {
       isSuccess: true,
       message: "Generated comment created successfully",
-      data: createdDoc.data() as GeneratedCommentDocument
+      data: serializeGeneratedCommentDocument(createdDoc.data() as GeneratedCommentDocument)
     }
   } catch (error) {
     console.error("❌ [LEAD-GEN-DB] Error creating generated comment:", error)
@@ -335,7 +335,7 @@ export async function updateGeneratedCommentAction(
     approved?: boolean
     used?: boolean
   }
-): Promise<ActionState<GeneratedCommentDocument>> {
+): Promise<ActionState<SerializedGeneratedCommentDocument>> {
   try {
     console.log(`📝 [LEAD-GEN] Updating generated comment ${id}`)
     
@@ -361,7 +361,7 @@ export async function updateGeneratedCommentAction(
     return {
       isSuccess: true,
       message: "Generated comment updated successfully",
-      data: updatedDoc.data() as GeneratedCommentDocument
+      data: serializeGeneratedCommentDocument(updatedDoc.data() as GeneratedCommentDocument)
     }
   } catch (error) {
     console.error("Error updating generated comment:", error)
@@ -461,7 +461,7 @@ export async function getGeneratedCommentsByCampaignAction(
 export async function updateGeneratedCommentLengthAction(
   id: string,
   selectedLength: "micro" | "medium" | "verbose"
-): Promise<ActionState<GeneratedCommentDocument>> {
+): Promise<ActionState<SerializedGeneratedCommentDocument>> {
   try {
     const commentRef = doc(db, LEAD_COLLECTIONS.GENERATED_COMMENTS, id)
 
@@ -476,7 +476,7 @@ export async function updateGeneratedCommentLengthAction(
     return {
       isSuccess: true,
       message: "Comment length updated successfully",
-      data: updatedDoc.data() as GeneratedCommentDocument
+      data: serializeGeneratedCommentDocument(updatedDoc.data() as GeneratedCommentDocument)
     }
   } catch (error) {
     console.error("Error updating comment length:", error)
