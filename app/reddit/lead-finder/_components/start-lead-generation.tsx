@@ -48,12 +48,12 @@ export default function StartLeadGeneration({ campaignId }: Props) {
     >
       {isLoading ? (
         <>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          <Loader2 className="mr-2 size-4 animate-spin" />
           Starting...
         </>
       ) : (
         <>
-          <Play className="mr-2 h-4 w-4" />
+          <Play className="mr-2 size-4" />
           Start Lead Generation
         </>
       )}

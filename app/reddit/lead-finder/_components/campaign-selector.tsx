@@ -20,7 +20,7 @@ export default async function CampaignSelector() {
   if (!profileResult.isSuccess || !profileResult.data) {
     return (
       <Alert>
-        <AlertCircle className="h-4 w-4" />
+        <AlertCircle className="size-4" />
         <AlertDescription>
           Please complete your profile setup first.
         </AlertDescription>
@@ -35,7 +35,7 @@ export default async function CampaignSelector() {
     return (
       <div className="flex flex-col items-center justify-center space-y-4 py-12">
         <Alert>
-          <AlertCircle className="h-4 w-4" />
+          <AlertCircle className="size-4" />
           <AlertDescription>
             You need to add keywords to your profile before creating campaigns.
           </AlertDescription>
@@ -73,7 +73,7 @@ export default async function CampaignSelector() {
   if (!current) {
     return (
       <Alert>
-        <AlertCircle className="h-4 w-4" />
+        <AlertCircle className="size-4" />
         <AlertDescription>
           Failed to create campaign. Please try again.
         </AlertDescription>
@@ -88,7 +88,7 @@ export default async function CampaignSelector() {
           <h3 className="text-lg font-semibold">
             Active Campaign
           </h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Keywords: {current.keywords?.join(", ") || "None"}
           </p>
         </div>

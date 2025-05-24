@@ -5,16 +5,13 @@ import { runFullLeadGenerationWorkflowAction } from "@/actions/lead-generation/w
 export async function POST(req: NextRequest) {
   try {
     const { userId } = await auth()
-    
+
     if (!userId) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const { campaignId } = await req.json()
-    
+
     if (!campaignId) {
       return NextResponse.json(
         { error: "Campaign ID is required" },
@@ -22,16 +19,16 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    console.log("🔥 [API] Starting lead generation workflow for campaign:", campaignId)
+    console.log(
+      "🔥 [API] Starting lead generation workflow for campaign:",
+      campaignId
+    )
 
     // Start the workflow
     const result = await runFullLeadGenerationWorkflowAction(campaignId)
-    
+
     if (!result.isSuccess) {
-      return NextResponse.json(
-        { error: result.message },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: result.message }, { status: 500 })
     }
 
     return NextResponse.json({
@@ -46,4 +43,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     )
   }
-} 
+}
