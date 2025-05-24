@@ -58,7 +58,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
 import { toast } from "sonner"
 import CreateCampaignDialog from "./create-campaign-dialog"
@@ -67,19 +67,19 @@ import PostDetailPopup from "./post-detail-popup"
 import CommentEditor from "./comment-editor"
 import AnimatedCopyButton from "./animated-copy-button"
 import posthog from "posthog-js"
-import { 
+import {
   EnhancedLeadSkeleton,
   GenerationProgress,
   InlineLoading,
   ProcessingIndicator
 } from "./enhanced-loading-states"
-import { 
+import {
   EnhancedErrorState,
   InlineError,
   EmptyState
 } from "./enhanced-error-states"
 import { runFullLeadGenerationWorkflowAction } from "@/actions/lead-generation/workflow-actions"
-import { 
+import {
   getGeneratedCommentsByCampaignAction,
   updateGeneratedCommentAction
 } from "@/actions/db/lead-generation-actions"
@@ -90,9 +90,9 @@ import {
 } from "@/actions/db/campaign-actions"
 import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
 import { regenerateCommentsWithToneAction } from "@/actions/integrations/openai-actions"
-import { 
+import {
   postCommentAndUpdateStatusAction,
-  testRedditPostingAction 
+  testRedditPostingAction
 } from "@/actions/integrations/reddit-posting-actions"
 import {
   processPostWithRateLimit,
@@ -100,16 +100,7 @@ import {
   getPostingQueueStatus
 } from "@/actions/integrations/reddit-posting-queue"
 import { useUser } from "@clerk/nextjs"
-import { db } from "@/db/db"
-import {
-  collection,
-  query,
-  where,
-  orderBy,
-  onSnapshot,
-  Timestamp
-} from "firebase/firestore"
-import { LEAD_COLLECTIONS } from "@/db/schema"
+import { Timestamp } from "firebase/firestore"
 import { SerializedGeneratedCommentDocument } from "@/actions/db/lead-generation-actions"
 
 interface LeadResult {
@@ -146,28 +137,42 @@ const ITEMS_PER_PAGE = 10
 // Helper function to robustly serialize Firestore Timestamps or plain timestamp objects
 const serializeTimestampToISO = (timestamp: any): string | undefined => {
   if (timestamp instanceof Timestamp) {
-    return timestamp.toDate().toISOString();
+    return timestamp.toDate().toISOString()
   }
-  if (typeof timestamp === 'string') { // Already serialized
+  if (typeof timestamp === "string") {
+    // Already serialized
     try {
       // Validate if it's a valid ISO string by trying to parse it
-      new Date(timestamp).toISOString();
-      return timestamp;
+      new Date(timestamp).toISOString()
+      return timestamp
     } catch (e) {
       // Not a valid ISO string, treat as invalid
-      console.warn("[SERIALIZE_TIMESTAMP] Invalid date string provided:", timestamp);
-      return undefined; 
+      console.warn(
+        "[SERIALIZE_TIMESTAMP] Invalid date string provided:",
+        timestamp
+      )
+      return undefined
     }
   }
-  if (timestamp && typeof timestamp.seconds === 'number' && typeof timestamp.nanoseconds === 'number') {
+  if (
+    timestamp &&
+    typeof timestamp.seconds === "number" &&
+    typeof timestamp.nanoseconds === "number"
+  ) {
     // It's a plain object from Firestore, convert to Date then ISO string
-    return new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000).toISOString();
+    return new Date(
+      timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000
+    ).toISOString()
   }
-  if (timestamp) { // Log if it's an unexpected type but not undefined/null
-    console.warn("[SERIALIZE_TIMESTAMP] Unexpected timestamp format:", timestamp);
+  if (timestamp) {
+    // Log if it's an unexpected type but not undefined/null
+    console.warn(
+      "[SERIALIZE_TIMESTAMP] Unexpected timestamp format:",
+      timestamp
+    )
   }
-  return undefined; 
-};
+  return undefined
+}
 
 export default function LeadFinderDashboard() {
   const { user } = useUser()
@@ -184,10 +189,12 @@ export default function LeadFinderDashboard() {
     error: undefined
   })
   const [campaignId, setCampaignId] = useState<string | null>(null)
-  
+
   // New state variables
   const [currentPage, setCurrentPage] = useState(1)
-  const [sortBy, setSortBy] = useState<"relevance" | "upvotes" | "time">("relevance")
+  const [sortBy, setSortBy] = useState<"relevance" | "upvotes" | "time">(
+    "relevance"
+  )
   const [filterKeyword, setFilterKeyword] = useState<string>("")
   const [filterScore, setFilterScore] = useState<number>(0)
   const [selectedPost, setSelectedPost] = useState<LeadResult | null>(null)
@@ -197,14 +204,24 @@ export default function LeadFinderDashboard() {
   const [websiteContent, setWebsiteContent] = useState<string>("")
   const [activeTab, setActiveTab] = useState<"all" | "queue">("all")
   const [newLeadIds, setNewLeadIds] = useState<Set<string>>(new Set())
-  
+
   // State for async queue posting
   const [isBatchPosting, setIsBatchPosting] = useState(false)
-  
+
   // State for individual loading operations
   const [postingLeadId, setPostingLeadId] = useState<string | null>(null)
   const [queuingLeadId, setQueuingLeadId] = useState<string | null>(null)
   const [removingLeadId, setRemovingLeadId] = useState<string | null>(null)
+
+  // State for polling indicator
+  const [lastPolledAt, setLastPolledAt] = useState<Date | null>(null)
+  const [isPolling, setIsPolling] = useState(false)
+
+  // Track when the very first lead arrives so we can hide the skeleton immediately
+  const hasFirstLead = useRef(false)
+
+  // Keep an always-up-to-date reference to the leads array for snapshot diffing
+  const latestLeadsRef = useRef<LeadResult[]>([])
 
   // Get keywords from profile and start real workflow
   useEffect(() => {
@@ -283,207 +300,209 @@ export default function LeadFinderDashboard() {
     initializeLeadGeneration()
   }, [user?.id])
 
-  // Real-time listener for leads
+  // Reset first-lead tracker and latest leads reference whenever the campaign changes
+  useEffect(() => {
+    hasFirstLead.current = false
+    latestLeadsRef.current = []
+  }, [campaignId])
+
+  // Polling mechanism for leads - polls every 5 seconds
   useEffect(() => {
     if (!campaignId) {
-      console.log("🚫 [FRONTEND] No campaignId, clearing leads")
+      console.log("🚫 [POLLING] No campaignId, clearing leads")
       setLeads([]) // Clear leads if no campaign is selected
       return
     }
 
-    setWorkflowProgress((prev: any) => ({ ...prev, isLoading: true, error: null }))
-    console.log(`🔥 [FRONTEND] Setting up real-time listener for campaign: ${campaignId}`)
-    console.log(`🔥 [FRONTEND] Collection path: ${LEAD_COLLECTIONS.GENERATED_COMMENTS}`)
-    console.log(`🔥 [FRONTEND] Current user ID: ${user?.id}`)
+    console.log(`🔄 [POLLING] Starting polling for campaign: ${campaignId}`)
+    console.log(`🔄 [POLLING] Will poll every 5 seconds`)
 
-    const q = query(
-      collection(db, LEAD_COLLECTIONS.GENERATED_COMMENTS),
-      where("campaignId", "==", campaignId),
-      orderBy("createdAt", "desc") // Show newest leads first
-    )
+    // Track if this is the first fetch for this campaign
+    let isFirstFetch = true
 
-    console.log(`🔥 [FRONTEND] Firestore query created, subscribing to real-time updates...`)
+    // Function to fetch leads
+    const fetchLeads = async () => {
+      try {
+        console.log(`\n🔄 [POLLING] ====== FETCHING LEADS ======`)
+        console.log(`🔄 [POLLING] Campaign ID: ${campaignId}`)
+        console.log(`🔄 [POLLING] Time: ${new Date().toISOString()}`)
+        console.log(`🔄 [POLLING] Is first fetch: ${isFirstFetch}`)
 
-    // Also add error handler for the query itself
-    let isFirstSnapshot = true
-    
-    const unsubscribe = onSnapshot(
-      q,
-      querySnapshot => {
-        console.log(`\n🔥 [FRONTEND] ====== FIRESTORE SNAPSHOT RECEIVED ======`)
-        console.log(`🔥 [FRONTEND] Campaign ID: ${campaignId}`)
-        console.log(`🔥 [FRONTEND] Number of documents: ${querySnapshot.docs.length}`)
-        console.log(`🔥 [FRONTEND] Is first snapshot: ${isFirstSnapshot}`)
-        console.log(`🔥 [FRONTEND] Query metadata:`, {
-          fromCache: querySnapshot.metadata.fromCache,
-          hasPendingWrites: querySnapshot.metadata.hasPendingWrites
-        })
-        
-        // Track changes in this snapshot
-        if (!isFirstSnapshot) {
-          querySnapshot.docChanges().forEach(change => {
-            if (change.type === "added") {
-              console.log(`🆕 [FRONTEND] New document added: ${change.doc.id}`)
-              const data = change.doc.data()
-              console.log(`🆕 [FRONTEND] New lead: ${data.postTitle} (Score: ${data.relevanceScore})`)
-            } else if (change.type === "modified") {
-              console.log(`📝 [FRONTEND] Document modified: ${change.doc.id}`)
-            } else if (change.type === "removed") {
-              console.log(`🗑️ [FRONTEND] Document removed: ${change.doc.id}`)
-            }
-          })
+        // Set polling indicator
+        setIsPolling(true)
+
+        // Only show loading on the very first fetch
+        if (isFirstFetch && latestLeadsRef.current.length === 0) {
+          setWorkflowProgress((prev: any) => ({
+            ...prev,
+            isLoading: true,
+            error: null
+          }))
         }
-        
+
+        const result = await getGeneratedCommentsByCampaignAction(campaignId)
+
+        if (!result.isSuccess) {
+          console.error(`❌ [POLLING] Failed to fetch leads: ${result.message}`)
+          setWorkflowProgress((prev: any) => ({
+            ...prev,
+            isLoading: false,
+            error: result.message || "Failed to fetch leads"
+          }))
+          return
+        }
+
+        console.log(
+          `🔄 [POLLING] Fetched ${result.data.length} leads from server`
+        )
+
         // Track new leads for animation
-        const currentLeadIds = new Set(leads.map(l => l.id))
+        const currentLeadIds = new Set(latestLeadsRef.current.map(l => l.id))
         const newIds = new Set<string>()
-        
-        const fetchedLeads: LeadResult[] = querySnapshot.docs.map((doc, index) => {
-          const firestoreDocData = doc.data();
-          
-          if (index < 3 || !currentLeadIds.has(doc.id)) {
-            console.log(`🔍 [FRONTEND] Processing document ${index + 1}/${querySnapshot.docs.length}:`)
-            console.log(`🔍 [FRONTEND] Doc ID: ${doc.id}`)
-            console.log(`🔍 [FRONTEND] Title: ${firestoreDocData.postTitle}`)
-            console.log(`🔍 [FRONTEND] Score: ${firestoreDocData.relevanceScore}`)
-            console.log(`🔍 [FRONTEND] Keyword: ${firestoreDocData.keyword}`)
+
+        // Transform the data
+        const fetchedLeads: LeadResult[] = result.data.map((comment, index) => {
+          // Only log first few or new leads to reduce console spam
+          if ((isFirstFetch && index < 3) || !currentLeadIds.has(comment.id)) {
+            console.log(
+              `🔄 [POLLING] Lead: ${comment.postTitle} (Score: ${comment.relevanceScore})`
+            )
           }
-          
+
           // Check if this is a new lead
-          if (!currentLeadIds.has(doc.id)) {
-            newIds.add(doc.id)
-            console.log(`✨ [FRONTEND] New lead detected: ${firestoreDocData.postTitle}`)
+          if (!currentLeadIds.has(comment.id)) {
+            newIds.add(comment.id)
+            console.log(`✨ [POLLING] New lead detected: ${comment.postTitle}`)
           }
-          
+
           let subreddit = "unknown"
           try {
-            const url = new URL(firestoreDocData.postUrl)
+            const url = new URL(comment.postUrl)
             const match = url.pathname.match(/\/r\/([^\/]+)/)
             if (match && match[1]) {
               subreddit = match[1]
             }
           } catch (e) {
-            console.warn(`[SUBREDDIT_PARSE_ERROR] Could not parse subreddit from URL: ${firestoreDocData.postUrl}`, e)
+            // Silent fail for URL parsing
           }
-
-          const serializedOriginalData: SerializedGeneratedCommentDocument = {
-            id: doc.id,
-            campaignId: firestoreDocData.campaignId || "",
-            redditThreadId: firestoreDocData.redditThreadId || "",
-            threadId: firestoreDocData.threadId || "",
-            postUrl: firestoreDocData.postUrl || "",
-            postTitle: firestoreDocData.postTitle || "Untitled Post",
-            postAuthor: firestoreDocData.postAuthor || "Unknown Author",
-            postContentSnippet: firestoreDocData.postContentSnippet || "",
-            relevanceScore: firestoreDocData.relevanceScore || 0,
-            reasoning: firestoreDocData.reasoning || "",
-            microComment: firestoreDocData.microComment || "",
-            mediumComment: firestoreDocData.mediumComment || "",
-            verboseComment: firestoreDocData.verboseComment || "",
-            status: firestoreDocData.status || "new",
-            selectedLength: firestoreDocData.selectedLength,
-            approved: firestoreDocData.approved || false,
-            used: firestoreDocData.used || false,
-            createdAt: serializeTimestampToISO(firestoreDocData.createdAt) || new Date(0).toISOString(),
-            updatedAt: serializeTimestampToISO(firestoreDocData.updatedAt) || new Date(0).toISOString(),
-            postScore: firestoreDocData.postScore,
-            keyword: firestoreDocData.keyword,
-          };
 
           return {
-            id: doc.id,
-            campaignId: firestoreDocData.campaignId,
-            postUrl: firestoreDocData.postUrl,
-            postTitle: firestoreDocData.postTitle,
-            postAuthor: firestoreDocData.postAuthor,
-            postContentSnippet: firestoreDocData.postContentSnippet,
-            subreddit: subreddit, 
-            relevanceScore: firestoreDocData.relevanceScore,
-            reasoning: firestoreDocData.reasoning,
-            microComment: firestoreDocData.microComment,
-            mediumComment: firestoreDocData.mediumComment,
-            verboseComment: firestoreDocData.verboseComment,
-            status: firestoreDocData.status,
-            selectedLength: firestoreDocData.selectedLength || selectedLength,
-            timeAgo: getTimeAgo(firestoreDocData.createdAt), 
-            originalData: serializedOriginalData,
-            postScore: firestoreDocData.postScore,
-            keyword: firestoreDocData.keyword
+            id: comment.id,
+            campaignId: comment.campaignId,
+            postUrl: comment.postUrl,
+            postTitle: comment.postTitle,
+            postAuthor: comment.postAuthor,
+            postContentSnippet: comment.postContentSnippet,
+            subreddit: subreddit,
+            relevanceScore: comment.relevanceScore,
+            reasoning: comment.reasoning,
+            microComment: comment.microComment,
+            mediumComment: comment.mediumComment,
+            verboseComment: comment.verboseComment,
+            status: comment.status || "new",
+            selectedLength: comment.selectedLength || selectedLength,
+            timeAgo: getTimeAgo(comment.createdAt),
+            originalData: comment,
+            postScore: comment.postScore,
+            keyword: comment.keyword
           }
         })
-        
-        console.log(`🎯 [FRONTEND] Setting ${fetchedLeads.length} leads in state`)
+
+        // Sort by newest first
+        fetchedLeads.sort((a, b) => {
+          const aTime = new Date(a.originalData?.createdAt || 0).getTime()
+          const bTime = new Date(b.originalData?.createdAt || 0).getTime()
+          return bTime - aTime
+        })
+
+        console.log(
+          `🎯 [POLLING] Updating UI with ${fetchedLeads.length} leads (${newIds.size} new)`
+        )
         setLeads(fetchedLeads)
+        latestLeadsRef.current = fetchedLeads
         setNewLeadIds(newIds)
-        
-        // Update the first snapshot flag
-        isFirstSnapshot = false
-        
-        // Clear new lead indicators after animation
-        if (newIds.size > 0) {
-          console.log(`✨ [FRONTEND] ${newIds.size} new leads detected`)
-          // Show toast for new leads
+
+        // Mark first fetch as complete
+        isFirstFetch = false
+
+        // Hide skeleton after first successful fetch
+        if (fetchedLeads.length > 0 && !hasFirstLead.current) {
+          hasFirstLead.current = true
+          setWorkflowProgress(prev => ({ ...prev, isLoading: false }))
+        }
+
+        // Show toast for new leads (but not on first fetch)
+        if (newIds.size > 0 && !isFirstFetch) {
+          console.log(`✨ [POLLING] Showing toast for ${newIds.size} new leads`)
           const newLeadsArray = Array.from(newIds)
           const firstNewLead = fetchedLeads.find(l => l.id === newLeadsArray[0])
           if (firstNewLead) {
             toast.success(
               `New lead found: ${firstNewLead.postTitle.substring(0, 50)}...`,
               {
-                description: `Score: ${firstNewLead.relevanceScore} - ${firstNewLead.keyword || 'Unknown keyword'}`
+                description: `Score: ${firstNewLead.relevanceScore} - ${firstNewLead.keyword || "Unknown keyword"}`
               }
             )
           }
-          
+
+          // Clear new lead indicators after animation
           setTimeout(() => {
             setNewLeadIds(new Set())
           }, 3000)
         }
-        
-        // Update workflow progress if we have leads
-        if (fetchedLeads.length > 0 && workflowProgress.isLoading) {
+
+        // Update workflow progress without changing loading state
+        if (fetchedLeads.length > 0) {
           setWorkflowProgress((prev: any) => ({
             ...prev,
-            currentStep: `Processing threads... (${fetchedLeads.length} leads found so far)`,
-            isLoading: true, // Keep loading true to show progress
-            error: null
+            currentStep: `Found ${fetchedLeads.length} leads`,
+            error: null,
+            isLoading: false
           }))
-        } else if (fetchedLeads.length === 0 && !workflowProgress.isLoading) {
+        } else if (fetchedLeads.length === 0) {
           setWorkflowProgress((prev: any) => ({
             ...prev,
-            isLoading: false,
+            currentStep: "No leads found yet",
+            isLoading: isFirstFetch, // Only show loading on first fetch
             error: null
           }))
         }
-        
-        console.log(`🔥 [FRONTEND] ====== SNAPSHOT PROCESSING COMPLETE ======\n`)
-      },
-      error => {
-        console.error("❌ [FRONTEND] Error fetching real-time leads:", error)
-        console.error("❌ [FRONTEND] Error details:", {
-          code: (error as any)?.code,
-          message: error.message,
-          stack: (error as Error)?.stack
-        })
+
+        // Update polling status
+        setLastPolledAt(new Date())
+        setIsPolling(false)
+
+        console.log(`🔄 [POLLING] ====== FETCH COMPLETE ======\n`)
+      } catch (error) {
+        console.error("❌ [POLLING] Error fetching leads:", error)
         setWorkflowProgress((prev: any) => ({
           ...prev,
           isLoading: false,
-          error: "Failed to load real-time results. Please refresh or try again."
+          error: "Failed to load leads. Please refresh or try again."
         }))
+        setIsPolling(false)
       }
-    )
-
-    // Cleanup listener on component unmount or when campaignId changes
-    return () => {
-      console.log(`🔥 Unsubscribing from real-time listener for campaign: ${campaignId}`)
-      unsubscribe()
     }
-  }, [campaignId, selectedLength])
+
+    // Fetch immediately
+    fetchLeads()
+
+    // Then poll every 5 seconds
+    const interval = setInterval(fetchLeads, 5000)
+    console.log(`🔄 [POLLING] Polling interval started (ID: ${interval})`)
+
+    // Cleanup interval on component unmount or when campaignId changes
+    return () => {
+      console.log(`🔄 [POLLING] Stopping polling for campaign: ${campaignId}`)
+      clearInterval(interval)
+    }
+  }, [campaignId]) // Removed selectedLength from dependencies to prevent re-runs
 
   // Load website content when campaign is set
   useEffect(() => {
     const loadWebsiteContent = async () => {
       if (!campaignId) return
-      
+
       try {
         const campaignResult = await getCampaignByIdAction(campaignId)
         if (campaignResult.isSuccess && campaignResult.data.websiteContent) {
@@ -493,7 +512,7 @@ export default function LeadFinderDashboard() {
         console.error("Error loading website content:", error)
       }
     }
-    
+
     loadWebsiteContent()
   }, [campaignId])
 
@@ -716,13 +735,14 @@ export default function LeadFinderDashboard() {
   const getTimeAgo = (timestamp: any): string => {
     // Simple time ago calculation
     const now = Date.now()
-    let then: number;
-    if (typeof timestamp === 'string') {
-      then = new Date(timestamp).getTime();
-    } else if (timestamp && typeof timestamp.seconds === 'number') { // Firestore Timestamp like
-      then = timestamp.seconds * 1000;
+    let then: number
+    if (typeof timestamp === "string") {
+      then = new Date(timestamp).getTime()
+    } else if (timestamp && typeof timestamp.seconds === "number") {
+      // Firestore Timestamp like
+      then = timestamp.seconds * 1000
     } else {
-      then = now - 7200000; // Default to 2h ago if invalid
+      then = now - 7200000 // Default to 2h ago if invalid
     }
     const diff = now - then
     const hours = Math.floor(diff / (1000 * 60 * 60))
@@ -736,14 +756,14 @@ export default function LeadFinderDashboard() {
   const getDisplayComment = (lead: LeadResult): string => {
     switch (lead.selectedLength || selectedLength) {
       case "micro":
-        return lead.microComment;
+        return lead.microComment
       case "verbose":
-        return lead.verboseComment;
+        return lead.verboseComment
       case "medium":
       default:
-        return lead.mediumComment;
+        return lead.mediumComment
     }
-  };
+  }
 
   // Handle comment editing
   const handleCommentEdit = async (leadId: string, newComment: string) => {
@@ -752,7 +772,7 @@ export default function LeadFinderDashboard() {
 
     const updateData: any = {}
     const currentLength = lead.selectedLength || selectedLength
-    
+
     switch (currentLength) {
       case "micro":
         updateData.microComment = newComment
@@ -766,7 +786,7 @@ export default function LeadFinderDashboard() {
     }
 
     const result = await updateGeneratedCommentAction(leadId, updateData)
-    
+
     if (result.isSuccess) {
       toast.success("Comment updated successfully")
       setEditingCommentId(null)
@@ -789,7 +809,7 @@ export default function LeadFinderDashboard() {
         status: "approved",
         selectedLength: lead.selectedLength || selectedLength
       })
-      
+
       if (result.isSuccess) {
         toast.success("Added to posting queue")
       } else {
@@ -808,7 +828,7 @@ export default function LeadFinderDashboard() {
         status: "new",
         selectedLength: lead.selectedLength || selectedLength
       })
-      
+
       if (result.isSuccess) {
         toast.success("Removed from queue")
       } else {
@@ -831,7 +851,7 @@ export default function LeadFinderDashboard() {
       // Extract thread ID from URL
       const urlMatch = lead.postUrl.match(/\/comments\/([a-zA-Z0-9]+)/)
       const threadId = urlMatch ? urlMatch[1] : lead.originalData?.threadId
-      
+
       if (!threadId) {
         toast.error("Could not extract thread ID from URL")
         return
@@ -847,7 +867,7 @@ export default function LeadFinderDashboard() {
       }
 
       const comment = getDisplayComment(lead)
-      
+
       // Post comment with rate limiting
       const result = await processPostWithRateLimit(
         user.id,
@@ -855,7 +875,7 @@ export default function LeadFinderDashboard() {
         threadId,
         comment
       )
-      
+
       if (result.isSuccess) {
         toast.success("Comment posted successfully!")
         // Track analytics
@@ -898,7 +918,7 @@ export default function LeadFinderDashboard() {
     }
 
     setRegeneratingId("all")
-    
+
     try {
       // Regenerate comments for each lead
       for (const lead of leads) {
@@ -909,7 +929,7 @@ export default function LeadFinderDashboard() {
           websiteContent,
           toneInstruction
         )
-        
+
         if (result.isSuccess) {
           await updateGeneratedCommentAction(lead.id, {
             microComment: result.data.microComment,
@@ -918,7 +938,7 @@ export default function LeadFinderDashboard() {
           })
         }
       }
-      
+
       toast.success("All comments regenerated with new tone")
       setToneInstruction("")
     } catch (error) {
@@ -936,7 +956,7 @@ export default function LeadFinderDashboard() {
     }
 
     console.log("🚀 [BATCH-POST] Starting async batch posting of queue")
-    
+
     const queuedLeads = leads.filter(lead => lead.status === "approved")
     if (queuedLeads.length === 0) {
       toast.error("No leads in queue to post")
@@ -952,16 +972,20 @@ export default function LeadFinderDashboard() {
     }
 
     // Prepare posts for queueing
-    const postsToQueue = queuedLeads.map(lead => {
-      const urlMatch = lead.postUrl.match(/\/comments\/([a-zA-Z0-9]+)/)
-      const threadId = urlMatch ? urlMatch[1] : lead.originalData?.threadId || ""
-      
-      return {
-        leadId: lead.id,
-        threadId,
-        comment: getDisplayComment(lead)
-      }
-    }).filter(post => post.threadId) // Filter out posts without thread IDs
+    const postsToQueue = queuedLeads
+      .map(lead => {
+        const urlMatch = lead.postUrl.match(/\/comments\/([a-zA-Z0-9]+)/)
+        const threadId = urlMatch
+          ? urlMatch[1]
+          : lead.originalData?.threadId || ""
+
+        return {
+          leadId: lead.id,
+          threadId,
+          comment: getDisplayComment(lead)
+        }
+      })
+      .filter(post => post.threadId) // Filter out posts without thread IDs
 
     if (postsToQueue.length === 0) {
       toast.error("No valid posts to queue")
@@ -969,30 +993,27 @@ export default function LeadFinderDashboard() {
     }
 
     setIsBatchPosting(true)
-    
+
     try {
       // Queue all posts for async processing
       const result = await queuePostsForAsyncProcessing(user.id, postsToQueue)
-      
+
       if (result.isSuccess) {
         const { queuedCount, estimatedTime } = result.data
-        toast.success(
-          `Queued ${queuedCount} posts for processing`,
-          {
-            description: `Estimated completion time: ${estimatedTime} minutes. Posts will be sent automatically with 5-7 minute delays.`
-          }
-        )
-        
+        toast.success(`Queued ${queuedCount} posts for processing`, {
+          description: `Estimated completion time: ${estimatedTime} minutes. Posts will be sent automatically with 5-7 minute delays.`
+        })
+
         // Track batch posting queued
         posthog.capture("batch_posting_queued", {
           total_posts: queuedCount,
           estimated_minutes: estimatedTime,
           campaign_id: campaignId
         })
-        
+
         // Update UI to show posts are queued
         setIsBatchPosting(false)
-        
+
         // Optionally refresh queue status
         checkQueueStatus()
       } else {
@@ -1009,20 +1030,25 @@ export default function LeadFinderDashboard() {
   // Check posting queue status
   const checkQueueStatus = async () => {
     if (!user?.id) return
-    
+
     const result = await getPostingQueueStatus(user.id)
     if (result.isSuccess) {
-      const { pending, processing, completed, failed, nextPostTime } = result.data
-      console.log(`📊 [QUEUE-STATUS] Pending: ${pending}, Processing: ${processing}, Completed: ${completed}, Failed: ${failed}`)
-      
+      const { pending, processing, completed, failed, nextPostTime } =
+        result.data
+      console.log(
+        `📊 [QUEUE-STATUS] Pending: ${pending}, Processing: ${processing}, Completed: ${completed}, Failed: ${failed}`
+      )
+
       if (nextPostTime && nextPostTime > new Date()) {
-        const waitMinutes = Math.ceil((nextPostTime.getTime() - Date.now()) / 60000)
-        console.log(`⏳ [QUEUE-STATUS] Next post allowed in ${waitMinutes} minutes`)
+        const waitMinutes = Math.ceil(
+          (nextPostTime.getTime() - Date.now()) / 60000
+        )
+        console.log(
+          `⏳ [QUEUE-STATUS] Next post allowed in ${waitMinutes} minutes`
+        )
       }
     }
   }
-
-
 
   // Filter and sort leads
   const filteredAndSortedLeads = useMemo(() => {
@@ -1035,7 +1061,7 @@ export default function LeadFinderDashboard() {
 
     // Filter by keyword
     if (filterKeyword) {
-      filtered = filtered.filter(lead => 
+      filtered = filtered.filter(lead =>
         lead.keyword?.toLowerCase().includes(filterKeyword.toLowerCase())
       )
     }
@@ -1076,8 +1102,8 @@ export default function LeadFinderDashboard() {
   const renderWorkflowProgress = () => (
     <div className="space-y-6">
       {workflowProgress.error ? (
-        <EnhancedErrorState 
-          error={workflowProgress.error} 
+        <EnhancedErrorState
+          error={workflowProgress.error}
           onRetry={() => window.location.reload()}
         />
       ) : (
@@ -1099,7 +1125,31 @@ export default function LeadFinderDashboard() {
       <div className="flex-1 space-y-6 overflow-y-auto p-4 sm:p-6 md:p-8">
         {/* Header Section: Tabs and Main Actions */}
         <div className="bg-card mb-6 rounded-lg border p-4 shadow-sm dark:border-gray-700">
-          <Tabs value={activeTab} onValueChange={(value: any) => setActiveTab(value)}>
+          {/* Polling Status Indicator */}
+          {campaignId && leads.length > 0 && (
+            <div className="mb-3 flex items-center justify-between rounded-md bg-gray-50 px-3 py-2 text-xs dark:bg-gray-800">
+              <div className="flex items-center gap-2">
+                <div
+                  className={`size-2 rounded-full ${isPolling ? "animate-pulse bg-green-500" : "bg-gray-400"}`}
+                />
+                <span className="text-gray-600 dark:text-gray-400">
+                  {isPolling
+                    ? "Checking for new leads..."
+                    : "Auto-refresh active (every 5 seconds)"}
+                </span>
+              </div>
+              {lastPolledAt && (
+                <span className="text-gray-500 dark:text-gray-500">
+                  Last checked: {new Date(lastPolledAt).toLocaleTimeString()}
+                </span>
+              )}
+            </div>
+          )}
+
+          <Tabs
+            value={activeTab}
+            onValueChange={(value: any) => setActiveTab(value)}
+          >
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <TabsList className="grid grid-cols-2 self-start rounded-lg bg-gray-100 p-1 sm:w-auto dark:bg-gray-800">
                 <TabsTrigger
@@ -1115,7 +1165,7 @@ export default function LeadFinderDashboard() {
                   Queue ({leads.filter(l => l.status === "approved").length})
                 </TabsTrigger>
               </TabsList>
-              
+
               {/* Campaign Controls */}
               <div className="flex flex-wrap items-center gap-2 sm:gap-4">
                 {/* Onboarding button (only show when no keywords error) */}
@@ -1164,7 +1214,8 @@ export default function LeadFinderDashboard() {
                 Customize Comment Tone
               </CardTitle>
               <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
-                Refine the tone of all generated comments below based on your brand's voice or specific instructions.
+                Refine the tone of all generated comments below based on your
+                brand's voice or specific instructions.
               </CardDescription>
             </CardHeader>
             <CardContent className="p-4">
@@ -1172,9 +1223,9 @@ export default function LeadFinderDashboard() {
                 <Input
                   placeholder="e.g., 'Make comments more enthusiastic and add a CTA'"
                   value={toneInstruction}
-                  onChange={(e) => setToneInstruction(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && toneInstruction.trim()) {
+                  onChange={e => setToneInstruction(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === "Enter" && toneInstruction.trim()) {
                       handleToneRegeneration()
                     }
                   }}
@@ -1206,24 +1257,29 @@ export default function LeadFinderDashboard() {
                 <Input
                   placeholder="Filter by keyword..."
                   value={filterKeyword}
-                  onChange={(e) => setFilterKeyword(e.target.value)}
+                  onChange={e => setFilterKeyword(e.target.value)}
                   className="h-9 grow rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700"
                 />
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-nowrap text-sm text-gray-600 dark:text-gray-400">Min. Score:</span>
+                <span className="text-nowrap text-sm text-gray-600 dark:text-gray-400">
+                  Min. Score:
+                </span>
                 <Input
                   type="number"
                   min="0"
                   max="100"
                   value={filterScore}
-                  onChange={(e) => setFilterScore(Number(e.target.value))}
+                  onChange={e => setFilterScore(Number(e.target.value))}
                   className="h-9 w-20 rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700"
                 />
               </div>
               <div className="flex items-center gap-2">
                 <ArrowUpDown className="size-4 shrink-0 text-gray-500 dark:text-gray-400" />
-                <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+                <Select
+                  value={sortBy}
+                  onValueChange={(value: any) => setSortBy(value)}
+                >
                   <SelectTrigger className="h-9 w-[130px] rounded-md border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-700">
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
@@ -1242,75 +1298,91 @@ export default function LeadFinderDashboard() {
         )}
 
         {/* Batch Posting UI - Show only in queue tab */}
-        {activeTab === "queue" && leads.filter(l => l.status === "approved").length > 0 && (
-          <Card className="overflow-hidden shadow-lg dark:border-gray-700">
-            <CardHeader className="border-b bg-amber-50/50 p-4 dark:border-gray-700 dark:bg-amber-900/20">
-              <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-800 dark:text-gray-100">
-                <PlayCircle className="size-5 text-amber-600 dark:text-amber-400" />
-                Async Queue Posting
-              </CardTitle>
-              <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
-                Queue all comments for automatic posting with 5-7 minute randomized delays
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-4">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                    <p className="font-medium">{leads.filter(l => l.status === "approved").length} comments ready to queue</p>
-                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
-                      Posts will be sent automatically with 5-7 minute randomized delays to comply with Reddit's rate limits
-                    </p>
+        {activeTab === "queue" &&
+          leads.filter(l => l.status === "approved").length > 0 && (
+            <Card className="overflow-hidden shadow-lg dark:border-gray-700">
+              <CardHeader className="border-b bg-amber-50/50 p-4 dark:border-gray-700 dark:bg-amber-900/20">
+                <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-800 dark:text-gray-100">
+                  <PlayCircle className="size-5 text-amber-600 dark:text-amber-400" />
+                  Async Queue Posting
+                </CardTitle>
+                <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
+                  Queue all comments for automatic posting with 5-7 minute
+                  randomized delays
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-4">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                      <p className="font-medium">
+                        {leads.filter(l => l.status === "approved").length}{" "}
+                        comments ready to queue
+                      </p>
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
+                        Posts will be sent automatically with 5-7 minute
+                        randomized delays to comply with Reddit's rate limits
+                      </p>
+                    </div>
+                    <Button
+                      onClick={handleBatchPostQueue}
+                      disabled={isBatchPosting}
+                      className="gap-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-md transition-all hover:from-amber-600 hover:to-amber-700 hover:shadow-lg disabled:opacity-50"
+                    >
+                      {isBatchPosting ? (
+                        <>
+                          <Loader2 className="size-4 animate-spin" />
+                          Queueing...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="size-4" />
+                          Queue All Posts
+                        </>
+                      )}
+                    </Button>
                   </div>
-                  <Button
-                    onClick={handleBatchPostQueue}
-                    disabled={isBatchPosting}
-                    className="gap-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-md transition-all hover:from-amber-600 hover:to-amber-700 hover:shadow-lg disabled:opacity-50"
-                  >
-                    {isBatchPosting ? (
-                      <>
-                        <Loader2 className="size-4 animate-spin" />
-                        Queueing...
-                      </>
-                    ) : (
-                      <>
-                        <Send className="size-4" />
-                        Queue All Posts
-                      </>
-                    )}
-                  </Button>
-                </div>
-                
-                {/* Rate Limit Info */}
-                <div className="rounded-md border border-blue-200 bg-blue-50 p-3 dark:border-blue-700 dark:bg-blue-900/20">
-                  <div className="flex items-start gap-2">
-                    <AlertCircle className="mt-0.5 size-4 shrink-0 text-blue-600 dark:text-blue-400" />
-                    <div className="space-y-1 text-xs text-gray-700 dark:text-gray-300">
-                      <p className="font-medium">Rate Limiting Protection:</p>
-                      <ul className="ml-4 list-disc space-y-0.5 text-gray-600 dark:text-gray-400">
-                        <li>Maximum 1 post per account every 5 minutes</li>
-                        <li>Randomized delays between 5-7 minutes to avoid patterns</li>
-                        <li>Posts are queued and processed asynchronously</li>
-                        <li>You'll be notified when all posts are completed</li>
-                      </ul>
+
+                  {/* Rate Limit Info */}
+                  <div className="rounded-md border border-blue-200 bg-blue-50 p-3 dark:border-blue-700 dark:bg-blue-900/20">
+                    <div className="flex items-start gap-2">
+                      <AlertCircle className="mt-0.5 size-4 shrink-0 text-blue-600 dark:text-blue-400" />
+                      <div className="space-y-1 text-xs text-gray-700 dark:text-gray-300">
+                        <p className="font-medium">Rate Limiting Protection:</p>
+                        <ul className="ml-4 list-disc space-y-0.5 text-gray-600 dark:text-gray-400">
+                          <li>Maximum 1 post per account every 5 minutes</li>
+                          <li>
+                            Randomized delays between 5-7 minutes to avoid
+                            patterns
+                          </li>
+                          <li>Posts are queued and processed asynchronously</li>
+                          <li>
+                            You'll be notified when all posts are completed
+                          </li>
+                        </ul>
+                      </div>
                     </div>
                   </div>
+
+                  {/* Estimated Time */}
+                  {leads.filter(l => l.status === "approved").length > 0 && (
+                    <div className="rounded-md border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        <Clock className="mb-1 mr-2 inline-block size-4" />
+                        <span className="font-medium">
+                          Estimated completion time:
+                        </span>{" "}
+                        {Math.ceil(
+                          leads.filter(l => l.status === "approved").length * 6
+                        )}{" "}
+                        minutes
+                      </p>
+                    </div>
+                  )}
                 </div>
-                
-                {/* Estimated Time */}
-                {leads.filter(l => l.status === "approved").length > 0 && (
-                  <div className="rounded-md border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800">
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      <Clock className="mb-1 mr-2 inline-block size-4" />
-                      <span className="font-medium">Estimated completion time:</span>{" "}
-                      {Math.ceil(leads.filter(l => l.status === "approved").length * 6)} minutes
-                    </p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+              </CardContent>
+            </Card>
+          )}
 
         {/* Show progress or results */}
         {leads.length === 0 && !workflowProgress.error ? (
@@ -1342,11 +1414,11 @@ export default function LeadFinderDashboard() {
                 </CardContent>
               </Card>
             )}
-            
+
             {/* Show error if any */}
             {workflowProgress.error && (
-              <EnhancedErrorState 
-                error={workflowProgress.error} 
+              <EnhancedErrorState
+                error={workflowProgress.error}
                 onRetry={() => window.location.reload()}
               />
             )}
@@ -1356,175 +1428,201 @@ export default function LeadFinderDashboard() {
               filteredAndSortedLeads.length > 0 ? (
                 <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
                   {paginatedLeads.map(lead => (
-                  <Card
-                    key={lead.id}
-                    className={`flex flex-col rounded-xl border bg-white shadow-lg transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-2xl dark:border-gray-700 dark:bg-gray-800 ${
-                      newLeadIds.has(lead.id) 
-                        ? "animate-in fade-in slide-in-from-bottom-4 ring-2 ring-green-400/60 duration-700" 
-                        : ""
-                    }`}
-                    onClick={() => setSelectedPost(lead)}
-                  >
-                    <CardHeader className="pb-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-3">
-                          <Avatar className="size-8 border-2 border-gray-200 dark:border-gray-600">
-                            <AvatarFallback className="bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground text-sm font-semibold">
-                              {lead.postAuthor.substring(0, 2).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <span className="text-base font-semibold text-gray-800 dark:text-gray-100">
-                            u/{lead.postAuthor}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                          <AnimatedCopyButton text={getDisplayComment(lead)} />
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="flex grow flex-col space-y-5">
-                      {/* Post Content */}
-                      <div className="space-y-2">
-                        <h3 className="text-lg font-semibold leading-tight text-gray-900 dark:text-gray-50">
-                          {lead.postTitle}
-                        </h3>
-                        <p className="line-clamp-3 text-sm text-gray-600 dark:text-gray-400">
-                          {lead.postContentSnippet}
-                        </p>
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-1 text-xs text-gray-500 dark:text-gray-400">
-                          {lead.postScore !== undefined && (
-                            <span className="flex items-center gap-1.5">
-                              <ThumbsUp className="size-3.5" />
-                              {lead.postScore}
+                    <Card
+                      key={lead.id}
+                      className={`flex flex-col rounded-xl border bg-white shadow-lg transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-2xl dark:border-gray-700 dark:bg-gray-800 ${
+                        newLeadIds.has(lead.id)
+                          ? "animate-in fade-in slide-in-from-bottom-4 ring-2 ring-green-400/60 duration-700"
+                          : ""
+                      }`}
+                      onClick={() => setSelectedPost(lead)}
+                    >
+                      <CardHeader className="pb-4">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center gap-3">
+                            <Avatar className="size-8 border-2 border-gray-200 dark:border-gray-600">
+                              <AvatarFallback className="bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground text-sm font-semibold">
+                                {lead.postAuthor.substring(0, 2).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <span className="text-base font-semibold text-gray-800 dark:text-gray-100">
+                              u/{lead.postAuthor}
                             </span>
-                          )}
-                          <span className="flex items-center gap-1.5">
-                            <Clock className="size-3.5" />
-                            {lead.timeAgo}
-                          </span>
-                          {lead.keyword && (
-                            <Badge variant="secondary" className="rounded-md px-2 py-0.5 text-xs font-medium">
-                              <Hash className="mr-1.5 size-3" />
-                              {lead.keyword}
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Score Rationale */}
-                      <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-700 dark:bg-blue-900/30">
-                        <div className="mb-1.5 flex items-center justify-between">
-                          <span className="text-xs font-semibold text-blue-700 dark:text-blue-300">
-                            Why this score?
-                          </span>
-                          <Badge className="bg-blue-600 text-xs text-white hover:bg-blue-700 dark:bg-blue-500 dark:text-gray-900 dark:hover:bg-blue-600">
-                            Score: {lead.relevanceScore}
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-gray-700 dark:text-gray-300">
-                          {lead.reasoning}
-                        </p>
-                      </div>
-
-                      {/* Generated Comment Section */}
-                      <div className="grow space-y-3 border-t border-gray-200 pt-4 dark:border-gray-700">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
-                            Generated Comment
-                          </span>
-                          <div className="flex items-center gap-2">
-                            {lead.status === "approved" ? (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                disabled={removingLeadId === lead.id}
-                                className="gap-1.5 rounded-md border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700 dark:border-red-400 dark:text-red-400 dark:hover:bg-red-900/20 disabled:opacity-50"
-                                onClick={(e) => { e.stopPropagation(); handleRemoveFromQueue(lead); }}
-                              >
-                                {removingLeadId === lead.id ? (
-                                  <Loader2 className="size-3.5 animate-spin" />
-                                ) : (
-                                  <MinusCircle className="size-3.5" />
-                                )}
-                                Remove
-                              </Button>
-                            ) : (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                disabled={queuingLeadId === lead.id}
-                                className="gap-1.5 rounded-md border-sky-500 text-sky-600 hover:bg-sky-50 hover:text-sky-700 dark:border-sky-400 dark:text-sky-300 dark:hover:bg-sky-900/50 dark:hover:text-sky-200 disabled:opacity-50"
-                                onClick={(e) => { e.stopPropagation(); handleAddToQueue(lead); }}
-                              >
-                                {queuingLeadId === lead.id ? (
-                                  <Loader2 className="size-3.5 animate-spin" />
-                                ) : (
-                                  <PlusCircle className="size-3.5" />
-                                )}
-                                Queue
-                              </Button>
-                            )}
-                            <Button
-                              variant="default"
-                              size="sm"
-                              disabled={postingLeadId === lead.id}
-                              className="gap-1.5 rounded-md bg-green-600 text-white hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 disabled:opacity-50"
-                              onClick={(e) => { e.stopPropagation(); handlePostNow(lead); }}
-                            >
-                              {postingLeadId === lead.id ? (
-                                <Loader2 className="size-3.5 animate-spin" />
-                              ) : (
-                                <Send className="size-3.5" />
-                              )}
-                              Post Now
-                            </Button>
+                          </div>
+                          <div
+                            className="flex items-center gap-2"
+                            onClick={e => e.stopPropagation()}
+                          >
+                            <AnimatedCopyButton
+                              text={getDisplayComment(lead)}
+                            />
                           </div>
                         </div>
-                        
-                        {editingCommentId === lead.id ? (
-                          <CommentEditor
-                            initialValue={getDisplayComment(lead)}
-                            onSave={(value) => handleCommentEdit(lead.id, value)}
-                            onCancel={() => setEditingCommentId(null)}
-                          />
-                        ) : (
-                          <div
-                            className="group relative cursor-text rounded-lg bg-gray-100 p-3.5 text-sm text-gray-800 transition-colors hover:bg-gray-200/70 dark:bg-gray-700/50 dark:text-gray-200 dark:hover:bg-gray-700/80"
-                            onClick={() => setEditingCommentId(lead.id)}
-                          >
-                            <p className="whitespace-pre-wrap">{getDisplayComment(lead)}</p>
+                      </CardHeader>
+                      <CardContent className="flex grow flex-col space-y-5">
+                        {/* Post Content */}
+                        <div className="space-y-2">
+                          <h3 className="text-lg font-semibold leading-tight text-gray-900 dark:text-gray-50">
+                            {lead.postTitle}
+                          </h3>
+                          <p className="line-clamp-3 text-sm text-gray-600 dark:text-gray-400">
+                            {lead.postContentSnippet}
+                          </p>
+                          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-1 text-xs text-gray-500 dark:text-gray-400">
+                            {lead.postScore !== undefined && (
+                              <span className="flex items-center gap-1.5">
+                                <ThumbsUp className="size-3.5" />
+                                {lead.postScore}
+                              </span>
+                            )}
+                            <span className="flex items-center gap-1.5">
+                              <Clock className="size-3.5" />
+                              {lead.timeAgo}
+                            </span>
+                            {lead.keyword && (
+                              <Badge
+                                variant="secondary"
+                                className="rounded-md px-2 py-0.5 text-xs font-medium"
+                              >
+                                <Hash className="mr-1.5 size-3" />
+                                {lead.keyword}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Score Rationale */}
+                        <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-700 dark:bg-blue-900/30">
+                          <div className="mb-1.5 flex items-center justify-between">
+                            <span className="text-xs font-semibold text-blue-700 dark:text-blue-300">
+                              Why this score?
+                            </span>
+                            <Badge className="bg-blue-600 text-xs text-white hover:bg-blue-700 dark:bg-blue-500 dark:text-gray-900 dark:hover:bg-blue-600">
+                              Score: {lead.relevanceScore}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">
+                            {lead.reasoning}
+                          </p>
+                        </div>
+
+                        {/* Generated Comment Section */}
+                        <div className="grow space-y-3 border-t border-gray-200 pt-4 dark:border-gray-700">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                              Generated Comment
+                            </span>
+                            <div className="flex items-center gap-2">
+                              {lead.status === "approved" ? (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  disabled={removingLeadId === lead.id}
+                                  className="gap-1.5 rounded-md border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700 disabled:opacity-50 dark:border-red-400 dark:text-red-400 dark:hover:bg-red-900/20"
+                                  onClick={e => {
+                                    e.stopPropagation()
+                                    handleRemoveFromQueue(lead)
+                                  }}
+                                >
+                                  {removingLeadId === lead.id ? (
+                                    <Loader2 className="size-3.5 animate-spin" />
+                                  ) : (
+                                    <MinusCircle className="size-3.5" />
+                                  )}
+                                  Remove
+                                </Button>
+                              ) : (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  disabled={queuingLeadId === lead.id}
+                                  className="gap-1.5 rounded-md border-sky-500 text-sky-600 hover:bg-sky-50 hover:text-sky-700 disabled:opacity-50 dark:border-sky-400 dark:text-sky-300 dark:hover:bg-sky-900/50 dark:hover:text-sky-200"
+                                  onClick={e => {
+                                    e.stopPropagation()
+                                    handleAddToQueue(lead)
+                                  }}
+                                >
+                                  {queuingLeadId === lead.id ? (
+                                    <Loader2 className="size-3.5 animate-spin" />
+                                  ) : (
+                                    <PlusCircle className="size-3.5" />
+                                  )}
+                                  Queue
+                                </Button>
+                              )}
+                              <Button
+                                variant="default"
+                                size="sm"
+                                disabled={postingLeadId === lead.id}
+                                className="gap-1.5 rounded-md bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 dark:bg-green-500 dark:hover:bg-green-600"
+                                onClick={e => {
+                                  e.stopPropagation()
+                                  handlePostNow(lead)
+                                }}
+                              >
+                                {postingLeadId === lead.id ? (
+                                  <Loader2 className="size-3.5 animate-spin" />
+                                ) : (
+                                  <Send className="size-3.5" />
+                                )}
+                                Post Now
+                              </Button>
+                            </div>
+                          </div>
+
+                          {editingCommentId === lead.id ? (
+                            <CommentEditor
+                              initialValue={getDisplayComment(lead)}
+                              onSave={value =>
+                                handleCommentEdit(lead.id, value)
+                              }
+                              onCancel={() => setEditingCommentId(null)}
+                            />
+                          ) : (
+                            <div
+                              className="group relative cursor-text rounded-lg bg-gray-100 p-3.5 text-sm text-gray-800 transition-colors hover:bg-gray-200/70 dark:bg-gray-700/50 dark:text-gray-200 dark:hover:bg-gray-700/80"
+                              onClick={() => setEditingCommentId(lead.id)}
+                            >
+                              <p className="whitespace-pre-wrap">
+                                {getDisplayComment(lead)}
+                              </p>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="absolute right-1.5 top-1.5 size-7 text-gray-500 opacity-0 transition-all hover:bg-gray-300/50 group-hover:opacity-100 dark:text-gray-400 dark:hover:bg-gray-600/50"
+                              >
+                                <Edit2 className="size-3.5" />
+                              </Button>
+                            </div>
+                          )}
+
+                          <div className="flex items-center justify-between pt-1">
+                            <span className="text-xs capitalize text-gray-500 dark:text-gray-400">
+                              {lead.selectedLength || selectedLength} length
+                            </span>
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="absolute right-1.5 top-1.5 size-7 text-gray-500 opacity-0 transition-all hover:bg-gray-300/50 group-hover:opacity-100 dark:text-gray-400 dark:hover:bg-gray-600/50"
+                              className="size-7 text-gray-500 hover:bg-gray-200/70 dark:text-gray-400 dark:hover:bg-gray-700/50"
+                              asChild
                             >
-                              <Edit2 className="size-3.5" />
+                              <a
+                                href={lead.postUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={e => e.stopPropagation()}
+                              >
+                                <ExternalLink className="size-3.5" />
+                              </a>
                             </Button>
                           </div>
-                        )}
-                        
-                        <div className="flex items-center justify-between pt-1">
-                          <span className="text-xs capitalize text-gray-500 dark:text-gray-400">
-                            {lead.selectedLength || selectedLength} length
-                          </span>
-                          <Button variant="ghost" size="icon" className="size-7 text-gray-500 hover:bg-gray-200/70 dark:text-gray-400 dark:hover:bg-gray-700/50" asChild>
-                            <a
-                              href={lead.postUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <ExternalLink className="size-3.5" />
-                            </a>
-                          </Button>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-                              </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               ) : (
-                <EmptyState 
+                <EmptyState
                   title="No leads match your filters"
                   description="Try adjusting your keyword filter or minimum score"
                   icon={<MessageSquare className="size-12" />}
@@ -1554,20 +1652,35 @@ export default function LeadFinderDashboard() {
                 <div className="flex items-center space-x-1">
                   {Array.from({ length: totalPages }, (_, i) => i + 1)
                     .filter(page => {
-                      const showEllipsis = Math.abs(page - currentPage) > 2 && page !== 1 && page !== totalPages;
-                      const showPage = page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1;
-                      return showPage || (showEllipsis && (page === currentPage - 3 || page === currentPage + 3));
+                      const showEllipsis =
+                        Math.abs(page - currentPage) > 2 &&
+                        page !== 1 &&
+                        page !== totalPages
+                      const showPage =
+                        page === 1 ||
+                        page === totalPages ||
+                        Math.abs(page - currentPage) <= 1
+                      return (
+                        showPage ||
+                        (showEllipsis &&
+                          (page === currentPage - 3 ||
+                            page === currentPage + 3))
+                      )
                     })
                     .map((page, index, array) => (
                       <React.Fragment key={page}>
-                        {index > 0 && array[index - 1] !== page - 1 && page !== array[index-1] +1 && (
-                          <span className="px-1.5 py-1 text-sm text-gray-400 dark:text-gray-500">...</span>
-                        )}
+                        {index > 0 &&
+                          array[index - 1] !== page - 1 &&
+                          page !== array[index - 1] + 1 && (
+                            <span className="px-1.5 py-1 text-sm text-gray-400 dark:text-gray-500">
+                              ...
+                            </span>
+                          )}
                         <Button
                           variant={page === currentPage ? "default" : "outline"}
                           size="sm"
                           onClick={() => setCurrentPage(page)}
-                          className={`size-9 rounded-md border-gray-300 px-0 hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-700 ${page === currentPage ? 'bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600' : 'bg-white dark:bg-gray-800'}`}
+                          className={`size-9 rounded-md border-gray-300 px-0 hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-700 ${page === currentPage ? "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600" : "bg-white dark:bg-gray-800"}`}
                         >
                           {page}
                         </Button>
@@ -1577,7 +1690,9 @@ export default function LeadFinderDashboard() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  onClick={() =>
+                    setCurrentPage(p => Math.min(totalPages, p + 1))
+                  }
                   disabled={currentPage === totalPages}
                   className="h-9 rounded-md border-gray-300 px-3 hover:bg-gray-100 disabled:opacity-50 dark:border-gray-600 dark:hover:bg-gray-700"
                 >
@@ -1593,7 +1708,7 @@ export default function LeadFinderDashboard() {
       {selectedPost && (
         <PostDetailPopup
           open={!!selectedPost}
-          onOpenChange={(open) => !open && setSelectedPost(null)}
+          onOpenChange={open => !open && setSelectedPost(null)}
           lead={selectedPost}
         />
       )}
@@ -1608,4 +1723,4 @@ export default function LeadFinderDashboard() {
       />
     </div>
   )
-} 
+}

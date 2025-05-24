@@ -89,7 +89,7 @@ export function EnhancedLeadSkeleton() {
               <div className="flex items-center gap-3">
                 <div className="relative">
                   <Skeleton className="size-8 rounded-full" />
-                  <div className="absolute -bottom-1 -right-1 size-3 rounded-full bg-green-400 animate-pulse" />
+                  <div className="absolute -bottom-1 -right-1 size-3 animate-pulse rounded-full bg-green-400" />
                 </div>
                 <div className="space-y-1">
                   <Skeleton className="h-5 w-24 rounded-md" />
@@ -142,10 +142,10 @@ export function EnhancedLeadSkeleton() {
               
               {/* Comment content skeleton with animation */}
               <div className="space-y-2">
-                <Skeleton className="h-4 w-full rounded-md animate-pulse" />
-                <Skeleton className="h-4 w-11/12 rounded-md animate-pulse [animation-delay:100ms]" />
-                <Skeleton className="h-4 w-4/5 rounded-md animate-pulse [animation-delay:200ms]" />
-                <Skeleton className="h-4 w-3/4 rounded-md animate-pulse [animation-delay:300ms]" />
+                <Skeleton className="h-4 w-full animate-pulse rounded-md" />
+                <Skeleton className="h-4 w-11/12 animate-pulse rounded-md [animation-delay:100ms]" />
+                <Skeleton className="h-4 w-4/5 animate-pulse rounded-md [animation-delay:200ms]" />
+                <Skeleton className="h-4 w-3/4 animate-pulse rounded-md [animation-delay:300ms]" />
               </div>
               
               <div className="flex items-center justify-between pt-1">

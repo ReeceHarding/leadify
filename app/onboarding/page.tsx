@@ -35,7 +35,7 @@ const stepOrder: OnboardingStep[] = [
 ]
 
 export default function OnboardingPage() {
-  const { user } = useUser()
+  const { user, isLoaded } = useUser()
   const router = useRouter()
   const searchParams = useSearchParams()
   const [currentStep, setCurrentStep] = useState<OnboardingStep>("profile")
@@ -74,6 +74,9 @@ export default function OnboardingPage() {
   useEffect(() => {
     console.log("🔍 [ONBOARDING] useEffect for loading profile triggered")
     console.log("🔍 [ONBOARDING] user?.id:", user?.id)
+
+    // Wait until Clerk has finished loading before attempting to fetch a profile
+    if (!isLoaded) return
 
     const loadExistingProfile = async () => {
       if (!user?.id) {
@@ -182,7 +185,7 @@ export default function OnboardingPage() {
     }
 
     loadExistingProfile()
-  }, [user?.id, router])
+  }, [user?.id, router, isLoaded])
 
   const currentStepIndex = stepOrder.indexOf(currentStep)
   const progress = ((currentStepIndex + 1) / stepOrder.length) * 100
