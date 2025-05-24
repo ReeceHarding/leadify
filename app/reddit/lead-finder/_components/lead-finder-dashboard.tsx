@@ -68,6 +68,7 @@ import CampaignsList from "./campaigns-list"
 import PostDetailPopup from "./post-detail-popup"
 import CommentEditor from "./comment-editor"
 import AnimatedCopyButton from "./animated-copy-button"
+import posthog from "posthog-js"
 import { runFullLeadGenerationWorkflowAction } from "@/actions/lead-generation/workflow-actions"
 import { 
   getGeneratedCommentsByCampaignAction,
@@ -191,6 +192,7 @@ export default function LeadFinderDashboard() {
     isPaused: false
   })
   const batchPostingRef = useRef<boolean>(false)
+  const [batchDelay, setBatchDelay] = useState(10) // New state for configurable delay
 
   // Get keywords from profile and start real workflow
   useEffect(() => {
@@ -756,6 +758,12 @@ export default function LeadFinderDashboard() {
     if (result.isSuccess) {
       toast.success("Comment updated successfully")
       setEditingCommentId(null)
+      // Track analytics
+      posthog.capture("lead_comment_edited", {
+        lead_id: leadId,
+        comment_length: currentLength,
+        campaign_id: campaignId
+      })
     } else {
       toast.error("Failed to update comment")
     }
@@ -821,12 +829,27 @@ export default function LeadFinderDashboard() {
       
       if (result.isSuccess) {
         toast.success("Comment posted successfully!")
+        // Track analytics
+        posthog.capture("lead_posted", {
+          lead_id: lead.id,
+          relevance_score: lead.relevanceScore,
+          keyword: lead.keyword,
+          comment_length: lead.selectedLength || selectedLength,
+          campaign_id: lead.campaignId,
+          subreddit: lead.subreddit
+        })
         // Optionally open the posted comment in a new tab
         if (result.data.link) {
           window.open(result.data.link, "_blank")
         }
       } else {
         toast.error(result.message)
+        // Track failure
+        posthog.capture("lead_post_failed", {
+          lead_id: lead.id,
+          error_message: result.message,
+          campaign_id: lead.campaignId
+        })
       }
     } catch (error) {
       toast.error("Failed to post comment")
@@ -940,10 +963,10 @@ export default function LeadFinderDashboard() {
           console.error(`❌ [BATCH-POST] Failed to post comment ${i + 1}: ${result.message}`)
         }
 
-        // Add delay between posts to avoid rate limiting (10 seconds)
+        // Add delay between posts to avoid rate limiting
         if (i < queuedLeads.length - 1) {
-          console.log("⏳ [BATCH-POST] Waiting 10 seconds before next post...")
-          await new Promise(resolve => setTimeout(resolve, 10000))
+          console.log(`⏳ [BATCH-POST] Waiting ${batchDelay} seconds before next post...`)
+          await new Promise(resolve => setTimeout(resolve, batchDelay * 1000))
         }
       } catch (error) {
         console.error(`❌ [BATCH-POST] Error posting comment for lead ${lead.id}:`, error)
@@ -953,6 +976,16 @@ export default function LeadFinderDashboard() {
 
     setIsBatchPosting(false)
     batchPostingRef.current = false
+    
+    // Track batch posting completion
+    posthog.capture("batch_posting_completed", {
+      total_posts: queuedLeads.length,
+      success_count: successCount,
+      failure_count: failureCount,
+      delay_seconds: batchDelay,
+      campaign_id: campaignId,
+      was_cancelled: !batchPostingRef.current
+    })
     
     if (successCount > 0) {
       toast.success(`Posted ${successCount} comments successfully${failureCount > 0 ? `, ${failureCount} failed` : ''}`)
@@ -1295,20 +1328,42 @@ export default function LeadFinderDashboard() {
             </CardHeader>
             <CardContent className="p-4">
               {!isBatchPosting ? (
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                    <p>{leads.filter(l => l.status === "approved").length} comments ready to post</p>
-                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
-                      Each comment will be posted with a 10-second delay to avoid rate limits
-                    </p>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                      <p>{leads.filter(l => l.status === "approved").length} comments ready to post</p>
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
+                        Each comment will be posted with a {batchDelay}-second delay to avoid rate limits
+                      </p>
+                    </div>
+                    <Button
+                      onClick={handleBatchPostQueue}
+                      className="gap-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-md transition-all hover:from-amber-600 hover:to-amber-700 hover:shadow-lg"
+                    >
+                      <PlayCircle className="size-4" />
+                      Start Posting
+                    </Button>
                   </div>
-                  <Button
-                    onClick={handleBatchPostQueue}
-                    className="gap-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-md transition-all hover:from-amber-600 hover:to-amber-700 hover:shadow-lg"
-                  >
-                    <PlayCircle className="size-4" />
-                    Start Posting
-                  </Button>
+                  <div className="flex items-center gap-4 rounded-md border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800">
+                    <label htmlFor="batch-delay" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Delay between posts:
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        id="batch-delay"
+                        type="number"
+                        min="5"
+                        max="30"
+                        value={batchDelay}
+                        onChange={(e) => setBatchDelay(Number(e.target.value))}
+                        className="h-8 w-16 text-center"
+                      />
+                      <span className="text-sm text-gray-600 dark:text-gray-400">seconds</span>
+                    </div>
+                    <div className="ml-auto text-xs text-gray-500 dark:text-gray-500">
+                      Recommended: 10-15 seconds
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-4">
