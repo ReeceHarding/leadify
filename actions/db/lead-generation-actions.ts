@@ -373,12 +373,17 @@ export async function getGeneratedCommentsByCampaignAction(
   campaignId: string
 ): Promise<ActionState<SerializedGeneratedCommentDocument[]>> {
   try {
-    console.log(`📖 [LEAD-GEN] Fetching generated comments for campaign ${campaignId}`)
+    console.log(`\n📖 [LEAD-GEN-GET] ====== FETCHING COMMENTS ======`)
+    console.log(`📖 [LEAD-GEN-GET] Campaign ID: ${campaignId}`)
+    console.log(`📖 [LEAD-GEN-GET] Collection: ${LEAD_COLLECTIONS.GENERATED_COMMENTS}`)
+    console.log(`📖 [LEAD-GEN-GET] Time: ${new Date().toISOString()}`)
     
     // Fetch generated comments
     const commentsRef = collection(db, LEAD_COLLECTIONS.GENERATED_COMMENTS)
     const q = query(commentsRef, where("campaignId", "==", campaignId))
+    console.log(`📖 [LEAD-GEN-GET] Executing Firestore query...`)
     const querySnapshot = await getDocs(q)
+    console.log(`📖 [LEAD-GEN-GET] Query returned ${querySnapshot.docs.length} documents`)
 
     // Fetch Reddit threads for this campaign to get scores
     const threadsRef = collection(db, LEAD_COLLECTIONS.REDDIT_THREADS)
@@ -404,8 +409,24 @@ export async function getGeneratedCommentsByCampaignAction(
       keywordMap.set(searchResult.redditUrl, searchResult.keyword)
     })
 
-    const comments = querySnapshot.docs.map(doc => {
+    const comments = querySnapshot.docs.map((doc, index) => {
       const rawComment = doc.data() as GeneratedCommentDocument
+      
+      // Log first 3 comments in detail
+      if (index < 3) {
+        console.log(`📖 [LEAD-GEN-GET] Comment ${index + 1}:`, {
+          id: rawComment.id,
+          campaignId: rawComment.campaignId,
+          postTitle: rawComment.postTitle?.substring(0, 50) + '...',
+          relevanceScore: rawComment.relevanceScore,
+          status: rawComment.status,
+          createdAt: rawComment.createdAt,
+          microCommentLength: rawComment.microComment?.length,
+          mediumCommentLength: rawComment.mediumComment?.length,
+          verboseCommentLength: rawComment.verboseComment?.length
+        })
+      }
+      
       const serializedComment = serializeGeneratedCommentDocument(rawComment)
       
       // Add Reddit thread score if available
@@ -423,7 +444,8 @@ export async function getGeneratedCommentsByCampaignAction(
       return serializedComment
     })
     
-    console.log(`✅ [LEAD-GEN] Found ${comments.length} comments with enriched data`)
+    console.log(`📖 [LEAD-GEN-GET] Found ${comments.length} comments with enriched data`)
+    console.log(`📖 [LEAD-GEN-GET] ====== FETCH COMPLETE ======\n`)
 
     return {
       isSuccess: true,

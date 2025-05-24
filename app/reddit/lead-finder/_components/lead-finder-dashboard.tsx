@@ -188,6 +188,11 @@ export default function LeadFinderDashboard() {
     isLoading: false,
     error: undefined
   })
+  
+  // Log workflow progress changes
+  useEffect(() => {
+    console.log(`🔧 [WORKFLOW-PROGRESS] State changed:`, workflowProgress)
+  }, [workflowProgress])
   const [campaignId, setCampaignId] = useState<string | null>(null)
 
   // New state variables
@@ -219,6 +224,31 @@ export default function LeadFinderDashboard() {
 
   // Track when the very first lead arrives so we can hide the skeleton immediately
   const hasFirstLead = useRef(false)
+  
+  // Debug: Test direct query on mount
+  useEffect(() => {
+    const testDirectQuery = async () => {
+      console.log(`\n🧪 [DEBUG-TEST] ====== DIRECT FIRESTORE TEST ======`)
+      console.log(`🧪 [DEBUG-TEST] Testing with known campaign ID: nGUkAfdPyTxgYUE7AzD7`)
+      
+      try {
+        const result = await getGeneratedCommentsByCampaignAction("nGUkAfdPyTxgYUE7AzD7")
+        console.log(`🧪 [DEBUG-TEST] Direct query result:`, {
+          isSuccess: result.isSuccess,
+          dataLength: result.data?.length || 0,
+          firstItem: result.data?.[0]
+        })
+      } catch (error) {
+        console.error(`🧪 [DEBUG-TEST] Direct query error:`, error)
+      }
+      
+      console.log(`🧪 [DEBUG-TEST] ====== TEST COMPLETE ======\n`)
+    }
+    
+    if (user?.id) {
+      testDirectQuery()
+    }
+  }, [user?.id])
 
   // Keep an always-up-to-date reference to the leads array for snapshot diffing
   const latestLeadsRef = useRef<LeadResult[]>([])
@@ -308,6 +338,10 @@ export default function LeadFinderDashboard() {
 
   // Polling mechanism for leads - polls every 5 seconds
   useEffect(() => {
+    console.log(`\n🔄 [POLLING-EFFECT] ====== STARTING POLLING EFFECT ======`)
+    console.log(`🔄 [POLLING-EFFECT] Campaign ID: ${campaignId}`)
+    console.log(`🔄 [POLLING-EFFECT] User ID: ${user?.id}`)
+    
     if (!campaignId) {
       console.log("🚫 [POLLING] No campaignId, clearing leads")
       setLeads([]) // Clear leads if no campaign is selected
@@ -316,6 +350,9 @@ export default function LeadFinderDashboard() {
 
     console.log(`🔄 [POLLING] Starting polling for campaign: ${campaignId}`)
     console.log(`🔄 [POLLING] Will poll every 5 seconds`)
+    console.log(`🔄 [POLLING] User ID: ${user?.id}`)
+    console.log(`🔄 [POLLING] Collection path will be: generated_comments`)
+    console.log(`🔄 [POLLING] Expected campaign IDs: nGUkAfdPyTxgYUE7AzD7 or Bn8qNlX5NPgyFrvwBTgB`)
 
     // Track if this is the first fetch for this campaign
     let isFirstFetch = true
@@ -325,14 +362,18 @@ export default function LeadFinderDashboard() {
       try {
         console.log(`\n🔄 [POLLING] ====== FETCHING LEADS ======`)
         console.log(`🔄 [POLLING] Campaign ID: ${campaignId}`)
+        console.log(`🔄 [POLLING] User ID: ${user?.id}`)
         console.log(`🔄 [POLLING] Time: ${new Date().toISOString()}`)
         console.log(`🔄 [POLLING] Is first fetch: ${isFirstFetch}`)
+        console.log(`🔄 [POLLING] Current leads count: ${latestLeadsRef.current.length}`)
+        console.log(`🔄 [POLLING] hasFirstLead: ${hasFirstLead.current}`)
 
         // Set polling indicator
         setIsPolling(true)
 
         // Only show loading on the very first fetch
         if (isFirstFetch && latestLeadsRef.current.length === 0) {
+          console.log(`🔄 [POLLING] Setting loading state to true`)
           setWorkflowProgress((prev: any) => ({
             ...prev,
             isLoading: true,
@@ -340,10 +381,19 @@ export default function LeadFinderDashboard() {
           }))
         }
 
+        console.log(`🔄 [POLLING] Calling getGeneratedCommentsByCampaignAction with campaignId: ${campaignId}`)
         const result = await getGeneratedCommentsByCampaignAction(campaignId)
+        
+        console.log(`🔄 [POLLING] Action returned:`, {
+          isSuccess: result.isSuccess,
+          message: result.message,
+          dataLength: result.data?.length || 0,
+          data: result.data?.slice(0, 2) // Log first 2 items
+        })
 
         if (!result.isSuccess) {
           console.error(`❌ [POLLING] Failed to fetch leads: ${result.message}`)
+          console.error(`❌ [POLLING] Full error result:`, result)
           setWorkflowProgress((prev: any) => ({
             ...prev,
             isLoading: false,
@@ -355,6 +405,14 @@ export default function LeadFinderDashboard() {
         console.log(
           `🔄 [POLLING] Fetched ${result.data.length} leads from server`
         )
+        
+        // Log the actual campaign IDs of the fetched data
+        if (result.data.length > 0) {
+          const campaignIds = new Set(result.data.map((item: any) => item.campaignId))
+          console.log(`🔄 [POLLING] Campaign IDs in fetched data:`, Array.from(campaignIds))
+          console.log(`🔄 [POLLING] Our campaign ID: ${campaignId}`)
+          console.log(`🔄 [POLLING] Do they match? ${Array.from(campaignIds).includes(campaignId)}`)
+        }
 
         // Track new leads for animation
         const currentLeadIds = new Set(latestLeadsRef.current.map(l => l.id))
@@ -427,8 +485,14 @@ export default function LeadFinderDashboard() {
 
         // Hide skeleton after first successful fetch
         if (fetchedLeads.length > 0 && !hasFirstLead.current) {
+          console.log(`🔄 [POLLING] First lead detected, hiding skeleton`)
           hasFirstLead.current = true
-          setWorkflowProgress(prev => ({ ...prev, isLoading: false }))
+          setWorkflowProgress(prev => {
+            console.log(`🔄 [POLLING] Previous workflow progress:`, prev)
+            const newProgress = { ...prev, isLoading: false }
+            console.log(`🔄 [POLLING] New workflow progress:`, newProgress)
+            return newProgress
+          })
         }
 
         // Show toast for new leads (but not on first fetch)
@@ -567,6 +631,17 @@ export default function LeadFinderDashboard() {
       ) {
         // Find the most recent completed campaign or use the latest one
         const campaigns = existingCampaignsResult.data
+        console.log(`🔍 [LEAD-FINDER] Found ${campaigns.length} existing campaigns:`)
+        campaigns.forEach((c, i) => {
+          console.log(`🔍 [LEAD-FINDER] Campaign ${i + 1}:`, {
+            id: c.id,
+            name: c.name,
+            status: c.status,
+            totalCommentsGenerated: c.totalCommentsGenerated,
+            createdAt: c.createdAt
+          })
+        })
+        
         const completedCampaign = campaigns.find(c => c.status === "completed")
         const latestCampaign = campaigns[0] // Assuming they're ordered by creation date
 
@@ -588,6 +663,8 @@ export default function LeadFinderDashboard() {
           shouldRunWorkflow =
             latestCampaign.status === "error" ||
             latestCampaign.status === "running"
+            
+          console.log(`🔍 [LEAD-FINDER] Should run workflow: ${shouldRunWorkflow}`)
         }
       }
 
@@ -622,7 +699,11 @@ export default function LeadFinderDashboard() {
         )
       }
 
+      console.log(`\n🎯 [FRONTEND] ====== SETTING CAMPAIGN ID ======`)
       console.log(`🎯 [FRONTEND] Setting campaign ID: ${realCampaignId}`)
+      console.log(`🎯 [FRONTEND] User ID: ${user.id}`)
+      console.log(`🎯 [FRONTEND] Campaign name: ${realCampaignId ? (existingCampaignsResult.data?.find(c => c.id === realCampaignId)?.name || 'New campaign') : 'Unknown'}`)
+      console.log(`🎯 [FRONTEND] ============================\n`)
       setCampaignId(realCampaignId)
 
       // Step 4: Run workflow only if needed
@@ -663,7 +744,8 @@ export default function LeadFinderDashboard() {
         totalSteps: 6,
         isLoading: true
       })
-
+      
+      console.log(`🔍 [LEAD-FINDER] About to fetch results for campaign: ${realCampaignId}`)
       await fetchRealResults(realCampaignId)
 
       setWorkflowProgress({
@@ -688,9 +770,19 @@ export default function LeadFinderDashboard() {
   }
 
   const fetchRealResults = async (campaignId: string) => {
+    console.log(`\n🎯 [FETCH-REAL-RESULTS] ====== STARTING ======`)
+    console.log(`🎯 [FETCH-REAL-RESULTS] Campaign ID: ${campaignId}`)
+    
     try {
       const results = await getGeneratedCommentsByCampaignAction(campaignId)
+      console.log(`🎯 [FETCH-REAL-RESULTS] Results:`, {
+        isSuccess: results.isSuccess,
+        dataLength: results.data?.length || 0,
+        message: results.message
+      })
+      
       if (results.isSuccess && results.data.length > 0) {
+        console.log(`🎯 [FETCH-REAL-RESULTS] Found ${results.data.length} results, transforming...`)
         // Transform the real results into our display format
         const transformedLeads: LeadResult[] = results.data.map(
           (result: any) => ({
