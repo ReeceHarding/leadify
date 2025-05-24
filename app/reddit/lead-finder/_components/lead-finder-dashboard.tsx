@@ -178,15 +178,9 @@ export default function LeadFinderDashboard() {
     initialLoadAttemptedRef.current = false
     setLeads([]) // Clear previous leads
     latestLeadsRef.current = []
-    // Set loading to true when campaign changes, until first fetch attempt completes
+    // Don't set loading state - we'll jump straight to complete
     if (campaignId) {
-      console.log("🔄 [isLoading] Setting isLoading: true (campaignId changed)")
-      setWorkflowProgress(prev => ({
-        ...prev,
-        isLoading: true,
-        error: undefined,
-        currentStep: "Loading campaign data..."
-      }))
+      console.log("🔄 [CAMPAIGN-CHANGE] Campaign selected, polling will start automatically")
     }
   }, [campaignId])
 
@@ -324,7 +318,7 @@ export default function LeadFinderDashboard() {
     if (!campaignId) {
       console.log("🚫 [POLLING] No campaignId, clearing leads and stopping polling effect.")
       setLeads([]) 
-      setWorkflowProgress(prev => ({ ...prev, isLoading: false, currentStep: "No campaign selected.", error: undefined }));
+      // Don't update workflow progress here - let the main initialization flow handle it
       return
     }
 
@@ -343,15 +337,6 @@ export default function LeadFinderDashboard() {
       console.log(`🔄 [POLLING] initialLoadAttemptedRef.current: ${initialLoadAttemptedRef.current}`)
 
       setIsPolling(true);
-
-      if (isFirstFetchRef.current && !initialLoadAttemptedRef.current) {
-        console.log("🔄 [POLLING] First fetch attempt for this campaign, ensuring isLoading is true.");
-        setWorkflowProgress((prev: any) => ({
-          ...prev,
-          isLoading: true, 
-          error: undefined
-        }));
-      }
 
       try {
         const result = await getGeneratedCommentsByCampaignAction(campaignId)
@@ -644,54 +629,63 @@ export default function LeadFinderDashboard() {
       console.log(`🎯 [FRONTEND] ============================\n`)
       setCampaignId(realCampaignId)
 
-      // Step 4: Run workflow only if needed
+      // Step 4: Run workflow only if needed (fire-and-forget so UI is not blocked)
       if (shouldRunWorkflow) {
         console.log(
-          "🔍 [LEAD-FINDER] Running workflow for campaign:",
+          "🔍 [LEAD-FINDER] Running workflow for campaign (background):",
           realCampaignId
         )
+
+        // Immediately set to 100% complete - polling will show leads as they come in
         setWorkflowProgress({
-          currentStep: "Starting lead generation workflow...",
-          completedSteps: 3,
+          currentStep: "Lead generation running - new leads will appear automatically",
+          completedSteps: 6,
           totalSteps: 6,
-          isLoading: true
+          isLoading: false,
+          error: undefined
         })
 
-        const workflowResult =
-          await runFullLeadGenerationWorkflowAction(realCampaignId)
-
-        if (!workflowResult.isSuccess) {
-          throw new Error(workflowResult.message || "Workflow failed")
-        }
+        // Kick off the heavy workflow WITHOUT awaiting it so React can re-render and polling can start
+        runFullLeadGenerationWorkflowAction(realCampaignId)
+          .then(result => {
+            if (!result.isSuccess) {
+              console.error("❌ [LEAD-FINDER] Workflow failed:", result.message)
+              setWorkflowProgress(prev => ({
+                ...prev,
+                currentStep: "Workflow error",
+                error: result.message,
+                isLoading: false
+              }))
+            } else {
+              console.log("✅ [LEAD-FINDER] Workflow completed successfully")
+              // Just log success - polling is already showing the leads
+            }
+          })
+          .catch(err => {
+            console.error("❌ [LEAD-FINDER] Workflow promise rejected:", err)
+            setWorkflowProgress(prev => ({
+              ...prev,
+              currentStep: "Workflow error",
+              error: err instanceof Error ? err.message : "Unknown error",
+              isLoading: false
+            }))
+          })
       } else {
         console.log(
           "🔍 [LEAD-FINDER] Using existing campaign results, skipping workflow"
         )
+        // For existing campaigns, also jump straight to complete
         setWorkflowProgress({
-          currentStep: "Using existing results...",
-          completedSteps: 5,
+          currentStep: "Loading existing leads...",
+          completedSteps: 6,
           totalSteps: 6,
-          isLoading: true
+          isLoading: false,
+          error: undefined
         })
       }
 
-      // Step 5: Fetch results (existing or new)
-      setWorkflowProgress({
-        currentStep: "Loading results...",
-        completedSteps: 5,
-        totalSteps: 6,
-        isLoading: true
-      })
-      
-      console.log(`🔍 [LEAD-FINDER] About to fetch results for campaign: ${realCampaignId}`)
-      await fetchRealResults(realCampaignId)
-
-      setWorkflowProgress({
-        currentStep: "Complete!",
-        completedSteps: 6,
-        totalSteps: 6,
-        isLoading: false
-      })
+      // Remove the blocking fetchRealResults call - let polling handle everything
+      console.log(`🔍 [LEAD-FINDER] Setup complete. Polling will handle lead display.`)
     } catch (error) {
       console.error("Error in lead generation:", error)
       setWorkflowProgress({
