@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useMemo } from "react"
+import React, { useState, useEffect, useMemo, useRef } from "react"
 import {
   Plus,
   Search,
@@ -25,7 +25,11 @@ import {
   Edit2,
   PlusCircle,
   RefreshCw,
-  Send
+  Send,
+  PlayCircle,
+  Pause,
+  X,
+  MinusCircle
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -178,6 +182,15 @@ export default function LeadFinderDashboard() {
   const [websiteContent, setWebsiteContent] = useState<string>("")
   const [activeTab, setActiveTab] = useState<"all" | "queue">("all")
   const [newLeadIds, setNewLeadIds] = useState<Set<string>>(new Set())
+  
+  // New state for batch posting
+  const [isBatchPosting, setIsBatchPosting] = useState(false)
+  const [batchPostingProgress, setBatchPostingProgress] = useState({
+    current: 0,
+    total: 0,
+    isPaused: false
+  })
+  const batchPostingRef = useRef<boolean>(false)
 
   // Get keywords from profile and start real workflow
   useEffect(() => {
@@ -762,6 +775,20 @@ export default function LeadFinderDashboard() {
     }
   }
 
+  // Handle removing from queue
+  const handleRemoveFromQueue = async (lead: LeadResult) => {
+    const result = await updateGeneratedCommentAction(lead.id, {
+      status: "new",
+      selectedLength: lead.selectedLength || selectedLength
+    })
+    
+    if (result.isSuccess) {
+      toast.success("Removed from queue")
+    } else {
+      toast.error("Failed to remove from queue")
+    }
+  }
+
   // Handle posting comment now
   const handlePostNow = async (lead: LeadResult) => {
     try {
@@ -843,6 +870,106 @@ export default function LeadFinderDashboard() {
     } finally {
       setRegeneratingId(null)
     }
+  }
+
+  // Batch posting functionality
+  const handleBatchPostQueue = async () => {
+    console.log("🚀 [BATCH-POST] Starting batch posting of queue")
+    
+    const queuedLeads = leads.filter(lead => lead.status === "approved")
+    if (queuedLeads.length === 0) {
+      toast.error("No leads in queue to post")
+      return
+    }
+
+    // Check Reddit auth first
+    const testResult = await testRedditPostingAction()
+    if (!testResult.isSuccess) {
+      toast.error("Please authenticate with Reddit first")
+      window.location.href = "/api/reddit/auth"
+      return
+    }
+
+    setIsBatchPosting(true)
+    setBatchPostingProgress({
+      current: 0,
+      total: queuedLeads.length,
+      isPaused: false
+    })
+    batchPostingRef.current = true
+
+    let successCount = 0
+    let failureCount = 0
+
+    for (let i = 0; i < queuedLeads.length; i++) {
+      // Check if batch posting was cancelled
+      if (!batchPostingRef.current || batchPostingProgress.isPaused) {
+        console.log("🛑 [BATCH-POST] Batch posting cancelled or paused")
+        break
+      }
+
+      const lead = queuedLeads[i]
+      setBatchPostingProgress(prev => ({ ...prev, current: i + 1 }))
+
+      try {
+        // Extract thread ID from URL
+        const urlMatch = lead.postUrl.match(/\/comments\/([a-zA-Z0-9]+)/)
+        const threadId = urlMatch ? urlMatch[1] : lead.originalData?.threadId
+        
+        if (!threadId) {
+          console.error(`❌ [BATCH-POST] Could not extract thread ID for lead ${lead.id}`)
+          failureCount++
+          continue
+        }
+
+        const comment = getDisplayComment(lead)
+        console.log(`📝 [BATCH-POST] Posting comment ${i + 1}/${queuedLeads.length} for lead ${lead.id}`)
+        
+        // Post comment
+        const result = await postCommentAndUpdateStatusAction(
+          lead.id,
+          threadId,
+          comment
+        )
+        
+        if (result.isSuccess) {
+          successCount++
+          console.log(`✅ [BATCH-POST] Successfully posted comment ${i + 1}`)
+        } else {
+          failureCount++
+          console.error(`❌ [BATCH-POST] Failed to post comment ${i + 1}: ${result.message}`)
+        }
+
+        // Add delay between posts to avoid rate limiting (10 seconds)
+        if (i < queuedLeads.length - 1) {
+          console.log("⏳ [BATCH-POST] Waiting 10 seconds before next post...")
+          await new Promise(resolve => setTimeout(resolve, 10000))
+        }
+      } catch (error) {
+        console.error(`❌ [BATCH-POST] Error posting comment for lead ${lead.id}:`, error)
+        failureCount++
+      }
+    }
+
+    setIsBatchPosting(false)
+    batchPostingRef.current = false
+    
+    if (successCount > 0) {
+      toast.success(`Posted ${successCount} comments successfully${failureCount > 0 ? `, ${failureCount} failed` : ''}`)
+    } else {
+      toast.error("Failed to post any comments")
+    }
+  }
+
+  const handlePauseBatchPosting = () => {
+    setBatchPostingProgress(prev => ({ ...prev, isPaused: !prev.isPaused }))
+  }
+
+  const handleCancelBatchPosting = () => {
+    batchPostingRef.current = false
+    setIsBatchPosting(false)
+    setBatchPostingProgress({ current: 0, total: 0, isPaused: false })
+    toast.info("Batch posting cancelled")
   }
 
   // Filter and sort leads
@@ -1154,6 +1281,86 @@ export default function LeadFinderDashboard() {
           </div>
         )}
 
+        {/* Batch Posting UI - Show only in queue tab */}
+        {activeTab === "queue" && leads.filter(l => l.status === "approved").length > 0 && (
+          <Card className="overflow-hidden shadow-lg dark:border-gray-700">
+            <CardHeader className="border-b bg-amber-50/50 p-4 dark:border-gray-700 dark:bg-amber-900/20">
+              <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-800 dark:text-gray-100">
+                <PlayCircle className="size-5 text-amber-600 dark:text-amber-400" />
+                Batch Posting
+              </CardTitle>
+              <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
+                Post all queued comments automatically with rate limiting
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-4">
+              {!isBatchPosting ? (
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    <p>{leads.filter(l => l.status === "approved").length} comments ready to post</p>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
+                      Each comment will be posted with a 10-second delay to avoid rate limits
+                    </p>
+                  </div>
+                  <Button
+                    onClick={handleBatchPostQueue}
+                    className="gap-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-md transition-all hover:from-amber-600 hover:to-amber-700 hover:shadow-lg"
+                  >
+                    <PlayCircle className="size-4" />
+                    Start Posting
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Posting comment {batchPostingProgress.current} of {batchPostingProgress.total}
+                      </p>
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
+                        {batchPostingProgress.isPaused ? 'Paused' : 'Processing...'}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handlePauseBatchPosting}
+                        className="gap-1.5"
+                      >
+                        {batchPostingProgress.isPaused ? (
+                          <>
+                            <Play className="size-3.5" />
+                            Resume
+                          </>
+                        ) : (
+                          <>
+                            <Pause className="size-3.5" />
+                            Pause
+                          </>
+                        )}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleCancelBatchPosting}
+                        className="gap-1.5 border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700 dark:border-red-400 dark:text-red-400 dark:hover:bg-red-900/20"
+                      >
+                        <X className="size-3.5" />
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                  <Progress
+                    value={(batchPostingProgress.current / batchPostingProgress.total) * 100}
+                    className="h-2.5 w-full [&>div]:bg-gradient-to-r [&>div]:from-amber-400 [&>div]:to-amber-600"
+                  />
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
         {/* Show progress or results */}
         {leads.length === 0 && !workflowProgress.error ? (
           // Only show progress if no leads yet
@@ -1281,15 +1488,27 @@ export default function LeadFinderDashboard() {
                             Generated Comment
                           </span>
                           <div className="flex items-center gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="gap-1.5 rounded-md border-sky-500 text-sky-600 hover:bg-sky-50 hover:text-sky-700 dark:border-sky-400 dark:text-sky-300 dark:hover:bg-sky-900/50 dark:hover:text-sky-200"
-                              onClick={(e) => { e.stopPropagation(); handleAddToQueue(lead); }}
-                            >
-                              <PlusCircle className="size-3.5" />
-                              Queue
-                            </Button>
+                            {lead.status === "approved" ? (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="gap-1.5 rounded-md border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700 dark:border-red-400 dark:text-red-400 dark:hover:bg-red-900/20"
+                                onClick={(e) => { e.stopPropagation(); handleRemoveFromQueue(lead); }}
+                              >
+                                <MinusCircle className="size-3.5" />
+                                Remove
+                              </Button>
+                            ) : (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="gap-1.5 rounded-md border-sky-500 text-sky-600 hover:bg-sky-50 hover:text-sky-700 dark:border-sky-400 dark:text-sky-300 dark:hover:bg-sky-900/50 dark:hover:text-sky-200"
+                                onClick={(e) => { e.stopPropagation(); handleAddToQueue(lead); }}
+                              >
+                                <PlusCircle className="size-3.5" />
+                                Queue
+                              </Button>
+                            )}
                             <Button
                               variant="default"
                               size="sm"
