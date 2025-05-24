@@ -326,7 +326,6 @@ export default function LeadFinderDashboard() {
     console.log(`🔄 [POLLING] Will poll every 5 seconds`)
     console.log(`🔄 [POLLING] User ID: ${user?.id}`)
     console.log(`🔄 [POLLING] Collection path will be: generated_comments`)
-    console.log(`🔄 [POLLING] Expected campaign IDs: nGUkAfdPyTxgYUE7AzD7 or Bn8qNlX5NPgyFrvwBTgB`)
 
     const fetchLeads = async () => {
       console.log(`\n🔄 [POLLING] ====== FETCHING LEADS ======`)
@@ -1124,6 +1123,16 @@ export default function LeadFinderDashboard() {
   )
 
   const approvedLeadsCount = useMemo(() => leads.filter(l => l.status === "approved").length, [leads]);
+
+  // Clear campaign ID on mount to avoid polling for stale campaigns after account reset
+  useEffect(() => {
+    console.log("🔄 [MOUNT] Component mounted, clearing any stale campaign ID")
+    setCampaignId(null)
+    setLeads([])
+    latestLeadsRef.current = []
+    isFirstFetchRef.current = true
+    initialLoadAttemptedRef.current = false
+  }, []) // Empty dependency array = runs only on mount
 
   return (
     <div className="flex h-full bg-black">
