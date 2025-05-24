@@ -27,7 +27,10 @@ import {
   RefreshCw,
   Send,
   PlayCircle,
-  MinusCircle
+  MinusCircle,
+  Bug,
+  Database,
+  Zap
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -39,6 +42,7 @@ import {
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Progress } from "@/components/ui/progress"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
@@ -82,7 +86,8 @@ import { runFullLeadGenerationWorkflowAction } from "@/actions/lead-generation/w
 import {
   getGeneratedCommentsByCampaignAction,
   updateGeneratedCommentAction,
-  SerializedGeneratedCommentDocument
+  updateGeneratedCommentLengthAction,
+  createGeneratedCommentAction
 } from "@/actions/db/lead-generation-actions"
 import {
   createCampaignAction,
@@ -109,6 +114,16 @@ import FiltersAndSorting from "./dashboard/filters-and-sorting"
 import BatchPoster from "./dashboard/batch-poster"
 import PaginationControls from "./dashboard/pagination-controls"
 import LeadsDisplay from "./dashboard/leads-display"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from "@/components/ui/dialog"
 
 // Import newly created types and utils
 import { LeadResult, WorkflowProgress } from "./dashboard/types"
@@ -146,315 +161,349 @@ interface DashboardState {
   lastPolledAt: Date | null
   pollingEnabled: boolean
   workflowRunning: boolean
+  
+  // Debug mode
+  debugMode: boolean
+  debugLogs: string[]
+}
+
+const initialState: DashboardState = {
+  campaignId: null,
+  leads: [],
+  isLoading: true,
+  error: null,
+  selectedLength: "medium",
+  currentPage: 1,
+  sortBy: "relevance",
+  filterKeyword: "",
+  filterScore: 0,
+  activeTab: "all",
+  selectedPost: null,
+  editingCommentId: null,
+  toneInstruction: "",
+  regeneratingId: null,
+  postingLeadId: null,
+  queuingLeadId: null,
+  removingLeadId: null,
+  isBatchPosting: false,
+  lastPolledAt: null,
+  pollingEnabled: false,
+  workflowRunning: false,
+  debugMode: false,
+  debugLogs: []
 }
 
 export default function LeadFinderDashboard() {
-  const { user } = useUser()
-  
-  // Consolidated state
-  const [state, setState] = useState<DashboardState>({
-    campaignId: null,
-    leads: [],
-    isLoading: true,
-    error: null,
-    selectedLength: "medium",
-    currentPage: 1,
-    sortBy: "relevance",
-    filterKeyword: "",
-    filterScore: 0,
-    activeTab: "all",
-    selectedPost: null,
-    editingCommentId: null,
-    toneInstruction: "",
-    regeneratingId: null,
-    postingLeadId: null,
-    queuingLeadId: null,
-    removingLeadId: null,
-    isBatchPosting: false,
-    lastPolledAt: null,
-    pollingEnabled: false,
-    workflowRunning: false
-  })
-  
-  // Dialog state
+  const { user, isLoaded: userLoaded } = useUser()
+  const [state, setState] = useState<DashboardState>(initialState)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
-  const [newLeadIds, setNewLeadIds] = useState<Set<string>>(new Set())
+  const pollingInterval = useRef<NodeJS.Timeout | null>(null)
+  const newLeadIds = useRef(new Set<string>())
   
-  // Refs for polling
-  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null)
-  const mountedRef = useRef(true)
-  
-  console.log(`🔧 [DASHBOARD] Current state:`, {
-    campaignId: state.campaignId,
-    leadsCount: state.leads.length,
-    isLoading: state.isLoading,
-    pollingEnabled: state.pollingEnabled,
-    workflowRunning: state.workflowRunning
-  })
-  
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      mountedRef.current = false
-      if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current)
-      }
-    }
-  }, [])
-
-  // Initialize dashboard on mount
-  useEffect(() => {
-    const initialize = async () => {
-      if (!user?.id) {
-        console.log("🔧 [INIT] No user ID available")
-        return
-      }
-
-      console.log("🔧 [INIT] Starting dashboard initialization for user:", user.id)
-      
-      try {
-        // Get user profile
-        const profileResult = await getProfileByUserIdAction(user.id)
-        if (!profileResult.isSuccess) {
-          setState(prev => ({
-            ...prev,
-            isLoading: false,
-            error: "Failed to load user profile"
-          }))
-          return
-        }
-
-        const profile = profileResult.data
-        const keywords = profile.keywords || []
-        
-        console.log("🔧 [INIT] Profile loaded with keywords:", keywords)
-
-        // Check for existing campaigns
-        const campaignsResult = await getCampaignsByUserIdAction(user.id)
-        
-        if (campaignsResult.isSuccess && campaignsResult.data.length > 0) {
-          // Use the most recent campaign
-          const latestCampaign = campaignsResult.data[0]
-          console.log("🔧 [INIT] Found existing campaign:", latestCampaign.id)
-          
-          setState(prev => ({
-            ...prev,
-            campaignId: latestCampaign.id,
-            isLoading: false,
-            pollingEnabled: true
-          }))
-        } else if (keywords.length > 0) {
-          // Create new campaign if we have keywords
-          console.log("🔧 [INIT] No campaigns found, creating new one with keywords")
-          await createAndRunCampaign(keywords)
-        } else {
-          // No campaigns and no keywords
-          setState(prev => ({
-            ...prev,
-            isLoading: false,
-            error: "Please complete onboarding to set up keywords"
-          }))
-        }
-      } catch (error) {
-        console.error("🔧 [INIT] Error during initialization:", error)
-        setState(prev => ({
-          ...prev,
-          isLoading: false,
-          error: "Failed to initialize dashboard"
-        }))
-      }
-    }
-
-    initialize()
-  }, [user?.id])
-
-  // Create and run a new campaign
-  const createAndRunCampaign = async (keywords: string[]) => {
-    if (!user?.id) return
+  // Debug logging
+  const addDebugLog = useCallback((message: string, data?: any) => {
+    const timestamp = new Date().toISOString()
+    const logEntry = `[${timestamp}] ${message}${data ? `: ${JSON.stringify(data, null, 2)}` : ''}`
+    console.log(`🐛 ${logEntry}`)
     
-    console.log("🚀 [CREATE-CAMPAIGN] Creating new campaign with keywords:", keywords)
-    
-    try {
-      // Get profile for website info
-      const profileResult = await getProfileByUserIdAction(user.id)
-      if (!profileResult.isSuccess || !profileResult.data.website) {
-        throw new Error("Website information missing from profile")
-      }
-      
-      // Create campaign
-      const campaignResult = await createCampaignAction({
-        userId: user.id,
-        name: `Lead Generation - ${new Date().toLocaleDateString()}`,
-        website: profileResult.data.website,
-        keywords: keywords
-      })
-      
-      if (!campaignResult.isSuccess) {
-        throw new Error(campaignResult.message)
-      }
-      
-      const campaignId = campaignResult.data.id
-      console.log("🚀 [CREATE-CAMPAIGN] Campaign created:", campaignId)
-      
-      // Update state with new campaign
+    if (state.debugMode) {
       setState(prev => ({
         ...prev,
-        campaignId,
-        workflowRunning: true,
-        pollingEnabled: true,
-        error: null
-      }))
-      
-      // Run workflow in background
-      runFullLeadGenerationWorkflowAction(campaignId)
-        .then(result => {
-          if (!mountedRef.current) return
-          
-          console.log("🚀 [WORKFLOW] Workflow completed:", result.isSuccess)
-          setState(prev => ({
-            ...prev,
-            workflowRunning: false
-          }))
-          
-          if (!result.isSuccess) {
-            toast.error("Lead generation failed", {
-              description: result.message
-            })
-          }
-        })
-        .catch(error => {
-          if (!mountedRef.current) return
-          
-          console.error("🚀 [WORKFLOW] Workflow error:", error)
-          setState(prev => ({
-            ...prev,
-            workflowRunning: false
-          }))
-        })
-      
-    } catch (error) {
-      console.error("🚀 [CREATE-CAMPAIGN] Error:", error)
-      setState(prev => ({
-        ...prev,
-        error: error instanceof Error ? error.message : "Failed to create campaign",
-        isLoading: false
+        debugLogs: [...prev.debugLogs.slice(-99), logEntry] // Keep last 100 logs
       }))
     }
-  }
-
-  // Fetch leads for current campaign
+  }, [state.debugMode])
+  
+  // Fetch leads
   const fetchLeads = useCallback(async () => {
-    if (!state.campaignId || !mountedRef.current) return
+    if (!state.campaignId) {
+      addDebugLog("No campaign ID, skipping fetch")
+      return
+    }
     
-    console.log(`📊 [FETCH-LEADS] Fetching for campaign: ${state.campaignId}`)
+    addDebugLog("Fetching leads for campaign", { campaignId: state.campaignId })
     
     try {
       const result = await getGeneratedCommentsByCampaignAction(state.campaignId)
       
-      if (!mountedRef.current) return
-      
-      if (!result.isSuccess) {
-        console.error("📊 [FETCH-LEADS] Failed:", result.message)
-        return
-      }
-      
-      console.log(`📊 [FETCH-LEADS] Fetched ${result.data.length} leads`)
-      
-      // Transform leads
-      const currentLeadIds = new Set(state.leads.map(l => l.id))
-      const newIds = new Set<string>()
-      
-      const transformedLeads: LeadResult[] = result.data.map(comment => {
-        if (!currentLeadIds.has(comment.id)) {
-          newIds.add(comment.id)
-        }
+      if (result.isSuccess) {
+        addDebugLog("Fetch successful", { 
+          count: result.data.length,
+          campaignId: state.campaignId 
+        })
         
-        let subreddit = "unknown"
-        try {
-          const url = new URL(comment.postUrl)
-          const match = url.pathname.match(/\/r\/([^\/]+)/)
-          if (match && match[1]) {
-            subreddit = match[1]
-          }
-        } catch (e) {
-          // Silent fail
-        }
-        
-        return {
+        const transformedLeads: LeadResult[] = result.data.map(comment => ({
           id: comment.id,
           campaignId: comment.campaignId,
           postUrl: comment.postUrl,
           postTitle: comment.postTitle,
           postAuthor: comment.postAuthor,
           postContentSnippet: comment.postContentSnippet,
-          subreddit,
+          subreddit: comment.postUrl.match(/r\/([^/]+)/)?.[1] || "Unknown",
           relevanceScore: comment.relevanceScore,
           reasoning: comment.reasoning,
           microComment: comment.microComment,
           mediumComment: comment.mediumComment,
           verboseComment: comment.verboseComment,
           status: comment.status || "new",
-          selectedLength: comment.selectedLength || state.selectedLength,
+          selectedLength: comment.selectedLength || "medium",
           timeAgo: getTimeAgo(comment.createdAt),
           originalData: comment,
           postScore: comment.postScore,
           keyword: comment.keyword
-        }
+        }))
+        
+        // Track new leads
+        transformedLeads.forEach(lead => {
+          if (!state.leads.find(l => l.id === lead.id)) {
+            newLeadIds.current.add(lead.id)
+          }
+        })
+        
+        setState(prev => ({
+          ...prev,
+          leads: transformedLeads,
+          lastPolledAt: new Date(),
+          error: null
+        }))
+      } else {
+        addDebugLog("Fetch failed", { 
+          error: result.message,
+          campaignId: state.campaignId 
+        })
+        setState(prev => ({ ...prev, error: result.message }))
+      }
+    } catch (error) {
+      addDebugLog("Fetch error", { 
+        error: error instanceof Error ? error.message : "Unknown error",
+        campaignId: state.campaignId 
       })
+      setState(prev => ({ 
+        ...prev, 
+        error: "Failed to fetch leads" 
+      }))
+    }
+  }, [state.campaignId, state.leads, addDebugLog])
+  
+  // Initialize dashboard
+  useEffect(() => {
+    const initialize = async () => {
+      if (!userLoaded || !user) {
+        addDebugLog("User not loaded yet")
+        return
+      }
       
-      // Sort by newest first
-      transformedLeads.sort((a, b) => {
-        const aTime = new Date(a.originalData?.createdAt || 0).getTime()
-        const bTime = new Date(b.originalData?.createdAt || 0).getTime()
-        return bTime - aTime
+      addDebugLog("Initializing dashboard", { userId: user.id })
+      setState(prev => ({ ...prev, isLoading: true }))
+      
+      try {
+        // Get campaigns
+        const campaignsResult = await getCampaignsByUserIdAction(user.id)
+        
+        if (campaignsResult.isSuccess && campaignsResult.data.length > 0) {
+          const latestCampaign = campaignsResult.data[0]
+          addDebugLog("Found existing campaign", { 
+            campaignId: latestCampaign.id,
+            status: latestCampaign.status 
+          })
+          
+          setState(prev => ({
+            ...prev,
+            campaignId: latestCampaign.id,
+            workflowRunning: latestCampaign.status === "running"
+          }))
+          
+          // Fetch leads for the campaign
+          await fetchLeads()
+        } else {
+          addDebugLog("No campaigns found")
+          
+          // Check if user has keywords set up
+          const profileResult = await getProfileByUserIdAction(user.id)
+          const keywords = profileResult.data?.keywords || []
+          if (profileResult.isSuccess && keywords.length > 0) {
+            addDebugLog("User has keywords, creating campaign", {
+              keywords: keywords
+            })
+            await createAndRunCampaign(keywords)
+          } else {
+            addDebugLog("No keywords found, showing error")
+            setState(prev => ({
+              ...prev,
+              error: "No keywords found. Please complete onboarding first.",
+              isLoading: false
+            }))
+          }
+        }
+      } catch (error) {
+        addDebugLog("Initialization error", { 
+          error: error instanceof Error ? error.message : "Unknown error" 
+        })
+        setState(prev => ({
+          ...prev,
+          error: "Failed to initialize dashboard",
+          isLoading: false
+        }))
+      }
+    }
+    
+    initialize()
+  }, [userLoaded, user, addDebugLog])
+  
+  // Create and run campaign
+  const createAndRunCampaign = async (keywords: string[]) => {
+    if (!user) return
+    
+    addDebugLog("Creating new campaign", { keywords })
+    
+    try {
+      setState(prev => ({ 
+        ...prev, 
+        workflowRunning: true,
+        error: null 
+      }))
+      
+      const result = await runFullLeadGenerationWorkflowAction(
+        user.id,
+        keywords
+      )
+      
+      if (result.isSuccess && result.data) {
+        addDebugLog("Campaign created successfully", { 
+          campaignId: result.data.campaignId 
+        })
+        
+        setState(prev => ({
+          ...prev,
+          campaignId: result.data.campaignId,
+          workflowRunning: true
+        }))
+        
+        // Start polling immediately
+        setState(prev => ({ ...prev, pollingEnabled: true }))
+        
+        toast.success("Lead generation started! New leads will appear as they're found.")
+      } else {
+        throw new Error(result.message)
+      }
+    } catch (error) {
+      addDebugLog("Campaign creation error", { 
+        error: error instanceof Error ? error.message : "Unknown error" 
       })
       
       setState(prev => ({
         ...prev,
-        leads: transformedLeads,
-        lastPolledAt: new Date()
+        error: error instanceof Error ? error.message : "Failed to start lead generation",
+        workflowRunning: false
       }))
       
-      setNewLeadIds(newIds)
-      
-      // Log new leads
-      if (newIds.size > 0) {
-        console.log(`✨ [FETCH-LEADS] ${newIds.size} new leads detected`)
-      }
-      
-    } catch (error) {
-      console.error("📊 [FETCH-LEADS] Error:", error)
+      toast.error("Failed to start lead generation")
     }
-  }, [state.campaignId, state.leads, state.selectedLength])
-
-  // Set up polling when campaign is selected
-  useEffect(() => {
-    if (!state.campaignId || !state.pollingEnabled) {
-      if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current)
-        pollingIntervalRef.current = null
-      }
+  }
+  
+  // Manual test data creation
+  const createTestData = async () => {
+    if (!state.campaignId || !user) {
+      toast.error("No campaign selected")
       return
     }
     
-    console.log("🔄 [POLLING] Starting polling for campaign:", state.campaignId)
+    addDebugLog("Creating test data", { campaignId: state.campaignId })
     
-    // Initial fetch
-    fetchLeads()
+    try {
+      const testComment = {
+        campaignId: state.campaignId,
+        redditThreadId: `test-thread-${Date.now()}`,
+        threadId: `t3_test${Date.now()}`,
+        postUrl: `https://reddit.com/r/test/comments/test${Date.now()}/test_post/`,
+        postTitle: "Test Post: Looking for recommendations",
+        postAuthor: "test_user",
+        postContentSnippet: "I'm looking for recommendations on the best tools for my business...",
+        relevanceScore: 85,
+        reasoning: "This is a test lead with high relevance score",
+        microComment: "Check out our solution!",
+        mediumComment: "Based on your needs, I'd recommend checking out our platform. It's specifically designed for businesses like yours and has helped many similar companies.",
+        verboseComment: "I understand you're looking for business tools. Based on what you've described, I'd strongly recommend taking a look at our platform. We've helped dozens of similar businesses streamline their operations and increase efficiency. Our solution offers comprehensive features including automated workflows, real-time analytics, and seamless integrations with your existing tools. Happy to share more details if you're interested!",
+        status: "new" as const,
+        keyword: "test keyword",
+        postScore: 42
+      }
+      
+      const result = await createGeneratedCommentAction(testComment)
+      
+      if (result.isSuccess) {
+        addDebugLog("Test data created successfully", { id: result.data.id })
+        toast.success("Test lead created successfully!")
+        await fetchLeads()
+      } else {
+        throw new Error(result.message)
+      }
+    } catch (error) {
+      addDebugLog("Test data creation error", { 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      })
+      toast.error("Failed to create test data")
+    }
+  }
+  
+  // Manual workflow trigger
+  const manualRunWorkflow = async () => {
+    if (!user) return
     
-    // Set up interval
-    pollingIntervalRef.current = setInterval(() => {
+    addDebugLog("Manually triggering workflow")
+    
+    try {
+      const profileResult = await getProfileByUserIdAction(user.id)
+      if (!profileResult.isSuccess || !profileResult.data.keywords || profileResult.data.keywords.length === 0) {
+        toast.error("No keywords found. Please set up keywords first.")
+        return
+      }
+      
+      await createAndRunCampaign(profileResult.data.keywords)
+    } catch (error) {
+      addDebugLog("Manual workflow error", { 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      })
+      toast.error("Failed to run workflow")
+    }
+  }
+  
+  // Polling effect
+  useEffect(() => {
+    if (state.pollingEnabled && state.campaignId) {
+      addDebugLog("Starting polling", { 
+        campaignId: state.campaignId,
+        interval: "5 seconds" 
+      })
+      
+      // Initial fetch
       fetchLeads()
-    }, POLLING_INTERVAL)
-    
-    return () => {
-      if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current)
-        pollingIntervalRef.current = null
+      
+      // Set up interval
+      pollingInterval.current = setInterval(() => {
+        fetchLeads()
+      }, 5000) // Poll every 5 seconds
+      
+      return () => {
+        if (pollingInterval.current) {
+          addDebugLog("Stopping polling")
+          clearInterval(pollingInterval.current)
+          pollingInterval.current = null
+        }
       }
     }
-  }, [state.campaignId, state.pollingEnabled, fetchLeads])
-
+  }, [state.pollingEnabled, state.campaignId, fetchLeads, addDebugLog])
+  
+  // Campaign change effect
+  useEffect(() => {
+    if (state.campaignId) {
+      addDebugLog("Campaign changed, enabling polling", { 
+        campaignId: state.campaignId 
+      })
+      setState(prev => ({ ...prev, pollingEnabled: true, isLoading: false }))
+    }
+  }, [state.campaignId, addDebugLog])
+  
   // Helper to update state
   const updateState = (updates: Partial<DashboardState>) => {
     setState(prev => ({ ...prev, ...updates }))
@@ -799,7 +848,93 @@ export default function LeadFinderDashboard() {
   }
 
   return (
-    <div className="container mx-auto space-y-6 py-6">
+    <div className="container mx-auto py-6 space-y-6">
+      {/* Debug Panel */}
+      {state.debugMode && (
+        <Card className="border-orange-500 bg-orange-50 dark:bg-orange-900/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Bug className="h-5 w-5" />
+              Debug Panel
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <strong>Campaign ID:</strong> {state.campaignId || "None"}
+              </div>
+              <div>
+                <strong>Leads Count:</strong> {state.leads.length}
+              </div>
+              <div>
+                <strong>Workflow Running:</strong> {state.workflowRunning ? "Yes" : "No"}
+              </div>
+              <div>
+                <strong>Polling:</strong> {state.pollingEnabled ? "Enabled" : "Disabled"}
+              </div>
+              <div>
+                <strong>Last Poll:</strong> {state.lastPolledAt?.toLocaleTimeString() || "Never"}
+              </div>
+              <div>
+                <strong>Error:</strong> {state.error || "None"}
+              </div>
+            </div>
+            
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={createTestData}
+                disabled={!state.campaignId}
+              >
+                <Database className="h-4 w-4 mr-2" />
+                Create Test Lead
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={manualRunWorkflow}
+              >
+                <Zap className="h-4 w-4 mr-2" />
+                Run Workflow
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={fetchLeads}
+                disabled={!state.campaignId}
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Fetch Now
+              </Button>
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Debug Logs</Label>
+              <ScrollArea className="h-40 w-full rounded-md border p-2 font-mono text-xs">
+                {state.debugLogs.map((log, i) => (
+                  <div key={i} className="whitespace-pre-wrap">{log}</div>
+                ))}
+              </ScrollArea>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      
+      {/* Debug Toggle */}
+      <div className="flex justify-end">
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => updateState({ debugMode: !state.debugMode })}
+          className="text-muted-foreground"
+        >
+          <Bug className="h-4 w-4 mr-2" />
+          {state.debugMode ? "Hide" : "Show"} Debug
+        </Button>
+      </div>
+      
+      {/* Your existing dashboard components */}
       <DashboardHeader
         campaignId={state.campaignId}
         leadsCount={state.leads.length}
@@ -814,7 +949,7 @@ export default function LeadFinderDashboard() {
         onCommentLengthChange={(value) => updateState({ selectedLength: value as "micro" | "medium" | "verbose" })}
         onNewCampaignClick={() => setCreateDialogOpen(true)}
       />
-
+      
       <div className="grid gap-4">
         <FiltersAndSorting
           filterKeyword={state.filterKeyword}
