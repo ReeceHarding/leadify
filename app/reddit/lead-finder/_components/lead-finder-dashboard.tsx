@@ -108,6 +108,7 @@ import ToneCustomizer from "./dashboard/tone-customizer"
 import FiltersAndSorting from "./dashboard/filters-and-sorting"
 import BatchPoster from "./dashboard/batch-poster"
 import PaginationControls from "./dashboard/pagination-controls"
+import LeadsDisplay from "./dashboard/leads-display"
 
 // Import newly created types and utils
 import { LeadResult, WorkflowProgress } from "./dashboard/types"
@@ -1148,111 +1149,45 @@ export default function LeadFinderDashboard() {
           onNewCampaignClick={() => setCreateDialogOpen(true)}
         />
 
-        {/* Tone Regeneration Box - Show only if leads exist */}
-        {leads.length > 0 && (
-          <ToneCustomizer 
-            toneInstruction={toneInstruction}
-            onToneInstructionChange={setToneInstruction}
-            onRegenerateAll={handleToneRegeneration}
-            isRegeneratingAll={regeneratingId === "all"}
-            disabled={leads.length === 0} // Disable if no leads
-          />
-        )}
-
-        {/* Filters and Sorting - Show only if leads exist */}
-        {leads.length > 0 && (
-          <FiltersAndSorting 
-            filterKeyword={filterKeyword}
-            onFilterKeywordChange={setFilterKeyword}
-            filterScore={filterScore}
-            onFilterScoreChange={setFilterScore}
-            sortBy={sortBy}
-            onSortByChange={setSortBy}
-            paginatedLeadsCount={paginatedLeads.length}
-            totalFilteredLeadsCount={filteredAndSortedLeads.length}
-            disabled={leads.length === 0}
-          />
-        )}
-
-        {/* Batch Posting UI - Show only in queue tab */}
-        {activeTab === "queue" && (
-          <BatchPoster 
-            approvedLeadsCount={approvedLeadsCount}
-            onBatchPostQueue={handleBatchPostQueue}
-            isBatchPosting={isBatchPosting}
-          />
-        )}
-
-        {/* Results Grid or Empty State for leads */}
-        {(workflowProgress.isLoading && leads.length === 0 && !workflowProgress.error) ? (
-          renderWorkflowProgress()
-        ) : workflowProgress.error && leads.length === 0 ? (
-          <EnhancedErrorState
-            error={workflowProgress.error}
-            onRetry={() => window.location.reload()}
-          />
-        ) : (
-          <>
-            {/* Tone Regeneration Box - show if leads exist - as before */}
-            {/* ... */}
-
-            {/* Filters and Sorting - show if leads exist - as before */}
-            {/* ... */}
-            
-            {/* Batch Posting UI - show if in queue tab and approved leads exist - as before */}
-            {/* ... */}
-
-            {/* Results Grid or Empty State for leads */}
-            {filteredAndSortedLeads.length > 0 ? (
-              <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
-                {paginatedLeads.map(lead => (
-                  <LeadCard
-                    key={lead.id}
-                    lead={lead}
-                    selectedLength={selectedLength}
-                    getDisplayComment={getDisplayComment}
-                    isNew={newLeadIds.has(lead.id)}
-                    editingCommentId={editingCommentId}
-                    onEditClick={() => setEditingCommentId(lead.id)}
-                    onSaveComment={handleCommentEdit}
-                    onCancelEdit={() => setEditingCommentId(null)}
-                    removingLeadId={removingLeadId}
-                    queuingLeadId={queuingLeadId}
-                    postingLeadId={postingLeadId}
-                    onRemoveFromQueue={handleRemoveFromQueue}
-                    onAddToQueue={handleAddToQueue}
-                    onPostNow={handlePostNow}
-                    onCardClick={() => setSelectedPost(lead)}
-                  />
-                ))}
-              </div>
-            ) : (
-              !workflowProgress.isLoading && !workflowProgress.error && (
-                <EmptyState
-                  title="No leads found"
-                  description={campaignId ? "No leads match your current filters or the campaign is still processing." : "Select or create a campaign to start finding leads."}
-                  icon={<MessageSquare className="size-12" />}
-                  action={!campaignId ? {
-                    label: "Create New Campaign",
-                    onClick: () => setCreateDialogOpen(true)
-                  } : filterKeyword || filterScore > 0 ? {
-                    label: "Clear Filters",
-                    onClick: () => {
-                      setFilterKeyword("");
-                      setFilterScore(0);
-                    }
-                  } : undefined}
-                />
-              )
-            )}
-
-            <PaginationControls 
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
-            />
-          </>
-        )}
+        <LeadsDisplay
+          workflowProgress={workflowProgress}
+          leads={leads}
+          filteredAndSortedLeads={filteredAndSortedLeads}
+          paginatedLeads={paginatedLeads}
+          newLeadIds={newLeadIds}
+          activeTab={activeTab}
+          campaignId={campaignId}
+          selectedLength={selectedLength}
+          getDisplayComment={getDisplayComment}
+          editingCommentId={editingCommentId}
+          onEditClick={(leadId) => setEditingCommentId(leadId)}
+          onSaveComment={handleCommentEdit}
+          onCancelEdit={() => setEditingCommentId(null)}
+          removingLeadId={removingLeadId}
+          queuingLeadId={queuingLeadId}
+          postingLeadId={postingLeadId}
+          onRemoveFromQueue={handleRemoveFromQueue}
+          onAddToQueue={handleAddToQueue}
+          onPostNow={handlePostNow}
+          onCardClick={setSelectedPost}
+          toneInstruction={toneInstruction}
+          onToneInstructionChange={setToneInstruction}
+          onRegenerateAllTones={handleToneRegeneration}
+          isRegeneratingAllTones={regeneratingId === "all"}
+          filterKeyword={filterKeyword}
+          onFilterKeywordChange={setFilterKeyword}
+          filterScore={filterScore}
+          onFilterScoreChange={setFilterScore}
+          sortBy={sortBy}
+          onSortByChange={setSortBy}
+          approvedLeadsCount={approvedLeadsCount}
+          onBatchPostQueue={handleBatchPostQueue}
+          isBatchPosting={isBatchPosting}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          onTriggerCreateCampaign={() => setCreateDialogOpen(true)}
+        />
       </div>
 
       {/* Post Detail Popup */}
