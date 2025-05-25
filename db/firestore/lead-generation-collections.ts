@@ -153,6 +153,7 @@ export interface GeneratedCommentDocument {
   // Optional tracking fields
   keyword?: string // Which keyword led to finding this post
   postScore?: number // Reddit post score/upvotes
+  postCreatedAt?: Timestamp // When the Reddit post was created
 }
 
 // Create generated comment data
@@ -179,6 +180,7 @@ export interface CreateGeneratedCommentData {
     | "posted" // Default to 'new'
   keyword?: string // Optional: which keyword led to this post
   postScore?: number // Optional: Reddit post score
+  postCreatedAt?: Timestamp // Optional: Reddit post creation time
 }
 
 // Update generated comment data

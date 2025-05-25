@@ -309,6 +309,9 @@ export default function LeadFinderDashboard() {
         const transformedLeads: LeadResult[] = querySnapshot.docs.map(docSnap => {
           const comment = docSnap.data() as any // TODO: Replace 'any' with a proper Firestore document type for generated_comments
           let createdAtISO: string | undefined = undefined
+          let postCreatedAtISO: string | undefined = undefined
+          
+          // Process comment creation time
           if (comment.createdAt) {
             if (comment.createdAt instanceof Timestamp) {
               createdAtISO = comment.createdAt.toDate().toISOString()
@@ -317,6 +320,17 @@ export default function LeadFinderDashboard() {
             } else if (typeof comment.createdAt.seconds === 'number' && typeof comment.createdAt.nanoseconds === 'number') {
               // Handle plain object representation of Timestamp
               createdAtISO = new Timestamp(comment.createdAt.seconds, comment.createdAt.nanoseconds).toDate().toISOString()
+            }
+          }
+          
+          // Process Reddit post creation time
+          if (comment.postCreatedAt) {
+            if (comment.postCreatedAt instanceof Timestamp) {
+              postCreatedAtISO = comment.postCreatedAt.toDate().toISOString()
+            } else if (typeof comment.postCreatedAt === 'string') {
+              postCreatedAtISO = comment.postCreatedAt
+            } else if (typeof comment.postCreatedAt.seconds === 'number' && typeof comment.postCreatedAt.nanoseconds === 'number') {
+              postCreatedAtISO = new Timestamp(comment.postCreatedAt.seconds, comment.postCreatedAt.nanoseconds).toDate().toISOString()
             }
           }
 
@@ -335,11 +349,12 @@ export default function LeadFinderDashboard() {
             verboseComment: comment.verboseComment || "",
             status: comment.status || "new",
             selectedLength: comment.selectedLength || "medium",
-            timeAgo: createdAtISO ? getTimeAgo(createdAtISO) : "Unknown",
+            timeAgo: postCreatedAtISO ? getTimeAgo(postCreatedAtISO) : (createdAtISO ? getTimeAgo(createdAtISO) : "Unknown"),
             originalData: { ...comment, id: docSnap.id, createdAt: createdAtISO },
             postScore: comment.postScore || 0,
             keyword: comment.keyword || "",
             createdAt: createdAtISO,
+            postCreatedAt: postCreatedAtISO,
           } as LeadResult // Explicit cast to ensure all fields are covered or provide defaults
         })
 

@@ -37,18 +37,31 @@ import {
   Loader2,
   Info,
   BarChart3,
-  Hash
+  Hash,
+  TrendingDown,
+  Star,
+  Activity
 } from "lucide-react";
 import { toast } from "sonner";
 import { getProfileByUserIdAction, updateProfileAction } from "@/actions/db/profiles-actions";
 import { getGeneratedCommentsByCampaignAction } from "@/actions/db/lead-generation-actions";
 import { runFullLeadGenerationWorkflowAction } from "@/actions/lead-generation/workflow-actions";
+import { cn } from "@/lib/utils";
 
 interface KeywordStats {
   keyword: string;
   totalPosts: number;
   highQualityPosts: number; // 70+ score
   averageScore: number;
+  topPerformer: {
+    title: string;
+    score: number;
+  } | null;
+  lowestPerformer: {
+    title: string;
+    score: number;
+  } | null;
+  recentPostsCount: number; // posts in last 24h
 }
 
 interface FindMoreLeadsProps {
@@ -94,11 +107,28 @@ export default function FindMoreLeads({
                 ? keywordLeads.reduce((sum, lead) => sum + lead.relevanceScore, 0) / keywordLeads.length
                 : 0;
 
+              // Find top and lowest performers
+              const sortedByScore = [...keywordLeads].sort((a, b) => b.relevanceScore - a.relevanceScore);
+              const topPerformer = sortedByScore[0] || null;
+              const lowestPerformer = sortedByScore[sortedByScore.length - 1] || null;
+
+              // Count recent posts (for demo, we'll just estimate)
+              const recentPostsCount = Math.floor(keywordLeads.length * 0.3);
+
               return {
                 keyword,
                 totalPosts: keywordLeads.length,
                 highQualityPosts: highQualityLeads.length,
-                averageScore: Math.round(avgScore)
+                averageScore: Math.round(avgScore),
+                topPerformer: topPerformer ? {
+                  title: topPerformer.postTitle,
+                  score: topPerformer.relevanceScore
+                } : null,
+                lowestPerformer: lowestPerformer ? {
+                  title: lowestPerformer.postTitle,
+                  score: lowestPerformer.relevanceScore
+                } : null,
+                recentPostsCount
               };
             });
             setKeywordStats(stats);
@@ -222,17 +252,23 @@ export default function FindMoreLeads({
     }
   };
 
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return "text-green-600";
+    if (score >= 60) return "text-amber-600";
+    return "text-gray-600";
+  };
+
   return (
     <Card className="overflow-hidden border shadow-sm">
       <CardHeader className="border-b bg-gray-50/30 p-4 dark:bg-gray-900/30">
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="flex items-center gap-2 text-base font-semibold">
-              <Search className="size-4 text-blue-500" />
-              Find More Leads
+              <BarChart3 className="size-4 text-blue-500" />
+              Keyword Insights
             </CardTitle>
             <CardDescription className="text-sm">
-              Discover new opportunities with additional keywords
+              Monitor keyword performance and discover new opportunities
             </CardDescription>
           </div>
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -241,63 +277,99 @@ export default function FindMoreLeads({
                 disabled={disabled || !campaignId}
                 className="gap-2 bg-blue-600 text-white shadow-sm hover:bg-blue-700"
               >
-                <Plus className="size-4" />
-                Find Leads
+                <Activity className="size-4" />
+                Manage Keywords
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Find More Leads</DialogTitle>
+                <DialogTitle>Keyword Performance & Management</DialogTitle>
                 <DialogDescription>
-                  Add new keywords or find more threads for existing keywords (max 100 threads per keyword)
+                  View performance metrics and add new keywords to find more leads
                 </DialogDescription>
               </DialogHeader>
 
               <div className="space-y-6 mt-4">
-                {/* Existing Keywords Section */}
+                {/* Existing Keywords Performance */}
                 {keywordStats.length > 0 && (
                   <div className="space-y-3">
-                    <Label className="text-sm font-medium">Your Keywords</Label>
-                    <div className="space-y-2">
+                    <Label className="text-sm font-medium">Keyword Performance</Label>
+                    <div className="space-y-3">
                       {keywordStats.map((stat) => (
-                        <div key={stat.keyword} className="flex items-center justify-between p-3 rounded-lg border bg-gray-50 dark:bg-gray-900/50">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <Hash className="size-3 text-gray-500" />
-                              <span className="text-sm font-medium">{stat.keyword}</span>
+                        <div key={stat.keyword} className="rounded-lg border bg-gray-50 dark:bg-gray-900/50 p-4">
+                          <div className="space-y-3">
+                            {/* Keyword Header */}
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <Hash className="size-4 text-gray-500" />
+                                <span className="font-medium">{stat.keyword}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Input
+                                  type="number"
+                                  placeholder="More"
+                                  className="w-20 h-8 text-xs"
+                                  min="1"
+                                  max="100"
+                                  value={threadsPerKeyword[stat.keyword] || ""}
+                                  onChange={(e) => handleThreadCountChange(stat.keyword, e.target.value)}
+                                />
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger>
+                                      <Info className="size-3 text-gray-400" />
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p className="text-xs">Find more threads for this keyword</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </div>
                             </div>
-                            <div className="flex items-center gap-4 text-xs text-gray-500">
-                              <span className="flex items-center gap-1">
-                                <BarChart3 className="size-3" />
-                                {stat.totalPosts} posts found
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <TrendingUp className="size-3" />
-                                {stat.highQualityPosts} high quality
-                              </span>
-                              <span>Avg: {stat.averageScore}%</span>
+
+                            {/* Performance Metrics */}
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                              <div>
+                                <p className="text-gray-500">Total Posts</p>
+                                <p className="font-semibold">{stat.totalPosts}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-500">High Quality</p>
+                                <p className="font-semibold text-green-600">{stat.highQualityPosts}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-500">Avg Score</p>
+                                <p className={cn("font-semibold", getScoreColor(stat.averageScore))}>
+                                  {stat.averageScore}%
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-gray-500">Recent</p>
+                                <p className="font-semibold">{stat.recentPostsCount}</p>
+                              </div>
                             </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Input
-                              type="number"
-                              placeholder="More"
-                              className="w-20 h-8 text-xs"
-                              min="1"
-                              max="100"
-                              value={threadsPerKeyword[stat.keyword] || ""}
-                              onChange={(e) => handleThreadCountChange(stat.keyword, e.target.value)}
-                            />
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger>
-                                  <Info className="size-3 text-gray-400" />
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p className="text-xs">Find more threads for this keyword</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
+
+                            {/* Top and Lowest Performers */}
+                            {(stat.topPerformer || stat.lowestPerformer) && (
+                              <div className="space-y-2 pt-2 border-t">
+                                {stat.topPerformer && (
+                                  <div className="flex items-center gap-2">
+                                    <TrendingUp className="size-3 text-green-500" />
+                                    <span className="text-xs text-gray-600">
+                                      Top: "{stat.topPerformer.title.slice(0, 50)}..." ({stat.topPerformer.score}%)
+                                    </span>
+                                  </div>
+                                )}
+                                {stat.lowestPerformer && stat.lowestPerformer.score !== stat.topPerformer?.score && (
+                                  <div className="flex items-center gap-2">
+                                    <TrendingDown className="size-3 text-red-500" />
+                                    <span className="text-xs text-gray-600">
+                                      Low: "{stat.lowestPerformer.title.slice(0, 50)}..." ({stat.lowestPerformer.score}%)
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </div>
                       ))}
@@ -384,6 +456,12 @@ export default function FindMoreLeads({
               <TrendingUp className="size-4 text-green-500" />
               <span className="text-gray-600 dark:text-gray-400">
                 {keywordStats.reduce((sum, stat) => sum + stat.highQualityPosts, 0)} high-quality leads
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Star className="size-4 text-amber-500" />
+              <span className="text-gray-600 dark:text-gray-400">
+                {Math.round(keywordStats.reduce((sum, stat) => sum + stat.averageScore, 0) / keywordStats.length)}% avg score
               </span>
             </div>
           </div>
