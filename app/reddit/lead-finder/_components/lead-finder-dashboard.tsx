@@ -129,6 +129,7 @@ import BatchPoster from "./dashboard/batch-poster"
 import PaginationControls from "./dashboard/pagination-controls"
 import LeadsDisplay from "./dashboard/leads-display"
 import FindMoreLeads from "./dashboard/find-more-leads"
+import FindNewLeadsDialog from "./find-new-leads-dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   Dialog,
@@ -220,6 +221,8 @@ export default function LeadFinderDashboard() {
   const { user, isLoaded: userLoaded } = useUser()
   const [state, setState] = useState<DashboardState>(initialState)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
+  const [findNewLeadsOpen, setFindNewLeadsOpen] = useState(false)
+  const [currentCampaignKeywords, setCurrentCampaignKeywords] = useState<string[]>([])
   const newLeadIds = useRef(new Set<string>())
   const searchParams = useSearchParams()
 
@@ -516,6 +519,7 @@ export default function LeadFinderDashboard() {
               ...prev, 
               campaignName: campaignDetailsResult.data.name || null 
             }))
+            setCurrentCampaignKeywords(campaignDetailsResult.data.keywords || [])
           }
         } else {
           addDebugLog("No campaigns found for user")
@@ -608,33 +612,14 @@ export default function LeadFinderDashboard() {
     }
   }
 
-  // Manual workflow trigger
+  // Manual workflow trigger - now opens the dialog
   const manualRunWorkflow = async () => {
     if (!user) {
       toast.error("User not available")
       return
     }
 
-    addDebugLog("Manually triggering workflow")
-
-    try {
-      const profileResult = await getProfileByUserIdAction(user.id)
-      if (
-        !profileResult.isSuccess ||
-        !profileResult.data.keywords ||
-        profileResult.data.keywords.length === 0
-      ) {
-        toast.error("No keywords found. Please set up keywords first.")
-        return
-      }
-
-      await createAndRunCampaign(profileResult.data.keywords)
-    } catch (error) {
-      addDebugLog("Manual workflow error", {
-        error: error instanceof Error ? error.message : "Unknown error"
-      })
-      toast.error("Failed to run workflow")
-    }
+    setFindNewLeadsOpen(true)
   }
 
   // Helper to update state
@@ -1481,6 +1466,17 @@ export default function LeadFinderDashboard() {
             "New campaign created or existing selected, onSnapshot will update leads."
           )
           setCreateDialogOpen(false)
+        }}
+      />
+
+      <FindNewLeadsDialog
+        open={findNewLeadsOpen}
+        onOpenChange={setFindNewLeadsOpen}
+        userId={user?.id || ""}
+        campaignId={state.campaignId || ""}
+        currentKeywords={currentCampaignKeywords}
+        onSuccess={() => {
+          setState(prev => ({ ...prev, workflowRunning: true }))
         }}
       />
 
