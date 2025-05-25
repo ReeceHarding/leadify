@@ -985,7 +985,8 @@ export default function LeadFinderDashboard() {
           lead.postContentSnippet,
           lead.subreddit,
           campaignResult.data.websiteContent,
-          state.toneInstruction
+          state.toneInstruction,
+          lead.postUrl // Pass the post URL for fetching existing comments
         )
 
         if (result.isSuccess) {
@@ -1053,7 +1054,8 @@ export default function LeadFinderDashboard() {
         lead.postContentSnippet,
         lead.subreddit,
         campaignResult.data.websiteContent,
-        instructions
+        instructions,
+        lead.postUrl // Pass the post URL for fetching existing comments
       )
 
       if (result.isSuccess) {

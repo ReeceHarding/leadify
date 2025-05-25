@@ -311,7 +311,7 @@ export default function FindNewLeadsDialog({
               {isGeneratingKeywords ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="size-6 animate-spin text-blue-600" />
-                  <span className="ml-2 text-sm text-muted-foreground">
+                  <span className="text-muted-foreground ml-2 text-sm">
                     Generating keyword suggestions...
                   </span>
                 </div>
@@ -332,12 +332,12 @@ export default function FindNewLeadsDialog({
                       </Badge>
                     ))}
                   </div>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-muted-foreground text-xs">
                     Click keywords to select/deselect them
                   </p>
                 </div>
               ) : (
-                <div className="text-center py-4 text-sm text-muted-foreground">
+                <div className="text-muted-foreground py-4 text-center text-sm">
                   No keyword suggestions available
                 </div>
               )}

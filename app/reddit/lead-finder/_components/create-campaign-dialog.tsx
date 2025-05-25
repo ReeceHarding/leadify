@@ -343,7 +343,7 @@ export default function CreateCampaignDialog({
                     <button
                       type="button"
                       onClick={() => handleRemoveKeyword(index)}
-                      className="ml-1 hover:text-destructive"
+                      className="hover:text-destructive ml-1"
                       disabled={isCreating}
                     >
                       <X className="size-3" />
@@ -359,10 +359,10 @@ export default function CreateCampaignDialog({
               <FormLabel>Estimated Threads</FormLabel>
               <FormControl>
                 <div className="flex items-center gap-3">
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-sm">
                     {estimatedThreads} threads
                   </p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-sm">
                     across {keywords.length} keywords
                   </p>
                 </div>

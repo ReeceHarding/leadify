@@ -144,7 +144,7 @@ export default function CustomizeKeywordsDialog({
               className="min-h-[120px]"
               disabled={isGenerating}
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               Be specific about your target audience or niche
             </p>
           </div>
@@ -164,7 +164,7 @@ export default function CustomizeKeywordsDialog({
                 <SelectItem value="30">30 keywords</SelectItem>
               </SelectContent>
             </Select>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               More keywords = wider reach but may be less targeted
             </p>
           </div>

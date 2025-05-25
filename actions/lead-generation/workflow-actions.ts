@@ -298,6 +298,27 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
         const apiThread = fetchResult.data
         console.log(`✅ [WORKFLOW] Fetched thread: "${apiThread.title}" by u/${apiThread.author}, Score: ${apiThread.score}`)
 
+        // Fetch comments from the thread to analyze tone
+        console.log(`💬 [WORKFLOW] Fetching comments from thread for tone analysis...`)
+        const { fetchRedditCommentsAction } = await import("@/actions/integrations/reddit/reddit-actions")
+        const commentsResult = await fetchRedditCommentsAction(
+          threadToFetch.threadId,
+          threadToFetch.subreddit || apiThread.subreddit,
+          "best",
+          10 // Get top 10 comments for tone analysis
+        )
+        
+        let existingComments: string[] = []
+        if (commentsResult.isSuccess && commentsResult.data.length > 0) {
+          existingComments = commentsResult.data
+            .filter(comment => comment.body && comment.body !== "[deleted]" && comment.body !== "[removed]")
+            .map(comment => comment.body)
+            .slice(0, 10) // Take up to 10 comments
+          console.log(`✅ [WORKFLOW] Fetched ${existingComments.length} comments for tone analysis`)
+        } else {
+          console.log(`⚠️ [WORKFLOW] No comments fetched for tone analysis`)
+        }
+
         // Save thread to Firestore
         const threadRef = doc(collection(db, LEAD_COLLECTIONS.REDDIT_THREADS))
         const threadDocData = {
@@ -321,14 +342,15 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
         await setDoc(threadRef, removeUndefinedValues(threadDocData))
         console.log(`✅ [WORKFLOW] Thread saved to Firestore`)
 
-        // Immediately score and generate comment
+        // Immediately score and generate comment with tone analysis
         console.log(`🤖 [WORKFLOW] Starting AI scoring for thread: "${apiThread.title}"`)
         const { scoreThreadAndGeneratePersonalizedCommentsAction } = await import("@/actions/integrations/openai/openai-actions")
         const scoringResult = await scoreThreadAndGeneratePersonalizedCommentsAction(
           apiThread.title,
           apiThread.content,
           apiThread.subreddit,
-          campaign.userId // Pass userId for personalization
+          campaign.userId, // Pass userId for personalization
+          existingComments // Pass existing comments for tone matching
         )
 
         if (scoringResult.isSuccess) {

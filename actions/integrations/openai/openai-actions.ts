@@ -6,10 +6,12 @@ Contains server actions for OpenAI o3-mini API integration to critically score R
 
 "use server"
 
-import { generateObject } from "ai"
+import { generateObject, generateText } from "ai"
 import { openai } from "@ai-sdk/openai"
 import { z } from "zod"
 import { ActionState } from "@/types"
+import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
+import { scrapeWebsiteAction } from "@/actions/integrations/firecrawl/website-scraping-actions"
 
 // Schema for thread scoring and comment generation
 const ThreadAnalysisSchema = z.object({
@@ -309,103 +311,138 @@ export async function regenerateCommentsWithToneAction(
   threadContent: string,
   subreddit: string,
   websiteContent: string,
-  toneInstruction: string
-): Promise<ActionState<ThreeTierCommentResult>> {
+  toneInstruction: string,
+  postUrl?: string // Add optional postUrl parameter
+): Promise<
+  ActionState<{
+    microComment: string
+    mediumComment: string
+    verboseComment: string
+  }>
+> {
   try {
-    console.log(
-      `🤖 Regenerating comments with custom tone for: "${threadTitle.slice(0, 50)}..."`
-    )
-    console.log(`🎨 Tone instruction: ${toneInstruction}`)
+    console.log("🎨 [TONE-REGENERATE] Starting tone-based regeneration")
+    console.log("🎨 [TONE-REGENERATE] Tone instruction:", toneInstruction)
 
-    const prompt = `You are a genuine Reddit user who has personally dealt with the problem being discussed and has tried many solutions. You want to help others by sharing what worked for you.
-
-IMPORTANT TONE INSTRUCTION FROM USER: ${toneInstruction}
-
-WEBSITE CONTENT TO PROMOTE:
-${websiteContent.slice(0, 2000)}
-
-REDDIT THREAD:
-Subreddit: r/${subreddit}
-Title: ${threadTitle}
-Content: ${threadContent.slice(0, 2000)}
-
-YOUR TASK:
-1. First, analyze the website content to understand:
-   - What company/service/product it represents
-   - What problem it solves
-   - Who their target audience is
-   
-2. Then critically score how relevant this Reddit thread is to that company/service (1-100)
-
-3. If relevant (70+), generate comments as if you're a genuine user who has used this service
-
-CRITICAL SCORING (1-100) - BE HARSH:
-- 90-100: Thread directly asks for exactly what this company offers (rare)
-- 70-89: Thread problem strongly aligns, your experience would be genuinely valuable
-- 50-69: Some relevance but would feel forced or salesy to comment
-- 30-49: Weak connection, commenting would be obvious self-promotion  
-- 1-29: No relevant connection, would be spam to comment
-
-GENERATE 3 COMMENT LENGTH OPTIONS following the TONE INSTRUCTION above:
-
-ALWAYS GENERATE ALL THREE in this natural format:
-1. MICRO COMMENT: Ultra-brief helpful tip based on your experience (5-15 words)
-2. MEDIUM COMMENT: Share your experience trying different solutions:
-   - Start with empathy ("I've been there..." or "I struggled with this too...")
-   - Mention a free/basic option you tried first (what worked/didn't work)
-   - Naturally mention how you found this company/service and what specifically helped
-   - Mention a premium/alternative option for completeness
-   - End with encouragement or offer to help
-   (30-80 words total, conversational tone)
-3. VERBOSE COMMENT: Comprehensive advice sharing your full journey:
-   - Open with strong empathy and understanding
-   - Detail your struggle with the problem
-   - List solutions you tried with honest pros/cons:
-     * Free/basic option you tried first
-     * How you discovered and used this company/service (be specific)
-     * Premium alternative for those with different needs
-   - Share specific results or improvements you saw
-   - Offer to answer questions or share more details
-   (100-200 words, genuinely helpful tone)
-
-CRITICAL RULES:
-- FOLLOW THE TONE INSTRUCTION PROVIDED
-- Write like a real person sharing their experience, not a salesperson
-- Never use marketing language or superlatives
-- Be honest about pros/cons of each option
-- Focus on being helpful first, mentioning products second
-- Use Reddit-appropriate casual language
-- Never pressure or push any specific solution
-- Keep the company mentions natural and contextual
-
-PRIORITIZE AUTHENTICITY AND VALUE. Most threads should score 30-60 unless they're perfect matches.`
-
-    const { object } = await generateObject({
-      model: openai("o3-mini"),
-      schema: ThreadAnalysisSchema,
-      prompt,
-      providerOptions: {
-        openai: { reasoningEffort: "medium" }
+    // Try to fetch existing comments if we have a post URL
+    let existingComments: string[] = []
+    if (postUrl) {
+      console.log("🎨 [TONE-REGENERATE] Fetching existing comments from post...")
+      
+      // Extract thread ID from URL
+      const threadIdMatch = postUrl.match(/\/comments\/([a-zA-Z0-9]+)/)
+      if (threadIdMatch) {
+        const threadId = threadIdMatch[1]
+        const { fetchRedditCommentsAction } = await import("@/actions/integrations/reddit/reddit-actions")
+        
+        const commentsResult = await fetchRedditCommentsAction(
+          threadId,
+          subreddit,
+          "best",
+          10
+        )
+        
+        if (commentsResult.isSuccess && commentsResult.data.length > 0) {
+          existingComments = commentsResult.data
+            .filter(comment => comment.body && comment.body !== "[deleted]" && comment.body !== "[removed]")
+            .map(comment => comment.body)
+            .slice(0, 10)
+          console.log(`✅ [TONE-REGENERATE] Fetched ${existingComments.length} comments for tone analysis`)
+        }
       }
-    })
-
-    const result: ThreeTierCommentResult = {
-      score: Math.max(1, Math.min(100, object.score)),
-      reasoning: object.reasoning,
-      microComment: object.microComment,
-      mediumComment: object.mediumComment,
-      verboseComment: object.verboseComment
     }
 
-    console.log(`✅ Comments regenerated with custom tone: ${result.score}/100`)
+    // Analyze existing comments for tone if available
+    let toneAnalysis = ""
+    if (existingComments.length > 0) {
+      console.log("🔍 [TONE-REGENERATE] Analyzing existing comments for tone...")
+      
+      const tonePrompt = `Analyze these Reddit comments and describe the tone, style, and language patterns:
+
+${existingComments.join('\n\n---\n\n')}
+
+Provide a brief analysis of:
+1. Overall tone (casual, formal, humorous, etc.)
+2. Common language patterns (slang, abbreviations, etc.)
+3. Typical comment length
+4. Grammar style (perfect vs casual)
+5. How people give recommendations`
+
+      const toneResult = await generateText({
+        model: openai("gpt-4o-mini"),
+        prompt: tonePrompt,
+        temperature: 0.3,
+        maxTokens: 300
+      })
+
+      toneAnalysis = toneResult.text
+      console.log("✅ [TONE-REGENERATE] Tone analysis complete")
+    }
+
+    const systemPrompt = `You are a Reddit comment generator. Your job is to create natural, authentic comments that match the community's style.
+
+Business Context: ${websiteContent.substring(0, 1000)}
+
+${toneAnalysis ? `\nCommunity Tone Analysis:\n${toneAnalysis}\n` : ""}
+
+USER'S TONE INSTRUCTION: ${toneInstruction}
+
+CRITICAL RULES:
+- Follow the user's tone instruction above all else
+- Match the casual tone and style of Reddit
+- Use imperfect grammar if appropriate
+- Never sound like a marketing bot
+- Be genuinely helpful first
+- Keep it conversational and authentic`
+
+    const userPrompt = `Thread Title: ${threadTitle}
+Thread Content: ${threadContent}
+Subreddit: r/${subreddit}
+
+${existingComments.length > 0 ? `\nExample comments from this thread:\n${existingComments.slice(0, 3).join('\n---\n')}` : ''}
+
+Generate three comments following the tone instruction:
+1. Micro (1-2 sentences, super casual)
+2. Medium (3-4 sentences, helpful but natural)
+3. Verbose (5-7 sentences, detailed but still authentic)
+
+Return as JSON:
+{
+  "microComment": "comment text",
+  "mediumComment": "comment text",
+  "verboseComment": "comment text"
+}`
+
+    console.log("🎨 [TONE-REGENERATE] Generating comments with custom tone...")
+    const result = await generateText({
+      model: openai("gpt-4o"),
+      system: systemPrompt,
+      prompt: userPrompt,
+      temperature: 0.8, // Higher temperature for more creative variation
+      maxTokens: 1200
+    })
+
+    // Parse the response
+    const text = result.text.trim()
+    const jsonMatch = text.match(/\{[\s\S]*\}/)
+    if (!jsonMatch) {
+      throw new Error("Failed to extract JSON from response")
+    }
+
+    const parsed = JSON.parse(jsonMatch[0])
+    console.log("✅ [TONE-REGENERATE] Successfully regenerated comments with custom tone")
 
     return {
       isSuccess: true,
-      message: "Comments regenerated with custom tone successfully",
-      data: result
+      message: "Comments regenerated with custom tone",
+      data: {
+        microComment: parsed.microComment,
+        mediumComment: parsed.mediumComment,
+        verboseComment: parsed.verboseComment
+      }
     }
   } catch (error) {
-    console.error("Error regenerating comments with tone:", error)
+    console.error("❌ [TONE-REGENERATE] Error:", error)
     return {
       isSuccess: false,
       message: `Failed to regenerate comments: ${error instanceof Error ? error.message : "Unknown error"}`
@@ -497,226 +534,155 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
   threadTitle: string,
   threadContent: string,
   subreddit: string,
-  userId: string
-): Promise<ActionState<ThreeTierCommentResult>> {
+  userId: string,
+  existingComments?: string[] // Add parameter for existing comments
+): Promise<
+  ActionState<{
+    score: number
+    reasoning: string
+    microComment: string
+    mediumComment: string
+    verboseComment: string
+  }>
+> {
   try {
-    console.log(
-      `🎯 [PERSONALIZED] Generating personalized comments for user: ${userId}`
-    )
-    console.log(`🎯 [PERSONALIZED] Thread: "${threadTitle.slice(0, 50)}..."`)
+    console.log("🤖 [OPENAI-PERSONALIZED] Starting personalized scoring and comment generation")
+    console.log("🤖 [OPENAI-PERSONALIZED] Thread title:", threadTitle)
+    console.log("🤖 [OPENAI-PERSONALIZED] Subreddit:", subreddit)
+    console.log("🤖 [OPENAI-PERSONALIZED] User ID:", userId)
+    console.log("🤖 [OPENAI-PERSONALIZED] Existing comments provided:", existingComments?.length || 0)
 
-    // Get user's personalization data
-    const { getKnowledgeBaseByUserIdAction, getVoiceSettingsByUserIdAction } =
-      await import("@/actions/db/personalization-actions")
-    const { getProfileByUserIdAction } = await import(
-      "@/actions/db/profiles-actions"
-    )
+    // Get user profile for personalization
+    const profileResult = await getProfileByUserIdAction(userId)
+    if (!profileResult.isSuccess || !profileResult.data) {
+      console.error("❌ [OPENAI-PERSONALIZED] Failed to get user profile")
+      return { isSuccess: false, message: "Failed to get user profile" }
+    }
 
-    // Fetch all personalization data
-    const [knowledgeBaseResult, voiceSettingsResult, profileResult] =
-      await Promise.all([
-        getKnowledgeBaseByUserIdAction(userId),
-        getVoiceSettingsByUserIdAction(userId),
-        getProfileByUserIdAction(userId)
-      ])
+    const profile = profileResult.data
+    const websiteUrl = profile.website || ""
+    const businessName = profile.name || "our solution"
 
-    console.log(
-      `🎯 [PERSONALIZED] Knowledge base found: ${knowledgeBaseResult.isSuccess}`
-    )
-    console.log(
-      `🎯 [PERSONALIZED] Voice settings found: ${voiceSettingsResult.isSuccess}`
-    )
-    console.log(`🎯 [PERSONALIZED] Profile found: ${profileResult.isSuccess}`)
+    console.log("🤖 [OPENAI-PERSONALIZED] Business name:", businessName)
+    console.log("🤖 [OPENAI-PERSONALIZED] Website URL:", websiteUrl)
 
-    // Build personalized context
-    let businessContext = ""
-    let writingStyle = ""
-    let persona = "a genuine user who has experience with this service"
-
-    // Add knowledge base information
-    if (knowledgeBaseResult.isSuccess && knowledgeBaseResult.data) {
-      const kb = knowledgeBaseResult.data
-      businessContext += `BUSINESS INFORMATION:\n`
-
-      if (kb.websiteUrl) {
-        businessContext += `Website: ${kb.websiteUrl}\n`
-      }
-
-      if (kb.customInformation) {
-        businessContext += `Additional Info: ${kb.customInformation}\n`
-      }
-
-      if (kb.summary) {
-        businessContext += `Summary: ${kb.summary}\n`
-      }
-
-      if (kb.scrapedPages && kb.scrapedPages.length > 0) {
-        businessContext += `Key Pages: ${kb.scrapedPages.join(", ")}\n`
+    // Scrape website content if available
+    let websiteContent = ""
+    if (websiteUrl) {
+      console.log("🌐 [OPENAI-PERSONALIZED] Scraping website:", websiteUrl)
+      const scrapeResult = await scrapeWebsiteAction(websiteUrl)
+      if (scrapeResult.isSuccess) {
+        websiteContent = scrapeResult.data.content
+        console.log("✅ [OPENAI-PERSONALIZED] Website scraped successfully")
+      } else {
+        console.warn("⚠️ [OPENAI-PERSONALIZED] Failed to scrape website")
       }
     }
 
-    // Add profile information as fallback
-    if (profileResult.isSuccess && profileResult.data) {
-      const profile = profileResult.data
-      if (profile.website && !businessContext.includes("Website:")) {
-        businessContext += `Website: ${profile.website}\n`
-      }
-      if (profile.name) {
-        businessContext += `Business Name: ${profile.name}\n`
-      }
+    // Analyze existing comments for tone and style
+    let toneAnalysis = ""
+    if (existingComments && existingComments.length > 0) {
+      console.log("🔍 [OPENAI-PERSONALIZED] Analyzing existing comments for tone...")
+      
+      const tonePrompt = `Analyze these Reddit comments and describe the tone, style, and language patterns:
+
+${existingComments.slice(0, 10).join('\n\n---\n\n')}
+
+Provide a brief analysis of:
+1. Overall tone (casual, formal, humorous, etc.)
+2. Common language patterns (slang, abbreviations, etc.)
+3. Typical comment length
+4. Grammar style (perfect vs casual)
+5. How people give recommendations`
+
+      const toneResult = await generateText({
+        model: openai("gpt-4o-mini"),
+        prompt: tonePrompt,
+        temperature: 0.3,
+        maxTokens: 300
+      })
+
+      toneAnalysis = toneResult.text
+      console.log("✅ [OPENAI-PERSONALIZED] Tone analysis complete:", toneAnalysis)
     }
 
-    // Add voice settings
-    if (voiceSettingsResult.isSuccess && voiceSettingsResult.data) {
-      const voice = voiceSettingsResult.data
+    const systemPrompt = `You are a Reddit comment analyzer and generator. Your job is to:
+1. Score how relevant a Reddit thread is for promoting ${businessName}
+2. Generate natural, authentic Reddit comments that match the community's style
 
-      // Set persona based on user's choice
-      if (voice.personaType === "ceo") {
-        persona =
-          "a CEO/founder who built this solution and wants to help others"
-      } else if (voice.personaType === "user") {
-        persona = "a satisfied customer who had great results with this service"
-      } else if (voice.personaType === "subtle") {
-        persona = "someone who subtly recommends solutions without being pushy"
-      } else if (voice.personaType === "custom" && voice.customPersona) {
-        persona = voice.customPersona
-      }
+${websiteContent ? `Business Context: ${websiteContent.substring(0, 1000)}` : ""}
 
-      // Build writing style instructions
-      const styleElements = []
+${toneAnalysis ? `\nCommunity Tone Analysis:\n${toneAnalysis}\n` : ""}
 
-      // Add manual writing style description first (highest priority)
-      if (voice.manualWritingStyleDescription) {
-        styleElements.push(voice.manualWritingStyleDescription)
-      }
+CRITICAL RULES FOR COMMENTS:
+- Match the casual tone and style of the subreddit
+- Use imperfect grammar if that's the norm
+- Include typos or casual language if appropriate
+- Never sound like a marketing bot
+- Be genuinely helpful first, mention the business naturally
+- Use Reddit-style formatting and language
+- Keep it conversational and authentic`
 
-      if (voice.useAllLowercase) styleElements.push("use mostly lowercase text")
-      if (voice.useEmojis) styleElements.push("include relevant emojis")
-      if (voice.useCasualTone)
-        styleElements.push("write in a very casual, conversational tone")
-      if (voice.useFirstPerson)
-        styleElements.push("write in first person (I, me, my)")
-
-      if (voice.customWritingStyle) {
-        styleElements.push(voice.customWritingStyle)
-      }
-
-      if (styleElements.length > 0) {
-        writingStyle = `WRITING STYLE: ${styleElements.join(", ")}\n`
-      }
-
-      // Add generated prompt if available
-      if (voice.generatedPrompt) {
-        writingStyle += `GENERATED STYLE PROMPT: ${voice.generatedPrompt}\n`
-      }
-    }
-
-    console.log(
-      `🎯 [PERSONALIZED] Business context length: ${businessContext.length}`
-    )
-    console.log(`🎯 [PERSONALIZED] Writing style: ${writingStyle}`)
-    console.log(`🎯 [PERSONALIZED] Persona: ${persona}`)
-
-    const prompt = `You are ${persona}. You want to help others by sharing what worked for you.
-
-${businessContext}
-
-${writingStyle}
-
-REDDIT THREAD:
+    const userPrompt = `Thread Title: ${threadTitle}
+Thread Content: ${threadContent}
 Subreddit: r/${subreddit}
-Title: ${threadTitle}
-Content: ${threadContent.slice(0, 2000)}
 
-YOUR TASK:
-1. First, analyze the business information to understand:
-   - What company/service/product it represents
-   - What problem it solves
-   - Who their target audience is
-   
-2. Then critically score how relevant this Reddit thread is to that business (1-100)
+${existingComments && existingComments.length > 0 ? `\nExample comments from this thread:\n${existingComments.slice(0, 5).join('\n---\n')}` : ''}
 
-3. If relevant (70+), generate comments using your personalized writing style and persona
+Score this thread (0-100) for relevance to ${businessName} and generate three comments:
+1. Micro (1-2 sentences, super casual)
+2. Medium (3-4 sentences, helpful but natural)
+3. Verbose (5-7 sentences, detailed but still authentic)
 
-CRITICAL SCORING (1-100) - BE HARSH:
-- 90-100: Thread directly asks for exactly what this business offers (rare)
-- 70-89: Thread problem strongly aligns, your experience would be genuinely valuable
-- 50-69: Some relevance but would feel forced or salesy to comment
-- 30-49: Weak connection, commenting would be obvious self-promotion  
-- 1-29: No relevant connection, would be spam to comment
+Remember: Write like a real redditor, not a marketer. Match the tone of the existing comments.
 
-GENERATE 3 COMMENT LENGTH OPTIONS (authentic, helpful, non-salesy):
+Return as JSON:
+{
+  "score": number,
+  "reasoning": "why this score",
+  "microComment": "comment text",
+  "mediumComment": "comment text",
+  "verboseComment": "comment text"
+}`
 
-ALWAYS GENERATE ALL THREE in this natural format:
-1. MICRO COMMENT: Ultra-brief helpful tip based on your experience (5-15 words)
-2. MEDIUM COMMENT: Share your experience trying different solutions:
-   - Start with empathy ("I've been there..." or "I struggled with this too...")
-   - Mention a free/basic option you tried first (what worked/didn't work)
-   - Naturally mention how you found this business/service and what specifically helped
-   - Mention a premium/alternative option for completeness
-   - End with encouragement or offer to help
-   (30-80 words total, conversational tone)
-3. VERBOSE COMMENT: Comprehensive advice sharing your full journey:
-   - Open with strong empathy and understanding
-   - Detail your struggle with the problem
-   - List solutions you tried with honest pros/cons:
-     * Free/basic option you tried first
-     * How you discovered and used this business/service (be specific)
-     * Premium alternative for those with different needs
-   - Share specific results or improvements you saw
-   - Offer to answer questions or share more details
-   (100-200 words, genuinely helpful tone)
-
-CRITICAL RULES:
-- FOLLOW YOUR PERSONALIZED WRITING STYLE AND PERSONA EXACTLY
-- Write like a real person sharing their experience, not a salesperson
-- Never use marketing language or superlatives unless that's your style
-- Be honest about pros/cons of each option
-- Focus on being helpful first, mentioning products second
-- Use Reddit-appropriate language that matches your style
-- Never pressure or push any specific solution
-- Keep the business mentions natural and contextual
-- If you're a CEO/founder, be humble and focus on helping, not selling
-
-PRIORITIZE AUTHENTICITY AND VALUE. Most threads should score 30-60 unless they're perfect matches.`
-
-    const { object } = await generateObject({
-      model: openai("o3-mini"),
-      schema: ThreadAnalysisSchema,
-      prompt,
-      providerOptions: {
-        openai: { reasoningEffort: "medium" }
-      }
+    console.log("🤖 [OPENAI-PERSONALIZED] Generating personalized comments...")
+    const result = await generateText({
+      model: openai("gpt-4o"),
+      system: systemPrompt,
+      prompt: userPrompt,
+      temperature: 0.7,
+      maxTokens: 1500
     })
 
-    const result: ThreeTierCommentResult = {
-      score: Math.max(1, Math.min(100, object.score)),
-      reasoning: object.reasoning,
-      microComment: object.microComment,
-      mediumComment: object.mediumComment,
-      verboseComment: object.verboseComment
+    console.log("🤖 [OPENAI-PERSONALIZED] Raw response received")
+
+    // Parse the response
+    const text = result.text.trim()
+    const jsonMatch = text.match(/\{[\s\S]*\}/)
+    if (!jsonMatch) {
+      throw new Error("Failed to extract JSON from response")
     }
 
-    console.log(
-      `✅ [PERSONALIZED] Thread scored: ${result.score}/100 with personalized style`
-    )
-    console.log(
-      `✅ [PERSONALIZED] Reasoning: ${result.reasoning.slice(0, 100)}...`
-    )
+    const parsed = JSON.parse(jsonMatch[0])
+    console.log("✅ [OPENAI-PERSONALIZED] Successfully parsed response")
+    console.log("📊 [OPENAI-PERSONALIZED] Score:", parsed.score)
 
     return {
       isSuccess: true,
-      message: "Personalized comments generated successfully",
-      data: result
+      message: "Thread scored and personalized comments generated",
+      data: {
+        score: parsed.score,
+        reasoning: parsed.reasoning,
+        microComment: parsed.microComment,
+        mediumComment: parsed.mediumComment,
+        verboseComment: parsed.verboseComment
+      }
     }
   } catch (error) {
-    console.error(
-      "❌ [PERSONALIZED] Error generating personalized comments:",
-      error
-    )
+    console.error("❌ [OPENAI-PERSONALIZED] Error:", error)
     return {
       isSuccess: false,
-      message: `Failed to generate personalized comments: ${error instanceof Error ? error.message : "Unknown error"}`
+      message: `Failed to score thread: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }
