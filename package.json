@@ -19,7 +19,8 @@
     "start:no-log": "next start",
     "warmup:test": "tsx scripts/test-warmup-locally.ts --test",
     "warmup:local": "tsx scripts/test-warmup-locally.ts",
-    "warmup:generate": "tsx scripts/generate-warmup-posts.ts"
+    "warmup:generate": "tsx scripts/generate-warmup-posts.ts",
+    "warmup:verify": "tsx scripts/verify-warmup-setup.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.3.22",
