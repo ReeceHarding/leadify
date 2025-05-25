@@ -575,29 +575,71 @@ export default function LeadFinderDashboard() {
   // Handle adding to queue
   const handleAddToQueue = async (lead: LeadResult) => {
     console.log("➕ [QUEUE] Adding to queue:", lead.id)
-    updateState({ queuingLeadId: lead.id })
     
-    try {
-      const result = await updateGeneratedCommentAction(lead.id, {
-        status: "queued"
-      })
+    // Check if queue is empty
+    const queuedLeads = state.leads.filter(l => l.status === "queued")
+    const isQueueEmpty = queuedLeads.length === 0
+    
+    // If queue is empty and this is the first item, post immediately
+    if (isQueueEmpty) {
+      console.log("📤 [QUEUE] Queue empty, posting immediately:", lead.id)
+      updateState({ postingLeadId: lead.id })
+      
+      try {
+        const comment = getDisplayComment(lead)
+        const result = await postCommentAndUpdateStatusAction(
+          lead.id,
+          lead.postUrl,
+          comment
+        )
 
-      if (result.isSuccess) {
-        setState(prev => ({
-          ...prev,
-          leads: prev.leads.map(l =>
-            l.id === lead.id ? { ...l, status: "queued" } : l
-          ),
-          queuingLeadId: null
-        }))
-        toast.success("Added to posting queue")
-      } else {
-        throw new Error(result.message)
+        if (result.isSuccess) {
+          setState(prev => ({
+            ...prev,
+            leads: prev.leads.map(l =>
+              l.id === lead.id ? { ...l, status: "posted" } : l
+            ),
+            postingLeadId: null
+          }))
+          toast.success("Comment posted successfully!")
+          posthog.capture("reddit_comment_posted", {
+            leadId: lead.id,
+            method: "immediate_from_queue"
+          })
+        } else {
+          throw new Error(result.message)
+        }
+      } catch (error) {
+        console.error("📤 [QUEUE] Error posting:", error)
+        toast.error("Failed to post comment")
+        updateState({ postingLeadId: null })
       }
-    } catch (error) {
-      console.error("➕ [QUEUE] Error:", error)
+    } else {
+      // Queue is not empty, just add to queue
+      updateState({ queuingLeadId: lead.id })
+      
+      try {
+        const result = await updateGeneratedCommentAction(lead.id, {
+          status: "queued"
+        })
+
+        if (result.isSuccess) {
+          setState(prev => ({
+            ...prev,
+            leads: prev.leads.map(l =>
+              l.id === lead.id ? { ...l, status: "queued" } : l
+            ),
+            queuingLeadId: null
+          }))
+          toast.success("Added to posting queue")
+        } else {
+          throw new Error(result.message)
+        }
+      } catch (error) {
+        console.error("➕ [QUEUE] Error:", error)
         toast.error("Failed to add to queue")
-      updateState({ queuingLeadId: null })
+        updateState({ queuingLeadId: null })
+      }
     }
   }
 
