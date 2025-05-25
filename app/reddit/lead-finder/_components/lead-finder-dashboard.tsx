@@ -38,7 +38,8 @@ import {
   X,
   HelpCircle,
   Users,
-  Award
+  Award,
+  CalendarDays
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -189,6 +190,11 @@ interface DashboardState {
   // Debug mode
   debugMode: boolean
   debugLogs: string[]
+
+  // New filter states
+  searchQuery: string
+  selectedKeyword: string | null
+  dateFilter: "all" | "today" | "week" | "month" | "3months"
 }
 
 const initialState: DashboardState = {
@@ -217,7 +223,52 @@ const initialState: DashboardState = {
   pollingEnabled: false,
   workflowRunning: false,
   debugMode: false,
-  debugLogs: []
+  debugLogs: [],
+  searchQuery: "",
+  selectedKeyword: null,
+  dateFilter: "all"
+}
+
+// Add date filter helper function
+const filterByDate = (lead: LeadResult, dateFilter: string): boolean => {
+  if (dateFilter === "all") return true
+  
+  const postDate = lead.postCreatedAt ? new Date(lead.postCreatedAt) : null
+  if (!postDate) return true // If no date, include it
+  
+  const now = new Date()
+  const daysDiff = Math.floor((now.getTime() - postDate.getTime()) / (1000 * 60 * 60 * 24))
+  
+  switch (dateFilter) {
+    case "today":
+      return daysDiff === 0
+    case "week":
+      return daysDiff <= 7
+    case "month":
+      return daysDiff <= 30
+    case "3months":
+      return daysDiff <= 90
+    default:
+      return true
+  }
+}
+
+// Add text search helper function
+const matchesSearchQuery = (lead: LeadResult, query: string): boolean => {
+  if (!query.trim()) return true
+  
+  const lowerQuery = query.toLowerCase()
+  const searchableFields = [
+    lead.postTitle,
+    lead.postContentSnippet,
+    lead.postAuthor,
+    lead.subreddit,
+    lead.microComment,
+    lead.mediumComment,
+    lead.verboseComment
+  ].filter(Boolean).map(field => field!.toLowerCase())
+  
+  return searchableFields.some(field => field.includes(lowerQuery))
 }
 
 export default function LeadFinderDashboard() {
@@ -1170,6 +1221,60 @@ export default function LeadFinderDashboard() {
     updateState({ showMassPostDialog: true })
   }
 
+  // Get unique keywords from leads
+  const uniqueKeywords = useMemo(() => {
+    const keywords = new Set<string>()
+    state.leads.forEach(lead => {
+      if (lead.keyword) keywords.add(lead.keyword)
+    })
+    return Array.from(keywords).sort()
+  }, [state.leads])
+
+  // Filter and sort leads
+  const filteredLeads = useMemo(() => {
+    let filtered = [...state.leads]
+
+    // Apply text search filter
+    filtered = filtered.filter(lead => matchesSearchQuery(lead, state.searchQuery))
+
+    // Apply keyword filter
+    if (state.selectedKeyword) {
+      filtered = filtered.filter(lead => lead.keyword === state.selectedKeyword)
+    }
+
+    // Apply score filter
+    if (state.filterScore > 0) {
+      filtered = filtered.filter(lead => lead.relevanceScore >= state.filterScore)
+    }
+
+    // Apply date filter
+    filtered = filtered.filter(lead => filterByDate(lead, state.dateFilter))
+
+    // Apply tab filter
+    if (state.activeTab === "queue") {
+      filtered = filtered.filter(lead => lead.status === "queued")
+    }
+
+    // Sort
+    switch (state.sortBy) {
+      case "relevance":
+        filtered.sort((a, b) => b.relevanceScore - a.relevanceScore)
+        break
+      case "upvotes":
+        filtered.sort((a, b) => (b.postScore || 0) - (a.postScore || 0))
+        break
+      case "time":
+        filtered.sort((a, b) => {
+          const dateA = a.postCreatedAt ? new Date(a.postCreatedAt).getTime() : 0
+          const dateB = b.postCreatedAt ? new Date(b.postCreatedAt).getTime() : 0
+          return dateB - dateA
+        })
+        break
+    }
+
+    return filtered
+  }, [state.leads, state.searchQuery, state.selectedKeyword, state.filterScore, state.dateFilter, state.activeTab, state.sortBy])
+
   // Render loading state
   if (state.isLoading) {
     return (
@@ -1296,6 +1401,109 @@ export default function LeadFinderDashboard() {
         onMassPost={handleMassPost}
       />
 
+      {/* Filters Section */}
+      <div className="bg-card rounded-lg border p-4 shadow-sm dark:border-gray-700">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="flex grow items-center gap-2">
+              <Filter className="size-4 shrink-0 text-gray-500 dark:text-gray-400" />
+              <Input
+                placeholder="Search by title, body, username..."
+                value={state.searchQuery}
+                onChange={(e) => setState(prev => ({ ...prev, searchQuery: e.target.value }))}
+                className="h-9 grow"
+              />
+            </div>
+            
+            {/* Keyword Filter */}
+            <div className="flex items-center gap-2">
+              <Hash className="size-4 shrink-0 text-gray-500 dark:text-gray-400" />
+              <Select
+                value={state.selectedKeyword || "all"}
+                onValueChange={(value) => setState(prev => ({ 
+                  ...prev, 
+                  selectedKeyword: value === "all" ? null : value 
+                }))}
+              >
+                <SelectTrigger className="h-9 w-[200px]">
+                  <SelectValue placeholder="All Keywords" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Keywords</SelectItem>
+                  {uniqueKeywords.map(keyword => (
+                    <SelectItem key={keyword} value={keyword}>
+                      {keyword}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Date Filter */}
+            <div className="flex items-center gap-2">
+              <Calendar className="size-4 shrink-0 text-gray-500 dark:text-gray-400" />
+              <Select
+                value={state.dateFilter}
+                onValueChange={(value: any) => setState(prev => ({ ...prev, dateFilter: value }))}
+              >
+                <SelectTrigger className="h-9 w-[140px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Time</SelectItem>
+                  <SelectItem value="today">Today</SelectItem>
+                  <SelectItem value="week">Past 7 Days</SelectItem>
+                  <SelectItem value="month">Past 30 Days</SelectItem>
+                  <SelectItem value="3months">Past 3 Months</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Score Filter */}
+            <div className="flex items-center gap-2">
+              <TrendingUp className="size-4 shrink-0 text-gray-500 dark:text-gray-400" />
+              <Select
+                value={state.filterScore.toString()}
+                onValueChange={(value) => setState(prev => ({ ...prev, filterScore: parseInt(value) }))}
+              >
+                <SelectTrigger className="h-9 w-[160px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="0">All Scores</SelectItem>
+                  <SelectItem value="50">50%+ Match</SelectItem>
+                  <SelectItem value="70">70%+ Match</SelectItem>
+                  <SelectItem value="80">80%+ Match</SelectItem>
+                  <SelectItem value="90">90%+ Match</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <ArrowUpDown className="size-4 shrink-0 text-gray-500 dark:text-gray-400" />
+              <Select
+                value={state.sortBy}
+                onValueChange={(value: any) => setState(prev => ({ ...prev, sortBy: value }))}
+              >
+                <SelectTrigger className="h-9 w-[130px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="relevance">Relevance</SelectItem>
+                  <SelectItem value="upvotes">Upvotes</SelectItem>
+                  <SelectItem value="time">Recent</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">
+              Showing {filteredLeads.length} of {state.leads.length} leads
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="grid gap-4">
         {/* Find More Leads - Show when campaign is selected */}
         {state.campaignId && (
@@ -1346,7 +1554,7 @@ export default function LeadFinderDashboard() {
             error: state.error || undefined
           }}
           leads={state.leads}
-          filteredAndSortedLeads={filteredAndSortedLeads}
+          filteredAndSortedLeads={filteredLeads}
           paginatedLeads={paginatedLeads}
           newLeadIds={newLeadIds.current}
           activeTab={state.activeTab}

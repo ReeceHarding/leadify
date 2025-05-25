@@ -29,7 +29,8 @@ import {
   doc,
   setDoc,
   serverTimestamp,
-  writeBatch
+  writeBatch,
+  Timestamp
 } from "firebase/firestore"
 import { removeUndefinedValues } from "@/lib/firebase-utils"
 import { createGeneratedCommentAction } from "@/actions/db/lead-generation-actions"
@@ -351,7 +352,8 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
             verboseComment: scoringData.verboseComment,
             status: "new",
             keyword: threadToFetch.keyword, // Track which keyword found this
-            postScore: apiThread.score // Track Reddit post score
+                          postScore: apiThread.score, // Track Reddit post score
+              postCreatedAt: apiThread.created ? Timestamp.fromDate(new Date(apiThread.created * 1000)) : undefined // Convert Unix timestamp to Firestore Timestamp
           }
 
           console.log(`💾 [WORKFLOW] Saving generated comment to Firestore...`)

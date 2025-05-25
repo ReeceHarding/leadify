@@ -5,6 +5,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle
 } from "@/components/ui/card"
@@ -45,7 +46,8 @@ import {
   ChevronRight,
   ChevronDown,
   CirclePlus,
-  Loader2
+  Loader2,
+  Calendar
 } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -70,6 +72,38 @@ interface LeadCardProps {
   ) => Promise<void>
   isPosting?: boolean
   isQueueing?: boolean
+}
+
+// Add date formatting helper
+const formatPostDate = (dateString?: string): string => {
+  if (!dateString) return "Date unknown"
+  
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffMs = now.getTime() - date.getTime()
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+  
+  if (diffDays === 0) {
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+    if (diffHours === 0) {
+      const diffMinutes = Math.floor(diffMs / (1000 * 60))
+      return `${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago`
+    }
+    return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`
+  } else if (diffDays === 1) {
+    return "Yesterday"
+  } else if (diffDays < 7) {
+    return `${diffDays} days ago`
+  } else if (diffDays < 30) {
+    const weeks = Math.floor(diffDays / 7)
+    return `${weeks} week${weeks !== 1 ? 's' : ''} ago`
+  } else if (diffDays < 365) {
+    const months = Math.floor(diffDays / 30)
+    return `${months} month${months !== 1 ? 's' : ''} ago`
+  } else {
+    const years = Math.floor(diffDays / 365)
+    return `${years} year${years !== 1 ? 's' : ''} ago`
+  }
 }
 
 export default function LeadCard({
@@ -150,7 +184,12 @@ export default function LeadCard({
 
   return (
     <>
-      <Card className="overflow-hidden border shadow-sm transition-shadow hover:shadow-md">
+      <Card
+        className={cn(
+          "overflow-hidden transition-all duration-300",
+          lead.status === "posted" && "opacity-75"
+        )}
+      >
         <CardContent className="space-y-4 p-6">
           {/* Header with Match Score */}
           <div className="mb-3 flex items-start justify-between gap-4">
@@ -169,6 +208,11 @@ export default function LeadCard({
                   Posted
                 </Badge>
               )}
+            </div>
+            {/* Post Date */}
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <Calendar className="size-4" />
+              <span>{formatPostDate(lead.postCreatedAt)}</span>
             </div>
           </div>
 
