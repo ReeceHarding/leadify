@@ -33,8 +33,58 @@ import {
   query,
   where,
   getDocs,
-  serverTimestamp
+  serverTimestamp,
+  Timestamp
 } from "firebase/firestore"
+
+// Serialization functions to convert Firestore Timestamps to ISO strings
+function serializeKnowledgeBase(kb: KnowledgeBaseDocument): KnowledgeBaseDocument {
+  console.log("🔥 [KB-SERIALIZE] Starting serialization")
+  return {
+    ...kb,
+    createdAt: kb.createdAt instanceof Timestamp ? 
+      Timestamp.fromMillis(kb.createdAt.toMillis()) : kb.createdAt,
+    updatedAt: kb.updatedAt instanceof Timestamp ? 
+      Timestamp.fromMillis(kb.updatedAt.toMillis()) : kb.updatedAt
+  }
+}
+
+function serializeVoiceSettings(vs: VoiceSettingsDocument): VoiceSettingsDocument {
+  console.log("🔥 [VS-SERIALIZE] Starting serialization")
+  return {
+    ...vs,
+    createdAt: vs.createdAt instanceof Timestamp ? 
+      Timestamp.fromMillis(vs.createdAt.toMillis()) : vs.createdAt,
+    updatedAt: vs.updatedAt instanceof Timestamp ? 
+      Timestamp.fromMillis(vs.updatedAt.toMillis()) : vs.updatedAt
+  }
+}
+
+function serializeScrapedContent(sc: ScrapedContentDocument): ScrapedContentDocument {
+  console.log("🔥 [SC-SERIALIZE] Starting serialization")
+  return {
+    ...sc,
+    scrapedAt: sc.scrapedAt instanceof Timestamp ? 
+      Timestamp.fromMillis(sc.scrapedAt.toMillis()) : sc.scrapedAt,
+    createdAt: sc.createdAt instanceof Timestamp ? 
+      Timestamp.fromMillis(sc.createdAt.toMillis()) : sc.createdAt,
+    updatedAt: sc.updatedAt instanceof Timestamp ? 
+      Timestamp.fromMillis(sc.updatedAt.toMillis()) : sc.updatedAt
+  }
+}
+
+function serializeTwitterAnalysis(ta: TwitterAnalysisDocument): TwitterAnalysisDocument {
+  console.log("🔥 [TA-SERIALIZE] Starting serialization")
+  return {
+    ...ta,
+    analyzedAt: ta.analyzedAt instanceof Timestamp ? 
+      Timestamp.fromMillis(ta.analyzedAt.toMillis()) : ta.analyzedAt,
+    createdAt: ta.createdAt instanceof Timestamp ? 
+      Timestamp.fromMillis(ta.createdAt.toMillis()) : ta.createdAt,
+    updatedAt: ta.updatedAt instanceof Timestamp ? 
+      Timestamp.fromMillis(ta.updatedAt.toMillis()) : ta.updatedAt
+  }
+}
 
 // Knowledge Base Actions
 export async function createKnowledgeBaseAction(
@@ -61,12 +111,13 @@ export async function createKnowledgeBaseAction(
     await setDoc(knowledgeBaseRef, knowledgeBaseData)
     
     const createdDoc = await getDoc(knowledgeBaseRef)
+    const serializedData = serializeKnowledgeBase(createdDoc.data() as KnowledgeBaseDocument)
     console.log("🔥 [KNOWLEDGE-BASE] Knowledge base created successfully")
     
     return {
       isSuccess: true,
       message: "Knowledge base created successfully",
-      data: createdDoc.data() as KnowledgeBaseDocument
+      data: serializedData
     }
   } catch (error) {
     console.error("🔥 [KNOWLEDGE-BASE] Error creating knowledge base:", error)
@@ -98,7 +149,7 @@ export async function getKnowledgeBaseByUserIdAction(
     }
 
     const doc = querySnapshot.docs[0]
-    const knowledgeBase = doc.data() as KnowledgeBaseDocument
+    const knowledgeBase = serializeKnowledgeBase(doc.data() as KnowledgeBaseDocument)
     
     console.log("🔥 [KNOWLEDGE-BASE] Knowledge base retrieved successfully")
     return {
@@ -133,12 +184,13 @@ export async function updateKnowledgeBaseAction(
     await updateDoc(knowledgeBaseRef, updateData)
     
     const updatedDoc = await getDoc(knowledgeBaseRef)
+    const serializedData = serializeKnowledgeBase(updatedDoc.data() as KnowledgeBaseDocument)
     console.log("🔥 [KNOWLEDGE-BASE] Knowledge base updated successfully")
     
     return {
       isSuccess: true,
       message: "Knowledge base updated successfully",
-      data: updatedDoc.data() as KnowledgeBaseDocument
+      data: serializedData
     }
   } catch (error) {
     console.error("🔥 [KNOWLEDGE-BASE] Error updating knowledge base:", error)
@@ -164,6 +216,7 @@ export async function createVoiceSettingsAction(
       userId: data.userId,
       writingStyle: data.writingStyle,
       customWritingStyle: data.customWritingStyle,
+      manualWritingStyleDescription: data.manualWritingStyleDescription,
       twitterHandle: data.twitterHandle,
       twitterAnalyzed: data.twitterAnalyzed || false,
       personaType: data.personaType,
@@ -180,12 +233,13 @@ export async function createVoiceSettingsAction(
     await setDoc(voiceSettingsRef, voiceSettingsData)
     
     const createdDoc = await getDoc(voiceSettingsRef)
+    const serializedData = serializeVoiceSettings(createdDoc.data() as VoiceSettingsDocument)
     console.log("🔥 [VOICE-SETTINGS] Voice settings created successfully")
     
     return {
       isSuccess: true,
       message: "Voice settings created successfully",
-      data: createdDoc.data() as VoiceSettingsDocument
+      data: serializedData
     }
   } catch (error) {
     console.error("🔥 [VOICE-SETTINGS] Error creating voice settings:", error)
@@ -217,7 +271,7 @@ export async function getVoiceSettingsByUserIdAction(
     }
 
     const doc = querySnapshot.docs[0]
-    const voiceSettings = doc.data() as VoiceSettingsDocument
+    const voiceSettings = serializeVoiceSettings(doc.data() as VoiceSettingsDocument)
     
     console.log("🔥 [VOICE-SETTINGS] Voice settings retrieved successfully")
     return {
@@ -252,12 +306,13 @@ export async function updateVoiceSettingsAction(
     await updateDoc(voiceSettingsRef, updateData)
     
     const updatedDoc = await getDoc(voiceSettingsRef)
+    const serializedData = serializeVoiceSettings(updatedDoc.data() as VoiceSettingsDocument)
     console.log("🔥 [VOICE-SETTINGS] Voice settings updated successfully")
     
     return {
       isSuccess: true,
       message: "Voice settings updated successfully",
-      data: updatedDoc.data() as VoiceSettingsDocument
+      data: serializedData
     }
   } catch (error) {
     console.error("🔥 [VOICE-SETTINGS] Error updating voice settings:", error)
@@ -297,12 +352,13 @@ export async function createScrapedContentAction(
     await setDoc(scrapedContentRef, scrapedContentData)
     
     const createdDoc = await getDoc(scrapedContentRef)
+    const serializedData = serializeScrapedContent(createdDoc.data() as ScrapedContentDocument)
     console.log("🔥 [SCRAPED-CONTENT] Scraped content created successfully")
     
     return {
       isSuccess: true,
       message: "Scraped content created successfully",
-      data: createdDoc.data() as ScrapedContentDocument
+      data: serializedData
     }
   } catch (error) {
     console.error("🔥 [SCRAPED-CONTENT] Error creating scraped content:", error)
@@ -324,7 +380,9 @@ export async function getScrapedContentByUserIdAction(
     const q = query(scrapedContentRef, where("userId", "==", userId))
     const querySnapshot = await getDocs(q)
     
-    const scrapedContent = querySnapshot.docs.map(doc => doc.data() as ScrapedContentDocument)
+    const scrapedContent = querySnapshot.docs.map(doc => 
+      serializeScrapedContent(doc.data() as ScrapedContentDocument)
+    )
     
     console.log("🔥 [SCRAPED-CONTENT] Scraped content retrieved successfully:", scrapedContent.length)
     return {
@@ -372,12 +430,13 @@ export async function createTwitterAnalysisAction(
     await setDoc(twitterAnalysisRef, twitterAnalysisData)
     
     const createdDoc = await getDoc(twitterAnalysisRef)
+    const serializedData = serializeTwitterAnalysis(createdDoc.data() as TwitterAnalysisDocument)
     console.log("🔥 [TWITTER-ANALYSIS] Twitter analysis created successfully")
     
     return {
       isSuccess: true,
       message: "Twitter analysis created successfully",
-      data: createdDoc.data() as TwitterAnalysisDocument
+      data: serializedData
     }
   } catch (error) {
     console.error("🔥 [TWITTER-ANALYSIS] Error creating twitter analysis:", error)
@@ -409,7 +468,7 @@ export async function getTwitterAnalysisByUserIdAction(
     }
 
     const doc = querySnapshot.docs[0]
-    const twitterAnalysis = doc.data() as TwitterAnalysisDocument
+    const twitterAnalysis = serializeTwitterAnalysis(doc.data() as TwitterAnalysisDocument)
     
     console.log("🔥 [TWITTER-ANALYSIS] Twitter analysis retrieved successfully")
     return {
