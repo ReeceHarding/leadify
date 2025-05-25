@@ -154,6 +154,7 @@ const POLLING_INTERVAL = 5000 // 5 seconds
 interface DashboardState {
   // Core state
   campaignId: string | null
+  campaignName: string | null
   leads: LeadResult[]
   isLoading: boolean
   error: string | null
@@ -189,6 +190,7 @@ interface DashboardState {
 
 const initialState: DashboardState = {
   campaignId: null,
+  campaignName: null,
   leads: [],
   isLoading: true,
   error: null,
@@ -504,51 +506,35 @@ export default function LeadFinderDashboard() {
             status: latestCampaign.status
           })
 
-          setState(prev => ({
-            ...prev,
-            campaignId: latestCampaign.id,
-            workflowRunning: latestCampaign.status === "running"
-            // isLoading will be handled by the onSnapshot listener effect
-          }))
-          // No explicit fetchLeads() call needed here, onSnapshot effect will trigger
-        } else {
-          addDebugLog("No campaigns found for user.")
-          const profileResult = await getProfileByUserIdAction(user.id)
-          const keywords = profileResult.data?.keywords || []
+          setState(prev => ({ ...prev, campaignId: latestCampaign.id }))
+          addDebugLog("Campaign selected", { campaignId: latestCampaign.id })
 
-          if (profileResult.isSuccess && keywords.length > 0) {
-            addDebugLog(
-              "User has keywords, creating new campaign automatically",
-              {
-                keywords: keywords
-              }
-            )
-            // createAndRunCampaign will set campaignId, triggering the onSnapshot listener
-            await createAndRunCampaign(keywords)
-          } else {
-            addDebugLog("No keywords found, user needs to complete onboarding.")
-            setState(prev => ({
-              ...prev,
-              error:
-                "No keywords found. Please complete onboarding to start generating leads.",
-              isLoading: false // Stop loading as there's nothing to load/listen for yet
+          // Fetch full campaign details to get the name
+          const campaignDetailsResult = await getCampaignByIdAction(latestCampaign.id)
+          if (campaignDetailsResult.isSuccess && campaignDetailsResult.data) {
+            setState(prev => ({ 
+              ...prev, 
+              campaignName: campaignDetailsResult.data.name || null 
             }))
           }
+        } else {
+          addDebugLog("No campaigns found for user")
+          setState(prev => ({ ...prev, isLoading: false }))
         }
       } catch (error) {
-        addDebugLog("Initialization error", {
-          error: error instanceof Error ? error.message : "Unknown error"
-        })
+        const errorMessage =
+          error instanceof Error ? error.message : "Failed to initialize"
+        addDebugLog("Initialization error", { error: errorMessage })
         setState(prev => ({
           ...prev,
-          error: "Failed to initialize dashboard. Please try refreshing.",
-          isLoading: false // Stop loading on error
+          error: errorMessage,
+          isLoading: false
         }))
       }
     }
 
     initialize()
-  }, [userLoaded, user, addDebugLog, createAndRunCampaign]) // Added createAndRunCampaign to dependencies
+  }, [userLoaded, user, addDebugLog])
 
   // Handle Reddit OAuth success
   useEffect(() => {
@@ -1192,6 +1178,76 @@ export default function LeadFinderDashboard() {
 
   const totalPages = Math.ceil(filteredAndSortedLeads.length / ITEMS_PER_PAGE)
 
+  const handleGenerateComments = async () => {
+    if (!state.campaignId) {
+      toast.error("Please select a campaign first")
+      return
+    }
+
+    // Get all leads that don't have comments yet
+    const leadsWithoutComments = state.leads.filter(
+      lead => !lead.microComment && !lead.mediumComment && !lead.verboseComment
+    )
+
+    if (leadsWithoutComments.length === 0) {
+      toast.info("All leads already have comments generated")
+      return
+    }
+
+    setState(prev => ({ ...prev, workflowRunning: true }))
+
+    try {
+      // Generate comments for each lead
+      const generatePromises = leadsWithoutComments.map(async lead => {
+        const profileResult = await getProfileByUserIdAction(user!.id)
+        if (!profileResult.isSuccess || !profileResult.data) {
+          throw new Error("Failed to load profile")
+        }
+
+        // Get website content for comment generation
+        const websiteContent = `${profileResult.data.name || ""} - ${profileResult.data.website || ""}`
+
+        // Use the existing comment generation logic
+        const { scoreThreadAndGenerateThreeTierCommentsAction } = await import(
+          "@/actions/integrations/openai/openai-actions"
+        )
+
+        const result = await scoreThreadAndGenerateThreeTierCommentsAction(
+          lead.postTitle,
+          lead.postContentSnippet,
+          lead.subreddit,
+          websiteContent
+        )
+
+        if (result.isSuccess) {
+          // Save the generated comments to the database
+          await updateGeneratedCommentAction(lead.id, {
+            microComment: result.data.microComment,
+            mediumComment: result.data.mediumComment,
+            verboseComment: result.data.verboseComment
+          })
+        }
+
+        return result
+      })
+
+      const results = await Promise.all(generatePromises)
+      
+      const successCount = results.filter((r: any) => r.isSuccess).length
+      if (successCount > 0) {
+        toast.success(`Generated comments for ${successCount} leads`)
+      }
+
+      // Refresh the leads
+      window.location.reload()
+    } catch (error) {
+      console.error("Error generating comments:", error)
+      toast.error("Failed to generate comments")
+    } finally {
+      setState(prev => ({ ...prev, workflowRunning: false }))
+    }
+  }
+
   // Render loading state
   if (state.isLoading) {
     return (
@@ -1308,20 +1364,14 @@ export default function LeadFinderDashboard() {
       {/* Dashboard Header */}
       <DashboardHeader
         campaignId={state.campaignId}
-        leadsCount={state.leads.length}
-        approvedLeadsCount={
-          state.leads.filter(l => l.status === "queued").length
-        }
-        isPolling={state.pollingEnabled}
-        lastPolledAt={state.lastPolledAt}
-        activeTab={state.activeTab}
-        onTabChange={value =>
-          updateState({ activeTab: value as "all" | "queue" })
-        }
-        workflowProgressError={state.error || undefined}
-        onCompleteOnboardingClick={() => (window.location.href = "/onboarding")}
-        onNewCampaignClick={() => setCreateDialogOpen(true)}
-        workflowRunning={state.workflowRunning}
+        campaignName={state.campaignName || undefined}
+        totalLeads={state.leads.length}
+        queuedLeads={state.leads.filter(l => l.status === "queued").length}
+        postedLeads={state.leads.filter(l => l.status === "posted").length}
+        onCreateCampaign={() => setCreateDialogOpen(true)}
+        onRunWorkflow={manualRunWorkflow}
+        isWorkflowRunning={state.workflowRunning}
+        onGenerateComments={handleGenerateComments}
       />
 
       <div className="grid gap-4">

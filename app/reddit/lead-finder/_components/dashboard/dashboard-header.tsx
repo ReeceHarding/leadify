@@ -11,103 +11,152 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
+import {
+  MessageSquare,
+  TrendingUp,
+  Clock,
+  CheckCircle2,
+  AlertCircle,
+  Play,
+  Plus,
+  Sparkles,
+  ChevronDown,
+  Edit2
+} from "lucide-react";
 
 interface DashboardHeaderProps {
+  campaignName?: string;
   campaignId: string | null;
-  leadsCount: number; // To show in queue tab or for other conditional rendering
-  approvedLeadsCount: number;
-  isPolling: boolean;
-  lastPolledAt: Date | null;
-  activeTab: "all" | "queue";
-  onTabChange: (value: "all" | "queue") => void;
-  workflowProgressError?: string; // For the onboarding button
-  onCompleteOnboardingClick: () => void;
-  onNewCampaignClick: () => void;
-  workflowRunning?: boolean; // Add this prop
+  totalLeads: number;
+  queuedLeads: number;
+  postedLeads: number;
+  onCreateCampaign: () => void;
+  onRunWorkflow: () => void;
+  isWorkflowRunning: boolean;
+  onGenerateComments?: () => void;
 }
 
 export default function DashboardHeader({
+  campaignName,
   campaignId,
-  leadsCount,
-  approvedLeadsCount,
-  isPolling,
-  lastPolledAt,
-  activeTab,
-  onTabChange,
-  workflowProgressError,
-  onCompleteOnboardingClick,
-  onNewCampaignClick,
-  workflowRunning = false
+  totalLeads,
+  queuedLeads,
+  postedLeads,
+  onCreateCampaign,
+  onRunWorkflow,
+  isWorkflowRunning,
+  onGenerateComments
 }: DashboardHeaderProps) {
   return (
-    <div className="mb-6 rounded-lg border bg-white p-4 shadow-sm dark:bg-gray-900">
-      {/* Polling Status Indicator - Show only when workflow is running */}
-      {campaignId && workflowRunning && (
-        <div className="mb-3 flex items-center justify-between rounded-md bg-gray-50 px-3 py-2 text-xs dark:bg-gray-800">
-          <div className="flex items-center gap-2">
-            <div className="size-2 animate-pulse rounded-full bg-green-500" />
-            <span className="text-gray-600 dark:text-gray-400">
-              Finding new leads (real-time updates active)
-            </span>
-          </div>
-          {lastPolledAt && (
-            <span className="text-gray-500 dark:text-gray-500">
-              Last update: {new Date(lastPolledAt).toLocaleTimeString()}
-            </span>
-          )}
-        </div>
-      )}
-
-      <Tabs value={activeTab} onValueChange={onTabChange as any}>
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <TabsList className="grid grid-cols-2 self-start rounded-lg bg-gray-100 p-1 sm:w-auto dark:bg-gray-800">
-            <TabsTrigger
-              value="all"
-              className="rounded-md px-3 py-1.5 text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-gray-100"
-            >
-              All Leads
-            </TabsTrigger>
-            <TabsTrigger
-              value="queue"
-              className="rounded-md px-3 py-1.5 text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-gray-100"
-            >
-              Posting Queue ({approvedLeadsCount})
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Campaign Controls */}
-          <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-            {/* Onboarding button (only show when no keywords error) */}
-            {workflowProgressError?.includes("No keywords found") && (
-              <Button
-                variant="outline"
-                onClick={onCompleteOnboardingClick}
-                className="gap-2 border-orange-500 text-orange-600 hover:bg-orange-50 hover:text-orange-700 dark:border-orange-400 dark:text-orange-400 dark:hover:bg-orange-900/20 dark:hover:text-orange-300"
-              >
-                <Target className="size-4" />
-                Complete Onboarding
-              </Button>
+    <div className="space-y-6">
+      {/* Campaign Header */}
+      <div className="flex items-center justify-between">
+        <div className="space-y-1">
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold">Lead Finder</h1>
+            {campaignId && (
+              <div className="flex items-center gap-2 rounded-lg bg-blue-50 dark:bg-blue-950/30 px-3 py-1.5 border border-blue-200 dark:border-blue-800">
+                <Sparkles className="size-4 text-blue-600 dark:text-blue-400" />
+                <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                  {campaignName || "Untitled Campaign"}
+                </span>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                      <ChevronDown className="size-3" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Campaign Actions</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => toast.info("Campaign editing coming soon!")}>
+                      <Edit2 className="mr-2 size-4" />
+                      Edit Campaign
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={onCreateCampaign}>
+                      <Plus className="mr-2 size-4" />
+                      New Campaign
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             )}
-
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    onClick={onNewCampaignClick}
-                    className="h-9 gap-2 bg-blue-600 text-white shadow-sm hover:bg-blue-700"
-                  >
-                    <RefreshCw className="size-4" />
-                    Find New Leads
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="text-xs">Start a fresh search for Reddit posts matching your keywords</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
           </div>
+          <p className="text-muted-foreground">
+            Find and engage with potential customers on Reddit
+          </p>
         </div>
-      </Tabs>
+        <div className="flex gap-2">
+          {onGenerateComments && (
+            <Button
+              onClick={onGenerateComments}
+              variant="outline"
+              className="gap-2"
+            >
+              <MessageSquare className="size-4" />
+              Generate Comments
+            </Button>
+          )}
+          <Button
+            onClick={onRunWorkflow}
+            disabled={!campaignId || isWorkflowRunning}
+            className="gap-2"
+          >
+            <Play className="size-4" />
+            {isWorkflowRunning ? "Running..." : "Find New Leads"}
+          </Button>
+          <Button
+            onClick={onCreateCampaign}
+            variant="outline"
+            className="gap-2"
+          >
+            <Plus className="size-4" />
+            New Campaign
+          </Button>
+        </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardContent className="flex items-center justify-between p-6">
+            <div className="space-y-1">
+              <p className="text-muted-foreground text-sm">Total Leads</p>
+              <p className="text-2xl font-bold">{totalLeads}</p>
+            </div>
+            <Target className="text-muted-foreground size-8" />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="flex items-center justify-between p-6">
+            <div className="space-y-1">
+              <p className="text-muted-foreground text-sm">In Queue</p>
+              <p className="text-2xl font-bold">{queuedLeads}</p>
+            </div>
+            <Clock className="text-muted-foreground size-8" />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="flex items-center justify-between p-6">
+            <div className="space-y-1">
+              <p className="text-muted-foreground text-sm">Posted</p>
+              <p className="text-2xl font-bold">{postedLeads}</p>
+            </div>
+            <CheckCircle2 className="text-muted-foreground size-8" />
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 } 

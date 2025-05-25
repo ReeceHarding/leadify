@@ -101,10 +101,23 @@ export default async function CampaignSelector() {
       website: profile.website || ""
     })
     
+    // Generate campaign name using AI
+    const { generateCampaignNameAction } = await import("@/actions/lead-generation/campaign-name-actions")
+    
+    const nameResult = await generateCampaignNameAction({
+      keywords: profile.keywords || [],
+      website: profile.website,
+      businessName: profile.name
+    })
+
+    const campaignName = nameResult.isSuccess 
+      ? nameResult.data 
+      : profile.name || "Untitled Campaign"
+    
     const createResult = await createCampaignAction({
       userId,
       keywords: profile.keywords || [],
-      name: profile.name || "Untitled Campaign",
+      name: campaignName,
       website: profile.website || ""
     })
     

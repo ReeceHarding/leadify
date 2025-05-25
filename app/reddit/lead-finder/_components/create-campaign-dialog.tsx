@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -28,7 +28,9 @@ import { Badge } from "@/components/ui/badge"
 import { X, Plus, Loader2, Globe, Search, Target } from "lucide-react"
 import { createCampaignAction } from "@/actions/db/campaign-actions"
 import { runFullLeadGenerationWorkflowAction } from "@/actions/lead-generation/workflow-actions"
+import { generateCampaignNameAction } from "@/actions/lead-generation/campaign-name-actions"
 import { toast } from "sonner"
+import { useUser } from "@clerk/nextjs"
 
 const campaignSchema = z.object({
   name: z
@@ -58,6 +60,8 @@ export default function CreateCampaignDialog({
   const [currentKeyword, setCurrentKeyword] = useState("")
   const [isCreating, setIsCreating] = useState(false)
   const [isRunning, setIsRunning] = useState(false)
+  const [isGeneratingName, setIsGeneratingName] = useState(false)
+  const { user } = useUser()
 
   const form = useForm<CampaignForm>({
     resolver: zodResolver(campaignSchema),
@@ -69,6 +73,34 @@ export default function CreateCampaignDialog({
   })
 
   const keywords = form.watch("keywords")
+  const website = form.watch("website")
+
+  // Auto-generate campaign name when keywords or website change
+  useEffect(() => {
+    const generateName = async () => {
+      if (keywords.length > 0 && website && !form.getValues("name")) {
+        setIsGeneratingName(true)
+        try {
+          const nameResult = await generateCampaignNameAction({
+            keywords,
+            website,
+            businessName: user?.fullName || undefined
+          })
+          
+          if (nameResult.isSuccess) {
+            form.setValue("name", nameResult.data)
+          }
+        } catch (error) {
+          console.error("Error generating campaign name:", error)
+        } finally {
+          setIsGeneratingName(false)
+        }
+      }
+    }
+
+    const timer = setTimeout(generateName, 500) // Debounce
+    return () => clearTimeout(timer)
+  }, [keywords, website, user?.fullName, form])
 
   const addKeyword = () => {
     if (
@@ -96,12 +128,17 @@ export default function CreateCampaignDialog({
   }
 
   const onSubmit = async (data: CampaignForm) => {
+    if (!user?.id) {
+      toast.error("Please sign in to create a campaign")
+      return
+    }
+
     setIsCreating(true)
 
     try {
       // Create campaign
       const campaignResult = await createCampaignAction({
-        userId: "temp-user-id", // TODO: Get from auth context
+        userId: user.id,
         name: data.name,
         website: data.website,
         keywords: data.keywords
@@ -183,15 +220,23 @@ export default function CreateCampaignDialog({
                     Campaign Name
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="e.g., Software Developer Outreach Q1 2024"
-                      {...field}
-                      disabled={isCreating || isRunning}
-                    />
+                    <div className="relative">
+                      <Input
+                        placeholder={isGeneratingName ? "Generating name..." : "e.g., Software Developer Outreach"}
+                        {...field}
+                        disabled={isCreating || isRunning || isGeneratingName}
+                      />
+                      {isGeneratingName && (
+                        <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                          <Loader2 className="size-4 animate-spin text-gray-400" />
+                        </div>
+                      )}
+                    </div>
                   </FormControl>
                   <FormDescription>
-                    Give your campaign a descriptive name for easy
-                    identification.
+                    {isGeneratingName 
+                      ? "AI is generating a campaign name based on your keywords..."
+                      : "Give your campaign a descriptive name or let AI generate one."}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
