@@ -7,6 +7,7 @@ Redirects users to Reddit's authorization page with proper scopes.
 
 import { NextResponse, NextRequest } from "next/server"
 import { auth } from "@clerk/nextjs/server"
+import { cookies } from "next/headers"
 
 export async function GET(request: NextRequest) {
   try {
@@ -20,6 +21,10 @@ export async function GET(request: NextRequest) {
     }
 
     console.log(`🔐 Starting Reddit OAuth flow for user: ${userId}`)
+
+    // Get return URL from query params
+    const searchParams = request.nextUrl.searchParams
+    const returnUrl = searchParams.get("return_url") || "/onboarding"
 
     // Reddit OAuth configuration
     const REDDIT_CLIENT_ID = process.env.REDDIT_CLIENT_ID
@@ -35,10 +40,23 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Generate state parameter for security
-    const state = Buffer.from(
-      JSON.stringify({ userId, timestamp: Date.now() })
-    ).toString("base64")
+    // Generate state parameter for security (include return URL)
+    const stateId = crypto.randomUUID()
+    const stateData = {
+      userId,
+      timestamp: Date.now(),
+      returnUrl,
+      stateId
+    }
+    const state = Buffer.from(JSON.stringify(stateData)).toString("base64")
+    
+    // Store state in cookie for verification
+    const cookieStore = await cookies()
+    cookieStore.set("reddit_oauth_state", state, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 10 * 60 // 10 minutes
+    })
 
     // Reddit OAuth scopes needed for our app
     const scopes = [

@@ -136,6 +136,7 @@ import {
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { usePostHog } from "posthog-js/react"
+import { useSearchParams } from "next/navigation"
 
 // Import newly created types and utils
 import { LeadResult, WorkflowProgress } from "./dashboard/types"
@@ -212,6 +213,7 @@ export default function LeadFinderDashboard() {
   const [state, setState] = useState<DashboardState>(initialState)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const newLeadIds = useRef(new Set<string>())
+  const searchParams = useSearchParams()
   
   // Debug logging
   const addDebugLog = useCallback((message: string, data?: any) => {
@@ -474,6 +476,28 @@ export default function LeadFinderDashboard() {
     
     initialize()
   }, [userLoaded, user, addDebugLog, createAndRunCampaign]) // Added createAndRunCampaign to dependencies
+  
+  // Handle Reddit OAuth success
+  useEffect(() => {
+    const success = searchParams.get("success")
+    const error = searchParams.get("error")
+    
+    if (success === "Reddit authentication successful") {
+      toast.success("Reddit account connected successfully!")
+      // Clear the success parameter from URL
+      const url = new URL(window.location.href)
+      url.searchParams.delete("success")
+      window.history.replaceState({}, "", url)
+    }
+    
+    if (error) {
+      toast.error(`Reddit authentication failed: ${error}`)
+      // Clear the error parameter from URL
+      const url = new URL(window.location.href)
+      url.searchParams.delete("error")
+      window.history.replaceState({}, "", url)
+    }
+  }, [searchParams])
   
   // Manual test data creation
   const createTestData = async () => {
@@ -1252,7 +1276,7 @@ export default function LeadFinderDashboard() {
             <Button
               onClick={() => {
                 updateState({ showRedditAuthDialog: false })
-                window.location.href = "/onboarding"
+                window.location.href = "/api/reddit/auth?return_url=/reddit/lead-finder"
               }}
               className="bg-blue-600 text-white hover:bg-blue-700"
             >

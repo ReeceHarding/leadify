@@ -1,0 +1,40 @@
+// Validate required parameters
+if (!code || !state) {
+  console.error("Missing required OAuth parameters")
+  // Try to get return URL from state if available
+  let returnUrl = "/onboarding"
+  if (state) {
+    try {
+      const stateData = JSON.parse(Buffer.from(state, "base64").toString())
+      returnUrl = stateData.returnUrl || "/onboarding"
+    } catch (e) {
+      console.error("Failed to parse state for error redirect:", e)
+    }
+  }
+  
+  return NextResponse.redirect(
+    new URL(`${returnUrl}?error=Invalid+OAuth+response`, request.url)
+  )
+}
+
+// Exchange code for tokens and save to user profile
+const result = await exchangeRedditCodeForTokensUserAction(code, state)
+
+if (!result.isSuccess) {
+  console.error("Token exchange failed:", result.message)
+  // Parse return URL from state for error redirect
+  let returnUrl = "/onboarding"
+  try {
+    const stateData = JSON.parse(Buffer.from(state, "base64").toString())
+    returnUrl = stateData.returnUrl || "/onboarding"
+  } catch (error) {
+    console.error("Failed to parse state parameter:", error)
+  }
+  
+  return NextResponse.redirect(
+    new URL(
+      `${returnUrl}?error=${encodeURIComponent(result.message)}`,
+      request.url
+    )
+  )
+} 
