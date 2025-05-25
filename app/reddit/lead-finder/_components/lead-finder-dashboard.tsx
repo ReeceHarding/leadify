@@ -1320,12 +1320,6 @@ export default function LeadFinderDashboard() {
         }
         workflowProgressError={state.error || undefined}
         onCompleteOnboardingClick={() => (window.location.href = "/onboarding")}
-        selectedCommentLength={state.selectedLength}
-        onCommentLengthChange={value =>
-          updateState({
-            selectedLength: value as "micro" | "medium" | "verbose"
-          })
-        }
         onNewCampaignClick={() => setCreateDialogOpen(true)}
         workflowRunning={state.workflowRunning}
       />
