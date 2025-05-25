@@ -12,10 +12,10 @@ import {
   updateCampaignAction,
   getCampaignByIdAction
 } from "@/actions/db/campaign-actions"
-import { scrapeWebsiteAction } from "@/actions/integrations/firecrawl-actions"
-import { searchMultipleKeywordsAction } from "@/actions/integrations/google-search-actions"
-import { fetchMultipleRedditThreadsAction } from "@/actions/integrations/reddit-actions"
-import { batchScoreThreadsWithThreeTierCommentsAction } from "@/actions/integrations/openai-actions"
+import { scrapeWebsiteAction } from "@/actions/integrations/firecrawl/website-scraping-actions"
+import { searchMultipleKeywordsAction } from "@/actions/integrations/google/google-search-actions"
+import { fetchMultipleRedditThreadsAction } from "@/actions/integrations/reddit/reddit-actions"
+import { batchScoreThreadsWithThreeTierCommentsAction } from "@/actions/integrations/openai/openai-actions"
 import {
   LEAD_COLLECTIONS,
   CreateSearchResultData,
@@ -33,7 +33,7 @@ import {
 } from "firebase/firestore"
 import { removeUndefinedValues } from "@/lib/firebase-utils"
 import { createGeneratedCommentAction } from "@/actions/db/lead-generation-actions"
-import { scoreThreadAndGenerateThreeTierCommentsAction } from "@/actions/integrations/openai-actions"
+import { scoreThreadAndGenerateThreeTierCommentsAction } from "@/actions/integrations/openai/openai-actions"
 
 export interface WorkflowStepResult {
   step: string
@@ -264,7 +264,7 @@ export async function runFullLeadGenerationWorkflowAction(
         console.log(`🔍 [WORKFLOW] Thread ID: ${threadToFetch.threadId}, Subreddit: ${threadToFetch.subreddit || 'unknown'}, Keyword: ${threadToFetch.keyword}`)
         
         // Fetch individual thread
-        const { fetchRedditThreadAction } = await import("@/actions/integrations/reddit-actions")
+        const { fetchRedditThreadAction } = await import("@/actions/integrations/reddit/reddit-actions")
         const fetchResult = await fetchRedditThreadAction(threadToFetch.threadId, threadToFetch.subreddit)
         
         if (!fetchResult.isSuccess) {
@@ -433,7 +433,7 @@ export async function testAllIntegrationsAction(): Promise<
     // Test Firecrawl
     try {
       const { testFirecrawlConnectionAction } = await import(
-        "@/actions/integrations/firecrawl-actions"
+        "@/actions/integrations/firecrawl/firecrawl-actions"
       )
       const firecrawlTest = await testFirecrawlConnectionAction()
       results.firecrawl = firecrawlTest.isSuccess
@@ -444,7 +444,7 @@ export async function testAllIntegrationsAction(): Promise<
     // Test Google Search
     try {
       const { testGoogleSearchConnectionAction } = await import(
-        "@/actions/integrations/google-search-actions"
+        "@/actions/integrations/google/google-search-actions"
       )
       const googleTest = await testGoogleSearchConnectionAction()
       results.googleSearch = googleTest.isSuccess
@@ -455,7 +455,7 @@ export async function testAllIntegrationsAction(): Promise<
     // Test Reddit
     try {
       const { testRedditConnectionAction } = await import(
-        "@/actions/integrations/reddit-actions"
+        "@/actions/integrations/reddit/reddit-actions"
       )
       const redditTest = await testRedditConnectionAction()
       results.reddit = redditTest.isSuccess
@@ -466,7 +466,7 @@ export async function testAllIntegrationsAction(): Promise<
     // Test OpenAI
     try {
       const { testOpenAIConnectionAction } = await import(
-        "@/actions/integrations/openai-actions"
+        "@/actions/integrations/openai/openai-actions"
       )
       const openaiTest = await testOpenAIConnectionAction()
       results.openai = openaiTest.isSuccess

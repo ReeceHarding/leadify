@@ -3,8 +3,9 @@
 import { useState } from "react"
 import {
   testRedditConnectionAction,
-  fetchRedditThreadAction
-} from "@/actions/integrations/reddit-actions"
+  fetchRedditThreadAction,
+  fetchRedditCommentsAction
+} from "@/actions/integrations/reddit/reddit-actions"
 import { Button } from "@/components/ui/button"
 import {
   Card,

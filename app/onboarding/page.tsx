@@ -22,7 +22,7 @@ import {
   updateProfileAction,
   getProfileByUserIdAction
 } from "@/actions/db/profiles-actions"
-import { getRedditTokensFromProfileAction } from "@/actions/integrations/reddit-oauth-user-actions"
+import { getRedditTokensFromProfileAction } from "@/actions/integrations/reddit/reddit-oauth-user-actions"
 
 type OnboardingStep = "profile" | "website" | "keywords" | "reddit" | "complete"
 
@@ -391,7 +391,7 @@ export default function OnboardingPage() {
 
   const completeOnboarding = async () => {
     console.log("🔍 [ONBOARDING] completeOnboarding() called")
-    console.log("�� [ONBOARDING] Final onboardingData:", onboardingData)
+    console.log("🔍 [ONBOARDING] Final onboardingData:", onboardingData)
     console.log("🔍 [ONBOARDING] Final keywords:", onboardingData.keywords)
     console.log(
       "🔍 [ONBOARDING] Final keywords length:",

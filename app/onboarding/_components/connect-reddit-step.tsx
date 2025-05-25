@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { ArrowLeft, Loader2, CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { generateRedditAuthUrlAction } from "@/actions/integrations/reddit-oauth-actions"
+import { generateRedditAuthUrlAction } from "@/actions/integrations/reddit/reddit-oauth-actions"
 
 interface ConnectRedditStepProps {
   data: {

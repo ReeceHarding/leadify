@@ -11,7 +11,7 @@ import {
   doc,
   Timestamp
 } from "firebase/firestore"
-import { postCommentAndUpdateStatusAction } from "@/actions/integrations/reddit-posting-actions"
+import { postCommentAndUpdateStatusAction } from "@/actions/integrations/reddit/reddit-posting-actions"
 import { POSTING_QUEUE_COLLECTIONS } from "@/db/firestore/posting-queue-collections"
 
 // This API route should be called by a cron job every minute

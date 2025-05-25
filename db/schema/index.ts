@@ -8,3 +8,4 @@ Exports all database schema types and interfaces.
 export * from "../firestore/collections"
 export * from "../firestore/lead-generation-collections"
 export * from "../firestore/posting-queue-collections"
+export * from "../firestore/personalization-collections"

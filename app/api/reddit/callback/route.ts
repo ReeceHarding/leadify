@@ -1,7 +1,7 @@
 "use server"
 
 import { NextRequest, NextResponse } from "next/server"
-import { exchangeRedditCodeForTokensUserAction } from "@/actions/integrations/reddit-oauth-user-actions"
+import { exchangeRedditCodeForTokensUserAction } from "@/actions/integrations/reddit/reddit-oauth-user-actions"
 
 export async function GET(request: NextRequest) {
   try {

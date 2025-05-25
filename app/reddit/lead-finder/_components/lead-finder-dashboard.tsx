@@ -103,16 +103,15 @@ import {
   getCampaignByIdAction
 } from "@/actions/db/campaign-actions"
 import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
-import { regenerateCommentsWithToneAction } from "@/actions/integrations/openai-actions"
+import { regenerateCommentsWithToneAction } from "@/actions/integrations/openai/openai-actions"
 import {
   postCommentAndUpdateStatusAction,
   testRedditPostingAction
-} from "@/actions/integrations/reddit-posting-actions"
+} from "@/actions/integrations/reddit/reddit-posting-actions"
 import {
-  processPostWithRateLimit,
   queuePostsForAsyncProcessing,
   getPostingQueueStatus
-} from "@/actions/integrations/reddit-posting-queue"
+} from "@/actions/integrations/reddit/reddit-posting-queue"
 import { useUser } from "@clerk/nextjs"
 import {
   Timestamp,

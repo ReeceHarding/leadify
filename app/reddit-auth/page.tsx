@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { generateRedditAuthUrlAction } from "@/actions/integrations/reddit-oauth-actions"
+import { generateRedditAuthUrlAction } from "@/actions/integrations/reddit/reddit-oauth-actions"
 import { Button } from "@/components/ui/button"
 import {
   Card,

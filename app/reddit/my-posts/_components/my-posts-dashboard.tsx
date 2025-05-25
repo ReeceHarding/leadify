@@ -34,11 +34,11 @@ import {
 import { toast } from "sonner"
 import { getGeneratedCommentsByUserAction } from "@/actions/db/lead-generation-actions"
 import { getCampaignByIdAction } from "@/actions/db/campaign-actions"
-import { generateReplyToCommentAction } from "@/actions/integrations/openai-actions"
-import { postCommentToRedditAction } from "@/actions/integrations/reddit-posting-actions"
+import { generateReplyToCommentAction } from "@/actions/integrations/openai/openai-actions"
+import { postCommentToRedditAction } from "@/actions/integrations/reddit/reddit-posting-actions"
 import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
 import type { SerializedGeneratedCommentDocument } from "@/actions/db/lead-generation-actions"
-import { fetchRedditCommentRepliesAction } from "@/actions/integrations/reddit-actions"
+import { fetchRedditCommentRepliesAction } from "@/actions/integrations/reddit/reddit-actions"
 
 interface RedditComment {
   id: string
@@ -394,7 +394,7 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
 
                   {/* Original Post Context */}
                   <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
-                    <div className="text-blue-700 dark:text-blue-300 mb-2 flex items-center gap-2 text-sm font-medium">
+                    <div className="mb-2 flex items-center gap-2 text-sm font-medium text-blue-700 dark:text-blue-300">
                       <User className="size-3" />
                       <span>Original Post by u/{post.postAuthor}</span>
                     </div>
@@ -406,7 +406,7 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
 
                   {/* Your Comment */}
                   <div className="space-y-2">
-                    <h4 className="text-sm font-semibold flex items-center gap-2">
+                    <h4 className="flex items-center gap-2 text-sm font-semibold">
                       <MessageSquare className="size-3" />
                       Your Comment
                     </h4>
@@ -417,7 +417,7 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
 
                   {/* Reddit Replies */}
                   <div className="space-y-2">
-                    <h4 className="text-sm font-semibold flex items-center gap-2">
+                    <h4 className="flex items-center gap-2 text-sm font-semibold">
                       <MessageSquare className="size-3" />
                       Replies to Your Comment
                     </h4>
@@ -434,7 +434,7 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
                         {post.redditReplies.map(reply => (
                           <div key={reply.id} className="rounded-lg border border-orange-200 bg-orange-50 p-4 dark:border-orange-800 dark:bg-orange-900/20">
                             <div className="mb-2 flex items-center justify-between">
-                              <div className="text-orange-700 dark:text-orange-300 flex items-center gap-2 text-sm font-medium">
+                              <div className="flex items-center gap-2 text-sm font-medium text-orange-700 dark:text-orange-300">
                                 <User className="size-3" />
                                 <span>u/{reply.author} replied</span>
                                 <span>•</span>

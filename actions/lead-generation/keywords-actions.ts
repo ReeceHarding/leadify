@@ -3,7 +3,7 @@
 import { ActionState } from "@/types"
 import { openai } from "@ai-sdk/openai"
 import { generateText } from "ai"
-import { scrapeWebsiteAction } from "@/actions/integrations/firecrawl-actions"
+import { scrapeWebsiteAction } from "@/actions/integrations/firecrawl/website-scraping-actions"
 
 interface GenerateKeywordsData {
   website: string

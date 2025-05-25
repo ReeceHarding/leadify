@@ -30,7 +30,7 @@ import {
   deleteField,
   writeBatch
 } from "firebase/firestore"
-import { clearRedditTokensAction } from "../integrations/reddit-oauth-actions"
+import { clearRedditTokensAction } from "../integrations/reddit/reddit-oauth-actions"
 import { LEAD_COLLECTIONS } from "@/db/schema"
 
 // Create a serialized version of ProfileDocument that can be passed to client components

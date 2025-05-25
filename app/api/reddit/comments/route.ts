@@ -2,7 +2,7 @@
 
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
-import { fetchRedditCommentsAction } from "@/actions/integrations/reddit-actions"
+import { fetchRedditCommentsAction } from "@/actions/integrations/reddit/reddit-actions"
 
 export async function GET(request: Request) {
   try {

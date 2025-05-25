@@ -31,7 +31,7 @@ import {
   Award,
   Sparkles
 } from "lucide-react"
-import { fetchRedditThreadAction } from "@/actions/integrations/reddit-actions"
+import { fetchRedditThreadAction } from "@/actions/integrations/reddit/reddit-actions"
 import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
 
