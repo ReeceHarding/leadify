@@ -1,16 +1,35 @@
-[2025-05-25T17:14:34.058Z] ================================================================================
-[2025-05-25T17:14:34.058Z] NEW DEV SESSION STARTED: 2025-05-25T17:14:34.058Z
-[2025-05-25T17:14:34.058Z] ================================================================================
-[2025-05-25T17:14:34.058Z] STEP: Killing processes on port 3000
-[2025-05-25T17:14:34.137Z] ✅ Killed process 33949 on port 3000
-[2025-05-25T17:14:34.137Z] ✅ Killed process 33985 on port 3000
-[2025-05-25T17:14:34.401Z] NEXTJS_CLOSE: Next.js dev server stopped with exit code: 0
-[2025-05-25T17:14:34.636Z] STEP: Starting Next.js development server
-[2025-05-25T17:14:35.531Z] NEXTJS_STDOUT: ▲ Next.js 15.3.2
-[2025-05-25T17:14:35.531Z] NEXTJS_STDOUT: - Local:        http://localhost:3000
-[2025-05-25T17:14:35.531Z] NEXTJS_STDOUT: - Network:      http://100.110.212.88:3000
-[2025-05-25T17:14:35.531Z] NEXTJS_STDOUT: - Environments: .env.local
-[2025-05-25T17:14:35.531Z] NEXTJS_STDOUT: ✓ Starting...
-[2025-05-25T17:14:36.639Z] NEXTJS_STDOUT: ✓ Ready in 1179ms
-[2025-05-25T17:22:40.464Z] NEXTJS_STDOUT: Reload env: .env.local
-[2025-05-25T17:23:35.768Z] NEXTJS_STDOUT: Reload env: .env.local
+[2025-05-25T17:25:36.995Z] ================================================================================
+[2025-05-25T17:25:36.995Z] NEW DEV SESSION STARTED: 2025-05-25T17:25:36.995Z
+[2025-05-25T17:25:36.995Z] ================================================================================
+[2025-05-25T17:25:36.995Z] STEP: Killing processes on port 3000
+[2025-05-25T17:25:37.036Z] ✅ Killed process 53341 on port 3000
+[2025-05-25T17:25:37.062Z] NEXTJS_CLOSE: Next.js dev server stopped with exit code: 0
+[2025-05-25T17:25:37.535Z] STEP: Starting Next.js development server
+[2025-05-25T17:25:38.353Z] NEXTJS_STDOUT: ▲ Next.js 15.3.2
+[2025-05-25T17:25:38.353Z] NEXTJS_STDOUT: - Local:        http://localhost:3000
+[2025-05-25T17:25:38.353Z] NEXTJS_STDOUT: - Network:      http://100.110.212.88:3000
+[2025-05-25T17:25:38.354Z] NEXTJS_STDOUT: - Environments: .env.local
+[2025-05-25T17:25:38.354Z] NEXTJS_STDOUT: ✓ Starting...
+[2025-05-25T17:25:39.388Z] NEXTJS_STDOUT: ✓ Ready in 1100ms
+[2025-05-25T17:25:48.205Z] NEXTJS_STDOUT: ✓ Compiled /middleware in 179ms (269 modules)
+[2025-05-25T17:25:48.278Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/api/queue/process-warmup
+[2025-05-25T17:25:48.278Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /api/queue/process-warmup
+[2025-05-25T17:25:48.278Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth userId: null
+[2025-05-25T17:25:48.278Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Is protected route: true
+[2025-05-25T17:25:48.784Z] NEXTJS_STDOUT: ○ Compiling /_not-found ...
+[2025-05-25T17:25:49.223Z] NEXTJS_STDERR: <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (121kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+[2025-05-25T17:25:50.993Z] NEXTJS_STDOUT: ✓ Compiled /_not-found in 2.7s (1539 modules)
+[2025-05-25T17:25:51.732Z] NEXTJS_STDOUT: POST /api/queue/process-warmup 404 in 3451ms
+[2025-05-25T17:25:51.734Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/api/queue/check-warmup-comments
+[2025-05-25T17:25:51.734Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /api/queue/check-warmup-comments
+[2025-05-25T17:25:51.734Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth userId: null
+[2025-05-25T17:25:51.734Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Is protected route: true
+[2025-05-25T17:25:52.231Z] NEXTJS_STDOUT: ✓ Compiled in 1209ms (1525 modules)
+[2025-05-25T17:25:52.384Z] NEXTJS_STDOUT: POST /api/queue/check-warmup-comments 404 in 647ms
+[2025-05-25T17:25:58.553Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/
+[2025-05-25T17:25:58.553Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /
+[2025-05-25T17:25:58.553Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth userId: null
+[2025-05-25T17:25:58.553Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Is protected route: false
+[2025-05-25T17:25:59.059Z] NEXTJS_STDOUT: ○ Compiling / ...
+[2025-05-25T17:25:59.796Z] NEXTJS_STDOUT: ✓ Compiled / in 1239ms (2506 modules)
+[2025-05-25T17:26:00.243Z] NEXTJS_STDOUT: GET / 200 in 1689ms
