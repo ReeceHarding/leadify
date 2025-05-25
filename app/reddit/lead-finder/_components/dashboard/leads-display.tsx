@@ -161,7 +161,7 @@ export default function LeadsDisplay({
 
       {/* Results Grid or Empty State */}
       {filteredAndSortedLeads.length > 0 ? (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 2xl:grid-cols-3">
+        <div className="mx-auto max-w-4xl space-y-4">
           {paginatedLeads.map(lead => (
             <LeadCard
               key={lead.id}

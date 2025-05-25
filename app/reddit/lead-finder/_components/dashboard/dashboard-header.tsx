@@ -37,7 +37,7 @@ export default function DashboardHeader({
   onNewCampaignClick
 }: DashboardHeaderProps) {
   return (
-    <div className="bg-card mb-6 rounded-lg border p-4 shadow-sm dark:border-gray-700">
+    <div className="mb-6 rounded-lg border bg-white p-4 shadow-sm dark:bg-gray-900">
       {/* Polling Status Indicator - Show only if a campaign is active */}
       {campaignId && (
         <div className="mb-3 flex items-center justify-between rounded-md bg-gray-50 px-3 py-2 text-xs dark:bg-gray-800">
@@ -64,13 +64,13 @@ export default function DashboardHeader({
           <TabsList className="grid grid-cols-2 self-start rounded-lg bg-gray-100 p-1 sm:w-auto dark:bg-gray-800">
             <TabsTrigger
               value="all"
-              className="data-[state=active]:bg-background data-[state=active]:text-foreground rounded-md px-3 py-1.5 text-sm font-medium data-[state=active]:shadow-sm dark:data-[state=active]:bg-gray-700"
+              className="rounded-md px-3 py-1.5 text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-gray-100"
             >
               All Leads
             </TabsTrigger>
             <TabsTrigger
               value="queue"
-              className="data-[state=active]:bg-background data-[state=active]:text-foreground rounded-md px-3 py-1.5 text-sm font-medium data-[state=active]:shadow-sm dark:data-[state=active]:bg-gray-700"
+              className="rounded-md px-3 py-1.5 text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-gray-100"
             >
               Queue ({approvedLeadsCount})
             </TabsTrigger>
@@ -91,7 +91,7 @@ export default function DashboardHeader({
             )}
 
             <Select value={selectedCommentLength} onValueChange={onCommentLengthChange as any}>
-              <SelectTrigger className="h-9 w-[130px] rounded-md border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-700">
+              <SelectTrigger className="h-9 w-[130px] rounded-md border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-800">
                 <SelectValue placeholder="Comment Length" />
               </SelectTrigger>
               <SelectContent>
@@ -102,7 +102,7 @@ export default function DashboardHeader({
             </Select>
             <Button
               onClick={onNewCampaignClick}
-              className="h-9 gap-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md transition-all hover:from-blue-600 hover:to-blue-700 hover:shadow-lg"
+              className="h-9 gap-2 bg-blue-600 text-white shadow-sm hover:bg-blue-700"
             >
               <Plus className="size-4" />
               New Campaign

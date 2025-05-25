@@ -28,15 +28,14 @@ export default function ToneCustomizer({
   disabled
 }: ToneCustomizerProps) {
   return (
-    <Card className="overflow-hidden shadow-lg dark:border-gray-700">
-      <CardHeader className="border-b bg-gray-50/50 p-4 dark:border-gray-700 dark:bg-gray-800/50">
-        <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-800 dark:text-gray-100">
-          <Sparkles className="size-5 text-purple-500" />
+    <Card className="overflow-hidden border shadow-sm">
+      <CardHeader className="border-b bg-gray-50/30 p-4 dark:bg-gray-900/30">
+        <CardTitle className="flex items-center gap-2 text-base font-semibold">
+          <Sparkles className="size-4 text-blue-500" />
           Customize Comment Tone
         </CardTitle>
-        <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
-          Refine the tone of all generated comments below based on your brand's
-          voice or specific instructions.
+        <CardDescription className="text-sm">
+          Refine all comments below with your brand's voice
         </CardDescription>
       </CardHeader>
       <CardContent className="p-4">
@@ -50,16 +49,16 @@ export default function ToneCustomizer({
                 onRegenerateAll();
               }
             }}
-            className="grow rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:focus:border-blue-400"
+            className="grow rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-900 dark:focus:border-blue-400"
             disabled={disabled || isRegeneratingAll}
           />
           <Button
             onClick={onRegenerateAll}
             disabled={disabled || isRegeneratingAll || !toneInstruction.trim()}
-            className="w-full gap-2 rounded-md bg-purple-600 text-white shadow-md transition-all hover:bg-purple-700 hover:shadow-lg disabled:opacity-70 sm:w-auto"
+            className="w-full gap-2 bg-blue-600 text-white shadow-sm hover:bg-blue-700 disabled:opacity-50 sm:w-auto"
           >
             {isRegeneratingAll ? (
-              <Loader2 className="mr-2 size-4 animate-spin" />
+              <Loader2 className="mr-1 size-4 animate-spin" />
             ) : (
               <RefreshCw className="size-4" />
             )}

@@ -14,6 +14,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
   ExternalLink,
   Edit2,
   Save,
@@ -27,7 +32,11 @@ import {
   Sparkles,
   Copy,
   Check,
-  Hash
+  Hash,
+  ChevronDown,
+  ChevronRight,
+  X,
+  PlusCircle
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -58,22 +67,11 @@ export default function LeadCard({
 }: LeadCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedComment, setEditedComment] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
-  const [showPostDetail, setShowPostDetail] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showPostDetail, setShowPostDetail] = useState(false);
+  const [isAIAnalysisOpen, setIsAIAnalysisOpen] = useState(false);
 
-  const getDisplayComment = () => {
-    switch (selectedLength) {
-      case "micro":
-        return lead.microComment;
-      case "verbose":
-        return lead.verboseComment;
-      default:
-        return lead.mediumComment;
-    }
-  };
-
-  const currentComment = getDisplayComment();
+  const currentComment = lead[`${selectedLength}Comment`] as string || lead.microComment;
 
   const handleStartEdit = () => {
     setEditedComment(currentComment);
@@ -81,21 +79,10 @@ export default function LeadCard({
   };
 
   const handleSaveEdit = async () => {
-    if (!editedComment.trim()) {
-      toast.error("Comment cannot be empty");
-      return;
-    }
-
-    setIsSaving(true);
-    try {
+    if (editedComment.trim() && editedComment !== currentComment) {
       await onEdit(lead.id, editedComment);
-      setIsEditing(false);
-      toast.success("Comment updated successfully");
-    } catch (error) {
-      toast.error("Failed to save comment");
-    } finally {
-      setIsSaving(false);
     }
+    setIsEditing(false);
   };
 
   const handleCancelEdit = () => {
@@ -104,225 +91,230 @@ export default function LeadCard({
   };
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(currentComment);
-    setCopied(true);
-    toast.success("Comment copied to clipboard");
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(currentComment);
+      setCopied(true);
+      toast.success("Comment copied to clipboard");
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      toast.error("Failed to copy comment");
+    }
   };
 
-  const getScoreBadgeColor = (score: number) => {
-    if (score >= 80) return "bg-green-500/10 text-green-500 border-green-500/20";
-    if (score >= 70) return "bg-yellow-500/10 text-yellow-500 border-yellow-500/20";
-    if (score >= 50) return "bg-orange-500/10 text-orange-500 border-orange-500/20";
-    return "bg-red-500/10 text-red-500 border-red-500/20";
+  const getMatchColor = (score: number) => {
+    if (score >= 80) return "text-green-600 bg-green-50 border-green-200 dark:text-green-400 dark:bg-green-950 dark:border-green-800";
+    if (score >= 60) return "text-amber-600 bg-amber-50 border-amber-200 dark:text-amber-400 dark:bg-amber-950 dark:border-amber-800";
+    return "text-gray-600 bg-gray-50 border-gray-200 dark:text-gray-400 dark:bg-gray-950 dark:border-gray-800";
   };
 
   const getStatusBadge = () => {
     switch (lead.status) {
       case "posted":
-        return <Badge variant="outline" className="border-green-500/20 bg-green-500/10 text-green-500">Posted</Badge>
+        return <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">Posted</Badge>;
       case "queued":
-        return <Badge variant="outline" className="border-blue-500/20 bg-blue-500/10 text-blue-500">Queued</Badge>
+        return <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">In Queue</Badge>;
       case "rejected":
-        return <Badge variant="outline" className="border-red-500/20 bg-red-500/10 text-red-500">Rejected</Badge>
+        return <Badge variant="destructive">Rejected</Badge>;
       default:
-        return <Badge variant="outline" className="border-gray-500/20 bg-gray-500/10 text-gray-500">New</Badge>
+        return null;
     }
+  };
+
+  // Format the timeAgo to show actual time
+  const formatTimeAgo = () => {
+    // If we have createdAt ISO string, use it to show the real time
+    if (lead.createdAt) {
+      const date = new Date(lead.createdAt);
+      const now = new Date();
+      const diffMs = now.getTime() - date.getTime();
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+      const diffDays = Math.floor(diffHours / 24);
+      
+      if (diffHours < 1) {
+        const diffMinutes = Math.floor(diffMs / (1000 * 60));
+        return `${diffMinutes}m ago`;
+      } else if (diffDays < 1) {
+        return `${diffHours}h ago`;
+      } else {
+        return `${diffDays}d ago`;
+      }
+    }
+    return lead.timeAgo;
   };
 
   return (
     <>
-      <Card className="group overflow-hidden border-gray-200 transition-all duration-300 hover:shadow-lg dark:border-gray-800">
-        <CardHeader className="pb-4">
+      <Card className="overflow-hidden transition-all hover:shadow-lg">
+        <CardContent className="space-y-4 p-6">
+          {/* Header with match score and status */}
           <div className="flex items-start justify-between gap-4">
-            <div className="flex-1 space-y-2">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="outline" className="text-xs">
-                  r/{lead.subreddit}
-                </Badge>
-                {getStatusBadge()}
-                <Badge variant="outline" className={cn("text-xs", getScoreBadgeColor(lead.relevanceScore))}>
-                  <TrendingUp className="mr-1 size-3" />
-                  {lead.relevanceScore}% Match
-                </Badge>
-                {lead.keyword && (
-                  <Badge variant="outline" className="text-xs">
-                    <Hash className="mr-1 size-3" />
-                    {lead.keyword}
-                  </Badge>
-                )}
-              </div>
-              
-              <CardTitle className="line-clamp-2 pr-2 text-lg">
-                {lead.postTitle}
-              </CardTitle>
-              
-              <div className="text-muted-foreground flex items-center gap-4 text-sm">
-                <div className="flex items-center gap-1">
-                  <User className="size-3" />
-                  <span>u/{lead.postAuthor}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <ThumbsUp className="size-3" />
-                  <span>{lead.postScore || 0}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Clock className="size-3" />
-                  <span>{lead.timeAgo}</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setShowPostDetail(true)}
-                className="hover:bg-gray-100 dark:hover:bg-gray-800"
+            <div className="flex items-center gap-3">
+              <Badge 
+                variant="outline" 
+                className={cn("px-3 py-1 text-sm font-semibold", getMatchColor(lead.relevanceScore))}
               >
-                <Eye className="size-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => window.open(lead.postUrl, "_blank")}
-                className="hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                <ExternalLink className="size-4" />
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-
-        <CardContent className="space-y-4">
-          {/* Score Rationale */}
-          <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-900/50">
-            <div className="flex items-start gap-2">
-              <Sparkles className="mt-0.5 size-4 shrink-0 text-yellow-500" />
-              <div className="flex-1">
-                <p className="mb-1 text-sm font-medium">AI Analysis</p>
-                <p className="text-muted-foreground text-sm">{lead.reasoning}</p>
-              </div>
+                {lead.relevanceScore}% Match
+              </Badge>
+              {getStatusBadge()}
             </div>
           </div>
 
-          <Separator />
+          {/* Post Title */}
+          <h3 className="line-clamp-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
+            {lead.postTitle}
+          </h3>
 
-          {/* Generated Comment Section */}
+          {/* Generated Comment */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h4 className="flex items-center gap-2 text-sm font-medium">
-                <MessageSquare className="size-4" />
-                Generated Comment ({selectedLength})
-              </h4>
-              <div className="flex gap-2">
-                {!isEditing && (
-                  <>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleCopy}
-                      className="h-8"
-                    >
-                      {copied ? (
-                        <Check className="mr-1 size-3" />
-                      ) : (
-                        <Copy className="mr-1 size-3" />
-                      )}
-                      Copy
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleStartEdit}
-                      className="h-8"
-                    >
-                      <Edit2 className="mr-1 size-3" />
-                      Edit
-                    </Button>
-                  </>
-                )}
-              </div>
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">AI Generated Comment</p>
+              {!isEditing && (
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleCopy}
+                    className="h-7 px-2 text-xs"
+                  >
+                    {copied ? (
+                      <Check className="size-3" />
+                    ) : (
+                      <Copy className="size-3" />
+                    )}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleStartEdit}
+                    className="h-7 px-2 text-xs"
+                  >
+                    <Edit2 className="size-3" />
+                  </Button>
+                </div>
+              )}
             </div>
 
             {isEditing ? (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <Textarea
                   value={editedComment}
                   onChange={(e) => setEditedComment(e.target.value)}
-                  className="min-h-[120px] resize-none"
-                  placeholder="Edit your comment..."
+                  className="min-h-[100px] resize-none"
+                  autoFocus
                 />
-                <div className="flex justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleCancelEdit}
-                    disabled={isSaving}
-                  >
-                    Cancel
+                <div className="flex gap-2">
+                  <Button size="sm" onClick={handleSaveEdit}>
+                    <Save className="mr-1 size-3" />
+                    Save
                   </Button>
-                  <Button
-                    size="sm"
-                    onClick={handleSaveEdit}
-                    disabled={isSaving}
-                  >
-                    {isSaving ? (
-                      <>
-                        <Save className="mr-1 size-3 animate-pulse" />
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="mr-1 size-3" />
-                        Save
-                      </>
-                    )}
+                  <Button size="sm" variant="outline" onClick={handleCancelEdit}>
+                    <X className="mr-1 size-3" />
+                    Cancel
                   </Button>
                 </div>
               </div>
             ) : (
               <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-900/50">
-                <p className="whitespace-pre-wrap text-sm">{currentComment}</p>
+                <p className="whitespace-pre-wrap text-sm leading-relaxed">
+                  {currentComment}
+                </p>
               </div>
             )}
           </div>
 
-          <Separator />
-
-          {/* Action Buttons */}
-          <div className="flex justify-end gap-2">
-            {onViewComments && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onViewComments(lead)}
-                className="flex-1 sm:flex-initial"
+          {/* Expandable AI Analysis */}
+          <Collapsible open={isAIAnalysisOpen} onOpenChange={setIsAIAnalysisOpen}>
+            <CollapsibleTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="w-full justify-between text-xs text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
               >
-                <MessageSquare className="mr-2 size-4" />
-                View Context
+                <span className="flex items-center gap-2">
+                  <Sparkles className="size-3" />
+                  AI Analysis
+                </span>
+                {isAIAnalysisOpen ? (
+                  <ChevronDown className="size-3" />
+                ) : (
+                  <ChevronRight className="size-3" />
+                )}
               </Button>
-            )}
-            
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-2">
+              <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-900/50">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {lead.reasoning}
+                </p>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+
+          {/* Meta information */}
+          <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+            <span>r/{lead.subreddit}</span>
+            <span>•</span>
+            <span>u/{lead.postAuthor}</span>
+            <span>•</span>
+            <span className="flex items-center gap-1">
+              <ThumbsUp className="size-3" />
+              {lead.postScore || 0}
+            </span>
+            <span>•</span>
+            <span>{formatTimeAgo()}</span>
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex items-center justify-between gap-3 pt-2">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => onQueue(lead)}
-              disabled={isQueueing || lead.status === "queued" || lead.status === "posted"}
-              className="flex-1 sm:flex-initial"
+              onClick={() => setShowPostDetail(true)}
+              className="flex-1"
             >
-              <Clock className="mr-2 size-4" />
-              {isQueueing ? "Adding..." : "Add to Queue"}
+              <Eye className="mr-2 size-4" />
+              View Context
             </Button>
+            
+            {lead.status !== "posted" && lead.status !== "queued" && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onQueue(lead)}
+                disabled={isQueueing}
+                className="flex-1"
+              >
+                {isQueueing ? (
+                  <Clock className="mr-2 size-4 animate-spin" />
+                ) : (
+                  <PlusCircle className="mr-2 size-4" />
+                )}
+                Add to Queue
+              </Button>
+            )}
             
             <Button
               size="sm"
               onClick={() => onPost(lead)}
               disabled={isPosting || lead.status === "posted"}
-              className="flex-1 sm:flex-initial"
+              className={cn(
+                "flex-1",
+                lead.status === "posted" ? "bg-green-600 hover:bg-green-700" : "bg-blue-600 hover:bg-blue-700"
+              )}
             >
-              <Send className="mr-2 size-4" />
-              {isPosting ? "Posting..." : "Post Now"}
+              {isPosting ? (
+                <Clock className="mr-2 size-4 animate-spin" />
+              ) : lead.status === "posted" ? (
+                <>
+                  <Check className="mr-2 size-4" />
+                  Posted
+                </>
+              ) : (
+                <>
+                  <Send className="mr-2 size-4" />
+                  Post Now
+                </>
+              )}
             </Button>
           </div>
         </CardContent>
