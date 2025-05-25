@@ -9,7 +9,7 @@ Website scraping actions using Firecrawl for knowledge base content.
 import { ActionState } from "@/types"
 
 const FIRECRAWL_API_KEY = process.env.FIRECRAWL_API_KEY
-const FIRECRAWL_BASE_URL = "https://api.firecrawl.dev/v0"
+const FIRECRAWL_BASE_URL = "https://api.firecrawl.dev/v1"
 
 interface ScrapedPage {
   url: string
