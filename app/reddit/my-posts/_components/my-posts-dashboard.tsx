@@ -393,25 +393,34 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
                   <Separator />
 
                   {/* Original Post Context */}
-                  <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-900/50">
-                    <div className="text-muted-foreground mb-2 flex items-center gap-2 text-sm">
+                  <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
+                    <div className="text-blue-700 dark:text-blue-300 mb-2 flex items-center gap-2 text-sm font-medium">
                       <User className="size-3" />
-                      <span>u/{post.postAuthor}</span>
+                      <span>Original Post by u/{post.postAuthor}</span>
                     </div>
-                    <p className="text-sm">{post.postContentSnippet}</p>
+                    <p className="text-sm text-blue-800 dark:text-blue-200">{post.postContentSnippet}</p>
+                    <div className="mt-2 text-xs text-blue-600 dark:text-blue-400">
+                      This is what you replied to
+                    </div>
                   </div>
 
                   {/* Your Comment */}
                   <div className="space-y-2">
-                    <h4 className="text-sm font-semibold">Your Comment</h4>
-                    <div className="rounded-lg border p-4">
-                      <p className="text-sm">{selectedComment}</p>
+                    <h4 className="text-sm font-semibold flex items-center gap-2">
+                      <MessageSquare className="size-3" />
+                      Your Comment
+                    </h4>
+                    <div className="rounded-lg border-2 border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
+                      <p className="text-sm text-green-800 dark:text-green-200">{selectedComment}</p>
                     </div>
                   </div>
 
                   {/* Reddit Replies */}
                   <div className="space-y-2">
-                    <h4 className="text-sm font-semibold">Replies</h4>
+                    <h4 className="text-sm font-semibold flex items-center gap-2">
+                      <MessageSquare className="size-3" />
+                      Replies to Your Comment
+                    </h4>
 
                     {post.isLoadingReplies ? (
                       <div className="flex items-center justify-center py-4">
@@ -423,20 +432,20 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
                     ) : post.redditReplies && post.redditReplies.length > 0 ? (
                       <div className="space-y-3">
                         {post.redditReplies.map(reply => (
-                          <div key={reply.id} className="rounded-lg border p-4">
+                          <div key={reply.id} className="rounded-lg border border-orange-200 bg-orange-50 p-4 dark:border-orange-800 dark:bg-orange-900/20">
                             <div className="mb-2 flex items-center justify-between">
-                              <div className="text-muted-foreground flex items-center gap-2 text-sm">
+                              <div className="text-orange-700 dark:text-orange-300 flex items-center gap-2 text-sm font-medium">
                                 <User className="size-3" />
-                                <span>u/{reply.author}</span>
+                                <span>u/{reply.author} replied</span>
                                 <span>•</span>
-                                <span>{formatTimeAgo(reply.created_utc)}</span>
+                                <span className="text-orange-600 dark:text-orange-400">{formatTimeAgo(reply.created_utc)}</span>
                               </div>
-                              <div className="flex items-center gap-1 text-sm">
+                              <div className="flex items-center gap-1 text-sm text-orange-600 dark:text-orange-400">
                                 <ArrowUp className="size-3" />
                                 <span>{reply.score}</span>
                               </div>
                             </div>
-                            <p className="mb-3 text-sm">{reply.body}</p>
+                            <p className="mb-3 text-sm text-orange-800 dark:text-orange-200">{reply.body}</p>
 
                             {/* Reply Actions */}
                             <div className="flex items-center gap-2">
@@ -544,9 +553,11 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
                         ))}
                       </div>
                     ) : (
-                      <p className="text-muted-foreground text-sm">
-                        No replies yet. Check back later!
-                      </p>
+                      <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-center dark:border-gray-700 dark:bg-gray-800/50">
+                        <MessageSquare className="mx-auto mb-2 size-8 text-gray-400" />
+                        <p className="text-muted-foreground text-sm font-medium">No replies yet</p>
+                        <p className="text-muted-foreground text-xs">Your comment is live on Reddit. Check back later for responses!</p>
+                      </div>
                     )}
                   </div>
                 </CardContent>
