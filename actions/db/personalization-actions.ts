@@ -20,7 +20,8 @@ import {
   UpdateScrapedContentData,
   TwitterAnalysisDocument,
   CreateTwitterAnalysisData,
-  UpdateTwitterAnalysisData
+  UpdateTwitterAnalysisData,
+  TwitterTweet
 } from "@/db/schema"
 import { ActionState } from "@/types"
 import {
@@ -37,59 +38,121 @@ import {
   Timestamp
 } from "firebase/firestore"
 
+// Serialized interfaces for client components
+export interface SerializedKnowledgeBaseDocument {
+  id: string
+  userId: string
+  websiteUrl?: string
+  customInformation?: string
+  scrapedPages?: string[]
+  summary?: string
+  keyFacts?: string[]
+  createdAt: string // ISO string instead of Timestamp
+  updatedAt: string // ISO string instead of Timestamp
+}
+
+export interface SerializedVoiceSettingsDocument {
+  id: string
+  userId: string
+  writingStyle: "casual" | "professional" | "friendly" | "technical" | "custom"
+  customWritingStyle?: string
+  manualWritingStyleDescription?: string
+  twitterHandle?: string
+  twitterAnalyzed?: boolean
+  personaType: "ceo" | "user" | "subtle" | "custom"
+  customPersona?: string
+  useAllLowercase?: boolean
+  useEmojis?: boolean
+  useCasualTone?: boolean
+  useFirstPerson?: boolean
+  generatedPrompt?: string
+  createdAt: string // ISO string instead of Timestamp
+  updatedAt: string // ISO string instead of Timestamp
+}
+
+export interface SerializedScrapedContentDocument {
+  id: string
+  userId: string
+  url: string
+  title?: string
+  content: string
+  contentType: "webpage" | "pdf" | "document"
+  wordCount?: number
+  summary?: string
+  keyPoints?: string[]
+  scrapedAt: string // ISO string instead of Timestamp
+  createdAt: string // ISO string instead of Timestamp
+  updatedAt: string // ISO string instead of Timestamp
+}
+
+export interface SerializedTwitterAnalysisDocument {
+  id: string
+  userId: string
+  twitterHandle: string
+  tweets: TwitterTweet[]
+  writingStyleAnalysis: string
+  commonPhrases: string[]
+  toneAnalysis: string
+  vocabularyLevel: "casual" | "professional" | "mixed"
+  averageTweetLength: number
+  emojiUsage: boolean
+  hashtagUsage: boolean
+  analyzedAt: string // ISO string instead of Timestamp
+  createdAt: string // ISO string instead of Timestamp
+  updatedAt: string // ISO string instead of Timestamp
+}
+
+// Helper function to serialize Firestore Timestamps to ISO strings
+function serializeTimestamp(timestamp: Timestamp | any): string {
+  if (timestamp instanceof Timestamp) {
+    return timestamp.toDate().toISOString()
+  }
+  return new Date().toISOString()
+}
+
 // Serialization functions to convert Firestore Timestamps to ISO strings
-function serializeKnowledgeBase(kb: KnowledgeBaseDocument): KnowledgeBaseDocument {
+function serializeKnowledgeBase(kb: KnowledgeBaseDocument): SerializedKnowledgeBaseDocument {
   console.log("🔥 [KB-SERIALIZE] Starting serialization")
   return {
     ...kb,
-    createdAt: kb.createdAt instanceof Timestamp ? 
-      Timestamp.fromMillis(kb.createdAt.toMillis()) : kb.createdAt,
-    updatedAt: kb.updatedAt instanceof Timestamp ? 
-      Timestamp.fromMillis(kb.updatedAt.toMillis()) : kb.updatedAt
+    createdAt: serializeTimestamp(kb.createdAt),
+    updatedAt: serializeTimestamp(kb.updatedAt)
   }
 }
 
-function serializeVoiceSettings(vs: VoiceSettingsDocument): VoiceSettingsDocument {
+function serializeVoiceSettings(vs: VoiceSettingsDocument): SerializedVoiceSettingsDocument {
   console.log("🔥 [VS-SERIALIZE] Starting serialization")
   return {
     ...vs,
-    createdAt: vs.createdAt instanceof Timestamp ? 
-      Timestamp.fromMillis(vs.createdAt.toMillis()) : vs.createdAt,
-    updatedAt: vs.updatedAt instanceof Timestamp ? 
-      Timestamp.fromMillis(vs.updatedAt.toMillis()) : vs.updatedAt
+    createdAt: serializeTimestamp(vs.createdAt),
+    updatedAt: serializeTimestamp(vs.updatedAt)
   }
 }
 
-function serializeScrapedContent(sc: ScrapedContentDocument): ScrapedContentDocument {
+function serializeScrapedContent(sc: ScrapedContentDocument): SerializedScrapedContentDocument {
   console.log("🔥 [SC-SERIALIZE] Starting serialization")
   return {
     ...sc,
-    scrapedAt: sc.scrapedAt instanceof Timestamp ? 
-      Timestamp.fromMillis(sc.scrapedAt.toMillis()) : sc.scrapedAt,
-    createdAt: sc.createdAt instanceof Timestamp ? 
-      Timestamp.fromMillis(sc.createdAt.toMillis()) : sc.createdAt,
-    updatedAt: sc.updatedAt instanceof Timestamp ? 
-      Timestamp.fromMillis(sc.updatedAt.toMillis()) : sc.updatedAt
+    scrapedAt: serializeTimestamp(sc.scrapedAt),
+    createdAt: serializeTimestamp(sc.createdAt),
+    updatedAt: serializeTimestamp(sc.updatedAt)
   }
 }
 
-function serializeTwitterAnalysis(ta: TwitterAnalysisDocument): TwitterAnalysisDocument {
+function serializeTwitterAnalysis(ta: TwitterAnalysisDocument): SerializedTwitterAnalysisDocument {
   console.log("🔥 [TA-SERIALIZE] Starting serialization")
   return {
     ...ta,
-    analyzedAt: ta.analyzedAt instanceof Timestamp ? 
-      Timestamp.fromMillis(ta.analyzedAt.toMillis()) : ta.analyzedAt,
-    createdAt: ta.createdAt instanceof Timestamp ? 
-      Timestamp.fromMillis(ta.createdAt.toMillis()) : ta.createdAt,
-    updatedAt: ta.updatedAt instanceof Timestamp ? 
-      Timestamp.fromMillis(ta.updatedAt.toMillis()) : ta.updatedAt
+    analyzedAt: serializeTimestamp(ta.analyzedAt),
+    createdAt: serializeTimestamp(ta.createdAt),
+    updatedAt: serializeTimestamp(ta.updatedAt)
   }
 }
 
 // Knowledge Base Actions
 export async function createKnowledgeBaseAction(
   data: CreateKnowledgeBaseData
-): Promise<ActionState<KnowledgeBaseDocument>> {
+): Promise<ActionState<SerializedKnowledgeBaseDocument>> {
   console.log("🔥 [KNOWLEDGE-BASE] Starting createKnowledgeBaseAction")
   console.log("🔥 [KNOWLEDGE-BASE] User ID:", data.userId)
 
@@ -130,7 +193,7 @@ export async function createKnowledgeBaseAction(
 
 export async function getKnowledgeBaseByUserIdAction(
   userId: string
-): Promise<ActionState<KnowledgeBaseDocument | null>> {
+): Promise<ActionState<SerializedKnowledgeBaseDocument | null>> {
   console.log("🔥 [KNOWLEDGE-BASE] Starting getKnowledgeBaseByUserIdAction")
   console.log("🔥 [KNOWLEDGE-BASE] User ID:", userId)
 
@@ -169,7 +232,7 @@ export async function getKnowledgeBaseByUserIdAction(
 export async function updateKnowledgeBaseAction(
   id: string,
   data: UpdateKnowledgeBaseData
-): Promise<ActionState<KnowledgeBaseDocument>> {
+): Promise<ActionState<SerializedKnowledgeBaseDocument>> {
   console.log("🔥 [KNOWLEDGE-BASE] Starting updateKnowledgeBaseAction")
   console.log("🔥 [KNOWLEDGE-BASE] ID:", id)
 
@@ -204,7 +267,7 @@ export async function updateKnowledgeBaseAction(
 // Voice Settings Actions
 export async function createVoiceSettingsAction(
   data: CreateVoiceSettingsData
-): Promise<ActionState<VoiceSettingsDocument>> {
+): Promise<ActionState<SerializedVoiceSettingsDocument>> {
   console.log("🔥 [VOICE-SETTINGS] Starting createVoiceSettingsAction")
   console.log("🔥 [VOICE-SETTINGS] User ID:", data.userId)
 
@@ -252,7 +315,7 @@ export async function createVoiceSettingsAction(
 
 export async function getVoiceSettingsByUserIdAction(
   userId: string
-): Promise<ActionState<VoiceSettingsDocument | null>> {
+): Promise<ActionState<SerializedVoiceSettingsDocument | null>> {
   console.log("🔥 [VOICE-SETTINGS] Starting getVoiceSettingsByUserIdAction")
   console.log("🔥 [VOICE-SETTINGS] User ID:", userId)
 
@@ -291,7 +354,7 @@ export async function getVoiceSettingsByUserIdAction(
 export async function updateVoiceSettingsAction(
   id: string,
   data: UpdateVoiceSettingsData
-): Promise<ActionState<VoiceSettingsDocument>> {
+): Promise<ActionState<SerializedVoiceSettingsDocument>> {
   console.log("🔥 [VOICE-SETTINGS] Starting updateVoiceSettingsAction")
   console.log("🔥 [VOICE-SETTINGS] ID:", id)
 
@@ -326,7 +389,7 @@ export async function updateVoiceSettingsAction(
 // Scraped Content Actions
 export async function createScrapedContentAction(
   data: CreateScrapedContentData
-): Promise<ActionState<ScrapedContentDocument>> {
+): Promise<ActionState<SerializedScrapedContentDocument>> {
   console.log("🔥 [SCRAPED-CONTENT] Starting createScrapedContentAction")
   console.log("🔥 [SCRAPED-CONTENT] User ID:", data.userId)
   console.log("🔥 [SCRAPED-CONTENT] URL:", data.url)
@@ -371,7 +434,7 @@ export async function createScrapedContentAction(
 
 export async function getScrapedContentByUserIdAction(
   userId: string
-): Promise<ActionState<ScrapedContentDocument[]>> {
+): Promise<ActionState<SerializedScrapedContentDocument[]>> {
   console.log("🔥 [SCRAPED-CONTENT] Starting getScrapedContentByUserIdAction")
   console.log("🔥 [SCRAPED-CONTENT] User ID:", userId)
 
@@ -402,7 +465,7 @@ export async function getScrapedContentByUserIdAction(
 // Twitter Analysis Actions
 export async function createTwitterAnalysisAction(
   data: CreateTwitterAnalysisData
-): Promise<ActionState<TwitterAnalysisDocument>> {
+): Promise<ActionState<SerializedTwitterAnalysisDocument>> {
   console.log("🔥 [TWITTER-ANALYSIS] Starting createTwitterAnalysisAction")
   console.log("🔥 [TWITTER-ANALYSIS] User ID:", data.userId)
   console.log("🔥 [TWITTER-ANALYSIS] Twitter handle:", data.twitterHandle)
@@ -449,7 +512,7 @@ export async function createTwitterAnalysisAction(
 
 export async function getTwitterAnalysisByUserIdAction(
   userId: string
-): Promise<ActionState<TwitterAnalysisDocument | null>> {
+): Promise<ActionState<SerializedTwitterAnalysisDocument | null>> {
   console.log("🔥 [TWITTER-ANALYSIS] Starting getTwitterAnalysisByUserIdAction")
   console.log("🔥 [TWITTER-ANALYSIS] User ID:", userId)
 

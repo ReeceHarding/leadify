@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Loader2, Globe, AlertTriangle } from "lucide-react"
-import { KnowledgeBaseDocument } from "@/db/schema"
+import { SerializedKnowledgeBaseDocument } from "@/actions/db/personalization-actions"
 import { useToast } from "@/hooks/use-toast"
 
 interface SitemapPage {
@@ -25,8 +25,8 @@ interface WebsiteScrapeDialogProps {
   onOpenChange: (open: boolean) => void
   websiteUrl: string
   userId: string
-  knowledgeBase: KnowledgeBaseDocument | null
-  setKnowledgeBase: (kb: KnowledgeBaseDocument | null) => void
+  knowledgeBase: SerializedKnowledgeBaseDocument | null
+  setKnowledgeBase: (kb: SerializedKnowledgeBaseDocument | null) => void
 }
 
 export default function WebsiteScrapeDialog({

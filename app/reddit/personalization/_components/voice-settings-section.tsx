@@ -21,13 +21,14 @@ import {
 } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Loader2, MessageCircle, Twitter, Sparkles } from "lucide-react"
-import { VoiceSettingsDocument, PersonaType, WritingStyle } from "@/db/schema"
+import { SerializedVoiceSettingsDocument } from "@/actions/db/personalization-actions"
+import { PersonaType, WritingStyle } from "@/db/schema"
 import { useToast } from "@/hooks/use-toast"
 
 interface VoiceSettingsSectionProps {
   userId: string
-  voiceSettings: VoiceSettingsDocument | null
-  setVoiceSettings: (vs: VoiceSettingsDocument | null) => void
+  voiceSettings: SerializedVoiceSettingsDocument | null
+  setVoiceSettings: (vs: SerializedVoiceSettingsDocument | null) => void
 }
 
 export default function VoiceSettingsSection({

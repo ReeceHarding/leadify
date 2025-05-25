@@ -8,15 +8,15 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Loader2, Globe, Plus, X } from "lucide-react"
-import { KnowledgeBaseDocument } from "@/db/schema"
+import { SerializedKnowledgeBaseDocument } from "@/actions/db/personalization-actions"
 import { SerializedProfileDocument } from "@/actions/db/profiles-actions"
 import { useToast } from "@/hooks/use-toast"
 import WebsiteScrapeDialog from "./website-scrape-dialog"
 
 interface KnowledgeBaseSectionProps {
   userId: string
-  knowledgeBase: KnowledgeBaseDocument | null
-  setKnowledgeBase: (kb: KnowledgeBaseDocument | null) => void
+  knowledgeBase: SerializedKnowledgeBaseDocument | null
+  setKnowledgeBase: (kb: SerializedKnowledgeBaseDocument | null) => void
   userProfile: SerializedProfileDocument | null
 }
 

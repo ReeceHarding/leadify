@@ -1,15 +1,15 @@
 "use client"
 
 import { useState } from "react"
-import { KnowledgeBaseDocument, VoiceSettingsDocument } from "@/db/schema"
+import { SerializedKnowledgeBaseDocument, SerializedVoiceSettingsDocument } from "@/actions/db/personalization-actions"
 import { SerializedProfileDocument } from "@/actions/db/profiles-actions"
 import KnowledgeBaseSection from "./knowledge-base-section"
 import VoiceSettingsSection from "./voice-settings-section"
 
 interface PersonalizationClientProps {
   userId: string
-  initialKnowledgeBase: KnowledgeBaseDocument | null
-  initialVoiceSettings: VoiceSettingsDocument | null
+  initialKnowledgeBase: SerializedKnowledgeBaseDocument | null
+  initialVoiceSettings: SerializedVoiceSettingsDocument | null
   userProfile: SerializedProfileDocument | null
 }
 
@@ -19,8 +19,8 @@ export default function PersonalizationClient({
   initialVoiceSettings,
   userProfile
 }: PersonalizationClientProps) {
-  const [knowledgeBase, setKnowledgeBase] = useState<KnowledgeBaseDocument | null>(initialKnowledgeBase)
-  const [voiceSettings, setVoiceSettings] = useState<VoiceSettingsDocument | null>(initialVoiceSettings)
+  const [knowledgeBase, setKnowledgeBase] = useState<SerializedKnowledgeBaseDocument | null>(initialKnowledgeBase)
+  const [voiceSettings, setVoiceSettings] = useState<SerializedVoiceSettingsDocument | null>(initialVoiceSettings)
 
   return (
     <div className="flex size-full flex-col">

@@ -1,23 +1,22 @@
-[2025-05-25T07:30:59.893Z] ================================================================================
-[2025-05-25T07:30:59.893Z] NEW DEV SESSION STARTED: 2025-05-25T07:30:59.893Z
-[2025-05-25T07:30:59.893Z] ================================================================================
-[2025-05-25T07:30:59.893Z] STEP: Killing processes on port 3000
-[2025-05-25T07:30:59.938Z] ✅ Killed process 41732 on port 3000
-[2025-05-25T07:30:59.938Z] ✅ Killed process 40512 on port 3000
-[2025-05-25T07:31:00.160Z] NEXTJS_CLOSE: Next.js dev server stopped with exit code: 0
-[2025-05-25T07:31:00.436Z] STEP: Starting Next.js development server
-[2025-05-25T07:31:01.433Z] NEXTJS_STDOUT: ▲ Next.js 15.3.2
-[2025-05-25T07:31:01.433Z] NEXTJS_STDOUT: - Local:        http://localhost:3000
-[2025-05-25T07:31:01.433Z] NEXTJS_STDOUT: - Network:      http://100.110.212.88:3000
-[2025-05-25T07:31:01.433Z] NEXTJS_STDOUT: - Environments: .env.local
-[2025-05-25T07:31:01.433Z] NEXTJS_STDOUT: ✓ Starting...
-[2025-05-25T07:31:02.449Z] NEXTJS_STDOUT: ✓ Ready in 1088ms
-[2025-05-25T07:31:07.003Z] NEXTJS_STDOUT: ✓ Compiled /middleware in 163ms (269 modules)
-[2025-05-25T07:31:07.076Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/personalization
-[2025-05-25T07:31:07.077Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/personalization
-[2025-05-25T07:31:07.077Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth userId: null
-[2025-05-25T07:31:07.077Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Is protected route: true
-[2025-05-25T07:31:07.581Z] NEXTJS_STDOUT: ○ Compiling /_not-found ...
-[2025-05-25T07:31:08.788Z] NEXTJS_STDOUT: ✓ Compiled /_not-found in 1706ms (1538 modules)
-[2025-05-25T07:31:09.270Z] NEXTJS_STDOUT: HEAD /reddit/personalization 404 in 2191ms
-[2025-05-25T07:31:09.414Z] NEXTJS_STDOUT: ✓ Compiled in 304ms (526 modules)
+[2025-05-25T07:39:30.654Z] ================================================================================
+[2025-05-25T07:39:30.654Z] NEW DEV SESSION STARTED: 2025-05-25T07:39:30.654Z
+[2025-05-25T07:39:30.654Z] ================================================================================
+[2025-05-25T07:39:30.655Z] STEP: Killing processes on port 3000
+[2025-05-25T07:39:30.689Z] ✅ Killed process 46643 on port 3000
+[2025-05-25T07:39:30.729Z] NEXTJS_CLOSE: Next.js dev server stopped with exit code: 0
+[2025-05-25T07:39:31.188Z] STEP: Starting Next.js development server
+[2025-05-25T07:39:31.902Z] NEXTJS_STDOUT: ▲ Next.js 15.3.2
+[2025-05-25T07:39:31.902Z] NEXTJS_STDOUT: - Local:        http://localhost:3000
+[2025-05-25T07:39:31.902Z] NEXTJS_STDOUT: - Network:      http://100.110.212.88:3000
+[2025-05-25T07:39:31.902Z] NEXTJS_STDOUT: - Environments: .env.local
+[2025-05-25T07:39:31.902Z] NEXTJS_STDOUT: ✓ Starting...
+[2025-05-25T07:39:32.938Z] NEXTJS_STDOUT: ✓ Ready in 1103ms
+[2025-05-25T07:39:38.115Z] NEXTJS_STDOUT: ✓ Compiled /middleware in 175ms (269 modules)
+[2025-05-25T07:39:38.186Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/
+[2025-05-25T07:39:38.187Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /
+[2025-05-25T07:39:38.187Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth userId: null
+[2025-05-25T07:39:38.187Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Is protected route: false
+[2025-05-25T07:39:38.695Z] NEXTJS_STDOUT: ○ Compiling / ...
+[2025-05-25T07:39:40.498Z] NEXTJS_STDOUT: ✓ Compiled / in 2.3s (2512 modules)
+[2025-05-25T07:39:40.971Z] NEXTJS_STDOUT: GET / 200 in 2783ms
+[2025-05-25T07:39:41.098Z] NEXTJS_STDOUT: ✓ Compiled in 244ms (912 modules)
