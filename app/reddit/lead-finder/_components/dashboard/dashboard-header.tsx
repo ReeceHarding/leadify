@@ -3,7 +3,7 @@
 import React from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Target, RefreshCw } from "lucide-react";
+import { Target, RefreshCw, Send } from "lucide-react";
 import { WorkflowProgress } from "./types"; // Import from dashboard types
 import {
   Tooltip,
@@ -44,7 +44,7 @@ interface DashboardHeaderProps {
   onCreateCampaign: () => void;
   onRunWorkflow: () => void;
   isWorkflowRunning: boolean;
-  onGenerateComments?: () => void;
+  onMassPost?: () => void;
 }
 
 export default function DashboardHeader({
@@ -56,7 +56,7 @@ export default function DashboardHeader({
   onCreateCampaign,
   onRunWorkflow,
   isWorkflowRunning,
-  onGenerateComments
+  onMassPost
 }: DashboardHeaderProps) {
   return (
     <div className="space-y-6">
@@ -66,14 +66,14 @@ export default function DashboardHeader({
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold">Lead Finder</h1>
             {campaignId && (
-              <div className="flex items-center gap-2 rounded-lg bg-blue-50 dark:bg-blue-950/30 px-3 py-1.5 border border-blue-200 dark:border-blue-800">
+              <div className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 dark:border-blue-800 dark:bg-blue-950/30">
                 <Sparkles className="size-4 text-blue-600 dark:text-blue-400" />
                 <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
                   {campaignName || "Untitled Campaign"}
                 </span>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                    <Button variant="ghost" size="sm" className="size-6 p-0">
                       <ChevronDown className="size-3" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -98,14 +98,14 @@ export default function DashboardHeader({
           </p>
         </div>
         <div className="flex gap-2">
-          {onGenerateComments && (
+          {onMassPost && totalLeads > 0 && (
             <Button
-              onClick={onGenerateComments}
+              onClick={onMassPost}
               variant="outline"
               className="gap-2"
             >
-              <MessageSquare className="size-4" />
-              Generate Comments
+              <Send className="size-4" />
+              Mass Post
             </Button>
           )}
           <Button

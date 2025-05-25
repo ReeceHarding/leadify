@@ -460,24 +460,28 @@ export default function OnboardingPage() {
 
       // Generate campaign name using AI
       console.log("🔍 [ONBOARDING] Generating campaign name...")
-      const { generateCampaignNameAction } = await import("@/actions/lead-generation/campaign-name-actions")
-      
+      const { generateCampaignNameAction } = await import(
+        "@/actions/lead-generation/campaign-name-actions"
+      )
+
       const nameResult = await generateCampaignNameAction({
         keywords: onboardingData.keywords,
         website: onboardingData.website,
         businessName: onboardingData.name
       })
 
-      const campaignName = nameResult.isSuccess 
-        ? nameResult.data 
+      const campaignName = nameResult.isSuccess
+        ? nameResult.data
         : `${onboardingData.name} Campaign`
 
       console.log("🔍 [ONBOARDING] Generated campaign name:", campaignName)
 
       // Create the first campaign
       console.log("🔍 [ONBOARDING] Creating first campaign...")
-      const { createCampaignAction } = await import("@/actions/db/campaign-actions")
-      
+      const { createCampaignAction } = await import(
+        "@/actions/db/campaign-actions"
+      )
+
       const campaignResult = await createCampaignAction({
         userId: user.id,
         name: campaignName,
@@ -492,7 +496,10 @@ export default function OnboardingPage() {
         )
         // Don't throw error - still redirect to lead finder
       } else {
-        console.log("🔍 [ONBOARDING] Campaign created successfully:", campaignResult.data)
+        console.log(
+          "🔍 [ONBOARDING] Campaign created successfully:",
+          campaignResult.data
+        )
       }
 
       // Redirect to lead finder

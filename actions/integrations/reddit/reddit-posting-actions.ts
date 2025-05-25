@@ -12,6 +12,7 @@ import {
   refreshRedditTokenFromProfileAction
 } from "./reddit-oauth-user-actions"
 import { updateGeneratedCommentAction } from "@/actions/db/lead-generation-actions"
+import { updatePostingHistoryAction } from "@/actions/db/posting-history-actions"
 
 interface PostCommentParams {
   parentId: string // thread ID or comment ID (t3_xxx for posts, t1_xxx for comments)
@@ -152,41 +153,86 @@ export async function postCommentAndUpdateStatusAction(
   leadId: string,
   threadId: string,
   comment: string
-): Promise<ActionState<PostedComment>> {
+): Promise<ActionState<{ link: string }>> {
   try {
-    console.log(`📝 Posting comment and updating status for lead: ${leadId}`)
+    console.log("📤 [REDDIT-POST] Starting post comment and update status")
+    console.log("📤 [REDDIT-POST] Lead ID:", leadId)
+    console.log("📤 [REDDIT-POST] Thread ID:", threadId)
+    console.log("📤 [REDDIT-POST] Comment length:", comment.length)
 
-    // First, post the comment
+    // Get the current user's Reddit tokens
+    const tokensResult = await getRedditTokensFromProfileAction()
+    if (!tokensResult.isSuccess || !tokensResult.data.accessToken) {
+      console.error("📤 [REDDIT-POST] No valid Reddit access token found")
+      return {
+        isSuccess: false,
+        message:
+          "No valid Reddit access token found. Please re-authenticate with Reddit."
+      }
+    }
+
+    const { accessToken, username } = tokensResult.data
+    console.log("📤 [REDDIT-POST] Using Reddit username:", username)
+
+    // Post the comment
     const postResult = await postCommentToRedditAction({
       parentId: threadId,
       text: comment
     })
 
     if (!postResult.isSuccess) {
+      console.error("📤 [REDDIT-POST] Failed to post comment:", postResult.message)
       return postResult
     }
 
-    // Update the status and save the comment URL in Firestore
+    console.log("📤 [REDDIT-POST] Comment posted successfully!")
+    console.log("📤 [REDDIT-POST] Comment URL:", postResult.data.link)
+
+    // Extract subreddit from the comment URL
+    const subredditMatch = postResult.data.link.match(/\/r\/([^\/]+)/)
+    const subreddit = subredditMatch ? subredditMatch[1] : null
+
+    // Update the lead status in the database
     const updateResult = await updateGeneratedCommentAction(leadId, {
       status: "posted",
-      used: true,
       postedCommentUrl: postResult.data.link
     })
 
     if (!updateResult.isSuccess) {
       console.error(
-        "Failed to update status in database:",
+        "📤 [REDDIT-POST] Failed to update lead status:",
         updateResult.message
       )
-      // Still return success since the comment was posted
+      // Don't fail the whole operation if just the status update fails
+    } else {
+      console.log("📤 [REDDIT-POST] Lead status updated to 'posted'")
     }
 
-    return postResult
+    // Update posting history if we have the subreddit
+    if (subreddit && username) {
+      const { auth } = await import("@clerk/nextjs/server")
+      const { userId } = await auth()
+      
+      if (userId) {
+        const historyResult = await updatePostingHistoryAction(userId, subreddit)
+        if (!historyResult.isSuccess) {
+          console.error("📤 [REDDIT-POST] Failed to update posting history:", historyResult.message)
+        } else {
+          console.log("📤 [REDDIT-POST] Posting history updated for r/" + subreddit)
+        }
+      }
+    }
+
+    return {
+      isSuccess: true,
+      message: "Comment posted and status updated successfully",
+      data: { link: postResult.data.link }
+    }
   } catch (error) {
-    console.error("Error in postCommentAndUpdateStatus:", error)
+    console.error("📤 [REDDIT-POST] Unexpected error:", error)
     return {
       isSuccess: false,
-      message: error instanceof Error ? error.message : "Failed to post comment"
+      message: `Failed to post comment: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }

@@ -220,7 +220,7 @@ export default function FindNewLeadsDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[700px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Search className="size-5 text-blue-600" />
@@ -239,7 +239,7 @@ export default function FindNewLeadsDialog({
               <AlertDescription>
                 <strong>Current keywords:</strong> {currentKeywords.join(", ")}
                 <br />
-                <span className="text-xs text-muted-foreground mt-1">
+                <span className="text-muted-foreground mt-1 text-xs">
                   New leads will be added to your existing collection
                 </span>
               </AlertDescription>
@@ -263,7 +263,7 @@ export default function FindNewLeadsDialog({
                 <SelectItem value="100">100 posts</SelectItem>
               </SelectContent>
             </Select>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               How many Reddit posts to analyze for each keyword
             </p>
           </div>
@@ -299,7 +299,7 @@ export default function FindNewLeadsDialog({
             {isGeneratingKeywords ? (
               <div className="flex items-center justify-center py-8">
                 <Loader2 className="size-6 animate-spin text-blue-600" />
-                <span className="ml-2 text-sm text-muted-foreground">
+                <span className="text-muted-foreground ml-2 text-sm">
                   Generating keyword suggestions...
                 </span>
               </div>
@@ -320,12 +320,12 @@ export default function FindNewLeadsDialog({
                     </Badge>
                   ))}
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   Click keywords to select/deselect them
                 </p>
               </div>
             ) : (
-              <div className="text-center py-4 text-sm text-muted-foreground">
+              <div className="text-muted-foreground py-4 text-center text-sm">
                 No keyword suggestions available
               </div>
             )}

@@ -130,6 +130,7 @@ import PaginationControls from "./dashboard/pagination-controls"
 import LeadsDisplay from "./dashboard/leads-display"
 import FindMoreLeads from "./dashboard/find-more-leads"
 import FindNewLeadsDialog from "./find-new-leads-dialog"
+import MassPostDialog from "./dashboard/mass-post-dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   Dialog,
@@ -178,6 +179,7 @@ interface DashboardState {
   removingLeadId: string | null
   isBatchPosting: boolean
   showRedditAuthDialog: boolean
+  showMassPostDialog: boolean
 
   // Metadata
   lastPolledAt: Date | null
@@ -210,6 +212,7 @@ const initialState: DashboardState = {
   removingLeadId: null,
   isBatchPosting: false,
   showRedditAuthDialog: false,
+  showMassPostDialog: false,
   lastPolledAt: null,
   pollingEnabled: false,
   workflowRunning: false,
@@ -1163,74 +1166,8 @@ export default function LeadFinderDashboard() {
 
   const totalPages = Math.ceil(filteredAndSortedLeads.length / ITEMS_PER_PAGE)
 
-  const handleGenerateComments = async () => {
-    if (!state.campaignId) {
-      toast.error("Please select a campaign first")
-      return
-    }
-
-    // Get all leads that don't have comments yet
-    const leadsWithoutComments = state.leads.filter(
-      lead => !lead.microComment && !lead.mediumComment && !lead.verboseComment
-    )
-
-    if (leadsWithoutComments.length === 0) {
-      toast.info("All leads already have comments generated")
-      return
-    }
-
-    setState(prev => ({ ...prev, workflowRunning: true }))
-
-    try {
-      // Generate comments for each lead
-      const generatePromises = leadsWithoutComments.map(async lead => {
-        const profileResult = await getProfileByUserIdAction(user!.id)
-        if (!profileResult.isSuccess || !profileResult.data) {
-          throw new Error("Failed to load profile")
-        }
-
-        // Get website content for comment generation
-        const websiteContent = `${profileResult.data.name || ""} - ${profileResult.data.website || ""}`
-
-        // Use the existing comment generation logic
-        const { scoreThreadAndGenerateThreeTierCommentsAction } = await import(
-          "@/actions/integrations/openai/openai-actions"
-        )
-
-        const result = await scoreThreadAndGenerateThreeTierCommentsAction(
-          lead.postTitle,
-          lead.postContentSnippet,
-          lead.subreddit,
-          websiteContent
-        )
-
-        if (result.isSuccess) {
-          // Save the generated comments to the database
-          await updateGeneratedCommentAction(lead.id, {
-            microComment: result.data.microComment,
-            mediumComment: result.data.mediumComment,
-            verboseComment: result.data.verboseComment
-          })
-        }
-
-        return result
-      })
-
-      const results = await Promise.all(generatePromises)
-      
-      const successCount = results.filter((r: any) => r.isSuccess).length
-      if (successCount > 0) {
-        toast.success(`Generated comments for ${successCount} leads`)
-      }
-
-      // Refresh the leads
-      window.location.reload()
-    } catch (error) {
-      console.error("Error generating comments:", error)
-      toast.error("Failed to generate comments")
-    } finally {
-      setState(prev => ({ ...prev, workflowRunning: false }))
-    }
+  const handleMassPost = () => {
+    updateState({ showMassPostDialog: true })
   }
 
   // Render loading state
@@ -1356,7 +1293,7 @@ export default function LeadFinderDashboard() {
         onCreateCampaign={() => setCreateDialogOpen(true)}
         onRunWorkflow={manualRunWorkflow}
         isWorkflowRunning={state.workflowRunning}
-        onGenerateComments={handleGenerateComments}
+        onMassPost={handleMassPost}
       />
 
       <div className="grid gap-4">
@@ -1489,6 +1426,13 @@ export default function LeadFinderDashboard() {
           lead={state.selectedPost}
         />
       )}
+
+      <MassPostDialog
+        open={state.showMassPostDialog}
+        onOpenChange={(open) => updateState({ showMassPostDialog: open })}
+        leads={state.leads}
+        userId={user?.id || ""}
+      />
 
       {/* Reddit Re-authentication Dialog */}
       <Dialog
