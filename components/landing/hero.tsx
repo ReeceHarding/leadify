@@ -173,7 +173,7 @@ export const HeroSection = () => {
             href={user && hasLeads ? "/reddit/lead-finder" : "/onboarding"}
             onClick={handleGetStartedClick}
           >
-            <Button className="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-3 text-lg hover:from-blue-700 hover:to-blue-800 dark:from-blue-500 dark:to-blue-600 dark:hover:from-blue-600 dark:hover:to-blue-700">
+            <Button className="bg-blue-600 px-8 py-3 text-lg text-white shadow-sm hover:bg-blue-700">
               {user && hasLeads ? (
                 <>
                   <LayoutDashboard className="mr-2 size-5" />
