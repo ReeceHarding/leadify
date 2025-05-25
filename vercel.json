@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/queue/process-warmup",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/queue/check-warmup-comments",
+      "schedule": "*/30 * * * *"
+    }
+  ]
+} 

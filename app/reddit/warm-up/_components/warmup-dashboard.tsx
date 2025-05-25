@@ -16,6 +16,7 @@ import { WarmupAccountDocument } from "@/db/firestore/warmup-collections"
 import SubredditSelector from "./subreddit-selector"
 import WarmupPostsList from "./warmup-posts-list"
 import WarmupSettings from "./warmup-settings"
+import WarmupStatus from "./warmup-status"
 
 interface WarmupDashboardProps {
   userId: string
@@ -189,12 +190,17 @@ export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
 
       {/* Main Content Tabs */}
       {warmupAccount && (
-        <Tabs defaultValue="subreddits" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-3">
+        <Tabs defaultValue="status" className="space-y-4">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="status">Status</TabsTrigger>
             <TabsTrigger value="subreddits">Subreddits</TabsTrigger>
             <TabsTrigger value="posts">Posts</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="status" className="space-y-4">
+            <WarmupStatus userId={userId} />
+          </TabsContent>
 
           <TabsContent value="subreddits" className="space-y-4">
             <SubredditSelector
