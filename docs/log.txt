@@ -595,3 +595,4 @@
 [2025-05-25T19:10:38.003Z] NEXTJS_STDOUT: }
 [2025-05-25T19:10:38.003Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Action completed successfully
 [2025-05-25T19:10:38.067Z] NEXTJS_STDOUT: GET /.well-known/appspecific/com.chrome.devtools.json 404 in 974ms
+[2025-05-25T19:38:09.645Z] NEXTJS_STDOUT: ✓ Compiled in 366ms (2120 modules)

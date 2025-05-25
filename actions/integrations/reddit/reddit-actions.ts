@@ -43,6 +43,7 @@ export interface RedditComment {
 }
 
 async function makeRedditApiCall(endpoint: string): Promise<any> {
+  console.log(`➡️ [REDDIT-API] Attempting GET: ${endpoint}`)
   // Get access token
   let tokenResult = await getRedditAccessTokenAction()
 
@@ -70,13 +71,18 @@ async function makeRedditApiCall(endpoint: string): Promise<any> {
     console.error("❌ [REDDIT-API] Access token is undefined even after successful fetch/refresh.")
     throw new Error("Access token is undefined.")
   }
+  console.log(`🔑 [REDDIT-API] Using access token: ${accessToken.substring(0, 20)}...`)
+
+  const headers = {
+    Authorization: `Bearer ${accessToken}`,
+    "User-Agent": process.env.REDDIT_USER_AGENT || "reddit-lead-gen:v1.0.0"
+  }
+  console.log(`📬 [REDDIT-API] GET Headers for ${endpoint}:`, headers)
 
   const response = await fetch(`https://oauth.reddit.com${endpoint}`, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "User-Agent": process.env.REDDIT_USER_AGENT || "reddit-lead-gen:v1.0.0"
-    }
+    headers
   })
+  console.log(`📥 [REDDIT-API] GET Response Status for ${endpoint}: ${response.status} ${response.statusText}`)
 
   if (!response.ok) {
     if (response.status === 401) {
@@ -88,16 +94,19 @@ async function makeRedditApiCall(endpoint: string): Promise<any> {
         const newTokenResult = await getRedditAccessTokenAction()
         if (newTokenResult.isSuccess && newTokenResult.data) {
           console.log("✅ [REDDIT-API] Retrying GET request with new token.")
+          const retryHeaders = {
+            Authorization: `Bearer ${newTokenResult.data}`,
+            "User-Agent":
+              process.env.REDDIT_USER_AGENT || "reddit-lead-gen:v1.0.0"
+          }
+          console.log(`📬 [REDDIT-API] Retry GET Headers for ${endpoint}:`, retryHeaders)
           const retryResponse = await fetch(
             `https://oauth.reddit.com${endpoint}`,
             {
-              headers: {
-                Authorization: `Bearer ${newTokenResult.data}`,
-                "User-Agent":
-                  process.env.REDDIT_USER_AGENT || "reddit-lead-gen:v1.0.0"
-              }
+              headers: retryHeaders
             }
           )
+          console.log(`📥 [REDDIT-API] Retry GET Response Status for ${endpoint}: ${retryResponse.status} ${retryResponse.statusText}`)
           if (!retryResponse.ok) {
             const errorBody = await retryResponse.text()
             console.error(
@@ -122,7 +131,9 @@ async function makeRedditApiCall(endpoint: string): Promise<any> {
     )
   }
 
-  return await response.json()
+  const responseData = await response.json()
+  console.log(`✅ [REDDIT-API] GET request successful for ${endpoint}. Response data keys:`, Object.keys(responseData || {}))
+  return responseData
 }
 
 async function makeRedditApiPostCall(
@@ -155,6 +166,7 @@ async function makeRedditApiPostCall(
     console.error("❌ [REDDIT-API-POST] Access token is undefined even after successful fetch/refresh.")
     throw new Error("Access token is undefined.")
   }
+  console.log(`🔑 [REDDIT-API-POST] Using access token: ${accessToken.substring(0,20)}...`)
 
   const headers = {
     Authorization: `Bearer ${accessToken}`,
@@ -170,7 +182,7 @@ async function makeRedditApiPostCall(
     }
   }
   
-  console.log("📬 [REDDIT-API-POST] Request Headers:", headers)
+  console.log("📬 [REDDIT-API-POST] Request Headers:", JSON.stringify(headers, null, 2))
   console.log("📬 [REDDIT-API-POST] Request Body:", formBody.toString())
 
   let response = await fetch(`https://oauth.reddit.com${endpoint}`, {
@@ -178,6 +190,7 @@ async function makeRedditApiPostCall(
     headers,
     body: formBody
   })
+  console.log(`📥 [REDDIT-API-POST] Initial POST Response Status for ${endpoint}: ${response.status} ${response.statusText}`)
 
   if (!response.ok) {
     if (response.status === 401) {
@@ -191,12 +204,13 @@ async function makeRedditApiPostCall(
             ...headers,
             Authorization: `Bearer ${newTokenResult.data}`
           }
-          console.log("📬 [REDDIT-API-POST] Retry Request Headers:", newHeaders)
+          console.log("📬 [REDDIT-API-POST] Retry Request Headers:", JSON.stringify(newHeaders, null, 2))
           response = await fetch(`https://oauth.reddit.com${endpoint}`, {
             method: "POST",
             headers: newHeaders,
             body: formBody
           })
+          console.log(`📥 [REDDIT-API-POST] Retry POST Response Status for ${endpoint}: ${response.status} ${response.statusText}`)
           if (!response.ok) {
             const errorBody = await response.text()
             console.error(
@@ -231,7 +245,9 @@ async function makeRedditApiPostCall(
   const responseText = await response.text()
   console.log("✅ [REDDIT-API-POST] Response Text:", responseText)
   try {
-    return JSON.parse(responseText)
+    const jsonData = JSON.parse(responseText)
+    console.log(`✅ [REDDIT-API-POST] POST request successful for ${endpoint}. Parsed JSON response keys:`, Object.keys(jsonData || {}))
+    return jsonData
   } catch (e) {
     console.warn("⚠️ [REDDIT-API-POST] Response was not valid JSON, returning raw text.")
     return responseText // Or handle non-JSON response appropriately
@@ -634,6 +650,7 @@ export async function submitPostAction(
   title: string,
   text: string
 ): Promise<ActionState<{ id: string; url: string }>> {
+  console.log(`🚀 [SUBMIT-POST-ACTION] Initiating post submission to r/${subreddit}`)
   try {
     console.log(`🔧 [SUBMIT-POST] Submitting post to r/${subreddit}`)
     console.log(`📝 [SUBMIT-POST] Title: ${title}`)
@@ -651,7 +668,7 @@ export async function submitPostAction(
 
     console.log("📤 [SUBMIT-POST] Sending request with body:", body)
     const result = await makeRedditApiPostCall("/api/submit", body)
-    console.log("📥 [SUBMIT-POST] Raw API Result:", JSON.stringify(result, null, 2))
+    console.log("📥 [SUBMIT-POST] Raw API Result from makeRedditApiPostCall:", JSON.stringify(result, null, 2))
 
     if (result.json?.errors?.length > 0) {
       const errors = result.json.errors.map((err: any) => err[1]).join(", ")
@@ -662,8 +679,9 @@ export async function submitPostAction(
       }
     }
 
-    if (!result.json?.data?.name) {
-        console.error("❌ [SUBMIT-POST] Reddit API response missing expected data (e.g., post name/ID). Full response:", result)
+    const responseData = result.json?.data
+    if (!responseData?.name) {
+        console.error("❌ [SUBMIT-POST] Reddit API response missing expected data (e.g., post name/ID). Full response data:", responseData, "Full result:", result)
         let detailedMessage = "Reddit API response missing expected data."
         if(result.json && result.json.ratelimit) {
             detailedMessage += ` Rate limit: ${result.json.ratelimit} seconds.`
@@ -671,8 +689,8 @@ export async function submitPostAction(
         return { isSuccess: false, message: detailedMessage }
     }
     
-    const postId = result.json.data.name // This is the fullname, e.g., t3_xxxxxx
-    const postUrl = result.json.data.url
+    const postId = responseData.name // This is the fullname, e.g., t3_xxxxxx
+    const postUrl = responseData.url
 
     console.log(`✅ [SUBMIT-POST] Post submitted successfully: ${postId}, URL: ${postUrl}`)
 
@@ -695,6 +713,7 @@ export async function submitCommentAction(
   parentId: string, // fullname of the post (t3_) or comment (t1_) to reply to
   text: string
 ): Promise<ActionState<{ id: string; parentId: string }>> {
+  console.log(`🚀 [SUBMIT-COMMENT-ACTION] Initiating comment submission to ${parentId}`)
   try {
     console.log(`🔧 [SUBMIT-COMMENT] Submitting comment to ${parentId}`)
     console.log(`💬 [SUBMIT-COMMENT] Text: ${text.substring(0, 100)}...`)
@@ -707,7 +726,7 @@ export async function submitCommentAction(
     
     console.log("📤 [SUBMIT-COMMENT] Sending request with body:", body)
     const result = await makeRedditApiPostCall("/api/comment", body)
-    console.log("📥 [SUBMIT-COMMENT] Raw API Result:", JSON.stringify(result, null, 2))
+    console.log("📥 [SUBMIT-COMMENT] Raw API Result from makeRedditApiPostCall:", JSON.stringify(result, null, 2))
 
     if (result.json?.errors?.length > 0) {
       const errors = result.json.errors.map((err: any) => err[1]).join(", ")
@@ -718,8 +737,9 @@ export async function submitCommentAction(
       }
     }
     
-    if (!result.json?.data?.things?.[0]?.data?.id) {
-        console.error("❌ [SUBMIT-COMMENT] Reddit API response missing expected data (e.g., comment id). Full response:", result)
+    const commentData = result.json?.data?.things?.[0]?.data
+    if (!commentData?.id) {
+        console.error("❌ [SUBMIT-COMMENT] Reddit API response missing expected data (e.g., comment id). Full response data:", commentData, "Full result:", result)
         let detailedMessage = "Reddit API response missing expected data."
         if(result.json && result.json.ratelimit) {
             detailedMessage += ` Rate limit: ${result.json.ratelimit} seconds.`
@@ -727,7 +747,7 @@ export async function submitCommentAction(
         return { isSuccess: false, message: detailedMessage }
     }
 
-    const commentId = result.json.data.things[0].data.id
+    const commentId = commentData.id
     console.log(`✅ [SUBMIT-COMMENT] Comment submitted successfully: ${commentId} to ${parentId}`)
 
     return {
@@ -746,9 +766,11 @@ export async function submitCommentAction(
 }
 
 export async function getRedditUserInfoAction(): Promise<ActionState<{ name: string; karma: number }>> {
+  console.log("🚀 [GET-REDDIT-USER-INFO] Fetching user info...")
   try {
     // Test by fetching user info
     const data = await makeRedditApiCall("/api/v1/me")
+    console.log("ℹ️ [GET-REDDIT-USER-INFO] Raw data from /api/v1/me:", data)
 
     return {
       isSuccess: true,
