@@ -20,236 +20,80 @@ interface KeywordsResult {
   targetPainPoints: string[]
 }
 
-export async function generateKeywordsAction(
-  data: GenerateKeywordsData
-): Promise<ActionState<KeywordsResult>> {
-  console.log(
-    "🔍 [KEYWORDS-ACTION] generateKeywordsAction called with o3-mini (natural search terms)"
-  )
-  console.log("🔍 [KEYWORDS-ACTION] Input data:", data)
-  console.log("🔍 [KEYWORDS-ACTION] Website:", data.website)
-  console.log("🔍 [KEYWORDS-ACTION] Refinement:", data.refinement)
-
+export async function generateKeywordsAction({
+  website,
+  refinement = ""
+}: {
+  website: string
+  refinement?: string
+}): Promise<ActionState<{ keywords: string[] }>> {
   try {
-    if (!data.website) {
-      console.log("🔍 [KEYWORDS-ACTION] No website provided, returning error")
-      return { isSuccess: false, message: "Website URL is required" }
-    }
+    console.log("🔍 [KEYWORDS] Generating keywords for website:", website)
+    console.log("🔍 [KEYWORDS] Refinement:", refinement)
 
-    // Step 1: Scrape the website to get actual content
-    console.log("🔍 [KEYWORDS-ACTION] Scraping website content...")
-    const scrapeResult = await scrapeWebsiteAction(data.website)
+    // Extract keyword count from refinement if specified
+    const keywordCountMatch = refinement.match(/Generate exactly (\d+) keywords/i)
+    const requestedCount = keywordCountMatch ? parseInt(keywordCountMatch[1]) : 10
 
-    if (!scrapeResult.isSuccess) {
-      console.error(
-        "🔍 [KEYWORDS-ACTION] Website scraping failed:",
-        scrapeResult.message
-      )
-      return {
-        isSuccess: false,
-        message: `Failed to analyze website: ${scrapeResult.message}`
-      }
-    }
+    const prompt = `You are a Reddit keyword expert. Generate search keywords for finding potential customers on Reddit.
 
-    const websiteContent = scrapeResult.data.content
-    const websiteTitle = scrapeResult.data.title
-    console.log("🔍 [KEYWORDS-ACTION] Website scraped successfully")
-    console.log("🔍 [KEYWORDS-ACTION] Content length:", websiteContent.length)
-    console.log("🔍 [KEYWORDS-ACTION] Website title:", websiteTitle)
+Website: ${website}
 
-    // Step 2: Build natural search terms prompt for o3-mini
-    console.log(
-      "🔍 [KEYWORDS-ACTION] Building natural search terms prompt for o3-mini"
-    )
+${refinement ? `Additional instructions: ${refinement}` : ""}
 
-    const naturalSearchPrompt = `You will be given a website homepage. Your task is to generate simple, natural search terms that people use when asking for recommendations or help on Reddit.
+Generate ${requestedCount} specific, targeted keywords that:
+1. Are phrases people would actually use when asking for recommendations on Reddit
+2. Include both broad and specific terms
+3. Focus on problems/needs your business solves
+4. Include location-specific terms if relevant
 
-WEBSITE: ${websiteTitle || "This business"}
+Return ONLY a JSON array of keyword strings, no other text.
+Example format: ["keyword 1", "keyword 2", "keyword 3"]
 
-WEBSITE CONTENT:
-${websiteContent.slice(0, 4000)}
-
-${data.refinement ? `\nFOCUS AREA: ${data.refinement}` : ""}
-
-Your Process:
-1. Analyze the website to understand what core problem it solves (ignore marketing speak)
-2. Think about when someone would naturally ask strangers for recommendations about this problem
-3. Generate search terms that capture these organic request moments
-
-What You're Looking For:
-Search terms that find posts where people are:
-- Asking "where can I find..."
-- Seeking "recommendations for..."
-- Looking for "best [service/product] for..."
-- Requesting "help finding..."
-- Asking "anyone know of..."
-
-Examples:
-- where to find developers
-- recommendations for wedding venues in the caribbean
-- best accounting software for small business
-- help finding freelance designers
-- anyone know good meal delivery services
-
-Key Points:
-- Focus on the underlying need, not the company's marketing language
-- Think like someone posting on Reddit would naturally phrase their request
-- Keep terms simple and conversational
-- Each term should find posts you could organically comment on to mention this business without feeling salesy
-- For example: "tips for planning a wedding" = BAD (can't naturally recommend venue)
-- "recommendations for wedding venues in caribbean" = GOOD (can naturally mention venue)
-
-Generate 2 search terms based on the website provided.
-
-Return response in this exact JSON format:
-{
-  "coreProblem": "The main problem this business solves",
-  "customerGroups": ["primary customer type", "secondary customer type"],
-  "keywords": ["search term 1", "search term 2", "search term 3", "etc..."]
-}`
-
-    console.log(
-      "🔍 [KEYWORDS-ACTION] Calling o3-mini with natural search terms prompt"
-    )
-    console.log(
-      "🔍 [KEYWORDS-ACTION] Prompt length:",
-      naturalSearchPrompt.length
-    )
+Make sure to generate exactly ${requestedCount} keywords.`
 
     const result = await generateText({
       model: openai("o3-mini"),
-      prompt: naturalSearchPrompt,
-      temperature: 0.2, // Low temperature for consistent, natural search terms
-      providerOptions: {
-        openai: {
-          reasoningEffort: "low" // Simple task, doesn't need complex reasoning
-        }
-      }
+      system: "You are a Reddit keyword generation expert. Return only valid JSON arrays.",
+      prompt: prompt,
+      temperature: 0.7,
+      maxTokens: 1000
     })
 
-    console.log("🔍 [KEYWORDS-ACTION] o3-mini response received")
-    console.log("🔍 [KEYWORDS-ACTION] Raw response text:", result.text)
-    console.log("🔍 [KEYWORDS-ACTION] Response length:", result.text.length)
+    const response = result.text
+    if (!response) {
+      throw new Error("No response from OpenAI")
+    }
 
+    // Parse the JSON response
+    let keywords: string[]
     try {
-      console.log("🔍 [KEYWORDS-ACTION] Attempting to parse JSON response")
-
-      // Clean the response text to handle markdown-wrapped JSON
-      let cleanText = result.text.trim()
-
-      // Remove markdown code blocks if present
-      if (cleanText.startsWith("```json")) {
-        console.log(
-          "🔍 [KEYWORDS-ACTION] Detected markdown-wrapped JSON, cleaning..."
-        )
-        cleanText = cleanText.replace(/^```json\s*/, "").replace(/\s*```$/, "")
-      } else if (cleanText.startsWith("```")) {
-        console.log(
-          "🔍 [KEYWORDS-ACTION] Detected generic markdown code block, cleaning..."
-        )
-        cleanText = cleanText.replace(/^```\s*/, "").replace(/\s*```$/, "")
+      keywords = JSON.parse(response)
+      if (!Array.isArray(keywords)) {
+        throw new Error("Response is not an array")
       }
-
-      console.log("🔍 [KEYWORDS-ACTION] Cleaned text:", cleanText)
-
-      const parsedResult = JSON.parse(cleanText)
-      console.log("🔍 [KEYWORDS-ACTION] Parsed result:", parsedResult)
-
-      // Validate the response structure
-      if (!parsedResult.keywords || !Array.isArray(parsedResult.keywords)) {
-        console.log(
-          "🔍 [KEYWORDS-ACTION] Invalid response format - keywords not found or not array"
-        )
-        throw new Error(
-          "Invalid response format: keywords missing or not array"
-        )
-      }
-
-      if (!parsedResult.coreProblem) {
-        console.log("🔍 [KEYWORDS-ACTION] Missing core problem")
-        throw new Error("Invalid response format: coreProblem missing")
-      }
-
-      console.log(
-        "🔍 [KEYWORDS-ACTION] Valid natural search terms response format detected"
-      )
-      console.log(
-        "🔍 [KEYWORDS-ACTION] Search terms found:",
-        parsedResult.keywords
-      )
-      console.log(
-        "🔍 [KEYWORDS-ACTION] Search terms length:",
-        parsedResult.keywords.length
-      )
-      console.log(
-        "🔍 [KEYWORDS-ACTION] Core problem:",
-        parsedResult.coreProblem
-      )
-      console.log(
-        "🔍 [KEYWORDS-ACTION] Customer groups:",
-        parsedResult.customerGroups
-      )
-
-      const successResult = {
-        isSuccess: true as const,
-        message: "Natural search terms generated successfully with o3-mini",
-        data: {
-          keywords: parsedResult.keywords,
-          coreProblem: parsedResult.coreProblem || "",
-          customerGroups: parsedResult.customerGroups || [],
-          // Keep backwards compatibility for existing components
-          idealCustomerProfile: `Targeting: ${(parsedResult.customerGroups || []).join(", ")}`,
-          uniqueValueProposition: parsedResult.coreProblem || "",
-          targetPainPoints: parsedResult.customerGroups || []
-        }
-      }
-
-      console.log(
-        "🔍 [KEYWORDS-ACTION] Returning natural search terms success result:",
-        successResult
-      )
-      return successResult
     } catch (parseError) {
-      console.log("🔍 [KEYWORDS-ACTION] JSON parsing failed:", parseError)
-      console.log("🔍 [KEYWORDS-ACTION] Attempting fallback keyword extraction")
+      console.error("🔍 [KEYWORDS] Failed to parse response:", response)
+      throw new Error("Invalid response format from AI")
+    }
 
-      // Fallback: extract keywords from text if JSON parsing fails
-      const keywords = extractKeywordsFromText(result.text)
-      console.log("🔍 [KEYWORDS-ACTION] Fallback keywords extracted:", keywords)
-      console.log(
-        "🔍 [KEYWORDS-ACTION] Fallback keywords length:",
-        keywords.length
-      )
+    // Ensure we have the requested number of keywords
+    if (keywords.length > requestedCount) {
+      keywords = keywords.slice(0, requestedCount)
+    }
 
-      const fallbackResult = {
-        isSuccess: true as const,
-        message: "Keywords generated successfully (fallback mode)",
-        data: {
-          keywords,
-          coreProblem: "Determined from website content (fallback)",
-          customerGroups: ["General customers"],
-          // Keep backwards compatibility
-          idealCustomerProfile: "Generated from website analysis (fallback)",
-          uniqueValueProposition: "Determined from website content",
-          targetPainPoints: ["Analysis completed in fallback mode"]
-        }
-      }
+    console.log(`🔍 [KEYWORDS] Generated ${keywords.length} keywords`)
 
-      console.log(
-        "🔍 [KEYWORDS-ACTION] Returning fallback result:",
-        fallbackResult
-      )
-      return fallbackResult
+    return {
+      isSuccess: true,
+      message: "Keywords generated successfully",
+      data: { keywords }
     }
   } catch (error) {
-    console.error(
-      "🔍 [KEYWORDS-ACTION] Error generating natural search terms:",
-      error
-    )
-    console.error("🔍 [KEYWORDS-ACTION] Error stack:", (error as Error)?.stack)
+    console.error("🔍 [KEYWORDS] Error:", error)
     return {
       isSuccess: false,
-      message: "Failed to generate natural search terms"
+      message: error instanceof Error ? error.message : "Failed to generate keywords"
     }
   }
 }
