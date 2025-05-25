@@ -20,20 +20,20 @@ const isProtectedRoute = createRouteMatcher([
 
 const isPublicApiRoute = createRouteMatcher([
   "/api/queue/(.*)",
-  "/api/warmup/(.*)"
+  "/api/warmup/(.*)",
+  "/api/test-warmup"
 ])
 
 // Create a custom middleware that checks for public API routes first
-export function middleware(request: NextRequest) {
-  const pathname = request.nextUrl.pathname
+export default clerkMiddleware(async (auth, req) => {
+  const pathname = req.nextUrl.pathname
   
-  console.log("🔥🔥🔥 [MIDDLEWARE] Request URL:", request.url)
+  console.log("🔥🔥🔥 [MIDDLEWARE] Request URL:", req.url)
   console.log("🔥🔥🔥 [MIDDLEWARE] Pathname:", pathname)
-  console.log("🔥🔥🔥 [MIDDLEWARE] Headers:", Object.fromEntries(request.headers.entries()))
   
   // Check for CRON_SECRET in authorization header for public API routes
-  if (isPublicApiRoute(request)) {
-    const authHeader = request.headers.get("authorization")
+  if (isPublicApiRoute(req)) {
+    const authHeader = req.headers.get("authorization")
     const expectedAuth = `Bearer ${process.env.CRON_SECRET}`
     
     console.log("🔥🔥🔥 [MIDDLEWARE] Public API route detected")
@@ -49,17 +49,15 @@ export function middleware(request: NextRequest) {
     }
   }
   
-  // For all other routes, use Clerk middleware
-  return clerkMiddleware(async (auth, req) => {
-    const { userId } = await auth()
-    console.log("🔥🔥🔥 [MIDDLEWARE] Auth userId:", userId)
-    console.log("🔥🔥🔥 [MIDDLEWARE] Is protected route:", isProtectedRoute(req))
-    
-    if (isProtectedRoute(req)) {
-      await auth.protect()
-    }
-  })(request, {} as any)
-}
+  // For all other routes, check authentication
+  const { userId } = await auth()
+  console.log("🔥🔥🔥 [MIDDLEWARE] Auth userId:", userId)
+  console.log("🔥🔥🔥 [MIDDLEWARE] Is protected route:", isProtectedRoute(req))
+  
+  if (isProtectedRoute(req) && !isPublicApiRoute(req)) {
+    await auth.protect()
+  }
+})
 
 export const config = {
   matcher: [

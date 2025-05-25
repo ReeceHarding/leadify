@@ -44,15 +44,23 @@ export async function POST(request: Request) {
       new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
     )
 
+    // Simplified query to avoid composite index requirement
     const postsQuery = query(
       collection(db, WARMUP_COLLECTIONS.WARMUP_POSTS),
-      where("status", "==", "posted"),
-      where("postedAt", ">=", sevenDaysAgo)
+      where("status", "==", "posted")
     )
 
     const postsSnapshot = await getDocs(postsQuery)
+    
+    // Filter posts from the last 7 days in memory
+    const recentPosts = postsSnapshot.docs.filter(doc => {
+      const data = doc.data()
+      return data.postedAt && data.postedAt.toMillis() >= sevenDaysAgo.toMillis()
+    })
+    
+    console.log(`🔍 [CHECK-COMMENTS] Found ${recentPosts.length} posts from the last 7 days`)
 
-    for (const postDoc of postsSnapshot.docs) {
+    for (const postDoc of recentPosts) {
       const post = postDoc.data()
 
       if (!post.redditPostId) continue
@@ -166,8 +174,15 @@ export async function POST(request: Request) {
     })
   } catch (error) {
     console.error("❌ [CHECK-COMMENTS] Error:", error)
+    console.error("Error details:", {
+      message: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined
+    })
     return NextResponse.json(
-      { error: "Internal server error" },
+      { 
+        error: "Internal server error",
+        details: error instanceof Error ? error.message : "Unknown error"
+      },
       { status: 500 }
     )
   }

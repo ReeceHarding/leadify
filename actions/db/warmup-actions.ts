@@ -323,7 +323,7 @@ export async function updateWarmupPostAction(
 
 export async function getSubredditAnalysisAction(
   subreddit: string
-): Promise<ActionState<SubredditAnalysisDocument | null>> {
+): Promise<ActionState<SerializedSubredditAnalysisDocument | null>> {
   try {
     console.log("🔍 [GET-SUBREDDIT-ANALYSIS] Fetching analysis for:", subreddit)
     
@@ -358,7 +358,7 @@ export async function saveSubredditAnalysisAction(
   topPosts: any[],
   writingStyle: string,
   commonTopics: string[]
-): Promise<ActionState<SubredditAnalysisDocument>> {
+): Promise<ActionState<SerializedSubredditAnalysisDocument>> {
   try {
     console.log("🔧 [SAVE-SUBREDDIT-ANALYSIS] Saving analysis for:", subreddit)
     
@@ -479,7 +479,7 @@ export async function updateWarmupRateLimitAction(
 
 export async function createWarmupCommentAction(
   data: CreateWarmupCommentData
-): Promise<ActionState<WarmupCommentDocument>> {
+): Promise<ActionState<SerializedWarmupCommentDocument>> {
   try {
     console.log("🔧 [CREATE-WARMUP-COMMENT] Creating warm-up comment for post:", data.warmupPostId)
     

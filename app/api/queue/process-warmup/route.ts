@@ -45,18 +45,32 @@ export async function POST(request: Request) {
     let postsProcessed = 0
     let commentsProcessed = 0
 
-    // Process queued posts
+    // Process queued posts - simplified query to avoid composite index requirement
+    console.log("🔧 [PROCESS-WARMUP] Fetching queued posts...")
     const postsQuery = query(
       collection(db, WARMUP_COLLECTIONS.WARMUP_POSTS),
-      where("status", "==", "queued"),
-      where("scheduledFor", "<=", now),
-      orderBy("scheduledFor", "asc"),
-      limit(10) // Process up to 10 posts at a time
+      where("status", "==", "queued")
     )
 
     const postsSnapshot = await getDocs(postsQuery)
+    console.log(`🔧 [PROCESS-WARMUP] Found ${postsSnapshot.size} queued posts`)
+    
+    // Filter and sort in memory
+    const postsToProcess = postsSnapshot.docs
+      .filter(doc => {
+        const data = doc.data()
+        return data.scheduledFor && data.scheduledFor.toMillis() <= now.toMillis()
+      })
+      .sort((a, b) => {
+        const aTime = a.data().scheduledFor?.toMillis() || 0
+        const bTime = b.data().scheduledFor?.toMillis() || 0
+        return aTime - bTime
+      })
+      .slice(0, 10) // Process up to 10 posts at a time
+    
+    console.log(`🔧 [PROCESS-WARMUP] ${postsToProcess.length} posts ready to process`)
 
-    for (const postDoc of postsSnapshot.docs) {
+    for (const postDoc of postsToProcess) {
       const post = postDoc.data()
 
       try {
@@ -116,18 +130,32 @@ export async function POST(request: Request) {
       }
     }
 
-    // Process queued comments
+    // Process queued comments - simplified query to avoid composite index requirement
+    console.log("🔧 [PROCESS-WARMUP] Fetching queued comments...")
     const commentsQuery = query(
       collection(db, WARMUP_COLLECTIONS.WARMUP_COMMENTS),
-      where("status", "==", "queued"),
-      where("scheduledFor", "<=", now),
-      orderBy("scheduledFor", "asc"),
-      limit(20) // Process up to 20 comments at a time
+      where("status", "==", "queued")
     )
 
     const commentsSnapshot = await getDocs(commentsQuery)
+    console.log(`🔧 [PROCESS-WARMUP] Found ${commentsSnapshot.size} queued comments`)
+    
+    // Filter and sort in memory
+    const commentsToProcess = commentsSnapshot.docs
+      .filter(doc => {
+        const data = doc.data()
+        return data.scheduledFor && data.scheduledFor.toMillis() <= now.toMillis()
+      })
+      .sort((a, b) => {
+        const aTime = a.data().scheduledFor?.toMillis() || 0
+        const bTime = b.data().scheduledFor?.toMillis() || 0
+        return aTime - bTime
+      })
+      .slice(0, 20) // Process up to 20 comments at a time
+    
+    console.log(`🔧 [PROCESS-WARMUP] ${commentsToProcess.length} comments ready to process`)
 
-    for (const commentDoc of commentsSnapshot.docs) {
+    for (const commentDoc of commentsToProcess) {
       const comment = commentDoc.data()
 
       try {
@@ -199,8 +227,15 @@ export async function POST(request: Request) {
     })
   } catch (error) {
     console.error("❌ [PROCESS-WARMUP] Error:", error)
+    console.error("Error details:", {
+      message: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined
+    })
     return NextResponse.json(
-      { error: "Internal server error" },
+      { 
+        error: "Internal server error",
+        details: error instanceof Error ? error.message : "Unknown error"
+      },
       { status: 500 }
     )
   }
