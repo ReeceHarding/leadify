@@ -54,7 +54,8 @@ const data = {
       items: [
         { title: "Leads", url: "/reddit/lead-finder" },
         { title: "My Posts", url: "/reddit/my-posts" },
-        { title: "Customize", url: "/reddit/personalization" }
+        { title: "Knowledge Base", url: "/reddit/knowledge-base" },
+        { title: "Voice", url: "/reddit/voice-settings" }
       ]
     }
   ],
