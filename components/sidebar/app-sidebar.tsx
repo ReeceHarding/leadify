@@ -7,11 +7,8 @@ This client component provides the sidebar for the app.
 "use client"
 
 import {
-  BookOpen,
   Building2,
-  Settings2,
   User,
-  Users,
   MessageSquare,
   Target
 } from "lucide-react"
@@ -59,35 +56,6 @@ const data = {
       url: "/reddit",
       icon: MessageSquare,
       items: [{ title: "Leadify", url: "/reddit/lead-finder" }]
-    },
-    {
-      title: "Team",
-      url: "/team",
-      icon: Users,
-      items: [
-        { title: "Members", url: "/team/members" },
-        { title: "Invites", url: "/team/invites" }
-      ]
-    },
-    {
-      title: "Documentation",
-      url: "/docs",
-      icon: BookOpen,
-      items: [
-        { title: "Getting Started", url: "/docs/getting-started" },
-        { title: "API Reference", url: "/docs/api" }
-      ]
-    },
-    {
-      title: "Settings",
-      url: "/settings",
-      icon: Settings2,
-      items: [
-        { title: "General", url: "/settings/general" },
-        { title: "Security", url: "/settings/security" },
-        { title: "Billing", url: "/settings/billing" },
-        { title: "Notifications", url: "/settings/notifications" }
-      ]
     }
   ],
   projects: []
