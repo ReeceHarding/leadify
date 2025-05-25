@@ -1,23 +1,23 @@
-[2025-05-25T07:49:40.742Z] ================================================================================
-[2025-05-25T07:49:40.743Z] NEW DEV SESSION STARTED: 2025-05-25T07:49:40.743Z
-[2025-05-25T07:49:40.743Z] ================================================================================
-[2025-05-25T07:49:40.744Z] STEP: Killing processes on port 3000
-[2025-05-25T07:49:40.804Z] ✅ Killed process 45378 on port 3000
-[2025-05-25T07:49:40.804Z] ✅ Killed process 47331 on port 3000
-[2025-05-25T07:49:40.900Z] NEXTJS_CLOSE: Next.js dev server stopped with exit code: 0
-[2025-05-25T07:49:41.303Z] STEP: Starting Next.js development server
-[2025-05-25T07:49:42.266Z] NEXTJS_STDOUT: ▲ Next.js 15.3.2
-[2025-05-25T07:49:42.266Z] NEXTJS_STDOUT: - Local:        http://localhost:3000
-[2025-05-25T07:49:42.266Z] NEXTJS_STDOUT: - Network:      http://100.110.212.88:3000
-[2025-05-25T07:49:42.266Z] NEXTJS_STDOUT: - Environments: .env.local
-[2025-05-25T07:49:42.266Z] NEXTJS_STDOUT: ✓ Starting...
-[2025-05-25T07:49:43.297Z] NEXTJS_STDOUT: ✓ Ready in 1107ms
-[2025-05-25T07:49:44.298Z] NEXTJS_STDOUT: ✓ Compiled /middleware in 229ms (269 modules)
-[2025-05-25T07:49:44.369Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/
-[2025-05-25T07:49:44.369Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /
-[2025-05-25T07:49:44.369Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth userId: null
-[2025-05-25T07:49:44.369Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Is protected route: false
-[2025-05-25T07:49:44.881Z] NEXTJS_STDOUT: ○ Compiling / ...
-[2025-05-25T07:49:47.027Z] NEXTJS_STDOUT: ✓ Compiled / in 2.7s (2512 modules)
-[2025-05-25T07:49:47.572Z] NEXTJS_STDOUT: GET / 200 in 3201ms
-[2025-05-25T07:49:47.704Z] NEXTJS_STDOUT: ✓ Compiled in 299ms (912 modules)
+[2025-05-25T07:51:11.590Z] ================================================================================
+[2025-05-25T07:51:11.590Z] NEW DEV SESSION STARTED: 2025-05-25T07:51:11.590Z
+[2025-05-25T07:51:11.591Z] ================================================================================
+[2025-05-25T07:51:11.591Z] STEP: Killing processes on port 3000
+[2025-05-25T07:51:11.627Z] ✅ Killed process 50017 on port 3000
+[2025-05-25T07:51:11.663Z] NEXTJS_CLOSE: Next.js dev server stopped with exit code: 0
+[2025-05-25T07:51:12.125Z] STEP: Starting Next.js development server
+[2025-05-25T07:51:12.696Z] NEXTJS_STDOUT: ▲ Next.js 15.3.2
+[2025-05-25T07:51:12.696Z] NEXTJS_STDOUT: - Local:        http://localhost:3000
+[2025-05-25T07:51:12.697Z] NEXTJS_STDOUT: - Network:      http://100.110.212.88:3000
+[2025-05-25T07:51:12.697Z] NEXTJS_STDOUT: - Environments: .env.local
+[2025-05-25T07:51:12.697Z] NEXTJS_STDOUT: ✓ Starting...
+[2025-05-25T07:51:13.619Z] NEXTJS_STDOUT: ✓ Ready in 985ms
+[2025-05-25T07:51:14.953Z] NEXTJS_STDOUT: ✓ Compiled /middleware in 411ms (269 modules)
+[2025-05-25T07:51:15.025Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/
+[2025-05-25T07:51:15.025Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /
+[2025-05-25T07:51:15.025Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth userId: null
+[2025-05-25T07:51:15.025Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Is protected route: false
+[2025-05-25T07:51:15.551Z] NEXTJS_STDOUT: ○ Compiling / ...
+[2025-05-25T07:51:16.050Z] NEXTJS_STDERR: <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (121kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+[2025-05-25T07:51:18.845Z] NEXTJS_STDOUT: ✓ Compiled / in 3.8s (2521 modules)
+[2025-05-25T07:51:19.354Z] NEXTJS_STDOUT: GET / 200 in 4327ms
+[2025-05-25T07:51:19.472Z] NEXTJS_STDOUT: ✓ Compiled in 246ms (912 modules)
