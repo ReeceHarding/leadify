@@ -50,6 +50,12 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import PostDetailPopup from "../post-detail-popup";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from "@/components/ui/tooltip"
 
 interface LeadCardProps {
   lead: any;
@@ -317,29 +323,34 @@ export default function LeadCard({
               <ExternalLink className="mr-2 size-4" />
               View on Reddit
             </Button>
-            <Button
-              size="sm"
-              onClick={handlePostClick}
-              disabled={isPosting || isQueueing || lead.status === "posted"}
-              className="flex-1 bg-blue-600 text-white hover:bg-blue-700"
-            >
-              {isPosting || isQueueing ? (
-                <>
-                  <div className="mr-2 size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  Processing...
-                </>
-              ) : lead.status === "posted" ? (
-                <>
-                  <Check className="mr-2 size-4" />
-                  Posted
-                </>
-              ) : (
-                <>
-                  <Send className="mr-2 size-4" />
-                  Post
-                </>
-              )}
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="sm"
+                    onClick={handlePostClick}
+                    disabled={isPosting || isQueueing}
+                    className="flex-1 bg-blue-600 text-white hover:bg-blue-700"
+                  >
+                    {isPosting || isQueueing ? (
+                      <>
+                        <Loader2 className="mr-2 size-4 animate-spin" />
+                        {isPosting ? "Posting..." : "Adding..."}
+                      </>
+                    ) : (
+                      <>
+                        <Send className="mr-2 size-4" />
+                        Post
+                      </>
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Post to Reddit or add to queue</p>
+                  <p className="text-xs text-gray-400">Some subreddits have posting restrictions</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </CardContent>
       </Card>

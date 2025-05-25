@@ -73,7 +73,11 @@ async function makeRedditApiPost(endpoint: string, body: any): Promise<any> {
     }
     
     if (response.status === 403) {
-      throw new Error("You don't have permission to post in this subreddit.")
+      throw new Error(
+        "You don't have permission to post in this subreddit. Common reasons: " +
+        "minimum karma requirements, account age restrictions, or you need to join the subreddit first. " +
+        "Try posting to a different subreddit or check the subreddit's rules."
+      )
     }
     
     if (response.status === 429) {

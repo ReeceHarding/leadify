@@ -670,6 +670,14 @@ export default function LeadFinderDashboard() {
             errorMessage.includes("re-authenticate")) {
           updateState({ showRedditAuthDialog: true })
           toast.error("Please reconnect your Reddit account")
+        } else if (errorMessage.includes("don't have permission to post in this subreddit")) {
+          toast.error(
+            "Posting blocked by subreddit rules", 
+            {
+              description: "This subreddit has posting restrictions. Try a different subreddit or check if you need to join first.",
+              duration: 6000
+            }
+          )
         } else {
           toast.error("Failed to post comment")
         }
@@ -773,6 +781,14 @@ export default function LeadFinderDashboard() {
           errorMessage.includes("re-authenticate")) {
         updateState({ showRedditAuthDialog: true })
         toast.error("Please reconnect your Reddit account")
+      } else if (errorMessage.includes("don't have permission to post in this subreddit")) {
+        toast.error(
+          "Posting blocked by subreddit rules", 
+          {
+            description: "This subreddit has posting restrictions. Try a different subreddit or check if you need to join first.",
+            duration: 6000
+          }
+        )
       } else {
         toast.error("Failed to post comment")
       }
