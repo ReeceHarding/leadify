@@ -1014,6 +1014,7 @@ export default function LeadFinderDashboard() {
         selectedCommentLength={state.selectedLength}
         onCommentLengthChange={(value) => updateState({ selectedLength: value as "micro" | "medium" | "verbose" })}
         onNewCampaignClick={() => setCreateDialogOpen(true)}
+        workflowRunning={state.workflowRunning}
       />
       
       <div className="grid gap-4">

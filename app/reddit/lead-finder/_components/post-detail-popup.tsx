@@ -13,6 +13,11 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
 import { 
   ThumbsUp, 
   Clock, 
@@ -22,7 +27,9 @@ import {
   Loader2,
   ExternalLink,
   ChevronRight,
-  Award
+  ChevronDown,
+  Award,
+  Sparkles
 } from "lucide-react"
 import { fetchRedditThreadAction } from "@/actions/integrations/reddit-actions"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -45,6 +52,7 @@ interface PostDetailPopupProps {
     mediumComment?: string
     verboseComment?: string
     selectedLength?: "micro" | "medium" | "verbose"
+    reasoning?: string
     originalData?: {
       postContentSnippet: string
       threadId?: string
@@ -74,6 +82,7 @@ export default function PostDetailPopup({
   const [showComments, setShowComments] = useState(false)
   const [comments, setComments] = useState<RedditComment[]>([])
   const [loadingComments, setLoadingComments] = useState(false)
+  const [isAnalysisOpen, setIsAnalysisOpen] = useState(false)
 
   useEffect(() => {
     if (open && lead.postUrl) {
@@ -307,6 +316,31 @@ export default function PostDetailPopup({
                     </div>
                   )}
                 </div>
+                
+                {/* AI Analysis Section */}
+                <Collapsible open={isAnalysisOpen} onOpenChange={setIsAnalysisOpen}>
+                  <CollapsibleTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className="h-9 w-full justify-between rounded-md bg-gray-50/50 px-3 text-xs text-gray-600 hover:bg-gray-100/50 hover:text-gray-900 dark:bg-gray-900/30 dark:text-gray-400 dark:hover:bg-gray-900/50 dark:hover:text-gray-100"
+                    >
+                      <span className="flex items-center gap-2">
+                        <Sparkles className="size-3" />
+                        AI Analysis
+                      </span>
+                      {isAnalysisOpen ? (
+                        <ChevronDown className="size-3" />
+                      ) : (
+                        <ChevronRight className="size-3" />
+                      )}
+                    </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="mt-2">
+                    <div className="rounded-md bg-gray-50 p-3 text-xs text-gray-600 dark:bg-gray-900/50 dark:text-gray-400">
+                      {lead.reasoning || "AI analysis for why this is a good match for your business."}
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
                 
                 <Separator />
                 

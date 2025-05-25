@@ -20,6 +20,7 @@ interface DashboardHeaderProps {
   selectedCommentLength: "micro" | "medium" | "verbose";
   onCommentLengthChange: (value: "micro" | "medium" | "verbose") => void;
   onNewCampaignClick: () => void;
+  workflowRunning?: boolean; // Add this prop
 }
 
 export default function DashboardHeader({
@@ -34,26 +35,23 @@ export default function DashboardHeader({
   onCompleteOnboardingClick,
   selectedCommentLength,
   onCommentLengthChange,
-  onNewCampaignClick
+  onNewCampaignClick,
+  workflowRunning = false
 }: DashboardHeaderProps) {
   return (
     <div className="mb-6 rounded-lg border bg-white p-4 shadow-sm dark:bg-gray-900">
-      {/* Polling Status Indicator - Show only if a campaign is active */}
-      {campaignId && (
+      {/* Polling Status Indicator - Show only when workflow is running */}
+      {campaignId && workflowRunning && (
         <div className="mb-3 flex items-center justify-between rounded-md bg-gray-50 px-3 py-2 text-xs dark:bg-gray-800">
           <div className="flex items-center gap-2">
-            <div
-              className={`size-2 rounded-full ${
-                leadsCount > 0 ? "animate-pulse bg-green-500" : "bg-gray-400"
-              }`}
-            />
+            <div className="size-2 animate-pulse rounded-full bg-green-500" />
             <span className="text-gray-600 dark:text-gray-400">
-              Auto-refresh active (every 5 seconds)
+              Finding new leads (real-time updates active)
             </span>
           </div>
           {lastPolledAt && (
             <span className="text-gray-500 dark:text-gray-500">
-              Last checked: {new Date(lastPolledAt).toLocaleTimeString()}
+              Last update: {new Date(lastPolledAt).toLocaleTimeString()}
             </span>
           )}
         </div>

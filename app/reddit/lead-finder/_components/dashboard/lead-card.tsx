@@ -65,7 +65,6 @@ export default function LeadCard({
   const [isEditing, setIsEditing] = useState(false);
   const [editedComment, setEditedComment] = useState("");
   const [isCopied, setIsCopied] = useState(false);
-  const [isAnalysisOpen, setIsAnalysisOpen] = useState(false);
   const [showPostDetail, setShowPostDetail] = useState(false);
 
   const comment = lead[`${selectedLength}Comment`] || lead.mediumComment || "";
@@ -198,31 +197,6 @@ export default function LeadCard({
               </div>
             )}
           </div>
-
-          {/* AI Analysis - Collapsible with subtle grey background */}
-          <Collapsible open={isAnalysisOpen} onOpenChange={setIsAnalysisOpen}>
-            <CollapsibleTrigger asChild>
-              <Button
-                variant="ghost"
-                className="h-9 w-full justify-between rounded-md bg-gray-50/50 px-3 text-xs text-gray-600 hover:bg-gray-100/50 hover:text-gray-900 dark:bg-gray-900/30 dark:text-gray-400 dark:hover:bg-gray-900/50 dark:hover:text-gray-100"
-              >
-                <span className="flex items-center gap-2">
-                  <Sparkles className="size-3" />
-                  AI Analysis
-                </span>
-                {isAnalysisOpen ? (
-                  <ChevronDown className="size-3" />
-                ) : (
-                  <ChevronRight className="size-3" />
-                )}
-              </Button>
-            </CollapsibleTrigger>
-            <CollapsibleContent className="mt-2">
-              <div className="rounded-md bg-gray-50 p-3 text-xs text-gray-600 dark:bg-gray-900/50 dark:text-gray-400">
-                {lead.reasoning || "AI analysis for why this is a good match for your business."}
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
 
           {/* Meta Information */}
           <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
