@@ -154,9 +154,9 @@ export default function LeadsStream({ campaignId }: Props) {
           console.log("🔥🔥🔥 [LEADS-STREAM] Rendering empty state")
           return (
             <Card className="p-12 text-center">
-              <MessageSquare className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No leads generated yet</h3>
-              <p className="text-sm text-muted-foreground">
+              <MessageSquare className="text-muted-foreground mx-auto mb-4 size-12" />
+              <h3 className="mb-2 text-lg font-semibold">No leads generated yet</h3>
+              <p className="text-muted-foreground text-sm">
                 Click "Start Lead Generation" to begin finding leads
               </p>
             </Card>
@@ -167,7 +167,7 @@ export default function LeadsStream({ campaignId }: Props) {
           console.log("🔥🔥🔥 [LEADS-STREAM] Rendering leads list with", leads.length, "leads")
           return (
             <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Showing {leads.length} lead{leads.length !== 1 ? 's' : ''}
               </p>
               {leads.map((lead, index) => {

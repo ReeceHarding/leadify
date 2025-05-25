@@ -111,7 +111,6 @@ import { db } from "@/lib/firebase"
 import LeadCard from "./dashboard/lead-card"
 import DashboardHeader from "./dashboard/dashboard-header"
 import ToneCustomizer from "./dashboard/tone-customizer"
-import FiltersAndSorting from "./dashboard/filters-and-sorting"
 import BatchPoster from "./dashboard/batch-poster"
 import PaginationControls from "./dashboard/pagination-controls"
 import LeadsDisplay from "./dashboard/leads-display"
@@ -967,18 +966,6 @@ export default function LeadFinderDashboard() {
         />
       
       <div className="grid gap-4">
-        <FiltersAndSorting
-          filterKeyword={state.filterKeyword}
-          filterScore={state.filterScore}
-          sortBy={state.sortBy}
-          onFilterKeywordChange={(value) => updateState({ filterKeyword: value })}
-          onFilterScoreChange={(value) => updateState({ filterScore: value })}
-          onSortByChange={(value) => updateState({ sortBy: value as "relevance" | "upvotes" | "time" })}
-          paginatedLeadsCount={paginatedLeads.length}
-          totalFilteredLeadsCount={filteredAndSortedLeads.length}
-          disabled={state.isLoading || state.workflowRunning}
-        />
-
         {state.activeTab === "queue" && (
           <BatchPoster
             approvedLeadsCount={state.leads.filter(l => l.status === "queued").length}
@@ -1002,18 +989,17 @@ export default function LeadFinderDashboard() {
           activeTab={state.activeTab}
           campaignId={state.campaignId}
           selectedLength={state.selectedLength}
-          getDisplayComment={getDisplayComment}
-          editingCommentId={state.editingCommentId}
-          onEditClick={(leadId: string) => updateState({ editingCommentId: leadId })}
-          onSaveComment={handleCommentEdit}
-          onCancelEdit={() => updateState({ editingCommentId: null })}
-          removingLeadId={state.removingLeadId}
-          queuingLeadId={state.queuingLeadId}
+          onEditComment={handleCommentEdit}
+          onPostComment={handlePostNow}
+          onQueueComment={handleAddToQueue}
+          onViewComments={(lead) => {
+            setState(prev => ({
+              ...prev,
+              selectedPost: lead
+            }))
+          }}
           postingLeadId={state.postingLeadId}
-          onRemoveFromQueue={handleRemoveFromQueue}
-          onAddToQueue={handleAddToQueue}
-          onPostNow={handlePostNow}
-          onCardClick={(lead: LeadResult) => updateState({ selectedPost: lead })}
+          queuingLeadId={state.queuingLeadId}
           toneInstruction={state.toneInstruction}
           onToneInstructionChange={(value: string) => updateState({ toneInstruction: value })}
           onRegenerateAllTones={handleToneRegeneration}

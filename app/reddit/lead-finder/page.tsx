@@ -1,7 +1,7 @@
 "use server"
 
 import { Suspense } from "react"
-import CampaignSelector from "./_components/campaign-selector"
+import LeadFinderDashboard from "./_components/lead-finder-dashboard"
 import { Skeleton } from "@/components/ui/skeleton"
 
 export default async function LeadFinderPage() {
@@ -26,17 +26,20 @@ export default async function LeadFinderPage() {
           (() => {
             console.log("🔥🔥🔥 [LEAD-FINDER-PAGE] Showing Suspense fallback")
             return (
-              <div className="space-y-4 pt-6">
-                <Skeleton className="h-8 w-[200px]" />
-                <Skeleton className="h-[400px] w-full" />
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Skeleton className="h-8 w-[200px]" />
+                  <Skeleton className="h-4 w-[400px]" />
+                </div>
+                <Skeleton className="h-[600px] w-full" />
               </div>
             )
           })()
         }
       >
         {(() => {
-          console.log("🔥🔥🔥 [LEAD-FINDER-PAGE] Rendering CampaignSelector inside Suspense")
-          return <CampaignSelector />
+          console.log("🔥🔥🔥 [LEAD-FINDER-PAGE] Rendering LeadFinderDashboard inside Suspense")
+          return <LeadFinderDashboard />
         })()}
       </Suspense>
     </div>

@@ -28,18 +28,12 @@ interface LeadsDisplayProps {
 
   // Props for child components
   selectedLength: "micro" | "medium" | "verbose";
-  getDisplayComment: (lead: LeadResult) => string;
-  editingCommentId: string | null;
-  onEditClick: (leadId: string) => void;
-  onSaveComment: (leadId: string, newComment: string) => void;
-  onCancelEdit: () => void;
-  removingLeadId: string | null;
-  queuingLeadId: string | null;
+  onEditComment: (leadId: string, newComment: string) => Promise<void>;
+  onPostComment: (lead: LeadResult) => Promise<void>;
+  onQueueComment: (lead: LeadResult) => Promise<void>;
+  onViewComments?: (lead: LeadResult) => void;
   postingLeadId: string | null;
-  onRemoveFromQueue: (lead: LeadResult) => void;
-  onAddToQueue: (lead: LeadResult) => void;
-  onPostNow: (lead: LeadResult) => void;
-  onCardClick: (lead: LeadResult) => void;
+  queuingLeadId: string | null;
   
   toneInstruction: string;
   onToneInstructionChange: (value: string) => void;
@@ -73,18 +67,12 @@ export default function LeadsDisplay({
   activeTab,
   campaignId,
   selectedLength,
-  getDisplayComment,
-  editingCommentId,
-  onEditClick,
-  onSaveComment,
-  onCancelEdit,
-  removingLeadId,
-  queuingLeadId,
+  onEditComment,
+  onPostComment,
+  onQueueComment,
+  onViewComments,
   postingLeadId,
-  onRemoveFromQueue,
-  onAddToQueue,
-  onPostNow,
-  onCardClick,
+  queuingLeadId,
   toneInstruction,
   onToneInstructionChange,
   onRegenerateAllTones,
@@ -180,25 +168,18 @@ export default function LeadsDisplay({
 
       {/* Results Grid or Empty State */}
       {filteredAndSortedLeads.length > 0 ? (
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 2xl:grid-cols-3">
           {paginatedLeads.map(lead => (
             <LeadCard
               key={lead.id}
               lead={lead}
               selectedLength={selectedLength}
-              getDisplayComment={getDisplayComment}
-              isNew={newLeadIds.has(lead.id)}
-              editingCommentId={editingCommentId}
-              onEditClick={onEditClick}
-              onSaveComment={onSaveComment}
-              onCancelEdit={onCancelEdit}
-              removingLeadId={removingLeadId}
-              queuingLeadId={queuingLeadId}
-              postingLeadId={postingLeadId}
-              onRemoveFromQueue={onRemoveFromQueue}
-              onAddToQueue={onAddToQueue}
-              onPostNow={onPostNow}
-              onCardClick={onCardClick}
+              onEdit={onEditComment}
+              onPost={onPostComment}
+              onQueue={onQueueComment}
+              onViewComments={onViewComments}
+              isPosting={postingLeadId === lead.id}
+              isQueueing={queuingLeadId === lead.id}
             />
           ))}
         </div>
