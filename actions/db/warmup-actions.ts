@@ -426,6 +426,7 @@ export async function createWarmupCommentAction(
       userId: data.userId,
       warmupPostId: data.warmupPostId,
       parentCommentId: data.parentCommentId,
+      redditParentCommentId: data.redditParentCommentId,
       content: data.content,
       status: "draft" as const,
       scheduledFor: data.scheduledFor,

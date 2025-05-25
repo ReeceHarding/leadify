@@ -56,6 +56,7 @@ export interface WarmupCommentDocument {
   userId: string
   warmupPostId: string
   parentCommentId?: string // For replies to comments
+  redditParentCommentId?: string // The Reddit comment ID we're replying to
   content: string
   status: "draft" | "queued" | "posted" | "failed"
   scheduledFor?: Timestamp
@@ -117,6 +118,7 @@ export interface CreateWarmupCommentData {
   userId: string
   warmupPostId: string
   parentCommentId?: string
+  redditParentCommentId?: string
   content: string
   scheduledFor?: Timestamp
 }
@@ -152,4 +154,4 @@ export interface UpdateWarmupCommentData {
   redditCommentId?: string
   error?: string
   updatedAt?: Timestamp
-} 
+}

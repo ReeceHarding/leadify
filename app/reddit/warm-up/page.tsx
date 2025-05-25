@@ -14,9 +14,9 @@ export default async function WarmupPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Reddit Account Warm-up</h1>
+        <h1 className="mb-2 text-3xl font-bold">Reddit Account Warm-up</h1>
         <p className="text-muted-foreground">
           Build karma and authority in your target subreddits before launching your lead generation campaigns.
         </p>

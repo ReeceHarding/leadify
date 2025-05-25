@@ -76,10 +76,10 @@ export default function WarmupSettings({ warmupAccount, onUpdate }: WarmupSettin
           <RadioGroup value={postingMode} onValueChange={(value) => setPostingMode(value as "auto" | "manual")}>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="auto" id="auto" />
-              <Label htmlFor="auto" className="font-normal cursor-pointer">
+              <Label htmlFor="auto" className="cursor-pointer font-normal">
                 <div>
                   <div className="font-medium">Automatic Posting</div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-muted-foreground text-sm">
                     Posts will be automatically submitted to Reddit when scheduled
                   </div>
                 </div>
@@ -87,10 +87,10 @@ export default function WarmupSettings({ warmupAccount, onUpdate }: WarmupSettin
             </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="manual" id="manual" />
-              <Label htmlFor="manual" className="font-normal cursor-pointer">
+              <Label htmlFor="manual" className="cursor-pointer font-normal">
                 <div>
                   <div className="font-medium">Manual Verification</div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-muted-foreground text-sm">
                     Review and manually approve each post before it's submitted
                   </div>
                 </div>
@@ -113,15 +113,15 @@ export default function WarmupSettings({ warmupAccount, onUpdate }: WarmupSettin
               <SelectItem value="5">5 posts per day</SelectItem>
             </SelectContent>
           </Select>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Maximum number of posts to create per day across all subreddits
           </p>
         </div>
 
         {/* Warm-up Period Info */}
-        <div className="rounded-lg bg-muted p-4 space-y-2">
+        <div className="bg-muted space-y-2 rounded-lg p-4">
           <h4 className="font-medium">Warm-up Period</h4>
-          <div className="text-sm space-y-1">
+          <div className="space-y-1 text-sm">
             <p>Started: {new Date(warmupAccount.warmupStartDate.toDate()).toLocaleDateString()}</p>
             <p>Ends: {new Date(warmupAccount.warmupEndDate.toDate()).toLocaleDateString()}</p>
             <p className="text-muted-foreground">
@@ -131,9 +131,9 @@ export default function WarmupSettings({ warmupAccount, onUpdate }: WarmupSettin
         </div>
 
         {/* Rate Limiting Info */}
-        <div className="rounded-lg bg-muted p-4 space-y-2">
+        <div className="bg-muted space-y-2 rounded-lg p-4">
           <h4 className="font-medium">Rate Limiting</h4>
-          <div className="text-sm text-muted-foreground space-y-1">
+          <div className="text-muted-foreground space-y-1 text-sm">
             <p>• Maximum 1 post per subreddit every 3 days</p>
             <p>• Comments are spaced 3-4 minutes apart</p>
             <p>• Posts are distributed throughout the day</p>
@@ -148,12 +148,12 @@ export default function WarmupSettings({ warmupAccount, onUpdate }: WarmupSettin
         >
           {isSaving ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 className="mr-2 size-4 animate-spin" />
               Saving...
             </>
           ) : (
             <>
-              <Save className="mr-2 h-4 w-4" />
+              <Save className="mr-2 size-4" />
               Save Settings
             </>
           )}

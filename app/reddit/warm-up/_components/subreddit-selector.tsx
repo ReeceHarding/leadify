@@ -209,7 +209,7 @@ export default function SubredditSelector({ userId, warmupAccount, onUpdate }: S
                 aria-expanded={isOpen}
                 className="flex-1 justify-start"
               >
-                <Search className="mr-2 h-4 w-4" />
+                <Search className="mr-2 size-4" />
                 Search for subreddits...
               </Button>
             </PopoverTrigger>
@@ -223,7 +223,7 @@ export default function SubredditSelector({ userId, warmupAccount, onUpdate }: S
                 <CommandList>
                   {isSearching ? (
                     <CommandEmpty>
-                      <Loader2 className="h-4 w-4 animate-spin mx-auto" />
+                      <Loader2 className="mx-auto size-4 animate-spin" />
                     </CommandEmpty>
                   ) : suggestions.length === 0 ? (
                     <CommandEmpty>No subreddits found.</CommandEmpty>
@@ -237,7 +237,7 @@ export default function SubredditSelector({ userId, warmupAccount, onUpdate }: S
                           <div className="flex-1">
                             <div className="font-medium">r/{sub.name}</div>
                             {sub.subscribers && (
-                              <div className="text-sm text-muted-foreground">
+                              <div className="text-muted-foreground text-sm">
                                 {sub.subscribers.toLocaleString()} members
                               </div>
                             )}
@@ -257,9 +257,9 @@ export default function SubredditSelector({ userId, warmupAccount, onUpdate }: S
             disabled={isGenerating}
           >
             {isGenerating ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="size-4 animate-spin" />
             ) : (
-              <Sparkles className="h-4 w-4" />
+              <Sparkles className="size-4" />
             )}
             <span className="ml-2 hidden sm:inline">AI Suggest</span>
           </Button>
@@ -270,7 +270,7 @@ export default function SubredditSelector({ userId, warmupAccount, onUpdate }: S
           <p className="text-sm font-medium">Selected Subreddits ({selectedSubreddits.length})</p>
           <div className="flex flex-wrap gap-2">
             {selectedSubreddits.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No subreddits selected</p>
+              <p className="text-muted-foreground text-sm">No subreddits selected</p>
             ) : (
               selectedSubreddits.map((subreddit) => (
                 <Badge key={subreddit} variant="secondary" className="pr-1">
@@ -278,10 +278,10 @@ export default function SubredditSelector({ userId, warmupAccount, onUpdate }: S
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-4 w-4 p-0 ml-2"
+                    className="ml-2 size-4 p-0"
                     onClick={() => handleRemoveSubreddit(subreddit)}
                   >
-                    <X className="h-3 w-3" />
+                    <X className="size-3" />
                   </Button>
                 </Badge>
               ))
@@ -297,12 +297,12 @@ export default function SubredditSelector({ userId, warmupAccount, onUpdate }: S
         >
           {isSaving ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 className="mr-2 size-4 animate-spin" />
               Saving...
             </>
           ) : (
             <>
-              <Plus className="mr-2 h-4 w-4" />
+              <Plus className="mr-2 size-4" />
               {warmupAccount ? "Update Subreddits" : "Create Warm-up Account"}
             </>
           )}

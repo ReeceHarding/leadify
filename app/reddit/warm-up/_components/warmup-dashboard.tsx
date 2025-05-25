@@ -93,8 +93,8 @@ export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="flex min-h-[400px] items-center justify-center">
+        <Loader2 className="size-8 animate-spin" />
       </div>
     )
   }
@@ -116,12 +116,12 @@ export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
           >
             {isConnecting ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="mr-2 size-4 animate-spin" />
                 Connecting...
               </>
             ) : (
               <>
-                <Plus className="mr-2 h-4 w-4" />
+                <Plus className="mr-2 size-4" />
                 Connect Reddit Account
               </>
             )}
@@ -163,7 +163,7 @@ export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
                 />
               </div>
               
-              <div className="text-sm text-muted-foreground">
+              <div className="text-muted-foreground text-sm">
                 <p>Started: {new Date(warmupAccount.warmupStartDate.toDate()).toLocaleDateString()}</p>
                 <p>Ends: {new Date(warmupAccount.warmupEndDate.toDate()).toLocaleDateString()}</p>
                 <p>Daily post limit: {warmupAccount.dailyPostLimit} posts</p>
@@ -171,7 +171,7 @@ export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
               </div>
             </div>
           ) : (
-            <div className="text-center py-8">
+            <div className="py-8 text-center">
               <p className="text-muted-foreground mb-4">
                 No warm-up account found. Set up your warm-up configuration to get started.
               </p>
@@ -179,7 +179,7 @@ export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
                 // Handle setup
                 console.log("Setup warm-up account")
               }}>
-                <Plus className="mr-2 h-4 w-4" />
+                <Plus className="mr-2 size-4" />
                 Set Up Warm-up
               </Button>
             </div>
