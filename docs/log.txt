@@ -1973,3 +1973,124 @@
 [2025-05-25T18:13:21.777Z] NEXTJS_STDOUT: 🔍 [GET-USER-INFO] Fetching Reddit user info
 [2025-05-25T18:13:21.918Z] NEXTJS_STDOUT: ✅ [GET-USER-INFO] User info retrieved: Ecstatic-Executor
 [2025-05-25T18:13:21.920Z] NEXTJS_STDOUT: POST /reddit/warm-up 200 in 147ms
+[2025-05-25T18:13:37.979Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/
+[2025-05-25T18:13:37.979Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /
+[2025-05-25T18:13:37.979Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth userId: null
+[2025-05-25T18:13:37.979Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Is protected route: false
+[2025-05-25T18:13:38.193Z] NEXTJS_STDOUT: HEAD / 200 in 214ms
+[2025-05-25T18:13:38.197Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/api/queue/process-warmup
+[2025-05-25T18:13:38.198Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /api/queue/process-warmup
+[2025-05-25T18:13:38.198Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Public API route detected
+[2025-05-25T18:13:38.198Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth header: Bearer UODgJFjSZQE/Vg47kCjfmyN0kd0XNQCcxB7HbSZj5Wc=
+[2025-05-25T18:13:38.198Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Expected auth: Bearer UODgJFjSZQE/Vg47kCjfmyN0kd0XNQCcxB7HbSZj5Wc=
+[2025-05-25T18:13:38.198Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] CRON_SECRET valid - allowing request
+[2025-05-25T18:13:38.217Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Starting warm-up queue processing
+[2025-05-25T18:13:38.217Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Fetching queued posts...
+[2025-05-25T18:13:38.235Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/warm-up
+[2025-05-25T18:13:38.235Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/warm-up
+[2025-05-25T18:13:38.235Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth userId: null
+[2025-05-25T18:13:38.235Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Is protected route: true
+[2025-05-25T18:13:38.401Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Found 0 queued posts
+[2025-05-25T18:13:38.401Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] 0 posts ready to process
+[2025-05-25T18:13:38.402Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Fetching queued comments...
+[2025-05-25T18:13:38.465Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Found 0 queued comments
+[2025-05-25T18:13:38.465Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] 0 comments ready to process
+[2025-05-25T18:13:38.465Z] NEXTJS_STDOUT: ✅ [PROCESS-WARMUP] Processed 0 posts and 0 comments
+[2025-05-25T18:13:38.466Z] NEXTJS_STDOUT: POST /api/queue/process-warmup 200 in 268ms
+[2025-05-25T18:13:38.722Z] NEXTJS_STDOUT: ✓ Compiled /_not-found in 485ms (3778 modules)
+[2025-05-25T18:13:38.840Z] NEXTJS_STDOUT: POST /reddit/warm-up 404 in 603ms
+[2025-05-25T18:13:42.029Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/api/queue/process-warmup
+[2025-05-25T18:13:42.030Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /api/queue/process-warmup
+[2025-05-25T18:13:42.030Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Public API route detected
+[2025-05-25T18:13:42.030Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth header: Bearer UODgJFjSZQE/Vg47kCjfmyN0kd0XNQCcxB7HbSZj5Wc=
+[2025-05-25T18:13:42.030Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Expected auth: Bearer UODgJFjSZQE/Vg47kCjfmyN0kd0XNQCcxB7HbSZj5Wc=
+[2025-05-25T18:13:42.030Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] CRON_SECRET valid - allowing request
+[2025-05-25T18:13:42.048Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Starting warm-up queue processing
+[2025-05-25T18:13:42.048Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Fetching queued posts...
+[2025-05-25T18:13:42.259Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Found 0 queued posts
+[2025-05-25T18:13:42.259Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] 0 posts ready to process
+[2025-05-25T18:13:42.259Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Fetching queued comments...
+[2025-05-25T18:13:42.322Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Found 0 queued comments
+[2025-05-25T18:13:42.322Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] 0 comments ready to process
+[2025-05-25T18:13:42.322Z] NEXTJS_STDOUT: ✅ [PROCESS-WARMUP] Processed 0 posts and 0 comments
+[2025-05-25T18:13:42.323Z] NEXTJS_STDOUT: POST /api/queue/process-warmup 200 in 292ms
+[2025-05-25T18:14:07.959Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/api/queue/check-warmup-comments
+[2025-05-25T18:14:07.959Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /api/queue/check-warmup-comments
+[2025-05-25T18:14:07.959Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Public API route detected
+[2025-05-25T18:14:07.959Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth header: Bearer UODgJFjSZQE/Vg47kCjfmyN0kd0XNQCcxB7HbSZj5Wc=
+[2025-05-25T18:14:07.959Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Expected auth: Bearer UODgJFjSZQE/Vg47kCjfmyN0kd0XNQCcxB7HbSZj5Wc=
+[2025-05-25T18:14:07.960Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] CRON_SECRET valid - allowing request
+[2025-05-25T18:14:07.967Z] NEXTJS_STDOUT: 🔧 [CHECK-COMMENTS] Starting comment check for warm-up posts
+[2025-05-25T18:14:08.016Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/api/queue/process-warmup
+[2025-05-25T18:14:08.016Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /api/queue/process-warmup
+[2025-05-25T18:14:08.016Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Public API route detected
+[2025-05-25T18:14:08.016Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth header: Bearer UODgJFjSZQE/Vg47kCjfmyN0kd0XNQCcxB7HbSZj5Wc=
+[2025-05-25T18:14:08.016Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Expected auth: Bearer UODgJFjSZQE/Vg47kCjfmyN0kd0XNQCcxB7HbSZj5Wc=
+[2025-05-25T18:14:08.016Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] CRON_SECRET valid - allowing request
+[2025-05-25T18:14:08.019Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Starting warm-up queue processing
+[2025-05-25T18:14:08.019Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Fetching queued posts...
+[2025-05-25T18:14:08.026Z] NEXTJS_STDOUT: 🔍 [CHECK-COMMENTS] Found 0 posts from the last 7 days
+[2025-05-25T18:14:08.026Z] NEXTJS_STDOUT: ✅ [CHECK-COMMENTS] Checked 0 posts, found 0 new comments, generated 0 replies
+[2025-05-25T18:14:08.027Z] NEXTJS_STDOUT: POST /api/queue/check-warmup-comments 200 in 67ms
+[2025-05-25T18:14:08.080Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Found 0 queued posts
+[2025-05-25T18:14:08.080Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] 0 posts ready to process
+[2025-05-25T18:14:08.081Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Fetching queued comments...
+[2025-05-25T18:14:08.140Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Found 0 queued comments
+[2025-05-25T18:14:08.140Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] 0 comments ready to process
+[2025-05-25T18:14:08.140Z] NEXTJS_STDOUT: ✅ [PROCESS-WARMUP] Processed 0 posts and 0 comments
+[2025-05-25T18:14:08.141Z] NEXTJS_STDOUT: POST /api/queue/process-warmup 200 in 125ms
+[2025-05-25T18:14:12.029Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/api/queue/process-warmup
+[2025-05-25T18:14:12.029Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /api/queue/process-warmup
+[2025-05-25T18:14:12.029Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Public API route detected
+[2025-05-25T18:14:12.029Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth header: Bearer UODgJFjSZQE/Vg47kCjfmyN0kd0XNQCcxB7HbSZj5Wc=
+[2025-05-25T18:14:12.029Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Expected auth: Bearer UODgJFjSZQE/Vg47kCjfmyN0kd0XNQCcxB7HbSZj5Wc=
+[2025-05-25T18:14:12.029Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] CRON_SECRET valid - allowing request
+[2025-05-25T18:14:12.033Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Starting warm-up queue processing
+[2025-05-25T18:14:12.033Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Fetching queued posts...
+[2025-05-25T18:14:12.088Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Found 0 queued posts
+[2025-05-25T18:14:12.089Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] 0 posts ready to process
+[2025-05-25T18:14:12.089Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Fetching queued comments...
+[2025-05-25T18:14:12.151Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Found 0 queued comments
+[2025-05-25T18:14:12.151Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] 0 comments ready to process
+[2025-05-25T18:14:12.151Z] NEXTJS_STDOUT: ✅ [PROCESS-WARMUP] Processed 0 posts and 0 comments
+[2025-05-25T18:14:12.151Z] NEXTJS_STDOUT: POST /api/queue/process-warmup 200 in 122ms
+[2025-05-25T18:14:38.020Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/api/queue/process-warmup
+[2025-05-25T18:14:38.020Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /api/queue/process-warmup
+[2025-05-25T18:14:38.021Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Public API route detected
+[2025-05-25T18:14:38.021Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth header: Bearer UODgJFjSZQE/Vg47kCjfmyN0kd0XNQCcxB7HbSZj5Wc=
+[2025-05-25T18:14:38.021Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Expected auth: Bearer UODgJFjSZQE/Vg47kCjfmyN0kd0XNQCcxB7HbSZj5Wc=
+[2025-05-25T18:14:38.021Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] CRON_SECRET valid - allowing request
+[2025-05-25T18:14:38.027Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Starting warm-up queue processing
+[2025-05-25T18:14:38.027Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Fetching queued posts...
+[2025-05-25T18:14:38.092Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Found 0 queued posts
+[2025-05-25T18:14:38.092Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] 0 posts ready to process
+[2025-05-25T18:14:38.092Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Fetching queued comments...
+[2025-05-25T18:14:38.133Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Found 0 queued comments
+[2025-05-25T18:14:38.133Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] 0 comments ready to process
+[2025-05-25T18:14:38.133Z] NEXTJS_STDOUT: ✅ [PROCESS-WARMUP] Processed 0 posts and 0 comments
+[2025-05-25T18:14:38.134Z] NEXTJS_STDOUT: POST /api/queue/process-warmup 200 in 112ms
+[2025-05-25T18:14:41.862Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/api/queue/check-warmup-comments
+[2025-05-25T18:14:41.863Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /api/queue/check-warmup-comments
+[2025-05-25T18:14:41.863Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Public API route detected
+[2025-05-25T18:14:41.863Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth header: Bearer UODgJFjSZQE/Vg47kCjfmyN0kd0XNQCcxB7HbSZj5Wc=
+[2025-05-25T18:14:41.863Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Expected auth: Bearer UODgJFjSZQE/Vg47kCjfmyN0kd0XNQCcxB7HbSZj5Wc=
+[2025-05-25T18:14:41.863Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] CRON_SECRET valid - allowing request
+[2025-05-25T18:14:41.866Z] NEXTJS_STDOUT: 🔧 [CHECK-COMMENTS] Starting comment check for warm-up posts
+[2025-05-25T18:14:41.933Z] NEXTJS_STDOUT: 🔍 [CHECK-COMMENTS] Found 0 posts from the last 7 days
+[2025-05-25T18:14:41.933Z] NEXTJS_STDOUT: ✅ [CHECK-COMMENTS] Checked 0 posts, found 0 new comments, generated 0 replies
+[2025-05-25T18:14:41.934Z] NEXTJS_STDOUT: POST /api/queue/check-warmup-comments 200 in 71ms
+[2025-05-25T18:14:42.026Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/api/queue/process-warmup
+[2025-05-25T18:14:42.027Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /api/queue/process-warmup
+[2025-05-25T18:14:42.027Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Public API route detected
+[2025-05-25T18:14:42.027Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth header: Bearer UODgJFjSZQE/Vg47kCjfmyN0kd0XNQCcxB7HbSZj5Wc=
+[2025-05-25T18:14:42.027Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Expected auth: Bearer UODgJFjSZQE/Vg47kCjfmyN0kd0XNQCcxB7HbSZj5Wc=
+[2025-05-25T18:14:42.027Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] CRON_SECRET valid - allowing request
+[2025-05-25T18:14:42.030Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Starting warm-up queue processing
+[2025-05-25T18:14:42.031Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Fetching queued posts...
+[2025-05-25T18:14:42.091Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Found 0 queued posts
+[2025-05-25T18:14:42.091Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] 0 posts ready to process
+[2025-05-25T18:14:42.091Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Fetching queued comments...
+[2025-05-25T18:14:42.162Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Found 0 queued comments
+[2025-05-25T18:14:42.163Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] 0 comments ready to process
+[2025-05-25T18:14:42.163Z] NEXTJS_STDOUT: ✅ [PROCESS-WARMUP] Processed 0 posts and 0 comments
+[2025-05-25T18:14:42.163Z] NEXTJS_STDOUT: POST /api/queue/process-warmup 200 in 136ms
