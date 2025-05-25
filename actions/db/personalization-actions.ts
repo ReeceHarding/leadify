@@ -111,7 +111,9 @@ function serializeTimestamp(timestamp: Timestamp | any): string {
 }
 
 // Serialization functions to convert Firestore Timestamps to ISO strings
-function serializeKnowledgeBase(kb: KnowledgeBaseDocument): SerializedKnowledgeBaseDocument {
+function serializeKnowledgeBase(
+  kb: KnowledgeBaseDocument
+): SerializedKnowledgeBaseDocument {
   console.log("🔥 [KB-SERIALIZE] Starting serialization")
   return {
     ...kb,
@@ -120,7 +122,9 @@ function serializeKnowledgeBase(kb: KnowledgeBaseDocument): SerializedKnowledgeB
   }
 }
 
-function serializeVoiceSettings(vs: VoiceSettingsDocument): SerializedVoiceSettingsDocument {
+function serializeVoiceSettings(
+  vs: VoiceSettingsDocument
+): SerializedVoiceSettingsDocument {
   console.log("🔥 [VS-SERIALIZE] Starting serialization")
   return {
     ...vs,
@@ -129,7 +133,9 @@ function serializeVoiceSettings(vs: VoiceSettingsDocument): SerializedVoiceSetti
   }
 }
 
-function serializeScrapedContent(sc: ScrapedContentDocument): SerializedScrapedContentDocument {
+function serializeScrapedContent(
+  sc: ScrapedContentDocument
+): SerializedScrapedContentDocument {
   console.log("🔥 [SC-SERIALIZE] Starting serialization")
   return {
     ...sc,
@@ -139,7 +145,9 @@ function serializeScrapedContent(sc: ScrapedContentDocument): SerializedScrapedC
   }
 }
 
-function serializeTwitterAnalysis(ta: TwitterAnalysisDocument): SerializedTwitterAnalysisDocument {
+function serializeTwitterAnalysis(
+  ta: TwitterAnalysisDocument
+): SerializedTwitterAnalysisDocument {
   console.log("🔥 [TA-SERIALIZE] Starting serialization")
   return {
     ...ta,
@@ -157,8 +165,10 @@ export async function createKnowledgeBaseAction(
   console.log("🔥 [KNOWLEDGE-BASE] User ID:", data.userId)
 
   try {
-    const knowledgeBaseRef = doc(collection(db, PERSONALIZATION_COLLECTIONS.KNOWLEDGE_BASE))
-    
+    const knowledgeBaseRef = doc(
+      collection(db, PERSONALIZATION_COLLECTIONS.KNOWLEDGE_BASE)
+    )
+
     const knowledgeBaseData = {
       id: knowledgeBaseRef.id,
       userId: data.userId,
@@ -172,11 +182,13 @@ export async function createKnowledgeBaseAction(
     }
 
     await setDoc(knowledgeBaseRef, knowledgeBaseData)
-    
+
     const createdDoc = await getDoc(knowledgeBaseRef)
-    const serializedData = serializeKnowledgeBase(createdDoc.data() as KnowledgeBaseDocument)
+    const serializedData = serializeKnowledgeBase(
+      createdDoc.data() as KnowledgeBaseDocument
+    )
     console.log("🔥 [KNOWLEDGE-BASE] Knowledge base created successfully")
-    
+
     return {
       isSuccess: true,
       message: "Knowledge base created successfully",
@@ -184,9 +196,9 @@ export async function createKnowledgeBaseAction(
     }
   } catch (error) {
     console.error("🔥 [KNOWLEDGE-BASE] Error creating knowledge base:", error)
-    return { 
-      isSuccess: false, 
-      message: `Failed to create knowledge base: ${error instanceof Error ? error.message : "Unknown error"}` 
+    return {
+      isSuccess: false,
+      message: `Failed to create knowledge base: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }
@@ -198,10 +210,13 @@ export async function getKnowledgeBaseByUserIdAction(
   console.log("🔥 [KNOWLEDGE-BASE] User ID:", userId)
 
   try {
-    const knowledgeBaseRef = collection(db, PERSONALIZATION_COLLECTIONS.KNOWLEDGE_BASE)
+    const knowledgeBaseRef = collection(
+      db,
+      PERSONALIZATION_COLLECTIONS.KNOWLEDGE_BASE
+    )
     const q = query(knowledgeBaseRef, where("userId", "==", userId))
     const querySnapshot = await getDocs(q)
-    
+
     if (querySnapshot.empty) {
       console.log("🔥 [KNOWLEDGE-BASE] No knowledge base found for user")
       return {
@@ -212,8 +227,10 @@ export async function getKnowledgeBaseByUserIdAction(
     }
 
     const doc = querySnapshot.docs[0]
-    const knowledgeBase = serializeKnowledgeBase(doc.data() as KnowledgeBaseDocument)
-    
+    const knowledgeBase = serializeKnowledgeBase(
+      doc.data() as KnowledgeBaseDocument
+    )
+
     console.log("🔥 [KNOWLEDGE-BASE] Knowledge base retrieved successfully")
     return {
       isSuccess: true,
@@ -222,9 +239,9 @@ export async function getKnowledgeBaseByUserIdAction(
     }
   } catch (error) {
     console.error("🔥 [KNOWLEDGE-BASE] Error getting knowledge base:", error)
-    return { 
-      isSuccess: false, 
-      message: `Failed to get knowledge base: ${error instanceof Error ? error.message : "Unknown error"}` 
+    return {
+      isSuccess: false,
+      message: `Failed to get knowledge base: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }
@@ -237,19 +254,25 @@ export async function updateKnowledgeBaseAction(
   console.log("🔥 [KNOWLEDGE-BASE] ID:", id)
 
   try {
-    const knowledgeBaseRef = doc(db, PERSONALIZATION_COLLECTIONS.KNOWLEDGE_BASE, id)
-    
+    const knowledgeBaseRef = doc(
+      db,
+      PERSONALIZATION_COLLECTIONS.KNOWLEDGE_BASE,
+      id
+    )
+
     const updateData = {
       ...data,
       updatedAt: serverTimestamp()
     }
 
     await updateDoc(knowledgeBaseRef, updateData)
-    
+
     const updatedDoc = await getDoc(knowledgeBaseRef)
-    const serializedData = serializeKnowledgeBase(updatedDoc.data() as KnowledgeBaseDocument)
+    const serializedData = serializeKnowledgeBase(
+      updatedDoc.data() as KnowledgeBaseDocument
+    )
     console.log("🔥 [KNOWLEDGE-BASE] Knowledge base updated successfully")
-    
+
     return {
       isSuccess: true,
       message: "Knowledge base updated successfully",
@@ -257,9 +280,9 @@ export async function updateKnowledgeBaseAction(
     }
   } catch (error) {
     console.error("🔥 [KNOWLEDGE-BASE] Error updating knowledge base:", error)
-    return { 
-      isSuccess: false, 
-      message: `Failed to update knowledge base: ${error instanceof Error ? error.message : "Unknown error"}` 
+    return {
+      isSuccess: false,
+      message: `Failed to update knowledge base: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }
@@ -272,8 +295,10 @@ export async function createVoiceSettingsAction(
   console.log("🔥 [VOICE-SETTINGS] User ID:", data.userId)
 
   try {
-    const voiceSettingsRef = doc(collection(db, PERSONALIZATION_COLLECTIONS.VOICE_SETTINGS))
-    
+    const voiceSettingsRef = doc(
+      collection(db, PERSONALIZATION_COLLECTIONS.VOICE_SETTINGS)
+    )
+
     const voiceSettingsData = {
       id: voiceSettingsRef.id,
       userId: data.userId,
@@ -294,11 +319,13 @@ export async function createVoiceSettingsAction(
     }
 
     await setDoc(voiceSettingsRef, voiceSettingsData)
-    
+
     const createdDoc = await getDoc(voiceSettingsRef)
-    const serializedData = serializeVoiceSettings(createdDoc.data() as VoiceSettingsDocument)
+    const serializedData = serializeVoiceSettings(
+      createdDoc.data() as VoiceSettingsDocument
+    )
     console.log("🔥 [VOICE-SETTINGS] Voice settings created successfully")
-    
+
     return {
       isSuccess: true,
       message: "Voice settings created successfully",
@@ -306,9 +333,9 @@ export async function createVoiceSettingsAction(
     }
   } catch (error) {
     console.error("🔥 [VOICE-SETTINGS] Error creating voice settings:", error)
-    return { 
-      isSuccess: false, 
-      message: `Failed to create voice settings: ${error instanceof Error ? error.message : "Unknown error"}` 
+    return {
+      isSuccess: false,
+      message: `Failed to create voice settings: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }
@@ -320,10 +347,13 @@ export async function getVoiceSettingsByUserIdAction(
   console.log("🔥 [VOICE-SETTINGS] User ID:", userId)
 
   try {
-    const voiceSettingsRef = collection(db, PERSONALIZATION_COLLECTIONS.VOICE_SETTINGS)
+    const voiceSettingsRef = collection(
+      db,
+      PERSONALIZATION_COLLECTIONS.VOICE_SETTINGS
+    )
     const q = query(voiceSettingsRef, where("userId", "==", userId))
     const querySnapshot = await getDocs(q)
-    
+
     if (querySnapshot.empty) {
       console.log("🔥 [VOICE-SETTINGS] No voice settings found for user")
       return {
@@ -334,8 +364,10 @@ export async function getVoiceSettingsByUserIdAction(
     }
 
     const doc = querySnapshot.docs[0]
-    const voiceSettings = serializeVoiceSettings(doc.data() as VoiceSettingsDocument)
-    
+    const voiceSettings = serializeVoiceSettings(
+      doc.data() as VoiceSettingsDocument
+    )
+
     console.log("🔥 [VOICE-SETTINGS] Voice settings retrieved successfully")
     return {
       isSuccess: true,
@@ -344,9 +376,9 @@ export async function getVoiceSettingsByUserIdAction(
     }
   } catch (error) {
     console.error("🔥 [VOICE-SETTINGS] Error getting voice settings:", error)
-    return { 
-      isSuccess: false, 
-      message: `Failed to get voice settings: ${error instanceof Error ? error.message : "Unknown error"}` 
+    return {
+      isSuccess: false,
+      message: `Failed to get voice settings: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }
@@ -359,19 +391,25 @@ export async function updateVoiceSettingsAction(
   console.log("🔥 [VOICE-SETTINGS] ID:", id)
 
   try {
-    const voiceSettingsRef = doc(db, PERSONALIZATION_COLLECTIONS.VOICE_SETTINGS, id)
-    
+    const voiceSettingsRef = doc(
+      db,
+      PERSONALIZATION_COLLECTIONS.VOICE_SETTINGS,
+      id
+    )
+
     const updateData = {
       ...data,
       updatedAt: serverTimestamp()
     }
 
     await updateDoc(voiceSettingsRef, updateData)
-    
+
     const updatedDoc = await getDoc(voiceSettingsRef)
-    const serializedData = serializeVoiceSettings(updatedDoc.data() as VoiceSettingsDocument)
+    const serializedData = serializeVoiceSettings(
+      updatedDoc.data() as VoiceSettingsDocument
+    )
     console.log("🔥 [VOICE-SETTINGS] Voice settings updated successfully")
-    
+
     return {
       isSuccess: true,
       message: "Voice settings updated successfully",
@@ -379,9 +417,9 @@ export async function updateVoiceSettingsAction(
     }
   } catch (error) {
     console.error("🔥 [VOICE-SETTINGS] Error updating voice settings:", error)
-    return { 
-      isSuccess: false, 
-      message: `Failed to update voice settings: ${error instanceof Error ? error.message : "Unknown error"}` 
+    return {
+      isSuccess: false,
+      message: `Failed to update voice settings: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }
@@ -395,8 +433,10 @@ export async function createScrapedContentAction(
   console.log("🔥 [SCRAPED-CONTENT] URL:", data.url)
 
   try {
-    const scrapedContentRef = doc(collection(db, PERSONALIZATION_COLLECTIONS.SCRAPED_CONTENT))
-    
+    const scrapedContentRef = doc(
+      collection(db, PERSONALIZATION_COLLECTIONS.SCRAPED_CONTENT)
+    )
+
     const scrapedContentData = {
       id: scrapedContentRef.id,
       userId: data.userId,
@@ -404,7 +444,7 @@ export async function createScrapedContentAction(
       title: data.title,
       content: data.content,
       contentType: data.contentType,
-      wordCount: data.wordCount || data.content.split(' ').length,
+      wordCount: data.wordCount || data.content.split(" ").length,
       summary: data.summary,
       keyPoints: data.keyPoints || [],
       scrapedAt: data.scrapedAt || serverTimestamp(),
@@ -413,11 +453,13 @@ export async function createScrapedContentAction(
     }
 
     await setDoc(scrapedContentRef, scrapedContentData)
-    
+
     const createdDoc = await getDoc(scrapedContentRef)
-    const serializedData = serializeScrapedContent(createdDoc.data() as ScrapedContentDocument)
+    const serializedData = serializeScrapedContent(
+      createdDoc.data() as ScrapedContentDocument
+    )
     console.log("🔥 [SCRAPED-CONTENT] Scraped content created successfully")
-    
+
     return {
       isSuccess: true,
       message: "Scraped content created successfully",
@@ -425,9 +467,9 @@ export async function createScrapedContentAction(
     }
   } catch (error) {
     console.error("🔥 [SCRAPED-CONTENT] Error creating scraped content:", error)
-    return { 
-      isSuccess: false, 
-      message: `Failed to create scraped content: ${error instanceof Error ? error.message : "Unknown error"}` 
+    return {
+      isSuccess: false,
+      message: `Failed to create scraped content: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }
@@ -439,15 +481,21 @@ export async function getScrapedContentByUserIdAction(
   console.log("🔥 [SCRAPED-CONTENT] User ID:", userId)
 
   try {
-    const scrapedContentRef = collection(db, PERSONALIZATION_COLLECTIONS.SCRAPED_CONTENT)
+    const scrapedContentRef = collection(
+      db,
+      PERSONALIZATION_COLLECTIONS.SCRAPED_CONTENT
+    )
     const q = query(scrapedContentRef, where("userId", "==", userId))
     const querySnapshot = await getDocs(q)
-    
-    const scrapedContent = querySnapshot.docs.map(doc => 
+
+    const scrapedContent = querySnapshot.docs.map(doc =>
       serializeScrapedContent(doc.data() as ScrapedContentDocument)
     )
-    
-    console.log("🔥 [SCRAPED-CONTENT] Scraped content retrieved successfully:", scrapedContent.length)
+
+    console.log(
+      "🔥 [SCRAPED-CONTENT] Scraped content retrieved successfully:",
+      scrapedContent.length
+    )
     return {
       isSuccess: true,
       message: "Scraped content retrieved successfully",
@@ -455,9 +503,9 @@ export async function getScrapedContentByUserIdAction(
     }
   } catch (error) {
     console.error("🔥 [SCRAPED-CONTENT] Error getting scraped content:", error)
-    return { 
-      isSuccess: false, 
-      message: `Failed to get scraped content: ${error instanceof Error ? error.message : "Unknown error"}` 
+    return {
+      isSuccess: false,
+      message: `Failed to get scraped content: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }
@@ -471,8 +519,10 @@ export async function createTwitterAnalysisAction(
   console.log("🔥 [TWITTER-ANALYSIS] Twitter handle:", data.twitterHandle)
 
   try {
-    const twitterAnalysisRef = doc(collection(db, PERSONALIZATION_COLLECTIONS.TWITTER_ANALYSIS))
-    
+    const twitterAnalysisRef = doc(
+      collection(db, PERSONALIZATION_COLLECTIONS.TWITTER_ANALYSIS)
+    )
+
     const twitterAnalysisData = {
       id: twitterAnalysisRef.id,
       userId: data.userId,
@@ -491,21 +541,26 @@ export async function createTwitterAnalysisAction(
     }
 
     await setDoc(twitterAnalysisRef, twitterAnalysisData)
-    
+
     const createdDoc = await getDoc(twitterAnalysisRef)
-    const serializedData = serializeTwitterAnalysis(createdDoc.data() as TwitterAnalysisDocument)
+    const serializedData = serializeTwitterAnalysis(
+      createdDoc.data() as TwitterAnalysisDocument
+    )
     console.log("🔥 [TWITTER-ANALYSIS] Twitter analysis created successfully")
-    
+
     return {
       isSuccess: true,
       message: "Twitter analysis created successfully",
       data: serializedData
     }
   } catch (error) {
-    console.error("🔥 [TWITTER-ANALYSIS] Error creating twitter analysis:", error)
-    return { 
-      isSuccess: false, 
-      message: `Failed to create twitter analysis: ${error instanceof Error ? error.message : "Unknown error"}` 
+    console.error(
+      "🔥 [TWITTER-ANALYSIS] Error creating twitter analysis:",
+      error
+    )
+    return {
+      isSuccess: false,
+      message: `Failed to create twitter analysis: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }
@@ -517,10 +572,13 @@ export async function getTwitterAnalysisByUserIdAction(
   console.log("🔥 [TWITTER-ANALYSIS] User ID:", userId)
 
   try {
-    const twitterAnalysisRef = collection(db, PERSONALIZATION_COLLECTIONS.TWITTER_ANALYSIS)
+    const twitterAnalysisRef = collection(
+      db,
+      PERSONALIZATION_COLLECTIONS.TWITTER_ANALYSIS
+    )
     const q = query(twitterAnalysisRef, where("userId", "==", userId))
     const querySnapshot = await getDocs(q)
-    
+
     if (querySnapshot.empty) {
       console.log("🔥 [TWITTER-ANALYSIS] No twitter analysis found for user")
       return {
@@ -531,8 +589,10 @@ export async function getTwitterAnalysisByUserIdAction(
     }
 
     const doc = querySnapshot.docs[0]
-    const twitterAnalysis = serializeTwitterAnalysis(doc.data() as TwitterAnalysisDocument)
-    
+    const twitterAnalysis = serializeTwitterAnalysis(
+      doc.data() as TwitterAnalysisDocument
+    )
+
     console.log("🔥 [TWITTER-ANALYSIS] Twitter analysis retrieved successfully")
     return {
       isSuccess: true,
@@ -540,10 +600,13 @@ export async function getTwitterAnalysisByUserIdAction(
       data: twitterAnalysis
     }
   } catch (error) {
-    console.error("🔥 [TWITTER-ANALYSIS] Error getting twitter analysis:", error)
-    return { 
-      isSuccess: false, 
-      message: `Failed to get twitter analysis: ${error instanceof Error ? error.message : "Unknown error"}` 
+    console.error(
+      "🔥 [TWITTER-ANALYSIS] Error getting twitter analysis:",
+      error
+    )
+    return {
+      isSuccess: false,
+      message: `Failed to get twitter analysis: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
-} 
+}
