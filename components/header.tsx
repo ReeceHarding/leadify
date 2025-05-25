@@ -80,7 +80,7 @@ export default function Header() {
             </SignInButton>
 
             <SignUpButton>
-              <Button className="bg-blue-500 hover:bg-blue-600">Sign Up</Button>
+              <Button className="bg-blue-600 hover:bg-blue-700">Sign Up</Button>
             </SignUpButton>
           </SignedOut>
 

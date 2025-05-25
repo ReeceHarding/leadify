@@ -66,9 +66,9 @@ CRITICAL SCORING (1-100) - BE HARSH:
 - 30-49: Weak connection, commenting would be obvious self-promotion  
 - 1-29: No relevant connection, would be spam to comment
 
-GENERATE 3 COMMENT LENGTH OPTIONS (only for scores 70+, authentic, helpful, non-salesy):
+GENERATE 3 COMMENT LENGTH OPTIONS (authentic, helpful, non-salesy):
 
-IF SCORE IS 70+, GENERATE ALL THREE in this natural format:
+ALWAYS GENERATE ALL THREE in this natural format:
 1. MICRO COMMENT: Ultra-brief helpful tip based on your experience (5-15 words)
 2. MEDIUM COMMENT: Share your experience trying different solutions:
    - Start with empathy ("I've been there..." or "I struggled with this too...")
@@ -87,11 +87,6 @@ IF SCORE IS 70+, GENERATE ALL THREE in this natural format:
    - Share specific results or improvements you saw
    - Offer to answer questions or share more details
    (100-200 words, genuinely helpful tone)
-
-IF SCORE IS BELOW 70:
-1. MICRO COMMENT: Generic brief advice (5-15 words)
-2. MEDIUM COMMENT: "Not recommended - low relevance score"
-3. VERBOSE COMMENT: "Not recommended - low relevance score"
 
 CRITICAL RULES:
 - Extract the company/service name from the website content - DO NOT use "Gauntlet AI"
@@ -353,7 +348,7 @@ CRITICAL SCORING (1-100) - BE HARSH:
 
 GENERATE 3 COMMENT LENGTH OPTIONS following the TONE INSTRUCTION above:
 
-IF SCORE IS 70+, GENERATE ALL THREE in this natural format:
+ALWAYS GENERATE ALL THREE in this natural format:
 1. MICRO COMMENT: Ultra-brief helpful tip based on your experience (5-15 words)
 2. MEDIUM COMMENT: Share your experience trying different solutions:
    - Start with empathy ("I've been there..." or "I struggled with this too...")
@@ -372,11 +367,6 @@ IF SCORE IS 70+, GENERATE ALL THREE in this natural format:
    - Share specific results or improvements you saw
    - Offer to answer questions or share more details
    (100-200 words, genuinely helpful tone)
-
-IF SCORE IS BELOW 70:
-1. MICRO COMMENT: Generic brief advice (5-15 words)
-2. MEDIUM COMMENT: "Not recommended - low relevance score"
-3. VERBOSE COMMENT: "Not recommended - low relevance score"
 
 CRITICAL RULES:
 - FOLLOW THE TONE INSTRUCTION PROVIDED

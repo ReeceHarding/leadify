@@ -142,7 +142,7 @@ export default function LeadCard({
       <Card className="overflow-hidden border shadow-sm transition-shadow hover:shadow-md">
         <CardContent className="space-y-4 p-6">
           {/* Header with Match Score */}
-          <div className="flex items-start justify-between gap-4">
+          <div className="mb-3 flex items-start justify-between gap-4">
             <div className="flex items-center gap-3">
               <Badge 
                 variant="secondary" 
@@ -295,20 +295,6 @@ export default function LeadCard({
                 </p>
               </div>
             )}
-          </div>
-
-          {/* Meta Information */}
-          <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-            <span>r/{lead.subreddit}</span>
-            <span>•</span>
-            <span>u/{lead.postAuthor}</span>
-            <span>•</span>
-            <span className="flex items-center gap-1">
-              <ThumbsUp className="size-3" />
-              {lead.postScore || 0}
-            </span>
-            <span>•</span>
-            <span>{lead.timeAgo}</span>
           </div>
 
           {/* Action Buttons */}

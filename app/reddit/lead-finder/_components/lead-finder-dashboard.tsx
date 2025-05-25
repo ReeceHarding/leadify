@@ -30,7 +30,15 @@ import {
   MinusCircle,
   Bug,
   Database,
-  Zap
+  Zap,
+  ArrowDown,
+  ArrowUp,
+  ChevronDown,
+  Trash2,
+  X,
+  HelpCircle,
+  Users,
+  Award
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -126,6 +134,8 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
+import Link from "next/link"
+import { usePostHog } from "posthog-js/react"
 
 // Import newly created types and utils
 import { LeadResult, WorkflowProgress } from "./dashboard/types"
@@ -158,6 +168,7 @@ interface DashboardState {
   queuingLeadId: string | null
   removingLeadId: string | null
   isBatchPosting: boolean
+  showRedditAuthDialog: boolean
   
   // Metadata
   lastPolledAt: Date | null
@@ -188,6 +199,7 @@ const initialState: DashboardState = {
   queuingLeadId: null,
   removingLeadId: null,
   isBatchPosting: false,
+  showRedditAuthDialog: false,
   lastPolledAt: null,
   pollingEnabled: false,
   workflowRunning: false,
@@ -626,7 +638,18 @@ export default function LeadFinderDashboard() {
         }
       } catch (error) {
         console.error("📤 [QUEUE] Error posting:", error)
-        toast.error("Failed to post comment")
+        
+        // Check if it's an authentication error
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        if (errorMessage.includes("No valid Reddit access token") || 
+            errorMessage.includes("authentication") || 
+            errorMessage.includes("re-authenticate")) {
+          updateState({ showRedditAuthDialog: true })
+          toast.error("Please reconnect your Reddit account")
+        } else {
+          toast.error("Failed to post comment")
+        }
+        
         updateState({ postingLeadId: null })
       }
     } else {
@@ -718,7 +741,18 @@ export default function LeadFinderDashboard() {
       }
     } catch (error) {
       console.error("📤 [POST] Error:", error)
-      toast.error("Failed to post comment")
+      
+      // Check if it's an authentication error
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      if (errorMessage.includes("No valid Reddit access token") || 
+          errorMessage.includes("authentication") || 
+          errorMessage.includes("re-authenticate")) {
+        updateState({ showRedditAuthDialog: true })
+        toast.error("Please reconnect your Reddit account")
+      } else {
+        toast.error("Failed to post comment")
+      }
+      
       updateState({ postingLeadId: null })
     }
   }
@@ -1185,6 +1219,49 @@ export default function LeadFinderDashboard() {
           lead={state.selectedPost}
         />
       )}
+
+      {/* Reddit Re-authentication Dialog */}
+      <Dialog 
+        open={state.showRedditAuthDialog} 
+        onOpenChange={(open) => updateState({ showRedditAuthDialog: open })}
+      >
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Reconnect Reddit Account</DialogTitle>
+            <DialogDescription>
+              Your Reddit authentication has expired or is missing. Please reconnect your Reddit account to continue posting comments.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              This happens when:
+            </p>
+            <ul className="list-disc space-y-1 pl-5 text-sm text-gray-600 dark:text-gray-400">
+              <li>Your Reddit access token has expired</li>
+              <li>You haven't connected Reddit during onboarding</li>
+              <li>Reddit has revoked your authorization</li>
+            </ul>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => updateState({ showRedditAuthDialog: false })}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                updateState({ showRedditAuthDialog: false })
+                window.location.href = "/onboarding"
+              }}
+              className="bg-blue-600 text-white hover:bg-blue-700"
+            >
+              <MessageSquare className="mr-2 size-4" />
+              Reconnect Reddit
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
