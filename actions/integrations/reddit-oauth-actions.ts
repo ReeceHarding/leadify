@@ -31,7 +31,7 @@ export async function generateRedditAuthUrlAction(): Promise<
 
     const redirectUri = `${baseUrl}/api/reddit/callback`
     const state = crypto.randomUUID()
-    const scopes = ["read", "identity"]
+    const scopes = ["identity", "read", "submit", "edit", "history"]
 
     // Store state in cookie for verification
     const cookieStore = await cookies()
