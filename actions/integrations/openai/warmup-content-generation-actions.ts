@@ -49,7 +49,7 @@ export async function recommendSubredditsAction(
     Order by relevance score descending.`
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4-turbo-preview",
+      model: "o3-mini",
       messages: [
         {
           role: "system",
@@ -61,7 +61,8 @@ export async function recommendSubredditsAction(
         }
       ],
       response_format: { type: "json_object" },
-      temperature: 0.7
+      // @ts-ignore - o3-mini specific parameter
+      reasoning_effort: "low"
     })
 
     const content = response.choices[0].message.content
@@ -107,7 +108,7 @@ export async function analyzeSubredditStyleAction(
     - commonTopics: an array of common topics/themes`
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4-turbo-preview",
+      model: "o3-mini",
       messages: [
         {
           role: "system",
@@ -119,7 +120,8 @@ export async function analyzeSubredditStyleAction(
         }
       ],
       response_format: { type: "json_object" },
-      temperature: 0.5
+      // @ts-ignore - o3-mini specific parameter
+      reasoning_effort: "low"
     })
 
     const content = response.choices[0].message.content
@@ -183,7 +185,6 @@ export async function generateWarmupPostAction(
         }
       ],
       response_format: { type: "json_object" },
-      temperature: 0.8,
       // @ts-ignore - o3-mini specific parameter
       reasoning_effort: "medium"
     })
