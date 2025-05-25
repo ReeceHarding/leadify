@@ -373,58 +373,6 @@ export default function VoiceSettingsSection({
           )}
         </div>
 
-        {/* Style Preferences */}
-        <div className="space-y-4">
-          <Label>Style Preferences</Label>
-          <div className="space-y-3">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="lowercase"
-                checked={useAllLowercase}
-                onCheckedChange={checked =>
-                  setUseAllLowercase(checked === true)
-                }
-              />
-              <Label htmlFor="lowercase" className="text-sm">
-                Use all lowercase
-              </Label>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="emojis"
-                checked={useEmojis}
-                onCheckedChange={checked => setUseEmojis(checked === true)}
-              />
-              <Label htmlFor="emojis" className="text-sm">
-                Use emojis
-              </Label>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="casual"
-                checked={useCasualTone}
-                onCheckedChange={checked => setUseCasualTone(checked === true)}
-              />
-              <Label htmlFor="casual" className="text-sm">
-                Use casual tone
-              </Label>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="first-person"
-                checked={useFirstPerson}
-                onCheckedChange={checked => setUseFirstPerson(checked === true)}
-              />
-              <Label htmlFor="first-person" className="text-sm">
-                Write in first person
-              </Label>
-            </div>
-          </div>
-        </div>
-
         {/* Generated Prompt Preview */}
         {voiceSettings?.generatedPrompt && (
           <div className="space-y-2">
