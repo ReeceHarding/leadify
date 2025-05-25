@@ -372,3 +372,127 @@ export async function fetchRedditCommentsAction(
     }
   }
 }
+
+export async function fetchRedditCommentRepliesAction(
+  commentUrl: string
+): Promise<ActionState<RedditComment[]>> {
+  try {
+    console.log(`💬 Fetching Reddit comment replies from: ${commentUrl}`)
+
+    // Extract thread ID and comment ID from the URL
+    // URL format: https://reddit.com/r/subreddit/comments/threadId/title/commentId/
+    const urlMatch = commentUrl.match(/\/r\/([^/]+)\/comments\/([^/]+)\/[^/]+\/([^/?]+)/)
+    if (!urlMatch) {
+      throw new Error("Invalid Reddit comment URL format")
+    }
+
+    const [, subreddit, threadId, commentId] = urlMatch
+    console.log(`📍 Extracted: r/${subreddit}, thread: ${threadId}, comment: ${commentId}`)
+
+    // Fetch the specific comment thread
+    const endpoint = `/r/${subreddit}/comments/${threadId}/_/${commentId}.json?sort=best&limit=100`
+    const data = await makeRedditApiCall(endpoint)
+
+    // Reddit returns an array with [post, comments]
+    const commentsData = data[1]?.data?.children || []
+
+    const parseComment = (commentData: any, depth: number = 0): RedditComment | null => {
+      if (!commentData.data || commentData.kind !== "t1") {
+        return null
+      }
+
+      const comment: RedditComment = {
+        id: commentData.data.id,
+        author: commentData.data.author || "[deleted]",
+        body: commentData.data.body || "[removed]",
+        score: commentData.data.score || 0,
+        created_utc: commentData.data.created_utc || 0,
+        is_submitter: commentData.data.is_submitter || false,
+        depth,
+        distinguished: commentData.data.distinguished,
+        stickied: commentData.data.stickied,
+        awards: commentData.data.total_awards_received || 0
+      }
+
+      // Parse replies if they exist
+      if (commentData.data.replies && typeof commentData.data.replies === "object") {
+        const replyChildren = commentData.data.replies.data?.children || []
+        comment.replies = replyChildren
+          .map((reply: any) => parseComment(reply, depth + 1))
+          .filter((reply: RedditComment | null) => reply !== null) as RedditComment[]
+      }
+
+      return comment
+    }
+
+    // Find the target comment and get its replies
+    let targetComment: RedditComment | null = null
+    
+    const findTargetComment = (comments: any[]): RedditComment | null => {
+      for (const commentData of comments) {
+        if (commentData.data?.id === commentId) {
+          return parseComment(commentData)
+        }
+        // Check replies recursively
+        if (commentData.data?.replies?.data?.children) {
+          const found = findTargetComment(commentData.data.replies.data.children)
+          if (found) return found
+        }
+      }
+      return null
+    }
+
+    targetComment = findTargetComment(commentsData)
+
+    if (!targetComment) {
+      console.log(`⚠️ Target comment ${commentId} not found, returning all replies`)
+      // If we can't find the specific comment, return all top-level replies
+      const allComments = commentsData
+        .map((comment: any) => parseComment(comment))
+        .filter((comment: RedditComment | null) => comment !== null) as RedditComment[]
+      
+      return {
+        isSuccess: true,
+        message: "Reddit comment replies fetched successfully",
+        data: allComments
+      }
+    }
+
+    const replies = targetComment.replies || []
+    console.log(`✅ Fetched ${replies.length} replies for comment ${commentId}`)
+
+    return {
+      isSuccess: true,
+      message: "Reddit comment replies fetched successfully",
+      data: replies
+    }
+  } catch (error) {
+    console.error("Error fetching Reddit comment replies:", error)
+
+    if (error instanceof Error) {
+      if (error.message.includes("authentication")) {
+        return {
+          isSuccess: false,
+          message: error.message
+        }
+      }
+      if (error.message.includes("404")) {
+        return {
+          isSuccess: false,
+          message: "Reddit comment not found or deleted"
+        }
+      }
+      if (error.message.includes("429")) {
+        return {
+          isSuccess: false,
+          message: "Reddit API rate limit exceeded, please try again later"
+        }
+      }
+    }
+
+    return {
+      isSuccess: false,
+      message: `Failed to fetch Reddit comment replies: ${error instanceof Error ? error.message : "Unknown error"}`
+    }
+  }
+}

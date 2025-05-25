@@ -33,10 +33,12 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 import { getGeneratedCommentsByUserAction } from "@/actions/db/lead-generation-actions"
+import { getCampaignByIdAction } from "@/actions/db/campaign-actions"
 import { generateReplyToCommentAction } from "@/actions/integrations/openai-actions"
 import { postCommentToRedditAction } from "@/actions/integrations/reddit-posting-actions"
 import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
 import type { SerializedGeneratedCommentDocument } from "@/actions/db/lead-generation-actions"
+import { fetchRedditCommentRepliesAction } from "@/actions/integrations/reddit-actions"
 
 interface RedditComment {
   id: string
@@ -100,45 +102,77 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
   }
 
   const fetchRedditReplies = async (postId: string, commentUrl: string) => {
-    // This would need a new API endpoint to fetch Reddit comments
-    // For now, we'll simulate with mock data
-    console.log("Fetching replies for:", commentUrl)
+    console.log("🔍 [MY-POSTS] Fetching replies for:", commentUrl)
 
-    // Mock implementation - you'll need to implement actual Reddit API call
+    // Set loading state
     setPosts(prev =>
       prev.map(post =>
         post.id === postId
           ? {
               ...post,
               isLoadingReplies: true,
-              redditReplies: [] // Will be populated from Reddit API
+              redditReplies: undefined
             }
           : post
       )
     )
 
-    // Simulate API delay
-    setTimeout(() => {
+    try {
+      const result = await fetchRedditCommentRepliesAction(commentUrl)
+
+      if (result.isSuccess) {
+        console.log(`✅ [MY-POSTS] Fetched ${result.data.length} replies`)
+        setPosts(prev =>
+          prev.map(post =>
+            post.id === postId
+              ? {
+                  ...post,
+                  isLoadingReplies: false,
+                  redditReplies: result.data
+                }
+              : post
+          )
+        )
+      } else {
+        console.error("❌ [MY-POSTS] Failed to fetch replies:", result.message)
+        setPosts(prev =>
+          prev.map(post =>
+            post.id === postId
+              ? {
+                  ...post,
+                  isLoadingReplies: false,
+                  redditReplies: []
+                }
+              : post
+          )
+        )
+        
+        // Show user-friendly error message
+        if (result.message.includes("authentication")) {
+          toast.error("Reddit authentication required to view replies")
+        } else if (result.message.includes("rate limit")) {
+          toast.error("Reddit API rate limit exceeded. Please try again later.")
+        } else if (result.message.includes("not found")) {
+          toast.error("Comment not found or may have been deleted")
+        } else {
+          toast.error("Failed to load replies from Reddit")
+        }
+      }
+    } catch (error) {
+      console.error("❌ [MY-POSTS] Error fetching replies:", error)
       setPosts(prev =>
         prev.map(post =>
           post.id === postId
             ? {
                 ...post,
                 isLoadingReplies: false,
-                redditReplies: [
-                  {
-                    id: "mock1",
-                    author: "reddit_user",
-                    body: "Thanks for the suggestion! This looks really helpful.",
-                    score: 5,
-                    created_utc: Date.now() / 1000 - 3600
-                  }
-                ]
+                redditReplies: []
               }
             : post
         )
       )
-    }, 1000)
+      toast.error("Error loading replies")
+    }
   }
 
   const generateAIReply = async (
@@ -149,18 +183,24 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
     setGeneratingReply(postId)
 
     try {
-      // Get user's website info for context
-      const profileResult = await getProfileByUserIdAction(userId)
-      if (!profileResult.isSuccess) {
-        throw new Error("Failed to get profile data")
+      // Find the post to get campaign ID
+      const post = posts.find(p => p.id === postId)
+      if (!post || !post.campaignId) {
+        throw new Error("Campaign information not found for this post")
+      }
+
+      // Get campaign's website info for context
+      const campaignResult = await getCampaignByIdAction(post.campaignId)
+      if (!campaignResult.isSuccess) {
+        throw new Error("Failed to get campaign data")
       }
 
       const result = await generateReplyToCommentAction(
         originalComment,
         replyToComment.body,
         replyToComment.author,
-        profileResult.data.website || "",
-        "" // websiteContent is not available in profile, pass empty string
+        campaignResult.data.website || "",
+        campaignResult.data.websiteContent || ""
       )
 
       if (result.isSuccess) {
@@ -184,7 +224,7 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
     }
   }
 
-  const postReply = async (postId: string, parentId: string) => {
+  const postReply = async (postId: string, parentCommentId: string) => {
     if (!replyText.trim()) {
       toast.error("Reply cannot be empty")
       return
@@ -193,25 +233,45 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
     setPostingReply(postId)
 
     try {
+      // Ensure parent ID has proper Reddit format (t1_ prefix for comments)
+      const parentId = parentCommentId.startsWith("t1_") 
+        ? parentCommentId 
+        : `t1_${parentCommentId}`
+
+      console.log(`📤 [MY-POSTS] Posting reply to comment: ${parentId}`)
+
       const result = await postCommentToRedditAction({
         parentId,
         text: replyText
       })
 
       if (result.isSuccess) {
+        console.log(`✅ [MY-POSTS] Reply posted successfully: ${result.data.link}`)
         toast.success("Reply posted successfully!")
         setEditingReply(null)
         setReplyText("")
-        // Refresh replies
+        
+        // Refresh replies to show the new comment
         const post = posts.find(p => p.id === postId)
         if (post?.postedCommentUrl) {
           fetchRedditReplies(postId, post.postedCommentUrl)
         }
       } else {
-        toast.error(result.message)
+        console.error("❌ [MY-POSTS] Failed to post reply:", result.message)
+        
+        // Show user-friendly error messages
+        if (result.message.includes("authentication")) {
+          toast.error("Reddit authentication required to post replies")
+        } else if (result.message.includes("rate limit")) {
+          toast.error("Reddit API rate limit exceeded. Please try again later.")
+        } else if (result.message.includes("permission")) {
+          toast.error("You don't have permission to reply in this subreddit")
+        } else {
+          toast.error(result.message || "Failed to post reply")
+        }
       }
     } catch (error) {
-      console.error("Error posting reply:", error)
+      console.error("❌ [MY-POSTS] Error posting reply:", error)
       toast.error("Failed to post reply")
     } finally {
       setPostingReply(null)
