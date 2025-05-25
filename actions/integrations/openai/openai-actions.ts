@@ -99,6 +99,7 @@ CRITICAL RULES:
 - Use Reddit-appropriate casual language
 - Never pressure or push any specific solution
 - Keep the company mentions natural and contextual
+- NEVER USE HYPHENS (-) anywhere in your comments
 
 PRIORITIZE AUTHENTICITY AND VALUE. Most threads should score 30-60 unless they're perfect matches.`
 
@@ -393,7 +394,8 @@ CRITICAL RULES:
 - Use imperfect grammar if appropriate
 - Never sound like a marketing bot
 - Be genuinely helpful first
-- Keep it conversational and authentic`
+- Keep it conversational and authentic
+- NEVER USE HYPHENS (-) anywhere in your comments`
 
     const userPrompt = `Thread Title: ${threadTitle}
 Thread Content: ${threadContent}
@@ -621,7 +623,8 @@ CRITICAL RULES FOR COMMENTS:
 - Never sound like a marketing bot
 - Be genuinely helpful first, mention the business naturally
 - Use Reddit-style formatting and language
-- Keep it conversational and authentic`
+- Keep it conversational and authentic
+- NEVER USE HYPHENS (-) anywhere in your comments`
 
     const userPrompt = `Thread Title: ${threadTitle}
 Thread Content: ${threadContent}

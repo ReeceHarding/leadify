@@ -102,15 +102,29 @@ export async function analyzeSubredditStyleAction(
       `Title: ${post.title}\nContent: ${post.selftext || post.content || ""}\nUpvotes: ${post.score || post.upvotes}`
     ).join("\n\n---\n\n")
 
-    const prompt = `Analyze these top posts from a subreddit and extract:
-    1. The common writing style (tone, length, format, etc.)
-    2. Common topics and themes
+    const prompt = `Analyze these top posts from a subreddit and extract VERY SPECIFIC writing patterns:
     
     Posts to analyze:
     ${postsText}
     
+    Extract:
+    1. EXACT writing style patterns including:
+       - Specific phrases and expressions used
+       - Sentence structure and length patterns
+       - Punctuation habits (lots of exclamation marks? questions? periods?)
+       - Capitalization patterns
+       - Common opening/closing phrases
+       - Use of slang, abbreviations, or specific terminology
+       - Paragraph structure and length
+       - Whether they use personal anecdotes or stay general
+       - Specific formatting quirks (even in plain text)
+    
+    2. Common topics and themes
+    
+    Be EXTREMELY specific about the writing style - I need to be able to recreate posts that feel exactly like these.
+    
     Return a JSON object with:
-    - writingStyle: a description of the writing style
+    - writingStyle: a VERY detailed description of the exact writing patterns
     - commonTopics: an array of common topics/themes`
 
     const response = await openai.chat.completions.create({
@@ -118,7 +132,7 @@ export async function analyzeSubredditStyleAction(
       messages: [
         {
           role: "system",
-          content: "You are an expert at analyzing Reddit content patterns and writing styles."
+          content: "You are an expert at analyzing Reddit content patterns and capturing exact writing styles down to the smallest details."
         },
         {
           role: "user",
@@ -127,7 +141,7 @@ export async function analyzeSubredditStyleAction(
       ],
       response_format: { type: "json_object" },
       // @ts-ignore - o3-mini specific parameter
-      reasoning_effort: "low"
+      reasoning_effort: "medium"
     })
 
     const content = response.choices[0].message.content
@@ -162,33 +176,41 @@ export async function generateWarmupPostAction(
   try {
     console.log(`🤖 [GENERATE-POST] Generating warm-up post for r/${subreddit}`)
     
-    const prompt = `Generate a Reddit post for r/${subreddit} that mimics the top posts in this subreddit.
+    const prompt = `You need to write a Reddit post that could have been written by any of the top posters in r/${subreddit}.
+
+    EXACT WRITING STYLE TO COPY:
+    ${writingStyle}
     
-    Your goal is to create a post that will get upvotes and build karma by:
-    1. Matching this exact writing style: ${writingStyle}
-    2. Focusing on one of these popular topics that get engagement: ${commonTopics.join(", ")}
-    3. Using the same format and tone as successful posts in this subreddit
-    4. Being genuinely helpful, interesting, or entertaining to the community
-    5. Encouraging discussion through questions or interesting observations
+    Topics that work well: ${commonTopics.join(", ")}
+    
+    CRITICAL INSTRUCTIONS:
+    1. Copy the EXACT writing style described above - use the same phrases, punctuation patterns, capitalization, sentence structures
+    2. If they use lots of exclamation marks, you use lots of exclamation marks
+    3. If they write short choppy sentences, you write short choppy sentences
+    4. If they use specific slang or abbreviations, you use the same ones
+    5. Match their paragraph structure exactly
+    6. Use their typical opening and closing styles
+    7. Make it feel 100% authentic to the subreddit
     
     DO NOT:
+    - Use any AI-typical phrases or formal language unless that's what the subreddit uses
     - Mention any products or services
     - Include any self-promotion
-    - Reference the keywords: ${userKeywords.join(", ")} (these are just for context)
-    - Use time-sensitive content or current events
+    - Use time-sensitive content
+    - Write in a generic "helpful AI" style - write EXACTLY like the community writes
     
-    The post should feel like it was written by a regular member of r/${subreddit} who understands what content performs well there.
+    The post should be indistinguishable from a real top post in r/${subreddit}.
     
     Return a JSON object with:
-    - title: the post title (matching the subreddit's typical title style)
-    - content: the post body in PLAIN TEXT (no markdown, no formatting, just regular text)`
+    - title: the post title (matching EXACTLY how titles are written in this subreddit)
+    - content: the post body in PLAIN TEXT (matching EXACTLY how posts are written)`
 
     const response = await openai.chat.completions.create({
       model: "o3-mini",
       messages: [
         {
           role: "system",
-          content: `You are a regular Reddit user in r/${subreddit} who creates posts that get lots of upvotes by understanding what the community likes.`
+          content: `You are a long-time member of r/${subreddit} who writes exactly like other successful posters there. You never write like an AI - you write exactly like the community.`
         },
         {
           role: "user",
@@ -197,7 +219,7 @@ export async function generateWarmupPostAction(
       ],
       response_format: { type: "json_object" },
       // @ts-ignore - o3-mini specific parameter
-      reasoning_effort: "medium"
+      reasoning_effort: "high"
     })
 
     const content = response.choices[0].message.content
@@ -255,19 +277,22 @@ export async function generateWarmupCommentsAction(
     - Natural and conversational
     - Relevant to the comment
     - IN PLAIN TEXT ONLY (no markdown, no asterisks, no formatting)
+    - NEVER USE HYPHENS (-) in your replies
+    
+    CRITICAL: Do NOT use hyphens anywhere in your replies. No dashes, no hyphens, no minus signs.
     
     Focus on building karma by being a helpful community member, not promoting anything.
     
     Return a JSON object with an array called "replies", each containing:
     - commentIndex: the comment number (1-based)
-    - reply: the short reply text in plain text`
+    - reply: the short reply text in plain text without any hyphens`
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
-          content: "You are a helpful Reddit user who writes very short, friendly replies in plain text to build karma and be a good community member."
+          content: "You are a helpful Reddit user who writes very short, friendly replies in plain text to build karma. You NEVER use hyphens or dashes in your replies."
         },
         {
           role: "user",
