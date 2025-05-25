@@ -43,7 +43,21 @@ export default async function RootLayout({
 
   return (
     <ClerkProvider>
-      <html lang="en">
+      <html lang="en" className="dark">
+        <head>
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                try {
+                  const theme = localStorage.getItem('theme') || 'dark';
+                  document.documentElement.classList.toggle('dark', theme === 'dark');
+                } catch (e) {
+                  document.documentElement.classList.add('dark');
+                }
+              `
+            }}
+          />
+        </head>
         <body
           className={cn(
             "bg-background mx-auto min-h-screen w-full scroll-smooth antialiased",
@@ -52,7 +66,7 @@ export default async function RootLayout({
         >
           <Providers
             attribute="class"
-            defaultTheme="light"
+            defaultTheme="dark"
             enableSystem={false}
             disableTransitionOnChange
           >
