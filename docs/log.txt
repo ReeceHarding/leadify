@@ -2106,3 +2106,83 @@
 [2025-05-25T17:30:43.972Z] NEXTJS_STDERR: toString: [Function (anonymous)]
 [2025-05-25T17:30:43.972Z] NEXTJS_STDERR: }
 [2025-05-25T17:30:43.973Z] NEXTJS_STDOUT: POST /api/queue/check-warmup-comments 500 in 544ms
+[2025-05-25T17:31:11.853Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/api/queue/process-warmup
+[2025-05-25T17:31:11.854Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /api/queue/process-warmup
+[2025-05-25T17:31:11.854Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth userId: null
+[2025-05-25T17:31:11.854Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Is protected route: true
+[2025-05-25T17:31:11.854Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Is public API route: true
+[2025-05-25T17:31:11.884Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Starting warm-up queue processing
+[2025-05-25T17:31:11.944Z] NEXTJS_STDERR: ❌ [PROCESS-WARMUP] Error: [Error [FirebaseError]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/austen-reddit-app/firestore/indexes?create_composite=ClVwcm9qZWN0cy9hdXN0ZW4tcmVkZGl0LWFwcC9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvd2FybXVwUG9zdHMvaW5kZXhlcy9fEAEaCgoGc3RhdHVzEAEaEAoMc2NoZWR1bGVkRm9yEAEaDAoIX19uYW1lX18QAQ] {
+[2025-05-25T17:31:11.944Z] NEXTJS_STDERR: code: 'failed-precondition',
+[2025-05-25T17:31:11.944Z] NEXTJS_STDERR: customData: undefined,
+[2025-05-25T17:31:11.945Z] NEXTJS_STDERR: toString: [Function (anonymous)]
+[2025-05-25T17:31:11.945Z] NEXTJS_STDERR: }
+[2025-05-25T17:31:11.945Z] NEXTJS_STDOUT: POST /api/queue/process-warmup 500 in 90ms
+[2025-05-25T17:31:20.142Z] NEXTJS_STDERR: <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (121kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+[2025-05-25T17:31:25.627Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/api/queue/process-warmup
+[2025-05-25T17:31:25.628Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /api/queue/process-warmup
+[2025-05-25T17:31:25.628Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth userId: null
+[2025-05-25T17:31:25.628Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Is protected route: true
+[2025-05-25T17:31:25.629Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Is public API route: true
+[2025-05-25T17:31:25.646Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Starting warm-up queue processing
+[2025-05-25T17:31:25.708Z] NEXTJS_STDERR: ❌ [PROCESS-WARMUP] Error: [Error [FirebaseError]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/austen-reddit-app/firestore/indexes?create_composite=ClVwcm9qZWN0cy9hdXN0ZW4tcmVkZGl0LWFwcC9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvd2FybXVwUG9zdHMvaW5kZXhlcy9fEAEaCgoGc3RhdHVzEAEaEAoMc2NoZWR1bGVkRm9yEAEaDAoIX19uYW1lX18QAQ] {
+[2025-05-25T17:31:25.708Z] NEXTJS_STDERR: code: 'failed-precondition',
+[2025-05-25T17:31:25.708Z] NEXTJS_STDERR: customData: undefined,
+[2025-05-25T17:31:25.708Z] NEXTJS_STDERR: toString: [Function (anonymous)]
+[2025-05-25T17:31:25.708Z] NEXTJS_STDERR: }
+[2025-05-25T17:31:25.709Z] NEXTJS_STDOUT: POST /api/queue/process-warmup 500 in 77ms
+[2025-05-25T17:31:41.864Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/api/queue/process-warmup
+[2025-05-25T17:31:41.865Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /api/queue/process-warmup
+[2025-05-25T17:31:41.865Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth userId: null
+[2025-05-25T17:31:41.865Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Is protected route: true
+[2025-05-25T17:31:41.865Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Is public API route: true
+[2025-05-25T17:31:41.881Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Starting warm-up queue processing
+[2025-05-25T17:31:41.943Z] NEXTJS_STDERR: ❌ [PROCESS-WARMUP] Error: [Error [FirebaseError]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/austen-reddit-app/firestore/indexes?create_composite=ClVwcm9qZWN0cy9hdXN0ZW4tcmVkZGl0LWFwcC9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvd2FybXVwUG9zdHMvaW5kZXhlcy9fEAEaCgoGc3RhdHVzEAEaEAoMc2NoZWR1bGVkRm9yEAEaDAoIX19uYW1lX18QAQ] {
+[2025-05-25T17:31:41.944Z] NEXTJS_STDERR: code: 'failed-precondition',
+[2025-05-25T17:31:41.944Z] NEXTJS_STDERR: customData: undefined,
+[2025-05-25T17:31:41.944Z] NEXTJS_STDERR: toString: [Function (anonymous)]
+[2025-05-25T17:31:41.944Z] NEXTJS_STDERR: }
+[2025-05-25T17:31:41.944Z] NEXTJS_STDOUT: POST /api/queue/process-warmup 500 in 76ms
+[2025-05-25T17:32:03.967Z] NEXTJS_STDOUT: ✓ Compiled in 143ms (269 modules)
+[2025-05-25T17:32:11.935Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/api/queue/process-warmup
+[2025-05-25T17:32:11.935Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /api/queue/process-warmup
+[2025-05-25T17:32:11.935Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Skipping auth for public API route
+[2025-05-25T17:32:11.942Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Starting warm-up queue processing
+[2025-05-25T17:32:12.002Z] NEXTJS_STDERR: ❌ [PROCESS-WARMUP] Error: [Error [FirebaseError]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/austen-reddit-app/firestore/indexes?create_composite=ClVwcm9qZWN0cy9hdXN0ZW4tcmVkZGl0LWFwcC9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvd2FybXVwUG9zdHMvaW5kZXhlcy9fEAEaCgoGc3RhdHVzEAEaEAoMc2NoZWR1bGVkRm9yEAEaDAoIX19uYW1lX18QAQ] {
+[2025-05-25T17:32:12.003Z] NEXTJS_STDERR: code: 'failed-precondition',
+[2025-05-25T17:32:12.003Z] NEXTJS_STDERR: customData: undefined,
+[2025-05-25T17:32:12.003Z] NEXTJS_STDERR: toString: [Function (anonymous)]
+[2025-05-25T17:32:12.003Z] NEXTJS_STDERR: }
+[2025-05-25T17:32:12.003Z] NEXTJS_STDOUT: POST /api/queue/process-warmup 500 in 67ms
+[2025-05-25T17:32:13.443Z] NEXTJS_STDERR: [2025-05-25T17:32:13.443Z]  @firebase/firestore: Firestore (11.8.0): GrpcConnection RPC 'Listen' stream 0x20d18bcc error. Code: 1 Message: 1 CANCELLED: Disconnecting idle stream. Timed out waiting for new targets.
+[2025-05-25T17:32:23.905Z] NEXTJS_STDOUT: ✓ Compiled in 80ms (269 modules)
+[2025-05-25T17:32:40.283Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/api/queue/process-warmup
+[2025-05-25T17:32:40.283Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /api/queue/process-warmup
+[2025-05-25T17:32:40.283Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Public API route - skipping auth
+[2025-05-25T17:32:40.308Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Starting warm-up queue processing
+[2025-05-25T17:32:40.371Z] NEXTJS_STDERR: ❌ [PROCESS-WARMUP] Error: [Error [FirebaseError]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/austen-reddit-app/firestore/indexes?create_composite=ClVwcm9qZWN0cy9hdXN0ZW4tcmVkZGl0LWFwcC9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvd2FybXVwUG9zdHMvaW5kZXhlcy9fEAEaCgoGc3RhdHVzEAEaEAoMc2NoZWR1bGVkRm9yEAEaDAoIX19uYW1lX18QAQ] {
+[2025-05-25T17:32:40.371Z] NEXTJS_STDERR: code: 'failed-precondition',
+[2025-05-25T17:32:40.371Z] NEXTJS_STDERR: customData: undefined,
+[2025-05-25T17:32:40.371Z] NEXTJS_STDERR: toString: [Function (anonymous)]
+[2025-05-25T17:32:40.371Z] NEXTJS_STDERR: }
+[2025-05-25T17:32:40.372Z] NEXTJS_STDOUT: POST /api/queue/process-warmup 500 in 88ms
+[2025-05-25T17:32:41.854Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/api/queue/check-warmup-comments
+[2025-05-25T17:32:41.855Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /api/queue/check-warmup-comments
+[2025-05-25T17:32:41.855Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Public API route - skipping auth
+[2025-05-25T17:32:41.855Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/api/queue/process-warmup
+[2025-05-25T17:32:41.855Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /api/queue/process-warmup
+[2025-05-25T17:32:41.855Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Public API route - skipping auth
+[2025-05-25T17:32:41.863Z] NEXTJS_STDOUT: 🔧 [CHECK-COMMENTS] Starting comment check for warm-up posts
+[2025-05-25T17:32:41.869Z] NEXTJS_STDOUT: 🔧 [PROCESS-WARMUP] Starting warm-up queue processing
+[2025-05-25T17:32:41.926Z] NEXTJS_STDERR: ❌ [CHECK-COMMENTS] Error: [Error [FirebaseError]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/austen-reddit-app/firestore/indexes?create_composite=ClVwcm9qZWN0cy9hdXN0ZW4tcmVkZGl0LWFwcC9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvd2FybXVwUG9zdHMvaW5kZXhlcy9fEAEaCgoGc3RhdHVzEAEaDAoIcG9zdGVkQXQQARoMCghfX25hbWVfXxAB] {
+[2025-05-25T17:32:41.926Z] NEXTJS_STDERR: code: 'failed-precondition',
+[2025-05-25T17:32:41.926Z] NEXTJS_STDERR: customData: undefined,
+[2025-05-25T17:32:41.926Z] NEXTJS_STDERR: toString: [Function (anonymous)]
+[2025-05-25T17:32:41.926Z] NEXTJS_STDERR: }
+[2025-05-25T17:32:41.927Z] NEXTJS_STDOUT: POST /api/queue/check-warmup-comments 500 in 72ms
+[2025-05-25T17:32:41.929Z] NEXTJS_STDERR: ❌ [PROCESS-WARMUP] Error: [Error [FirebaseError]: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/austen-reddit-app/firestore/indexes?create_composite=ClVwcm9qZWN0cy9hdXN0ZW4tcmVkZGl0LWFwcC9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvd2FybXVwUG9zdHMvaW5kZXhlcy9fEAEaCgoGc3RhdHVzEAEaEAoMc2NoZWR1bGVkRm9yEAEaDAoIX19uYW1lX18QAQ] {
+[2025-05-25T17:32:41.929Z] NEXTJS_STDERR: code: 'failed-precondition',
+[2025-05-25T17:32:41.929Z] NEXTJS_STDERR: customData: undefined,
+[2025-05-25T17:32:41.929Z] NEXTJS_STDERR: toString: [Function (anonymous)]
+[2025-05-25T17:32:41.929Z] NEXTJS_STDERR: }
+[2025-05-25T17:32:41.930Z] NEXTJS_STDOUT: POST /api/queue/process-warmup 500 in 74ms

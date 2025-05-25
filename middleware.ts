@@ -6,6 +6,8 @@ Using clerkMiddleware to handle authentication across the app.
 */
 
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
+import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
 
 const isProtectedRoute = createRouteMatcher([
   "/dashboard(.*)",
@@ -21,24 +23,30 @@ const isPublicApiRoute = createRouteMatcher([
   "/api/warmup/(.*)"
 ])
 
-export default clerkMiddleware(async (auth, req) => {
-  console.log("🔥🔥🔥 [MIDDLEWARE] Request URL:", req.url)
-  console.log("🔥🔥🔥 [MIDDLEWARE] Pathname:", req.nextUrl.pathname)
+// Create a custom middleware that checks for public API routes first
+export function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname
   
-  const { userId } = await auth()
-  console.log("🔥🔥🔥 [MIDDLEWARE] Auth userId:", userId)
-  console.log("🔥🔥🔥 [MIDDLEWARE] Is protected route:", isProtectedRoute(req))
-  console.log("🔥🔥🔥 [MIDDLEWARE] Is public API route:", isPublicApiRoute(req))
+  console.log("🔥🔥🔥 [MIDDLEWARE] Request URL:", request.url)
+  console.log("🔥🔥🔥 [MIDDLEWARE] Pathname:", pathname)
   
-  // Skip auth for public API routes (they use CRON_SECRET instead)
-  if (isPublicApiRoute(req)) {
-    return
+  // Skip auth for public API routes
+  if (isPublicApiRoute(request)) {
+    console.log("🔥🔥🔥 [MIDDLEWARE] Public API route - skipping auth")
+    return NextResponse.next()
   }
   
-  if (isProtectedRoute(req)) {
-    await auth.protect()
-  }
-})
+  // For all other routes, use Clerk middleware
+  return clerkMiddleware(async (auth, req) => {
+    const { userId } = await auth()
+    console.log("🔥🔥🔥 [MIDDLEWARE] Auth userId:", userId)
+    console.log("🔥🔥🔥 [MIDDLEWARE] Is protected route:", isProtectedRoute(req))
+    
+    if (isProtectedRoute(req)) {
+      await auth.protect()
+    }
+  })(request, {} as any)
+}
 
 export const config = {
   matcher: [
