@@ -6,12 +6,7 @@ This client component provides the sidebar for the app.
 
 "use client"
 
-import {
-  Building2,
-  User,
-  MessageSquare,
-  Target
-} from "lucide-react"
+import { Building2, User, MessageSquare, Target } from "lucide-react"
 import * as React from "react"
 
 import {
@@ -55,7 +50,10 @@ const data = {
       title: "Reddit",
       url: "/reddit",
       icon: MessageSquare,
-      items: [{ title: "Leadify", url: "/reddit/lead-finder" }]
+      items: [
+        { title: "Leadify", url: "/reddit/lead-finder" },
+        { title: "My Posts", url: "/reddit/my-posts" }
+      ]
     }
   ],
   projects: []

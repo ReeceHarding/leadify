@@ -79,7 +79,14 @@ export interface SerializedGeneratedCommentDocument {
   microComment: string
   mediumComment: string
   verboseComment: string
-  status: "new" | "viewed" | "approved" | "rejected" | "used" | "queued" | "posted"
+  status:
+    | "new"
+    | "viewed"
+    | "approved"
+    | "rejected"
+    | "used"
+    | "queued"
+    | "posted"
   selectedLength?: "micro" | "medium" | "verbose"
   approved: boolean
   used: boolean
@@ -87,6 +94,7 @@ export interface SerializedGeneratedCommentDocument {
   updatedAt: string
   postScore?: number
   keyword?: string
+  postedCommentUrl?: string
 }
 
 // Serialization helper functions
@@ -94,21 +102,33 @@ function serializeTimestampToISOBoilerplate(timestamp: any): string {
   if (timestamp instanceof Timestamp) {
     return timestamp.toDate().toISOString()
   }
-  if (typeof timestamp === 'string') {
+  if (typeof timestamp === "string") {
     // Attempt to parse to validate and re-serialize to ensure consistent format
     try {
       return new Date(timestamp).toISOString()
     } catch (e) {
       // If parsing fails, it's not a valid date string
-      console.warn("[TIMESTAMP_SERIALIZE] Invalid date string provided, using epoch as fallback:", timestamp);
-      return new Date(0).toISOString(); 
+      console.warn(
+        "[TIMESTAMP_SERIALIZE] Invalid date string provided, using epoch as fallback:",
+        timestamp
+      )
+      return new Date(0).toISOString()
     }
   }
-  if (timestamp && typeof timestamp.seconds === 'number' && typeof timestamp.nanoseconds === 'number') {
-    return new Date(timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000).toISOString()
+  if (
+    timestamp &&
+    typeof timestamp.seconds === "number" &&
+    typeof timestamp.nanoseconds === "number"
+  ) {
+    return new Date(
+      timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000
+    ).toISOString()
   }
-  console.warn("[TIMESTAMP_SERIALIZE] Unexpected timestamp format, using epoch as fallback:", timestamp);
-  return new Date(0).toISOString(); // Fallback for unexpected types
+  console.warn(
+    "[TIMESTAMP_SERIALIZE] Unexpected timestamp format, using epoch as fallback:",
+    timestamp
+  )
+  return new Date(0).toISOString() // Fallback for unexpected types
 }
 
 function serializeSearchResultDocument(
@@ -118,7 +138,7 @@ function serializeSearchResultDocument(
     ...searchResult,
     // Ensure all required fields of SerializedSearchResultDocument are present
     // and correctly typed, even if optional in SearchResultDocument
-    threadId: searchResult.threadId || undefined, 
+    threadId: searchResult.threadId || undefined,
     createdAt: serializeTimestampToISOBoilerplate(searchResult.createdAt),
     updatedAt: serializeTimestampToISOBoilerplate(searchResult.updatedAt)
   }
@@ -139,7 +159,7 @@ function serializeRedditThreadDocument(
 function serializeGeneratedCommentDocument(
   comment: GeneratedCommentDocument
 ): SerializedGeneratedCommentDocument {
-   // Explicitly map to ensure structure and handle undefined optionals
+  // Explicitly map to ensure structure and handle undefined optionals
   return {
     id: comment.id,
     campaignId: comment.campaignId,
@@ -162,6 +182,7 @@ function serializeGeneratedCommentDocument(
     updatedAt: serializeTimestampToISOBoilerplate(comment.updatedAt),
     postScore: comment.postScore || undefined, // Handle optional
     keyword: comment.keyword || undefined, // Handle optional
+    postedCommentUrl: comment.postedCommentUrl || undefined // Handle optional
   }
 }
 
@@ -261,14 +282,21 @@ export async function createGeneratedCommentAction(
     console.log(`💾 [LEAD-GEN-DB] Campaign ID: ${data.campaignId}`)
     console.log(`💾 [LEAD-GEN-DB] Post Title: ${data.postTitle}`)
     console.log(`💾 [LEAD-GEN-DB] Relevance Score: ${data.relevanceScore}`)
-    console.log(`💾 [LEAD-GEN-DB] Keyword: ${data.keyword || 'Not provided'}`)
-    console.log(`💾 [LEAD-GEN-DB] Post Score: ${data.postScore || 'Not provided'}`)
-    console.log(`💾 [LEAD-GEN-DB] Collection: ${LEAD_COLLECTIONS.GENERATED_COMMENTS}`)
-    
+    console.log(`💾 [LEAD-GEN-DB] Keyword: ${data.keyword || "Not provided"}`)
+    console.log(
+      `💾 [LEAD-GEN-DB] Post Score: ${data.postScore || "Not provided"}`
+    )
+    console.log(
+      `💾 [LEAD-GEN-DB] Collection: ${LEAD_COLLECTIONS.GENERATED_COMMENTS}`
+    )
+
     const commentRef = doc(collection(db, LEAD_COLLECTIONS.GENERATED_COMMENTS))
     console.log(`💾 [LEAD-GEN-DB] Generated doc ID: ${commentRef.id}`)
 
-    const commentData: Omit<GeneratedCommentDocument, "createdAt" | "updatedAt" | "id"> & { createdAt?: any; updatedAt?: any } = {
+    const commentData: Omit<
+      GeneratedCommentDocument,
+      "createdAt" | "updatedAt" | "id"
+    > & { createdAt?: any; updatedAt?: any } = {
       campaignId: data.campaignId,
       redditThreadId: data.redditThreadId,
       threadId: data.threadId,
@@ -286,10 +314,10 @@ export async function createGeneratedCommentAction(
       used: false, // Default to false
       // Optional tracking fields
       keyword: data.keyword,
-      postScore: data.postScore,
+      postScore: data.postScore
       // Timestamps will be added by serverTimestamp or directly
     }
-    
+
     const finalCommentData = {
       id: commentRef.id,
       ...commentData,
@@ -309,14 +337,16 @@ export async function createGeneratedCommentAction(
         message: "Document not found after creation"
       }
     }
-    
+
     console.log(`✅ [LEAD-GEN-DB] Verified document exists in Firestore`)
     console.log(`💾 [LEAD-GEN-DB] ====== COMMENT CREATION COMPLETE ======\n`)
-    
+
     return {
       isSuccess: true,
       message: "Generated comment created successfully",
-      data: serializeGeneratedCommentDocument(createdDoc.data() as GeneratedCommentDocument)
+      data: serializeGeneratedCommentDocument(
+        createdDoc.data() as GeneratedCommentDocument
+      )
     }
   } catch (error) {
     console.error("❌ [LEAD-GEN-DB] Error creating generated comment:", error)
@@ -330,24 +360,32 @@ export async function updateGeneratedCommentAction(
     microComment?: string
     mediumComment?: string
     verboseComment?: string
-    status?: "new" | "viewed" | "approved" | "rejected" | "used" | "queued" | "posted"
+    status?:
+      | "new"
+      | "viewed"
+      | "approved"
+      | "rejected"
+      | "used"
+      | "queued"
+      | "posted"
     selectedLength?: "micro" | "medium" | "verbose"
     approved?: boolean
     used?: boolean
+    postedCommentUrl?: string
   }
 ): Promise<ActionState<SerializedGeneratedCommentDocument>> {
   try {
     console.log(`📝 [LEAD-GEN] Updating generated comment ${id}`)
-    
+
     const commentRef = doc(db, LEAD_COLLECTIONS.GENERATED_COMMENTS, id)
-    
+
     const updateData = {
       ...data,
       updatedAt: serverTimestamp()
     }
 
     await updateDoc(commentRef, removeUndefinedValues(updateData))
-    
+
     const updatedDoc = await getDoc(commentRef)
     if (!updatedDoc.exists()) {
       return {
@@ -355,13 +393,15 @@ export async function updateGeneratedCommentAction(
         message: "Comment not found after update"
       }
     }
-    
+
     console.log(`✅ [LEAD-GEN] Successfully updated comment ${id}`)
-    
+
     return {
       isSuccess: true,
       message: "Generated comment updated successfully",
-      data: serializeGeneratedCommentDocument(updatedDoc.data() as GeneratedCommentDocument)
+      data: serializeGeneratedCommentDocument(
+        updatedDoc.data() as GeneratedCommentDocument
+      )
     }
   } catch (error) {
     console.error("Error updating generated comment:", error)
@@ -375,33 +415,43 @@ export async function getGeneratedCommentsByCampaignAction(
   try {
     console.log(`\n📖 [LEAD-GEN-GET] ====== FETCHING COMMENTS ======`)
     console.log(`📖 [LEAD-GEN-GET] Campaign ID: ${campaignId}`)
-    console.log(`📖 [LEAD-GEN-GET] Collection: ${LEAD_COLLECTIONS.GENERATED_COMMENTS}`)
+    console.log(
+      `📖 [LEAD-GEN-GET] Collection: ${LEAD_COLLECTIONS.GENERATED_COMMENTS}`
+    )
     console.log(`📖 [LEAD-GEN-GET] Time: ${new Date().toISOString()}`)
-    
+
     // Fetch generated comments
     const commentsRef = collection(db, LEAD_COLLECTIONS.GENERATED_COMMENTS)
     const q = query(commentsRef, where("campaignId", "==", campaignId))
     console.log(`📖 [LEAD-GEN-GET] Executing Firestore query...`)
     const querySnapshot = await getDocs(q)
-    console.log(`📖 [LEAD-GEN-GET] Query returned ${querySnapshot.docs.length} documents`)
+    console.log(
+      `📖 [LEAD-GEN-GET] Query returned ${querySnapshot.docs.length} documents`
+    )
 
     // Fetch Reddit threads for this campaign to get scores
     const threadsRef = collection(db, LEAD_COLLECTIONS.REDDIT_THREADS)
-    const threadsQuery = query(threadsRef, where("campaignId", "==", campaignId))
+    const threadsQuery = query(
+      threadsRef,
+      where("campaignId", "==", campaignId)
+    )
     const threadsSnapshot = await getDocs(threadsQuery)
-    
+
     // Create a map of thread ID to thread data for quick lookup
     const threadMap = new Map<string, RedditThreadDocument>()
     threadsSnapshot.docs.forEach(doc => {
       const thread = doc.data() as RedditThreadDocument
       threadMap.set(doc.id, thread)
     })
-    
+
     // Fetch search results to get keywords
     const searchResultsRef = collection(db, LEAD_COLLECTIONS.SEARCH_RESULTS)
-    const searchQuery = query(searchResultsRef, where("campaignId", "==", campaignId))
+    const searchQuery = query(
+      searchResultsRef,
+      where("campaignId", "==", campaignId)
+    )
     const searchSnapshot = await getDocs(searchQuery)
-    
+
     // Create a map of thread URL to keyword for lookup
     const keywordMap = new Map<string, string>()
     searchSnapshot.docs.forEach(doc => {
@@ -411,13 +461,13 @@ export async function getGeneratedCommentsByCampaignAction(
 
     const comments = querySnapshot.docs.map((doc, index) => {
       const rawComment = doc.data() as GeneratedCommentDocument
-      
+
       // Log first 3 comments in detail
       if (index < 3) {
         console.log(`📖 [LEAD-GEN-GET] Comment ${index + 1}:`, {
           id: rawComment.id,
           campaignId: rawComment.campaignId,
-          postTitle: rawComment.postTitle?.substring(0, 50) + '...',
+          postTitle: rawComment.postTitle?.substring(0, 50) + "...",
           relevanceScore: rawComment.relevanceScore,
           status: rawComment.status,
           createdAt: rawComment.createdAt,
@@ -426,25 +476,27 @@ export async function getGeneratedCommentsByCampaignAction(
           verboseCommentLength: rawComment.verboseComment?.length
         })
       }
-      
+
       const serializedComment = serializeGeneratedCommentDocument(rawComment)
-      
+
       // Add Reddit thread score if available
       const thread = threadMap.get(rawComment.redditThreadId)
       if (thread) {
         serializedComment.postScore = thread.score
-        
+
         // Try to get keyword from the thread URL
         const keyword = keywordMap.get(thread.url)
         if (keyword) {
           serializedComment.keyword = keyword
         }
       }
-      
+
       return serializedComment
     })
-    
-    console.log(`📖 [LEAD-GEN-GET] Found ${comments.length} comments with enriched data`)
+
+    console.log(
+      `📖 [LEAD-GEN-GET] Found ${comments.length} comments with enriched data`
+    )
     console.log(`📖 [LEAD-GEN-GET] ====== FETCH COMPLETE ======\n`)
 
     return {
@@ -476,7 +528,9 @@ export async function updateGeneratedCommentLengthAction(
     return {
       isSuccess: true,
       message: "Comment length updated successfully",
-      data: serializeGeneratedCommentDocument(updatedDoc.data() as GeneratedCommentDocument)
+      data: serializeGeneratedCommentDocument(
+        updatedDoc.data() as GeneratedCommentDocument
+      )
     }
   } catch (error) {
     console.error("Error updating comment length:", error)
@@ -569,3 +623,52 @@ export async function createBatchGeneratedCommentsAction(
     return { isSuccess: false, message: "Failed to create generated comments" }
   }
 }
+
+export async function getGeneratedCommentsByUserIdAction(
+  userId: string
+): Promise<ActionState<SerializedGeneratedCommentDocument[]>> {
+  try {
+    console.log(`📖 [LEAD-GEN] Fetching comments for user: ${userId}`)
+
+    // First get all campaigns for this user
+    const campaignsRef = collection(db, LEAD_COLLECTIONS.CAMPAIGNS)
+    const campaignsQuery = query(campaignsRef, where("userId", "==", userId))
+    const campaignsSnapshot = await getDocs(campaignsQuery)
+
+    if (campaignsSnapshot.empty) {
+      return {
+        isSuccess: true,
+        message: "No campaigns found for user",
+        data: []
+      }
+    }
+
+    // Get all campaign IDs
+    const campaignIds = campaignsSnapshot.docs.map(doc => doc.id)
+
+    // Fetch all comments for these campaigns
+    const allComments: SerializedGeneratedCommentDocument[] = []
+
+    for (const campaignId of campaignIds) {
+      const result = await getGeneratedCommentsByCampaignAction(campaignId)
+      if (result.isSuccess) {
+        allComments.push(...result.data)
+      }
+    }
+
+    console.log(`✅ [LEAD-GEN] Found ${allComments.length} comments for user`)
+
+    return {
+      isSuccess: true,
+      message: "Comments retrieved successfully",
+      data: allComments
+    }
+  } catch (error) {
+    console.error("Error getting comments by user:", error)
+    return { isSuccess: false, message: "Failed to get user comments" }
+  }
+}
+
+// Alias for consistency with naming in component
+export const getGeneratedCommentsByUserAction =
+  getGeneratedCommentsByUserIdAction

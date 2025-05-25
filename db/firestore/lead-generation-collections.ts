@@ -154,6 +154,7 @@ export interface GeneratedCommentDocument {
   keyword?: string // Which keyword led to finding this post
   postScore?: number // Reddit post score/upvotes
   postCreatedAt?: Timestamp // When the Reddit post was created
+  postedCommentUrl?: string // URL to the posted Reddit comment (after posting)
 }
 
 // Create generated comment data
@@ -187,6 +188,7 @@ export interface CreateGeneratedCommentData {
 export interface UpdateGeneratedCommentData {
   approved?: boolean
   used?: boolean
+  postedCommentUrl?: string
 }
 
 // Summary data for campaigns

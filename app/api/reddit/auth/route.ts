@@ -28,12 +28,12 @@ export async function GET(request: NextRequest) {
 
     // Reddit OAuth configuration
     const REDDIT_CLIENT_ID = process.env.REDDIT_CLIENT_ID
-    
+
     // Use the same base URL construction as the onboarding action
     const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
       ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
       : "http://localhost:3000"
-      
+
     const REDDIT_REDIRECT_URI =
       process.env.REDDIT_REDIRECT_URI || `${baseUrl}/api/reddit/callback`
 
@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
       stateId
     }
     const state = Buffer.from(JSON.stringify(stateData)).toString("base64")
-    
+
     // Store state in cookie for verification
     const cookieStore = await cookies()
     cookieStore.set("reddit_oauth_state", state, {

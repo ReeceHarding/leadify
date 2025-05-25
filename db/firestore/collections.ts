@@ -49,7 +49,7 @@ export interface CreateProfileData {
   website?: string
   keywords?: string[] // Keywords for lead generation
   onboardingCompleted?: boolean
-  
+
   // Reddit OAuth fields
   redditAccessToken?: string
   redditRefreshToken?: string
@@ -68,7 +68,7 @@ export interface UpdateProfileData {
   keywords?: string[] // Keywords for lead generation
   onboardingCompleted?: boolean
   updatedAt?: Timestamp
-  
+
   // Reddit OAuth fields
   redditAccessToken?: string
   redditRefreshToken?: string

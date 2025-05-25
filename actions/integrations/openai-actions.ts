@@ -397,9 +397,7 @@ PRIORITIZE AUTHENTICITY AND VALUE. Most threads should score 30-60 unless they'r
       verboseComment: object.verboseComment
     }
 
-    console.log(
-      `✅ Comments regenerated with custom tone: ${result.score}/100`
-    )
+    console.log(`✅ Comments regenerated with custom tone: ${result.score}/100`)
 
     return {
       isSuccess: true,
@@ -411,6 +409,85 @@ PRIORITIZE AUTHENTICITY AND VALUE. Most threads should score 30-60 unless they'r
     return {
       isSuccess: false,
       message: `Failed to regenerate comments: ${error instanceof Error ? error.message : "Unknown error"}`
+    }
+  }
+}
+
+// Schema for reply generation
+const ReplyGenerationSchema = z.object({
+  reply: z.string()
+})
+
+export interface ReplyGenerationResult {
+  reply: string
+}
+
+export async function generateReplyToCommentAction(
+  originalComment: string,
+  replyToComment: string,
+  replyAuthor: string,
+  website: string,
+  websiteContent: string
+): Promise<ActionState<ReplyGenerationResult>> {
+  try {
+    console.log(`🤖 Generating AI reply to comment from u/${replyAuthor}`)
+
+    const prompt = `You are a genuine Reddit user who previously shared helpful advice in this thread. Someone has replied to your comment and you want to continue the conversation naturally.
+
+YOUR ORIGINAL COMMENT:
+${originalComment}
+
+REPLY FROM u/${replyAuthor}:
+${replyToComment}
+
+CONTEXT ABOUT YOU:
+- You have personal experience with ${website}
+- You shared your genuine experience to help others
+- You want to continue being helpful without being pushy
+
+YOUR TASK:
+Generate a natural, conversational reply that:
+1. Acknowledges their response appropriately
+2. Answers any questions they might have asked
+3. Provides additional helpful information if relevant
+4. Maintains the same genuine, helpful tone as your original comment
+5. Keeps it conversational and Reddit-appropriate
+
+CRITICAL RULES:
+- Be authentic and conversational
+- Don't oversell or push anything
+- If they're thanking you, accept graciously and offer to help further if needed
+- If they have questions, answer helpfully with specific details
+- If they're skeptical, acknowledge their concerns honestly
+- Keep it brief unless they specifically asked for more details
+- Use casual Reddit language (but professional)
+- Never use marketing speak or superlatives
+
+The reply should feel like a natural continuation of the conversation from someone who genuinely wants to help.`
+
+    const { object } = await generateObject({
+      model: openai("o3-mini"),
+      schema: ReplyGenerationSchema,
+      prompt,
+      providerOptions: {
+        openai: { reasoningEffort: "medium" }
+      }
+    })
+
+    console.log(`✅ Generated reply: ${object.reply.slice(0, 50)}...`)
+
+    return {
+      isSuccess: true,
+      message: "Reply generated successfully",
+      data: {
+        reply: object.reply
+      }
+    }
+  } catch (error) {
+    console.error("Error generating reply:", error)
+    return {
+      isSuccess: false,
+      message: `Failed to generate reply: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }

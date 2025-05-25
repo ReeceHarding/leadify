@@ -67,23 +67,23 @@ async function makeRedditApiPost(endpoint: string, body: any): Promise<any> {
   if (!response.ok) {
     const errorData = await response.text()
     console.error("Reddit API error:", response.status, errorData)
-    
+
     if (response.status === 401) {
       throw new Error("Reddit authentication expired. Please re-authenticate.")
     }
-    
+
     if (response.status === 403) {
       throw new Error(
         "You don't have permission to post in this subreddit. Common reasons: " +
-        "minimum karma requirements, account age restrictions, or you need to join the subreddit first. " +
-        "Try posting to a different subreddit or check the subreddit's rules."
+          "minimum karma requirements, account age restrictions, or you need to join the subreddit first. " +
+          "Try posting to a different subreddit or check the subreddit's rules."
       )
     }
-    
+
     if (response.status === 429) {
       throw new Error("Reddit rate limit exceeded. Please try again later.")
     }
-    
+
     throw new Error(`Reddit API error: ${response.status} - ${errorData}`)
   }
 
@@ -95,12 +95,13 @@ export async function postCommentToRedditAction(
 ): Promise<ActionState<PostedComment>> {
   try {
     console.log(`📝 Posting comment to Reddit: ${params.parentId}`)
-    
+
     // Ensure parent ID has proper prefix
-    const parentFullname = params.parentId.startsWith("t3_") || params.parentId.startsWith("t1_") 
-      ? params.parentId 
-      : `t3_${params.parentId}`
-    
+    const parentFullname =
+      params.parentId.startsWith("t3_") || params.parentId.startsWith("t1_")
+        ? params.parentId
+        : `t3_${params.parentId}`
+
     const data = await makeRedditApiPost("/api/comment", {
       parent: parentFullname,
       text: params.text,
@@ -132,14 +133,14 @@ export async function postCommentToRedditAction(
     }
   } catch (error) {
     console.error("Error posting comment to Reddit:", error)
-    
+
     if (error instanceof Error) {
       return {
         isSuccess: false,
         message: error.message
       }
     }
-    
+
     return {
       isSuccess: false,
       message: "Failed to post comment to Reddit"
@@ -154,28 +155,32 @@ export async function postCommentAndUpdateStatusAction(
 ): Promise<ActionState<PostedComment>> {
   try {
     console.log(`📝 Posting comment and updating status for lead: ${leadId}`)
-    
+
     // First, post the comment
     const postResult = await postCommentToRedditAction({
       parentId: threadId,
       text: comment
     })
-    
+
     if (!postResult.isSuccess) {
       return postResult
     }
-    
-    // Update the status in Firestore
+
+    // Update the status and save the comment URL in Firestore
     const updateResult = await updateGeneratedCommentAction(leadId, {
-      status: "used",
-      used: true
+      status: "posted",
+      used: true,
+      postedCommentUrl: postResult.data.link
     })
-    
+
     if (!updateResult.isSuccess) {
-      console.error("Failed to update status in database:", updateResult.message)
+      console.error(
+        "Failed to update status in database:",
+        updateResult.message
+      )
       // Still return success since the comment was posted
     }
-    
+
     return postResult
   } catch (error) {
     console.error("Error in postCommentAndUpdateStatus:", error)
@@ -192,30 +197,30 @@ export async function testRedditPostingAction(): Promise<
   try {
     // Test by getting user info
     const tokenResult = await getRedditTokensFromProfileAction()
-    
+
     if (!tokenResult.isSuccess) {
       return {
         isSuccess: false,
         message: "No Reddit access token found. Please authenticate."
       }
     }
-    
+
     const response = await fetch("https://oauth.reddit.com/api/v1/me", {
       headers: {
         Authorization: `Bearer ${tokenResult.data.accessToken}`,
         "User-Agent": process.env.REDDIT_USER_AGENT || "reddit-lead-gen:v1.0.0"
       }
     })
-    
+
     if (!response.ok) {
       return {
         isSuccess: false,
         message: "Failed to verify Reddit authentication"
       }
     }
-    
+
     const userData = await response.json()
-    
+
     return {
       isSuccess: true,
       message: "Reddit posting capability verified",
@@ -231,4 +236,4 @@ export async function testRedditPostingAction(): Promise<
       message: "Failed to test Reddit posting capability"
     }
   }
-} 
+}

@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
           console.error("Failed to parse state for error redirect:", e)
         }
       }
-      
+
       return NextResponse.redirect(
         new URL(
           `${returnUrl}?error=${encodeURIComponent(`Reddit authorization failed: ${error}`)}`,
@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
           console.error("Failed to parse state for error redirect:", e)
         }
       }
-      
+
       return NextResponse.redirect(
         new URL(`${returnUrl}?error=Invalid+OAuth+response`, request.url)
       )
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
       } catch (error) {
         console.error("Failed to parse state parameter:", error)
       }
-      
+
       return NextResponse.redirect(
         new URL(
           `${returnUrl}?error=${encodeURIComponent(result.message)}`,
@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
     // Success - redirect back to the return URL with success message
     const redirectUrl = new URL(returnUrl, request.url)
     redirectUrl.searchParams.set("success", "Reddit authentication successful")
-    
+
     return NextResponse.redirect(redirectUrl)
   } catch (error) {
     console.error("OAuth callback error:", error)
@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams
     const state = searchParams.get("state")
     let returnUrl = "/onboarding"
-    
+
     if (state) {
       try {
         const stateData = JSON.parse(Buffer.from(state, "base64").toString())
@@ -102,7 +102,7 @@ export async function GET(request: NextRequest) {
         console.error("Failed to parse state for error redirect:", e)
       }
     }
-    
+
     return NextResponse.redirect(
       new URL(`${returnUrl}?error=Authentication+failed`, request.url)
     )
