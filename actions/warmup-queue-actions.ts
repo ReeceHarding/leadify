@@ -33,6 +33,9 @@ import {
   generateWarmupCommentsAction
 } from "@/actions/integrations/openai/warmup-content-generation-actions"
 import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
+import { doc, getDoc } from "firebase/firestore"
+import { db } from "@/db/db"
+import { WARMUP_COLLECTIONS, WarmupPostDocument } from "@/db/firestore/warmup-collections"
 
 export async function generateAndScheduleWarmupPostsAction(
   userId: string
@@ -296,4 +299,70 @@ function calculateNextPostTime(postsToday: number): Timestamp {
   const randomDelay = Math.random() * 2 * 60 * 60 * 1000 // 0-2 hours
   
   return Timestamp.fromDate(new Date(now.getTime() + baseDelay + randomDelay))
+}
+
+export async function postWarmupImmediatelyAction(
+  postId: string
+): Promise<ActionState<{ url?: string }>> {
+  try {
+    console.log("🚀 [POST-IMMEDIATELY] Posting warm-up post immediately:", postId)
+    
+    // Get the post
+    const postRef = doc(db, WARMUP_COLLECTIONS.WARMUP_POSTS, postId)
+    const postDoc = await getDoc(postRef)
+    
+    if (!postDoc.exists()) {
+      return {
+        isSuccess: false,
+        message: "Post not found"
+      }
+    }
+    
+    const post = postDoc.data() as WarmupPostDocument
+    
+    // Submit to Reddit immediately
+    const submitResult = await submitRedditPostAction(
+      post.subreddit,
+      post.title,
+      post.content
+    )
+    
+    if (submitResult.isSuccess && submitResult.data) {
+      // Update post status
+      await updateWarmupPostAction(post.id, {
+        status: "posted",
+        postedAt: Timestamp.now(),
+        redditPostId: submitResult.data.id,
+        redditPostUrl: submitResult.data.url
+      })
+      
+      // Update rate limit
+      await updateWarmupRateLimitAction(post.userId, post.subreddit)
+      
+      console.log(`✅ [POST-IMMEDIATELY] Post submitted successfully: ${submitResult.data.url}`)
+      
+      return {
+        isSuccess: true,
+        message: "Post submitted successfully",
+        data: { url: submitResult.data.url }
+      }
+    } else {
+      // Mark as failed
+      await updateWarmupPostAction(post.id, {
+        status: "failed",
+        error: submitResult.message
+      })
+      
+      return {
+        isSuccess: false,
+        message: submitResult.message || "Failed to submit post"
+      }
+    }
+  } catch (error) {
+    console.error("❌ [POST-IMMEDIATELY] Error:", error)
+    return {
+      isSuccess: false,
+      message: error instanceof Error ? error.message : "Failed to post immediately"
+    }
+  }
 } 

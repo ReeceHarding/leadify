@@ -20,6 +20,7 @@
     "warmup:test": "tsx scripts/test-warmup-locally.ts --test",
     "warmup:local": "tsx scripts/test-warmup-locally.ts",
     "warmup:generate": "tsx scripts/generate-warmup-posts.ts",
+    "add-subreddits": "tsx scripts/add-test-subreddits.ts",
     "warmup:verify": "tsx scripts/verify-warmup-setup.ts"
   },
   "dependencies": {

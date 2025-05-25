@@ -7,9 +7,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/components/ui/use-toast"
-import { Loader2, RefreshCw, Send, Clock, Edit3, Check, X } from "lucide-react"
+import { Loader2, RefreshCw, Send, Clock, Edit3, Check, X, Rocket } from "lucide-react"
 import { getWarmupPostsByUserIdAction, updateWarmupPostAction } from "@/actions/db/warmup-actions"
-import { generateAndScheduleWarmupPostsAction } from "@/actions/warmup-queue-actions"
+import { generateAndScheduleWarmupPostsAction, postWarmupImmediatelyAction } from "@/actions/warmup-queue-actions"
 import { SerializedWarmupAccountDocument, SerializedWarmupPostDocument } from "@/db/firestore/warmup-collections"
 import { debounce } from "lodash"
 
@@ -156,6 +156,37 @@ export default function WarmupPostsList({ userId, warmupAccount }: WarmupPostsLi
     }
   }
 
+  const handlePostImmediately = async (postId: string) => {
+    try {
+      console.log("🚀 [WARMUP-POSTS] Posting immediately:", postId)
+      
+      const result = await postWarmupImmediatelyAction(postId)
+      
+      if (result.isSuccess && result.data?.url) {
+        toast({
+          title: "Success!",
+          description: "Post submitted to Reddit successfully"
+        })
+        // Open the Reddit post in a new tab
+        window.open(result.data.url, '_blank')
+        await loadPosts()
+      } else {
+        toast({
+          title: "Error",
+          description: result.message || "Failed to post",
+          variant: "destructive"
+        })
+      }
+    } catch (error) {
+      console.error("❌ [WARMUP-POSTS] Error posting immediately:", error)
+      toast({
+        title: "Error",
+        description: "Failed to post immediately",
+        variant: "destructive"
+      })
+    }
+  }
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "draft":
@@ -281,13 +312,23 @@ export default function WarmupPostsList({ userId, warmupAccount }: WarmupPostsLi
                   </div>
                   
                   {post.status === "draft" && (
-                    <Button
-                      size="sm"
-                      onClick={() => handleQueuePost(post.id)}
-                    >
-                      <Send className="mr-2 size-4" />
-                      Queue for Posting
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleQueuePost(post.id)}
+                      >
+                        <Clock className="mr-2 size-4" />
+                        Queue
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => handlePostImmediately(post.id)}
+                      >
+                        <Rocket className="mr-2 size-4" />
+                        Post Now
+                      </Button>
+                    </div>
                   )}
                 </div>
               </CardContent>
