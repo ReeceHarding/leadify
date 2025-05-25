@@ -19,6 +19,15 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from "@/components/ui/dialog";
+import {
   ExternalLink,
   Edit2,
   Save,
@@ -35,7 +44,8 @@ import {
   X,
   ChevronRight,
   ChevronDown,
-  CirclePlus
+  CirclePlus,
+  Loader2
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -48,6 +58,7 @@ interface LeadCardProps {
   onPost: (lead: any) => Promise<void>;
   onQueue: (lead: any) => Promise<void>;
   onViewComments?: (lead: any) => void;
+  onRegenerateWithInstructions?: (leadId: string, instructions: string) => Promise<void>;
   isPosting?: boolean;
   isQueueing?: boolean;
 }
@@ -59,6 +70,7 @@ export default function LeadCard({
   onPost,
   onQueue,
   onViewComments,
+  onRegenerateWithInstructions,
   isPosting = false,
   isQueueing = false
 }: LeadCardProps) {
@@ -66,6 +78,9 @@ export default function LeadCard({
   const [editedComment, setEditedComment] = useState("");
   const [isCopied, setIsCopied] = useState(false);
   const [showPostDetail, setShowPostDetail] = useState(false);
+  const [showRegenerateDialog, setShowRegenerateDialog] = useState(false);
+  const [regenerateInstructions, setRegenerateInstructions] = useState("");
+  const [isRegenerating, setIsRegenerating] = useState(false);
 
   const comment = lead[`${selectedLength}Comment`] || lead.mediumComment || "";
 
@@ -101,6 +116,25 @@ export default function LeadCard({
   const handlePostClick = async () => {
     // This will now always add to queue - the parent component will handle immediate posting if queue is empty
     await onQueue(lead);
+  };
+
+  const handleRegenerate = async () => {
+    if (!regenerateInstructions.trim() || !onRegenerateWithInstructions) {
+      toast.error("Please provide instructions for regeneration");
+      return;
+    }
+
+    setIsRegenerating(true);
+    try {
+      await onRegenerateWithInstructions(lead.id, regenerateInstructions);
+      setShowRegenerateDialog(false);
+      setRegenerateInstructions("");
+      toast.success("Comment regenerated successfully");
+    } catch (error) {
+      toast.error("Failed to regenerate comment");
+    } finally {
+      setIsRegenerating(false);
+    }
   };
 
   return (
@@ -147,14 +181,79 @@ export default function LeadCard({
                   {isCopied ? <Check className="size-3" /> : <Copy className="size-3" />}
                 </Button>
                 {!isEditing && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleStartEdit}
-                    className="h-7 px-2 text-xs"
-                  >
-                    <Edit2 className="size-3" />
-                  </Button>
+                  <>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleStartEdit}
+                      className="h-7 px-2 text-xs"
+                    >
+                      <Edit2 className="size-3" />
+                    </Button>
+                    <Dialog open={showRegenerateDialog} onOpenChange={setShowRegenerateDialog}>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 px-2 text-xs"
+                        >
+                          <Sparkles className="size-3" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                          <DialogTitle className="flex items-center gap-2">
+                            <Sparkles className="size-4 text-blue-500" />
+                            Regenerate with AI
+                          </DialogTitle>
+                          <DialogDescription>
+                            Describe how you'd like this comment to be changed. Be specific about tone, focus, or style adjustments.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                          <div className="space-y-2">
+                            <Textarea
+                              placeholder="e.g., Focus more on our seclusion and make it less salesy..."
+                              value={regenerateInstructions}
+                              onChange={(e) => setRegenerateInstructions(e.target.value)}
+                              className="min-h-[100px]"
+                            />
+                            <p className="text-xs text-gray-500">
+                              The AI will use your instructions along with the original comment and website context.
+                            </p>
+                          </div>
+                        </div>
+                        <DialogFooter>
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setShowRegenerateDialog(false);
+                              setRegenerateInstructions("");
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            onClick={handleRegenerate}
+                            disabled={isRegenerating || !regenerateInstructions.trim()}
+                            className="gap-2"
+                          >
+                            {isRegenerating ? (
+                              <>
+                                <Loader2 className="size-4 animate-spin" />
+                                Regenerating...
+                              </>
+                            ) : (
+                              <>
+                                <Sparkles className="size-4" />
+                                Regenerate
+                              </>
+                            )}
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  </>
                 )}
               </div>
             </div>
@@ -236,7 +335,7 @@ export default function LeadCard({
               size="sm"
               onClick={handlePostClick}
               disabled={isPosting || isQueueing || lead.status === "posted"}
-              className="flex-1 bg-blue-600 hover:bg-blue-700"
+              className="flex-1 bg-blue-600 text-white hover:bg-blue-700"
             >
               {isPosting || isQueueing ? (
                 <>

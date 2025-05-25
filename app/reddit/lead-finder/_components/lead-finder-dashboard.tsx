@@ -790,6 +790,59 @@ export default function LeadFinderDashboard() {
     }
   }
 
+  // Handle regenerating a single comment with specific instructions
+  const handleRegenerateWithInstructions = async (leadId: string, instructions: string) => {
+    console.log("✨ [REGENERATE] Regenerating comment with instructions:", { leadId, instructions })
+    
+    const lead = state.leads.find(l => l.id === leadId)
+    if (!lead) return
+
+    try {
+      // Get website content from campaign
+      const campaignResult = await getCampaignByIdAction(state.campaignId!)
+      if (!campaignResult.isSuccess || !campaignResult.data.websiteContent) {
+        throw new Error("Website content not available")
+      }
+
+      // Call the regeneration action with the specific instructions
+      const result = await regenerateCommentsWithToneAction(
+        lead.postTitle,
+        lead.postContentSnippet,
+        lead.subreddit,
+        campaignResult.data.websiteContent,
+        instructions
+      )
+
+      if (result.isSuccess) {
+        // Update the comment in the database
+        await updateGeneratedCommentAction(leadId, {
+          microComment: result.data.microComment,
+          mediumComment: result.data.mediumComment,
+          verboseComment: result.data.verboseComment
+        })
+        
+        setState(prev => ({
+          ...prev,
+          leads: prev.leads.map(l =>
+            l.id === leadId
+              ? {
+                  ...l,
+                  microComment: result.data.microComment,
+                  mediumComment: result.data.mediumComment,
+                  verboseComment: result.data.verboseComment
+                }
+              : l
+          )
+        }))
+      } else {
+        throw new Error(result.message)
+      }
+    } catch (error) {
+      console.error("✨ [REGENERATE] Error:", error)
+      throw error // Re-throw to let the LeadCard handle the error display
+    }
+  }
+
   // Handle batch posting
   const handleBatchPostQueue = async () => {
     if (!user?.id) {
@@ -1090,6 +1143,7 @@ export default function LeadFinderDashboard() {
               selectedPost: lead
             }))
           }}
+          onRegenerateWithInstructions={handleRegenerateWithInstructions}
           postingLeadId={state.postingLeadId}
           queuingLeadId={state.queuingLeadId}
           toneInstruction={state.toneInstruction}

@@ -32,6 +32,7 @@ interface LeadsDisplayProps {
   onPostComment: (lead: LeadResult) => Promise<void>;
   onQueueComment: (lead: LeadResult) => Promise<void>;
   onViewComments?: (lead: LeadResult) => void;
+  onRegenerateWithInstructions?: (leadId: string, instructions: string) => Promise<void>;
   postingLeadId: string | null;
   queuingLeadId: string | null;
   
@@ -71,6 +72,7 @@ export default function LeadsDisplay({
   onPostComment,
   onQueueComment,
   onViewComments,
+  onRegenerateWithInstructions,
   postingLeadId,
   queuingLeadId,
   toneInstruction,
@@ -163,6 +165,7 @@ export default function LeadsDisplay({
               onPost={onPostComment}
               onQueue={onQueueComment}
               onViewComments={onViewComments}
+              onRegenerateWithInstructions={onRegenerateWithInstructions}
               isPosting={postingLeadId === lead.id}
               isQueueing={queuingLeadId === lead.id}
             />
