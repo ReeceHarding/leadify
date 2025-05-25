@@ -220,6 +220,8 @@ async function makeRedditApiPostCall(
         `❌ [REDDIT-API-POST] Initial POST request failed: ${response.status} ${response.statusText}`,
         { body: errorBody, headers: errorHeaders }
       )
+      console.error("❌ [REDDIT-API-POST] Error Body:", errorBody)
+      console.error("❌ [REDDIT-API-POST] Error Headers:", JSON.stringify(errorHeaders, null, 2))
       throw new Error(
         `Reddit API error: ${response.status} ${response.statusText} - ${errorBody}`
       )
