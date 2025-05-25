@@ -268,14 +268,22 @@ export async function getWarmupPostsByUserIdAction(
   try {
     console.log("🔍 [GET-WARMUP-POSTS] Fetching warm-up posts for user:", userId)
     
+    // Simplified query to avoid composite index requirement
     const postsQuery = query(
       collection(db, WARMUP_COLLECTIONS.WARMUP_POSTS),
-      where("userId", "==", userId),
-      orderBy("createdAt", "desc")
+      where("userId", "==", userId)
     )
     const querySnapshot = await getDocs(postsQuery)
     
-    const posts = querySnapshot.docs.map(doc => serializeWarmupPost(doc.data()))
+    // Sort in memory after fetching
+    const posts = querySnapshot.docs
+      .map(doc => serializeWarmupPost(doc.data()))
+      .sort((a, b) => {
+        const dateA = new Date(a.createdAt).getTime()
+        const dateB = new Date(b.createdAt).getTime()
+        return dateB - dateA // desc order
+      })
+    
     console.log(`✅ [GET-WARMUP-POSTS] Found ${posts.length} warm-up posts`)
     
     return {
@@ -516,18 +524,26 @@ export async function createWarmupCommentAction(
 
 export async function getWarmupCommentsByPostIdAction(
   warmupPostId: string
-): Promise<ActionState<WarmupCommentDocument[]>> {
+): Promise<ActionState<SerializedWarmupCommentDocument[]>> {
   try {
     console.log("🔍 [GET-WARMUP-COMMENTS] Fetching comments for post:", warmupPostId)
     
+    // Simplified query to avoid composite index requirement
     const commentsQuery = query(
       collection(db, WARMUP_COLLECTIONS.WARMUP_COMMENTS),
-      where("warmupPostId", "==", warmupPostId),
-      orderBy("createdAt", "asc")
+      where("warmupPostId", "==", warmupPostId)
     )
     const querySnapshot = await getDocs(commentsQuery)
     
-    const comments = querySnapshot.docs.map(doc => serializeWarmupComment(doc.data()))
+    // Sort in memory after fetching
+    const comments = querySnapshot.docs
+      .map(doc => serializeWarmupComment(doc.data()))
+      .sort((a, b) => {
+        const dateA = new Date(a.createdAt).getTime()
+        const dateB = new Date(b.createdAt).getTime()
+        return dateA - dateB // asc order
+      })
+    
     console.log(`✅ [GET-WARMUP-COMMENTS] Found ${comments.length} comments`)
     
     return {
@@ -544,7 +560,7 @@ export async function getWarmupCommentsByPostIdAction(
 export async function updateWarmupCommentAction(
   commentId: string,
   data: UpdateWarmupCommentData
-): Promise<ActionState<WarmupCommentDocument>> {
+): Promise<ActionState<SerializedWarmupCommentDocument>> {
   try {
     console.log("🔧 [UPDATE-WARMUP-COMMENT] Updating warm-up comment:", commentId)
     

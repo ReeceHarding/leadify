@@ -56,7 +56,8 @@ export async function generateAndScheduleWarmupPostsAction(
     
     // Check if warm-up period has ended
     const now = new Date()
-    if (now > account.warmupEndDate.toDate()) {
+    const warmupEndDate = new Date(account.warmupEndDate)
+    if (now > warmupEndDate) {
       return { isSuccess: false, message: "Warm-up period has ended" }
     }
     
@@ -87,7 +88,7 @@ export async function generateAndScheduleWarmupPostsAction(
       // If no analysis or it's older than 7 days, refresh it
       if (!analysis || 
           (analysis.lastAnalyzedAt && 
-           Date.now() - analysis.lastAnalyzedAt.toDate().getTime() > 7 * 24 * 60 * 60 * 1000)) {
+           Date.now() - new Date(analysis.lastAnalyzedAt).getTime() > 7 * 24 * 60 * 60 * 1000)) {
         console.log(`📊 [GENERATE-WARMUP-POSTS] Analyzing r/${subreddit}`)
         
         const topPostsResult = await getTopPostsFromSubredditAction(subreddit)
