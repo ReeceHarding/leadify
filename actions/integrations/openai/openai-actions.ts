@@ -720,3 +720,71 @@ PRIORITIZE AUTHENTICITY AND VALUE. Most threads should score 30-60 unless they'r
     }
   }
 }
+
+// Schema for information combining
+const InformationCombiningSchema = z.object({
+  combinedInformation: z.string()
+})
+
+export interface InformationCombiningResult {
+  combinedInformation: string
+}
+
+export async function combineInformationAction(
+  oldInformation: string,
+  newInformation: string
+): Promise<ActionState<InformationCombiningResult>> {
+  try {
+    console.log("🤖 [INFO-COMBINE] Starting combineInformationAction")
+    console.log("🤖 [INFO-COMBINE] Old info length:", oldInformation.length)
+    console.log("🤖 [INFO-COMBINE] New info length:", newInformation.length)
+
+    const prompt = `You are an expert at combining and organizing business information. Your task is to intelligently merge old and new information about a business.
+
+OLD INFORMATION:
+${oldInformation}
+
+NEW INFORMATION TO ADD:
+${newInformation}
+
+YOUR TASK:
+Combine the old and new information into a comprehensive, well-organized description. Follow these guidelines:
+
+1. MERGE COMPLEMENTARY INFORMATION: If both pieces contain similar information, combine them intelligently
+2. PRESERVE UNIQUE DETAILS: Keep all unique details from both sources
+3. RESOLVE CONFLICTS: If there are contradictions, prioritize the newer information but note important differences
+4. ORGANIZE LOGICALLY: Structure the combined information in a logical flow
+5. REMOVE REDUNDANCY: Eliminate duplicate information while preserving nuance
+6. MAINTAIN COMPLETENESS: Ensure no important details are lost
+
+The result should be a comprehensive, well-written description that incorporates the best of both sources.
+
+IMPORTANT: Return only the combined information text, no additional commentary or formatting.`
+
+    const { object } = await generateObject({
+      model: openai("o3-mini"),
+      schema: InformationCombiningSchema,
+      prompt,
+      providerOptions: {
+        openai: { reasoningEffort: "medium" }
+      }
+    })
+
+    console.log("✅ [INFO-COMBINE] Information combined successfully")
+    console.log("✅ [INFO-COMBINE] Combined length:", object.combinedInformation.length)
+
+    return {
+      isSuccess: true,
+      message: "Information combined successfully",
+      data: {
+        combinedInformation: object.combinedInformation
+      }
+    }
+  } catch (error) {
+    console.error("❌ [INFO-COMBINE] Error combining information:", error)
+    return {
+      isSuccess: false,
+      message: `Failed to combine information: ${error instanceof Error ? error.message : "Unknown error"}`
+    }
+  }
+}

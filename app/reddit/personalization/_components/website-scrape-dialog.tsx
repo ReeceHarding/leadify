@@ -10,7 +10,8 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Loader2, Globe, AlertTriangle } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Loader2, Globe, AlertTriangle, X } from "lucide-react"
 import { SerializedKnowledgeBaseDocument } from "@/actions/db/personalization-actions"
 import { useToast } from "@/hooks/use-toast"
 
@@ -87,12 +88,21 @@ export default function WebsiteScrapeDialog({
     }
   }
 
+  const handleRowClick = (url: string) => {
+    const isSelected = selectedPages.includes(url)
+    handlePageToggle(url, !isSelected)
+  }
+
   const handleSelectAll = () => {
     if (selectedPages.length === sitemapPages.length) {
       setSelectedPages([])
     } else {
       setSelectedPages(sitemapPages.map(page => page.url))
     }
+  }
+
+  const removeSelectedPage = (url: string) => {
+    setSelectedPages(prev => prev.filter(p => p !== url))
   }
 
   const handleScrapePages = async () => {
@@ -174,7 +184,7 @@ export default function WebsiteScrapeDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-h-[80vh] max-w-2xl flex-col overflow-hidden">
+      <DialogContent className="flex max-h-[80vh] max-w-3xl flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Globe className="size-5" />
@@ -215,22 +225,68 @@ export default function WebsiteScrapeDialog({
                 </Button>
               </div>
 
-              <div className="flex-1 space-y-2 overflow-y-auto rounded-lg border p-4">
-                {sitemapPages.map((page) => (
-                  <div key={page.url} className="flex items-start gap-3 rounded p-2 hover:bg-gray-50">
-                    <Checkbox
-                      checked={selectedPages.includes(page.url)}
-                      onCheckedChange={(checked) => handlePageToggle(page.url, checked as boolean)}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">{page.title}</p>
-                      <p className="truncate text-xs text-gray-500">{page.url}</p>
-                      {page.description && (
-                        <p className="mt-1 line-clamp-2 text-xs text-gray-600">{page.description}</p>
-                      )}
+              <div className="flex flex-1 gap-4 overflow-hidden">
+                {/* Available Pages */}
+                <div className="flex-1 space-y-2 overflow-y-auto rounded-lg border p-4">
+                  <h4 className="text-sm font-medium text-gray-700">Available Pages</h4>
+                  {sitemapPages.map((page) => {
+                    const isSelected = selectedPages.includes(page.url)
+                    return (
+                      <div 
+                        key={page.url} 
+                        className={`flex cursor-pointer items-start gap-3 rounded p-2 transition-colors ${
+                          isSelected 
+                            ? 'border border-blue-200 bg-blue-50 shadow-sm' 
+                            : 'border border-transparent hover:bg-gray-50'
+                        }`}
+                        onClick={() => handleRowClick(page.url)}
+                      >
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={(checked) => handlePageToggle(page.url, checked as boolean)}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium">{page.title}</p>
+                          <p className="truncate text-xs text-gray-500">{page.url}</p>
+                          {page.description && (
+                            <p className="mt-1 line-clamp-2 text-xs text-gray-600">{page.description}</p>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                {/* Selected Pages */}
+                {selectedPages.length > 0 && (
+                  <div className="w-80 space-y-2 overflow-y-auto rounded-lg border p-4">
+                    <h4 className="text-sm font-medium text-gray-700">
+                      Selected Pages ({selectedPages.length})
+                    </h4>
+                    <div className="space-y-2">
+                      {selectedPages.map((url) => {
+                        const page = sitemapPages.find(p => p.url === url)
+                        return (
+                          <div key={url} className="flex items-start gap-2 rounded bg-blue-50 p-2">
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate text-sm font-medium">{page?.title || 'Unknown'}</p>
+                              <p className="truncate text-xs text-gray-500">{url}</p>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="size-6 p-0"
+                              onClick={() => removeSelectedPage(url)}
+                            >
+                              <X className="size-3" />
+                            </Button>
+                          </div>
+                        )
+                      })}
                     </div>
                   </div>
-                ))}
+                )}
               </div>
             </>
           )}

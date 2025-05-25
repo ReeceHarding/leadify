@@ -172,16 +172,21 @@ export async function createKnowledgeBaseAction(
     const knowledgeBaseData = {
       id: knowledgeBaseRef.id,
       userId: data.userId,
-      websiteUrl: data.websiteUrl,
-      customInformation: data.customInformation,
+      websiteUrl: data.websiteUrl || "",
+      customInformation: data.customInformation || "",
       scrapedPages: data.scrapedPages || [],
-      summary: data.summary,
+      summary: data.summary || "",
       keyFacts: data.keyFacts || [],
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     }
 
-    await setDoc(knowledgeBaseRef, knowledgeBaseData)
+    // Remove undefined values
+    const cleanData = Object.fromEntries(
+      Object.entries(knowledgeBaseData).filter(([_, value]) => value !== undefined)
+    )
+
+    await setDoc(knowledgeBaseRef, cleanData)
 
     const createdDoc = await getDoc(knowledgeBaseRef)
     const serializedData = serializeKnowledgeBase(
@@ -441,18 +446,23 @@ export async function createScrapedContentAction(
       id: scrapedContentRef.id,
       userId: data.userId,
       url: data.url,
-      title: data.title,
+      title: data.title || "",
       content: data.content,
       contentType: data.contentType,
       wordCount: data.wordCount || data.content.split(" ").length,
-      summary: data.summary,
+      summary: data.summary || "",
       keyPoints: data.keyPoints || [],
       scrapedAt: data.scrapedAt || serverTimestamp(),
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     }
 
-    await setDoc(scrapedContentRef, scrapedContentData)
+    // Remove undefined values
+    const cleanData = Object.fromEntries(
+      Object.entries(scrapedContentData).filter(([_, value]) => value !== undefined)
+    )
+
+    await setDoc(scrapedContentRef, cleanData)
 
     const createdDoc = await getDoc(scrapedContentRef)
     const serializedData = serializeScrapedContent(

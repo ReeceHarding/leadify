@@ -3,7 +3,8 @@
 import { useState } from "react"
 import { SerializedKnowledgeBaseDocument } from "@/actions/db/personalization-actions"
 import { SerializedProfileDocument } from "@/actions/db/profiles-actions"
-import KnowledgeBaseSection from "../../personalization/_components/knowledge-base-section"
+import KnowledgeBaseDisplay from "./knowledge-base-display"
+import AddToKnowledgeBase from "./add-to-knowledge-base"
 
 interface KnowledgeBaseClientProps {
   userId: string
@@ -25,14 +26,21 @@ export default function KnowledgeBaseClient({
         <div className="space-y-2">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Knowledge Base</h1>
           <p className="text-gray-600 dark:text-gray-300">
-            Build your knowledge base with website content, scraped data, and Twitter analysis to create more informed Reddit comments.
+            Build your knowledge base with website content, scraped data, and additional information to create more informed Reddit comments.
           </p>
         </div>
       </div>
 
       {/* Knowledge Base Content */}
-      <div className="space-y-6">
-        <KnowledgeBaseSection
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Left Column: What We Know */}
+        <KnowledgeBaseDisplay
+          knowledgeBase={knowledgeBase}
+          userProfile={userProfile}
+        />
+
+        {/* Right Column: Add to Knowledge Base */}
+        <AddToKnowledgeBase
           userId={userId}
           knowledgeBase={knowledgeBase}
           setKnowledgeBase={setKnowledgeBase}
