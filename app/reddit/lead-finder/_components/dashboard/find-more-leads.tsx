@@ -84,6 +84,7 @@ export default function FindMoreLeads({
   const [isGeneratingKeywords, setIsGeneratingKeywords] = useState(false);
   const [isFindingLeads, setIsFindingLeads] = useState(false);
   const [threadsPerKeyword, setThreadsPerKeyword] = useState<Record<string, number>>({});
+  const [aiRefinementInput, setAiRefinementInput] = useState("");
 
   // Load existing keywords and calculate stats
   useEffect(() => {
@@ -151,32 +152,57 @@ export default function FindMoreLeads({
         return;
       }
 
-      // Simple keyword generation based on website content
-      // This is a placeholder - you could enhance this with AI
       const websiteUrl = profileResult.data.website;
       if (!websiteUrl) {
         toast.error("No website URL found in profile");
         return;
       }
+
+      // Generate keywords using AI with o3-mini
       const existingKeywords = keywords;
       
-      // Generate some suggestions based on the website URL
-      const domain = websiteUrl.replace(/https?:\/\//, '').replace(/www\./, '').split('/')[0];
-      const baseName = domain.split('.')[0];
-      
-      const suggestions = [
-        `best ${baseName} alternatives`,
-        `${baseName} reviews`,
-        `looking for ${baseName}`,
-        `recommendations like ${baseName}`,
-        `${baseName} vs competitors`
-      ].filter(k => !existingKeywords.includes(k));
+      // Create a refinement prompt that excludes existing keywords
+      let refinement = existingKeywords.length > 0 
+        ? `Generate NEW search terms that are different from these existing ones: ${existingKeywords.join(", ")}. Focus on finding different angles, customer segments, or use cases.`
+        : undefined;
 
-      if (suggestions.length > 0) {
-        setNewKeywords(suggestions.slice(0, 3).join("\n"));
-        toast.success(`Generated ${suggestions.slice(0, 3).length} keyword suggestions`);
+      // Add user's custom refinement if provided
+      if (aiRefinementInput.trim()) {
+        refinement = refinement 
+          ? `${refinement} Additional context: ${aiRefinementInput.trim()}`
+          : aiRefinementInput.trim();
+      }
+
+      console.log("🔍 [FIND-MORE-LEADS] Generating keywords with AI");
+      console.log("🔍 [FIND-MORE-LEADS] Website:", websiteUrl);
+      console.log("🔍 [FIND-MORE-LEADS] Existing keywords:", existingKeywords);
+      console.log("🔍 [FIND-MORE-LEADS] Refinement:", refinement);
+
+      // Use the same AI keyword generation action from onboarding
+      const { generateKeywordsAction } = await import("@/actions/lead-generation/keywords-actions");
+      
+      const result = await generateKeywordsAction({
+        website: websiteUrl,
+        refinement: refinement
+      });
+
+      if (result.isSuccess && result.data.keywords) {
+        // Filter out any keywords that might still be duplicates (case-insensitive)
+        const existingKeywordsLower = existingKeywords.map(k => k.toLowerCase());
+        const newUniqueKeywords = result.data.keywords.filter(
+          k => !existingKeywordsLower.includes(k.toLowerCase())
+        );
+
+        if (newUniqueKeywords.length > 0) {
+          setNewKeywords(newUniqueKeywords.join("\n"));
+          toast.success(`Generated ${newUniqueKeywords.length} new keyword suggestions with AI`);
+          // Clear the AI refinement input after successful generation
+          setAiRefinementInput("");
+        } else {
+          toast.error("AI couldn't generate new unique keywords. Try adding more specific instructions.");
+        }
       } else {
-        toast.error("Could not generate new unique keywords");
+        toast.error("Failed to generate keywords with AI");
       }
     } catch (error) {
       console.error("Error generating keywords:", error);
@@ -381,30 +407,50 @@ export default function FindMoreLeads({
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <Label className="text-sm font-medium">Add New Keywords</Label>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleGenerateKeywords}
-                      disabled={isGeneratingKeywords}
-                      className="gap-2"
-                    >
-                      {isGeneratingKeywords ? (
-                        <Loader2 className="size-3 animate-spin" />
-                      ) : (
-                        <Sparkles className="size-3" />
-                      )}
-                      Give me suggestions w/ AI
-                    </Button>
                   </div>
-                  <Textarea
-                    placeholder="Enter keywords, one per line..."
-                    value={newKeywords}
-                    onChange={(e) => setNewKeywords(e.target.value)}
-                    className="min-h-[100px]"
-                  />
-                  <p className="text-xs text-gray-500">
-                    Enter search phrases that your target audience might use when looking for solutions
-                  </p>
+                  
+                  {/* AI Context Input */}
+                  <div className="space-y-2">
+                    <Label className="text-xs text-gray-500">
+                      Describe what kind of customers you're looking for (optional)
+                    </Label>
+                    <Textarea
+                      placeholder="E.g., people looking for recommendations for large group event venues in the Dominican Republic like weddings and large family get togethers"
+                      value={aiRefinementInput}
+                      onChange={(e) => setAiRefinementInput(e.target.value)}
+                      className="min-h-[80px] text-sm"
+                    />
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleGenerateKeywords}
+                    disabled={isGeneratingKeywords}
+                    className="w-full gap-2"
+                  >
+                    {isGeneratingKeywords ? (
+                      <Loader2 className="size-3 animate-spin" />
+                    ) : (
+                      <Sparkles className="size-3" />
+                    )}
+                    Give me suggestions w/ AI
+                  </Button>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs text-gray-500">
+                      Generated keywords (edit as needed)
+                    </Label>
+                    <Textarea
+                      placeholder="Keywords will appear here after AI generation, or enter your own..."
+                      value={newKeywords}
+                      onChange={(e) => setNewKeywords(e.target.value)}
+                      className="min-h-[100px]"
+                    />
+                    <p className="text-xs text-gray-500">
+                      Enter search phrases that your target audience might use when looking for solutions
+                    </p>
+                  </div>
                 </div>
 
                 {/* Reddit API Rate Limit Info */}
