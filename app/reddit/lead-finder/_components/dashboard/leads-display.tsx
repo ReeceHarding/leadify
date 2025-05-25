@@ -132,15 +132,7 @@ export default function LeadsDisplay({
   return (
     <>
       {/* Tone Regeneration Box - Show only if leads (any leads, not just filtered) exist */}
-      {leads.length > 0 && (
-        <ToneCustomizer
-          toneInstruction={toneInstruction}
-          onToneInstructionChange={onToneInstructionChange}
-          onRegenerateAll={onRegenerateAllTones}
-          isRegeneratingAll={isRegeneratingAllTones}
-          disabled={false} 
-        />
-      )}
+      {/* REMOVED - This is already rendered in the parent component */}
 
       {/* Filters and Sorting - Show only if leads (any leads) exist */}
       {leads.length > 0 && (

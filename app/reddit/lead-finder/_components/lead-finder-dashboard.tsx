@@ -114,6 +114,7 @@ import ToneCustomizer from "./dashboard/tone-customizer"
 import BatchPoster from "./dashboard/batch-poster"
 import PaginationControls from "./dashboard/pagination-controls"
 import LeadsDisplay from "./dashboard/leads-display"
+import FindMoreLeads from "./dashboard/find-more-leads"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   Dialog,
@@ -974,6 +975,18 @@ export default function LeadFinderDashboard() {
       />
       
       <div className="grid gap-4">
+        {/* Find More Leads - Show when campaign is selected */}
+        {state.campaignId && (
+          <FindMoreLeads
+            userId={user?.id || ""}
+            campaignId={state.campaignId}
+            onFindingLeads={() => {
+              updateState({ workflowRunning: true })
+            }}
+            disabled={state.workflowRunning}
+          />
+        )}
+
         {/* Tone Customizer - Show when there are leads */}
         {state.leads.length > 0 && (
           <ToneCustomizer
