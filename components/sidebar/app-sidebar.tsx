@@ -51,7 +51,7 @@ const data = {
       url: "/reddit",
       icon: MessageSquare,
       items: [
-        { title: "Leadify", url: "/reddit/lead-finder" },
+        { title: "Leads", url: "/reddit/lead-finder" },
         { title: "My Posts", url: "/reddit/my-posts" }
       ]
     }
