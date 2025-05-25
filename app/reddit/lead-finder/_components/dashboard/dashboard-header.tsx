@@ -2,9 +2,8 @@
 
 import React from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Plus, Target, RefreshCw } from "lucide-react";
+import { Target, RefreshCw } from "lucide-react";
 import { WorkflowProgress } from "./types"; // Import from dashboard types
 import {
   Tooltip,
@@ -23,8 +22,6 @@ interface DashboardHeaderProps {
   onTabChange: (value: "all" | "queue") => void;
   workflowProgressError?: string; // For the onboarding button
   onCompleteOnboardingClick: () => void;
-  selectedCommentLength: "micro" | "medium" | "verbose";
-  onCommentLengthChange: (value: "micro" | "medium" | "verbose") => void;
   onNewCampaignClick: () => void;
   workflowRunning?: boolean; // Add this prop
 }
@@ -39,8 +36,6 @@ export default function DashboardHeader({
   onTabChange,
   workflowProgressError,
   onCompleteOnboardingClick,
-  selectedCommentLength,
-  onCommentLengthChange,
   onNewCampaignClick,
   workflowRunning = false
 }: DashboardHeaderProps) {
@@ -93,26 +88,6 @@ export default function DashboardHeader({
                 Complete Onboarding
               </Button>
             )}
-
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Select value={selectedCommentLength} onValueChange={onCommentLengthChange as any}>
-                    <SelectTrigger className="h-9 w-[130px] rounded-md border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-800">
-                      <SelectValue placeholder="Comment Length" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="micro">Micro (5-15 words)</SelectItem>
-                      <SelectItem value="medium">Medium (30-80 words)</SelectItem>
-                      <SelectItem value="verbose">Verbose (100-200 words)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="text-xs">Choose the default comment length for all leads</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
 
             <TooltipProvider>
               <Tooltip>

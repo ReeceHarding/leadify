@@ -310,35 +310,6 @@ export default function VoiceSettingsSection({
           </p>
         </div>
 
-        {/* Writing Style */}
-        <div className="space-y-4">
-          <Label>Writing Style</Label>
-          <Select
-            value={writingStyle}
-            onValueChange={(value: WritingStyle) => setWritingStyle(value)}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="casual">Casual</SelectItem>
-              <SelectItem value="professional">Professional</SelectItem>
-              <SelectItem value="friendly">Friendly</SelectItem>
-              <SelectItem value="technical">Technical</SelectItem>
-              <SelectItem value="custom">Custom</SelectItem>
-            </SelectContent>
-          </Select>
-
-          {writingStyle === "custom" && (
-            <Textarea
-              placeholder="Describe your custom writing style..."
-              value={customWritingStyle}
-              onChange={e => setCustomWritingStyle(e.target.value)}
-              rows={3}
-            />
-          )}
-        </div>
-
         {/* Persona Type */}
         <div className="space-y-4">
           <Label>Comment Persona</Label>
