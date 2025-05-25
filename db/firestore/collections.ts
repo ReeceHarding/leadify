@@ -28,6 +28,12 @@ export interface ProfileDocument {
   keywords?: string[] // Keywords for lead generation
   onboardingCompleted?: boolean
 
+  // Reddit OAuth fields
+  redditAccessToken?: string
+  redditRefreshToken?: string
+  redditTokenExpiresAt?: Timestamp
+  redditUsername?: string
+
   createdAt: Timestamp
   updatedAt: Timestamp
 }
@@ -43,6 +49,12 @@ export interface CreateProfileData {
   website?: string
   keywords?: string[] // Keywords for lead generation
   onboardingCompleted?: boolean
+  
+  // Reddit OAuth fields
+  redditAccessToken?: string
+  redditRefreshToken?: string
+  redditTokenExpiresAt?: Timestamp
+  redditUsername?: string
 }
 
 // Types for updating profiles (all optional except userId for identification)
@@ -56,4 +68,10 @@ export interface UpdateProfileData {
   keywords?: string[] // Keywords for lead generation
   onboardingCompleted?: boolean
   updatedAt?: Timestamp
+  
+  // Reddit OAuth fields
+  redditAccessToken?: string
+  redditRefreshToken?: string
+  redditTokenExpiresAt?: Timestamp
+  redditUsername?: string
 }

@@ -44,6 +44,13 @@ export interface SerializedProfileDocument {
   website?: string
   keywords?: string[] // Keywords for lead generation
   onboardingCompleted?: boolean
+  
+  // Reddit OAuth fields
+  redditAccessToken?: string
+  redditRefreshToken?: string
+  redditTokenExpiresAt?: string // ISO string instead of Timestamp
+  redditUsername?: string
+  
   createdAt: string // ISO string instead of Timestamp
   updatedAt: string // ISO string instead of Timestamp
 }
@@ -80,7 +87,7 @@ function serializeProfileDocument(
   )
   console.log("🔥 [PROFILE-SERIALIZE] updatedAt value:", profile.updatedAt)
 
-  const serialized = {
+  const serialized: SerializedProfileDocument = {
     ...profile,
     createdAt:
       profile.createdAt instanceof Timestamp
@@ -89,7 +96,11 @@ function serializeProfileDocument(
     updatedAt:
       profile.updatedAt instanceof Timestamp
         ? profile.updatedAt.toDate().toISOString()
-        : new Date().toISOString()
+        : new Date().toISOString(),
+    // Handle Reddit token expiration timestamp
+    redditTokenExpiresAt: profile.redditTokenExpiresAt instanceof Timestamp
+      ? profile.redditTokenExpiresAt.toDate().toISOString()
+      : profile.redditTokenExpiresAt as any
   }
 
   console.log(

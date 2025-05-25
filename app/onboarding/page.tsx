@@ -22,7 +22,7 @@ import {
   updateProfileAction,
   getProfileByUserIdAction
 } from "@/actions/db/profiles-actions"
-import { getRedditAccessTokenAction } from "@/actions/integrations/reddit-oauth-actions"
+import { getRedditTokensFromProfileAction } from "@/actions/integrations/reddit-oauth-user-actions"
 
 type OnboardingStep = "profile" | "website" | "keywords" | "reddit" | "complete"
 
@@ -60,7 +60,7 @@ export default function OnboardingPage() {
   const checkRedditConnection = async () => {
     console.log("🔍 [ONBOARDING] Checking Reddit connection status...")
     try {
-      const tokenResult = await getRedditAccessTokenAction()
+      const tokenResult = await getRedditTokensFromProfileAction()
       const isConnected = tokenResult.isSuccess
       console.log("🔍 [ONBOARDING] Reddit connection status:", isConnected)
       return isConnected
@@ -391,7 +391,7 @@ export default function OnboardingPage() {
 
   const completeOnboarding = async () => {
     console.log("🔍 [ONBOARDING] completeOnboarding() called")
-    console.log("🔍 [ONBOARDING] Final onboardingData:", onboardingData)
+    console.log("�� [ONBOARDING] Final onboardingData:", onboardingData)
     console.log("🔍 [ONBOARDING] Final keywords:", onboardingData.keywords)
     console.log(
       "🔍 [ONBOARDING] Final keywords length:",

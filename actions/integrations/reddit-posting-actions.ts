@@ -8,9 +8,9 @@ Contains server actions for posting comments to Reddit using OAuth2 authenticati
 
 import { ActionState } from "@/types"
 import {
-  getRedditAccessTokenAction,
-  refreshRedditTokenAction
-} from "./reddit-oauth-actions"
+  getRedditTokensFromProfileAction,
+  refreshRedditTokenFromProfileAction
+} from "./reddit-oauth-user-actions"
 import { updateGeneratedCommentAction } from "@/actions/db/lead-generation-actions"
 
 interface PostCommentParams {
@@ -28,27 +28,31 @@ interface PostedComment {
 }
 
 async function makeRedditApiPost(endpoint: string, body: any): Promise<any> {
-  // Get access token
-  const tokenResult = await getRedditAccessTokenAction()
+  // Get access token from user's profile
+  const tokenResult = await getRedditTokensFromProfileAction()
 
   if (!tokenResult.isSuccess) {
     // Try to refresh token if available
-    const refreshResult = await refreshRedditTokenAction()
+    const refreshResult = await refreshRedditTokenFromProfileAction()
     if (!refreshResult.isSuccess) {
       throw new Error(
         "No valid Reddit access token available. Please re-authenticate."
       )
     }
     // Get the new token
-    const newTokenResult = await getRedditAccessTokenAction()
+    const newTokenResult = await getRedditTokensFromProfileAction()
     if (!newTokenResult.isSuccess) {
       throw new Error("Failed to get refreshed access token")
     }
   }
 
   const accessToken = tokenResult.isSuccess
-    ? tokenResult.data
-    : (await getRedditAccessTokenAction()).data
+    ? tokenResult.data.accessToken
+    : (await getRedditTokensFromProfileAction()).data?.accessToken
+
+  if (!accessToken) {
+    throw new Error("No access token available")
+  }
 
   const response = await fetch(`https://oauth.reddit.com${endpoint}`, {
     method: "POST",
@@ -183,7 +187,7 @@ export async function testRedditPostingAction(): Promise<
 > {
   try {
     // Test by getting user info
-    const tokenResult = await getRedditAccessTokenAction()
+    const tokenResult = await getRedditTokensFromProfileAction()
     
     if (!tokenResult.isSuccess) {
       return {
@@ -194,7 +198,7 @@ export async function testRedditPostingAction(): Promise<
     
     const response = await fetch("https://oauth.reddit.com/api/v1/me", {
       headers: {
-        Authorization: `Bearer ${tokenResult.data}`,
+        Authorization: `Bearer ${tokenResult.data.accessToken}`,
         "User-Agent": process.env.REDDIT_USER_AGENT || "reddit-lead-gen:v1.0.0"
       }
     })

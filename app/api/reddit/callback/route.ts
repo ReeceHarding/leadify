@@ -1,7 +1,7 @@
 "use server"
 
 import { NextRequest, NextResponse } from "next/server"
-import { exchangeRedditCodeForTokensAction } from "@/actions/integrations/reddit-oauth-actions"
+import { exchangeRedditCodeForTokensUserAction } from "@/actions/integrations/reddit-oauth-user-actions"
 
 export async function GET(request: NextRequest) {
   try {
@@ -29,8 +29,8 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Exchange code for tokens
-    const result = await exchangeRedditCodeForTokensAction(code, state)
+    // Exchange code for tokens and save to user profile
+    const result = await exchangeRedditCodeForTokensUserAction(code, state)
 
     if (!result.isSuccess) {
       console.error("Token exchange failed:", result.message)
