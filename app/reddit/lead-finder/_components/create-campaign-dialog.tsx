@@ -25,12 +25,14 @@ import {
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import { X, Plus, Loader2, Globe, Search, Target } from "lucide-react"
+import { X, Plus, Loader2, Globe, Search, Target, Sparkles } from "lucide-react"
 import { createCampaignAction } from "@/actions/db/campaign-actions"
 import { runFullLeadGenerationWorkflowAction } from "@/actions/lead-generation/workflow-actions"
 import { generateCampaignNameAction } from "@/actions/lead-generation/campaign-name-actions"
 import { toast } from "sonner"
 import { useUser } from "@clerk/nextjs"
+import { generateKeywordsAction } from "@/actions/lead-generation/keywords-actions"
+import { scrapeWebsiteAction } from "@/actions/integrations/firecrawl/website-scraping-actions"
 
 const campaignSchema = z.object({
   name: z
@@ -57,11 +59,14 @@ export default function CreateCampaignDialog({
   onOpenChange,
   onSuccess
 }: CreateCampaignDialogProps) {
+  const { user } = useUser()
+  const [campaignName, setCampaignName] = useState("")
+  const [website, setWebsite] = useState("")
+  const [keywords, setKeywords] = useState<string[]>([])
   const [currentKeyword, setCurrentKeyword] = useState("")
   const [isCreating, setIsCreating] = useState(false)
-  const [isRunning, setIsRunning] = useState(false)
-  const [isGeneratingName, setIsGeneratingName] = useState(false)
-  const { user } = useUser()
+  const [isGeneratingKeywords, setIsGeneratingKeywords] = useState(false)
+  const [generationStep, setGenerationStep] = useState<"idle" | "scraping" | "generating">("idle")
 
   const form = useForm<CampaignForm>({
     resolver: zodResolver(campaignSchema),
@@ -72,18 +77,18 @@ export default function CreateCampaignDialog({
     }
   })
 
-  const keywords = form.watch("keywords")
-  const website = form.watch("website")
+  const keywordsForm = form.watch("keywords")
+  const websiteForm = form.watch("website")
 
   // Auto-generate campaign name when keywords or website change
   useEffect(() => {
     const generateName = async () => {
-      if (keywords.length > 0 && website && !form.getValues("name")) {
-        setIsGeneratingName(true)
+      if (keywordsForm.length > 0 && websiteForm && !form.getValues("name")) {
+        setIsGeneratingKeywords(true)
         try {
           const nameResult = await generateCampaignNameAction({
-            keywords,
-            website,
+            keywords: keywordsForm,
+            website: websiteForm,
             businessName: user?.fullName || undefined
           })
           
@@ -93,299 +98,301 @@ export default function CreateCampaignDialog({
         } catch (error) {
           console.error("Error generating campaign name:", error)
         } finally {
-          setIsGeneratingName(false)
+          setIsGeneratingKeywords(false)
         }
       }
     }
 
     const timer = setTimeout(generateName, 500) // Debounce
     return () => clearTimeout(timer)
-  }, [keywords, website, user?.fullName, form])
+  }, [keywordsForm, websiteForm, user?.fullName, form])
 
-  const addKeyword = () => {
-    if (
-      currentKeyword.trim() &&
-      !keywords.includes(currentKeyword.trim()) &&
-      keywords.length < 10
-    ) {
-      form.setValue("keywords", [...keywords, currentKeyword.trim()])
+  const handleAddKeyword = () => {
+    if (currentKeyword.trim() && keywords.length < 10) {
+      setKeywords([...keywords, currentKeyword.trim()])
       setCurrentKeyword("")
     }
   }
 
-  const removeKeyword = (keyword: string) => {
-    form.setValue(
-      "keywords",
-      keywords.filter(k => k !== keyword)
-    )
+  const handleRemoveKeyword = (index: number) => {
+    setKeywords(keywords.filter((_, i) => i !== index))
   }
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      e.preventDefault()
-      addKeyword()
+  const handleGenerateWithAI = async () => {
+    if (!website.trim()) {
+      toast.error("Please enter your website URL first")
+      return
+    }
+
+    setIsGeneratingKeywords(true)
+    setGenerationStep("scraping")
+
+    try {
+      // Step 1: Scrape the website
+      console.log("🌐 Scraping website:", website)
+      const scrapeResult = await scrapeWebsiteAction(website)
+      
+      if (!scrapeResult.isSuccess) {
+        throw new Error("Failed to analyze website")
+      }
+
+      // Step 2: Generate keywords
+      setGenerationStep("generating")
+      console.log("🎯 Generating keywords from scraped content")
+      
+      const keywordsResult = await generateKeywordsAction({
+        website: website,
+        refinement: "Generate 10 diverse keywords for finding potential customers on Reddit"
+      })
+
+      if (keywordsResult.isSuccess) {
+        // Add generated keywords (up to remaining slots)
+        const remainingSlots = 10 - keywords.length
+        const newKeywords = keywordsResult.data.keywords.slice(0, remainingSlots)
+        setKeywords([...keywords, ...newKeywords])
+        toast.success(`Generated ${newKeywords.length} keywords!`)
+      } else {
+        throw new Error("Failed to generate keywords")
+      }
+    } catch (error) {
+      console.error("Error generating keywords:", error)
+      toast.error("Failed to generate keywords")
+    } finally {
+      setIsGeneratingKeywords(false)
+      setGenerationStep("idle")
     }
   }
 
-  const onSubmit = async (data: CampaignForm) => {
-    if (!user?.id) {
-      toast.error("Please sign in to create a campaign")
+  const handleCreateCampaign = async () => {
+    if (!campaignName.trim() || !website.trim() || keywords.length === 0) {
+      toast.error("Please fill in all fields and add at least one keyword")
       return
     }
 
     setIsCreating(true)
 
     try {
-      // Create campaign
-      const campaignResult = await createCampaignAction({
-        userId: user.id,
-        name: data.name,
-        website: data.website,
-        keywords: data.keywords
-      })
-
-      if (!campaignResult.isSuccess) {
-        toast.error("Failed to create campaign", {
-          description: campaignResult.message
-        })
+      if (!user?.id) {
+        toast.error("Please sign in to create a campaign")
         return
       }
 
-      toast.success("Campaign created successfully!", {
-        description: "Starting lead generation workflow..."
+      // Create the campaign
+      const campaignResult = await createCampaignAction({
+        userId: user.id,
+        name: campaignName,
+        website: website,
+        keywords: keywords
       })
 
-      setIsCreating(false)
-      setIsRunning(true)
+      if (!campaignResult.isSuccess || !campaignResult.data) {
+        throw new Error(campaignResult.message || "Failed to create campaign")
+      }
 
-      // Run the workflow
+      // Run the lead generation workflow
       const workflowResult = await runFullLeadGenerationWorkflowAction(
         campaignResult.data.id
       )
 
-      if (workflowResult.isSuccess) {
-        toast.success("Campaign completed successfully!", {
-          description: `Found ${workflowResult.data.results.find(r => r.step === "Score and Generate Comments")?.data?.commentsGenerated || 0} quality leads`
-        })
-      } else {
-        toast.error("Campaign workflow failed", {
-          description: workflowResult.message
-        })
+      if (!workflowResult.isSuccess) {
+        throw new Error(workflowResult.message || "Failed to start lead generation")
       }
 
-      setIsRunning(false)
-      onOpenChange(false)
-      form.reset()
+      toast.success("Campaign created! Finding leads...")
       onSuccess?.()
+      onOpenChange(false)
     } catch (error) {
       console.error("Error creating campaign:", error)
-      toast.error("Unexpected error occurred")
+      toast.error(error instanceof Error ? error.message : "Failed to create campaign")
+    } finally {
       setIsCreating(false)
-      setIsRunning(false)
     }
   }
 
-  const handleClose = () => {
-    if (!isCreating && !isRunning) {
-      onOpenChange(false)
-      form.reset()
-      setCurrentKeyword("")
-    }
-  }
+  const estimatedThreads = keywords.length * 10
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Target className="size-5 text-blue-600" />
-            Create Lead Generation Campaign
-          </DialogTitle>
+          <DialogTitle>Create New Campaign</DialogTitle>
           <DialogDescription>
-            Set up a new campaign to find and analyze Reddit opportunities for
-            your business.
+            Set up a new lead generation campaign to find potential customers on Reddit.
           </DialogDescription>
         </DialogHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Campaign Name */}
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    <Target className="size-4" />
-                    Campaign Name
-                  </FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Input
-                        placeholder={isGeneratingName ? "Generating name..." : "e.g., Software Developer Outreach"}
-                        {...field}
-                        disabled={isCreating || isRunning || isGeneratingName}
-                      />
-                      {isGeneratingName && (
-                        <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                          <Loader2 className="size-4 animate-spin text-gray-400" />
-                        </div>
-                      )}
-                    </div>
-                  </FormControl>
-                  <FormDescription>
-                    {isGeneratingName 
-                      ? "AI is generating a campaign name based on your keywords..."
-                      : "Give your campaign a descriptive name or let AI generate one."}
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Website URL */}
-            <FormField
-              control={form.control}
-              name="website"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    <Globe className="size-4" />
-                    Website URL
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="https://yourcompany.com"
-                      {...field}
-                      disabled={isCreating || isRunning}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    We'll analyze your website to understand your business and
-                    generate relevant comments.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Keywords */}
-            <FormField
-              control={form.control}
-              name="keywords"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    <Search className="size-4" />
-                    Search Keywords
-                  </FormLabel>
-                  <FormControl>
-                    <div className="space-y-3">
-                      <div className="flex gap-2">
-                        <Input
-                          placeholder="e.g., software developer hiring"
-                          value={currentKeyword}
-                          onChange={e => setCurrentKeyword(e.target.value)}
-                          onKeyPress={handleKeyPress}
-                          disabled={
-                            isCreating || isRunning || keywords.length >= 10
-                          }
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={addKeyword}
-                          disabled={
-                            !currentKeyword.trim() ||
-                            keywords.includes(currentKeyword.trim()) ||
-                            keywords.length >= 10 ||
-                            isCreating ||
-                            isRunning
-                          }
-                        >
-                          <Plus className="size-4" />
-                        </Button>
-                      </div>
-
-                      {keywords.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
-                          {keywords.map(keyword => (
-                            <Badge
-                              key={keyword}
-                              variant="secondary"
-                              className="flex items-center gap-1"
-                            >
-                              {keyword}
-                              {!isCreating && !isRunning && (
-                                <button
-                                  type="button"
-                                  onClick={() => removeKeyword(keyword)}
-                                  className="ml-1 hover:text-red-500"
-                                >
-                                  <X className="size-3" />
-                                </button>
-                              )}
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </FormControl>
-                  <FormDescription>
-                    Keywords to search for on Reddit. We'll find threads related
-                    to these terms. ({keywords.length}/10)
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {(isCreating || isRunning) && (
-              <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-                <div className="flex items-center gap-3">
-                  <Loader2 className="size-5 animate-spin text-blue-600" />
-                  <div>
-                    <p className="font-medium text-blue-900">
-                      {isCreating
-                        ? "Creating campaign..."
-                        : "Running lead generation workflow..."}
-                    </p>
-                    <p className="text-sm text-blue-700">
-                      {isCreating
-                        ? "Setting up your campaign"
-                        : "Analyzing Reddit threads and generating comments. This may take a few minutes."}
-                    </p>
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <FormLabel htmlFor="campaign-name">Campaign Name</FormLabel>
+            <FormControl>
+              <div className="relative">
+                <Input
+                  id="campaign-name"
+                  placeholder="e.g., Q1 2024 Lead Generation"
+                  value={campaignName}
+                  onChange={(e) => setCampaignName(e.target.value)}
+                  disabled={isCreating}
+                />
+                {isGeneratingKeywords && (
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                    <Loader2 className="size-4 animate-spin text-gray-400" />
                   </div>
-                </div>
+                )}
               </div>
-            )}
+            </FormControl>
+            <FormDescription>
+              {isGeneratingKeywords 
+                ? "AI is generating a campaign name based on your keywords..."
+                : "Give your campaign a descriptive name or let AI generate one."}
+            </FormDescription>
+            <FormMessage />
+          </div>
 
-            <DialogFooter>
+          <div className="space-y-2">
+            <FormLabel htmlFor="website">Your Website</FormLabel>
+            <FormControl>
+              <Input
+                id="website"
+                type="url"
+                placeholder="https://example.com"
+                value={website}
+                onChange={(e) => setWebsite(e.target.value)}
+                disabled={isCreating}
+              />
+            </FormControl>
+            <FormDescription>
+              We'll analyze your website to understand your business
+            </FormDescription>
+            <FormMessage />
+          </div>
+
+          <div className="space-y-2">
+            <FormLabel htmlFor="keywords" className="flex items-center gap-2">
+              <Search className="size-4" />
+              Search Keywords
+            </FormLabel>
+            <div className="space-y-3">
+              <div className="flex gap-2">
+                <Input
+                  id="keywords"
+                  placeholder="e.g., software developer hiring"
+                  value={currentKeyword}
+                  onChange={(e) => setCurrentKeyword(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault()
+                      handleAddKeyword()
+                    }
+                  }}
+                  disabled={isCreating || keywords.length >= 10}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleAddKeyword}
+                  disabled={!currentKeyword.trim() || keywords.length >= 10 || isCreating}
+                >
+                  <Plus className="size-4" />
+                </Button>
+              </div>
+              
+              {/* AI Generation Button */}
               <Button
                 type="button"
                 variant="outline"
-                onClick={handleClose}
-                disabled={isCreating || isRunning}
+                onClick={handleGenerateWithAI}
+                disabled={!website.trim() || keywords.length >= 10 || isGeneratingKeywords || isCreating}
+                className="w-full"
               >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={isCreating || isRunning || keywords.length === 0}
-                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
-              >
-                {isCreating || isRunning ? (
+                {isGeneratingKeywords ? (
                   <>
                     <Loader2 className="mr-2 size-4 animate-spin" />
-                    {isCreating ? "Creating..." : "Running..."}
+                    {generationStep === "scraping" ? (
+                      <>
+                        <Globe className="mr-2 size-4" />
+                        Scraping homepage...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="mr-2 size-4" />
+                        Generating keywords...
+                      </>
+                    )}
                   </>
                 ) : (
-                  "Create & Run Campaign"
+                  <>
+                    <Sparkles className="mr-2 size-4" />
+                    Generate with AI
+                  </>
                 )}
               </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+            </div>
+            <FormDescription>
+              Keywords to search for on Reddit. We'll score threads related to these terms. ({keywords.length}/10)
+            </FormDescription>
+            <FormMessage />
+          </div>
+
+          {keywords.length > 0 && (
+            <div className="space-y-2">
+              <FormLabel>Selected Keywords</FormLabel>
+              <div className="flex flex-wrap gap-2">
+                {keywords.map((keyword, index) => (
+                  <Badge key={index} variant="secondary" className="gap-1">
+                    {keyword}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveKeyword(index)}
+                      className="ml-1 hover:text-destructive"
+                      disabled={isCreating}
+                    >
+                      <X className="size-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {keywords.length > 0 && (
+            <div className="space-y-2">
+              <FormLabel>Estimated Threads</FormLabel>
+              <FormControl>
+                <div className="flex items-center gap-3">
+                  <p className="text-sm text-muted-foreground">
+                    {estimatedThreads} threads
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    across {keywords.length} keywords
+                  </p>
+                </div>
+              </FormControl>
+            </div>
+          )}
+        </div>
+
+        <DialogFooter>
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isCreating}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleCreateCampaign}
+            disabled={!campaignName.trim() || !website.trim() || keywords.length === 0 || isCreating}
+          >
+            {isCreating ? (
+              <>
+                <Loader2 className="mr-2 size-4 animate-spin" />
+                Creating Campaign...
+              </>
+            ) : (
+              `Create & Score ${estimatedThreads} Threads`
+            )}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

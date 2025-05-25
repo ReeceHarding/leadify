@@ -374,9 +374,9 @@ export default function FindNewLeadsDialog({
             {selectedKeywords.length > 0 && (
               <Alert>
                 <AlertCircle className="size-4" />
-                <AlertDescription>
-                  <strong>Ready to find leads:</strong> {selectedKeywords.length} keywords × {postsPerKeyword} posts = up to {selectedKeywords.length * parseInt(postsPerKeyword)} new leads
-                </AlertDescription>
+                              <AlertDescription>
+                <strong>Ready to score threads:</strong> {selectedKeywords.length} keywords × {postsPerKeyword} posts = up to {selectedKeywords.length * parseInt(postsPerKeyword)} threads
+              </AlertDescription>
               </Alert>
             )}
           </div>
@@ -405,8 +405,8 @@ export default function FindNewLeadsDialog({
                 </>
               ) : (
                 <>
-                  <Search className="size-4" />
-                  Find {selectedKeywords.length * parseInt(postsPerKeyword)} Leads
+                                  <Search className="size-4" />
+                Score {selectedKeywords.length * parseInt(postsPerKeyword)} Threads
                 </>
               )}
             </Button>
