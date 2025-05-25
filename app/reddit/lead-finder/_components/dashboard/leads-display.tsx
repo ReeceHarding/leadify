@@ -138,7 +138,7 @@ export default function LeadsDisplay({
           onToneInstructionChange={onToneInstructionChange}
           onRegenerateAll={onRegenerateAllTones}
           isRegeneratingAll={isRegeneratingAllTones}
-          disabled={leads.length === 0} 
+          disabled={false} 
         />
       )}
 
@@ -153,18 +153,11 @@ export default function LeadsDisplay({
           onSortByChange={onSortByChange}
           paginatedLeadsCount={paginatedLeads.length}
           totalFilteredLeadsCount={filteredAndSortedLeads.length}
-          disabled={leads.length === 0}
+          disabled={false}
         />
       )}
 
-      {/* Batch Posting UI - Show only in queue tab and if there are approved leads */}
-      {activeTab === "queue" && (
-        <BatchPoster
-          approvedLeadsCount={approvedLeadsCount}
-          onBatchPostQueue={onBatchPostQueue}
-          isBatchPosting={isBatchPosting}
-        />
-      )}
+      {/* Batch Posting UI - Removed from here as it's handled in the parent */}
 
       {/* Results Grid or Empty State */}
       {filteredAndSortedLeads.length > 0 ? (

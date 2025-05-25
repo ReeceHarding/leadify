@@ -667,13 +667,16 @@ export default function LeadFinderDashboard() {
 
   // Handle tone regeneration
   const handleToneRegeneration = async () => {
-    if (!state.selectedPost || !state.toneInstruction.trim()) {
+    if (!state.toneInstruction.trim()) {
       toast.error("Please enter tone instructions")
       return
     }
 
+    // If no selected post, regenerate for all leads
+    const leadsToRegenerate = state.selectedPost ? [state.selectedPost] : state.leads
+    
     console.log("🎨 [TONE] Regenerating with instruction:", state.toneInstruction)
-    updateState({ regeneratingId: state.selectedPost.id })
+    updateState({ regeneratingId: "all" }) // Use "all" as ID when regenerating all
     
     try {
       // Get website content from campaign
@@ -682,41 +685,46 @@ export default function LeadFinderDashboard() {
         throw new Error("Website content not available")
       }
       
+      // Regenerate comments for each lead
+      for (const lead of leadsToRegenerate) {
         const result = await regenerateCommentsWithToneAction(
-        state.selectedPost.postTitle,
-        state.selectedPost.postContentSnippet,
-        state.selectedPost.subreddit,
-        campaignResult.data.websiteContent,
-        state.toneInstruction
+          lead.postTitle,
+          lead.postContentSnippet,
+          lead.subreddit,
+          campaignResult.data.websiteContent,
+          state.toneInstruction
         )
 
         if (result.isSuccess) {
-        // Update the comment in the database
-        await updateGeneratedCommentAction(state.selectedPost.id, {
+          // Update the comment in the database
+          await updateGeneratedCommentAction(lead.id, {
             microComment: result.data.microComment,
             mediumComment: result.data.mediumComment,
             verboseComment: result.data.verboseComment
           })
-        
-        setState(prev => ({
-          ...prev,
-          leads: prev.leads.map(l =>
-            l.id === state.selectedPost!.id
-              ? {
-                  ...l,
-                  microComment: result.data.microComment,
-                  mediumComment: result.data.mediumComment,
-                  verboseComment: result.data.verboseComment
-                }
-              : l
-          ),
-          regeneratingId: null,
-          toneInstruction: ""
-        }))
-        toast.success("Comments regenerated with new tone")
-      } else {
-        throw new Error(result.message)
+          
+          setState(prev => ({
+            ...prev,
+            leads: prev.leads.map(l =>
+              l.id === lead.id
+                ? {
+                    ...l,
+                    microComment: result.data.microComment,
+                    mediumComment: result.data.mediumComment,
+                    verboseComment: result.data.verboseComment
+                  }
+                : l
+            )
+          }))
+        }
       }
+      
+      setState(prev => ({
+        ...prev,
+        regeneratingId: null,
+        toneInstruction: ""
+      }))
+      toast.success(`Comments regenerated with new tone for ${leadsToRegenerate.length} lead(s)`)
     } catch (error) {
       console.error("🎨 [TONE] Error:", error)
       toast.error("Failed to regenerate comments")
@@ -864,6 +872,19 @@ export default function LeadFinderDashboard() {
 
   return (
     <div className="container mx-auto space-y-6 py-6">
+      {/* Debug Toggle */}
+      <div className="flex justify-end">
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => updateState({ debugMode: !state.debugMode })}
+          className="text-muted-foreground"
+        >
+          <Bug className="mr-2 size-4" />
+          {state.debugMode ? "Hide" : "Show"} Debug
+        </Button>
+      </div>
+      
       {/* Debug Panel */}
       {state.debugMode && (
         <Card className="border-orange-500 bg-orange-50 dark:bg-orange-900/20">
@@ -936,21 +957,8 @@ export default function LeadFinderDashboard() {
         </Card>
       )}
       
-      {/* Debug Toggle */}
-      <div className="flex justify-end">
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={() => updateState({ debugMode: !state.debugMode })}
-          className="text-muted-foreground"
-        >
-          <Bug className="mr-2 size-4" />
-          {state.debugMode ? "Hide" : "Show"} Debug
-        </Button>
-      </div>
-      
-      {/* Your existing dashboard components */}
-        <DashboardHeader 
+      {/* Dashboard Header */}
+      <DashboardHeader 
         campaignId={state.campaignId}
         leadsCount={state.leads.length}
         approvedLeadsCount={state.leads.filter(l => l.status === "queued").length}
@@ -959,14 +967,26 @@ export default function LeadFinderDashboard() {
         activeTab={state.activeTab}
         onTabChange={(value) => updateState({ activeTab: value as "all" | "queue" })}
         workflowProgressError={state.error || undefined}
-          onCompleteOnboardingClick={() => window.location.href = "/onboarding"}
+        onCompleteOnboardingClick={() => window.location.href = "/onboarding"}
         selectedCommentLength={state.selectedLength}
         onCommentLengthChange={(value) => updateState({ selectedLength: value as "micro" | "medium" | "verbose" })}
-          onNewCampaignClick={() => setCreateDialogOpen(true)}
-        />
+        onNewCampaignClick={() => setCreateDialogOpen(true)}
+      />
       
       <div className="grid gap-4">
-        {state.activeTab === "queue" && (
+        {/* Tone Customizer - Show when there are leads */}
+        {state.leads.length > 0 && (
+          <ToneCustomizer
+            toneInstruction={state.toneInstruction}
+            onToneInstructionChange={(value: string) => updateState({ toneInstruction: value })}
+            onRegenerateAll={handleToneRegeneration}
+            isRegeneratingAll={state.regeneratingId === "all"}
+            disabled={state.leads.length === 0}
+          />
+        )}
+
+        {/* Batch Poster - Show only in queue tab */}
+        {state.activeTab === "queue" && state.leads.filter(l => l.status === "queued").length > 0 && (
           <BatchPoster
             approvedLeadsCount={state.leads.filter(l => l.status === "queued").length}
             onBatchPostQueue={handleBatchPostQueue}
@@ -974,6 +994,7 @@ export default function LeadFinderDashboard() {
           />
         )}
 
+        {/* Main Leads Display */}
         <LeadsDisplay
           workflowProgress={{
             currentStep: state.workflowRunning ? "Lead generation running..." : "Ready",
@@ -1003,7 +1024,7 @@ export default function LeadFinderDashboard() {
           toneInstruction={state.toneInstruction}
           onToneInstructionChange={(value: string) => updateState({ toneInstruction: value })}
           onRegenerateAllTones={handleToneRegeneration}
-          isRegeneratingAllTones={state.regeneratingId === state.selectedPost?.id}
+          isRegeneratingAllTones={state.regeneratingId === "all"}
           filterKeyword={state.filterKeyword}
           onFilterKeywordChange={(value: string) => updateState({ filterKeyword: value })}
           filterScore={state.filterScore}

@@ -27,6 +27,7 @@ export interface LeadResult {
   originalData?: SerializedGeneratedCommentDocument // Raw data from backend
   postScore?: number
   keyword?: string
+  createdAt?: string // ISO string format
 }
 
 // Interface for tracking workflow progress of lead generation

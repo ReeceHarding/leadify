@@ -44,13 +44,11 @@ export default function DashboardHeader({
           <div className="flex items-center gap-2">
             <div
               className={`size-2 rounded-full ${
-                isPolling ? "animate-pulse bg-green-500" : "bg-gray-400"
+                leadsCount > 0 ? "animate-pulse bg-green-500" : "bg-gray-400"
               }`}
             />
             <span className="text-gray-600 dark:text-gray-400">
-              {isPolling
-                ? "Checking for new leads..."
-                : "Auto-refresh active (every 5 seconds)"}
+              Auto-refresh active (every 5 seconds)
             </span>
           </div>
           {lastPolledAt && (
