@@ -61,6 +61,7 @@ export interface VoiceSettingsDocument {
   // Writing style preferences
   writingStyle: WritingStyle
   customWritingStyle?: string
+  manualWritingStyleDescription?: string
   twitterHandle?: string
   twitterAnalyzed?: boolean
 
@@ -85,6 +86,7 @@ export interface CreateVoiceSettingsData {
   userId: string
   writingStyle: WritingStyle
   customWritingStyle?: string
+  manualWritingStyleDescription?: string
   twitterHandle?: string
   twitterAnalyzed?: boolean
   personaType: PersonaType
@@ -99,6 +101,7 @@ export interface CreateVoiceSettingsData {
 export interface UpdateVoiceSettingsData {
   writingStyle?: WritingStyle
   customWritingStyle?: string
+  manualWritingStyleDescription?: string
   twitterHandle?: string
   twitterAnalyzed?: boolean
   personaType?: PersonaType

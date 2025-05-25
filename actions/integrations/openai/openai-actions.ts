@@ -500,22 +500,32 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
   userId: string
 ): Promise<ActionState<ThreeTierCommentResult>> {
   try {
-    console.log(`🎯 [PERSONALIZED] Generating personalized comments for user: ${userId}`)
+    console.log(
+      `🎯 [PERSONALIZED] Generating personalized comments for user: ${userId}`
+    )
     console.log(`🎯 [PERSONALIZED] Thread: "${threadTitle.slice(0, 50)}..."`)
 
     // Get user's personalization data
-    const { getKnowledgeBaseByUserIdAction, getVoiceSettingsByUserIdAction } = await import("@/actions/db/personalization-actions")
-    const { getProfileByUserIdAction } = await import("@/actions/db/profiles-actions")
+    const { getKnowledgeBaseByUserIdAction, getVoiceSettingsByUserIdAction } =
+      await import("@/actions/db/personalization-actions")
+    const { getProfileByUserIdAction } = await import(
+      "@/actions/db/profiles-actions"
+    )
 
     // Fetch all personalization data
-    const [knowledgeBaseResult, voiceSettingsResult, profileResult] = await Promise.all([
-      getKnowledgeBaseByUserIdAction(userId),
-      getVoiceSettingsByUserIdAction(userId),
-      getProfileByUserIdAction(userId)
-    ])
+    const [knowledgeBaseResult, voiceSettingsResult, profileResult] =
+      await Promise.all([
+        getKnowledgeBaseByUserIdAction(userId),
+        getVoiceSettingsByUserIdAction(userId),
+        getProfileByUserIdAction(userId)
+      ])
 
-    console.log(`🎯 [PERSONALIZED] Knowledge base found: ${knowledgeBaseResult.isSuccess}`)
-    console.log(`🎯 [PERSONALIZED] Voice settings found: ${voiceSettingsResult.isSuccess}`)
+    console.log(
+      `🎯 [PERSONALIZED] Knowledge base found: ${knowledgeBaseResult.isSuccess}`
+    )
+    console.log(
+      `🎯 [PERSONALIZED] Voice settings found: ${voiceSettingsResult.isSuccess}`
+    )
     console.log(`🎯 [PERSONALIZED] Profile found: ${profileResult.isSuccess}`)
 
     // Build personalized context
@@ -527,19 +537,19 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
     if (knowledgeBaseResult.isSuccess && knowledgeBaseResult.data) {
       const kb = knowledgeBaseResult.data
       businessContext += `BUSINESS INFORMATION:\n`
-      
+
       if (kb.websiteUrl) {
         businessContext += `Website: ${kb.websiteUrl}\n`
       }
-      
+
       if (kb.customInformation) {
         businessContext += `Additional Info: ${kb.customInformation}\n`
       }
-      
+
       if (kb.summary) {
         businessContext += `Summary: ${kb.summary}\n`
       }
-      
+
       if (kb.scrapedPages && kb.scrapedPages.length > 0) {
         businessContext += `Key Pages: ${kb.scrapedPages.join(", ")}\n`
       }
@@ -559,10 +569,11 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
     // Add voice settings
     if (voiceSettingsResult.isSuccess && voiceSettingsResult.data) {
       const voice = voiceSettingsResult.data
-      
+
       // Set persona based on user's choice
       if (voice.personaType === "ceo") {
-        persona = "a CEO/founder who built this solution and wants to help others"
+        persona =
+          "a CEO/founder who built this solution and wants to help others"
       } else if (voice.personaType === "user") {
         persona = "a satisfied customer who had great results with this service"
       } else if (voice.personaType === "subtle") {
@@ -573,15 +584,23 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
 
       // Build writing style instructions
       const styleElements = []
+
+      // Add manual writing style description first (highest priority)
+      if (voice.manualWritingStyleDescription) {
+        styleElements.push(voice.manualWritingStyleDescription)
+      }
+
       if (voice.useAllLowercase) styleElements.push("use mostly lowercase text")
       if (voice.useEmojis) styleElements.push("include relevant emojis")
-      if (voice.useCasualTone) styleElements.push("write in a very casual, conversational tone")
-      if (voice.useFirstPerson) styleElements.push("write in first person (I, me, my)")
-      
+      if (voice.useCasualTone)
+        styleElements.push("write in a very casual, conversational tone")
+      if (voice.useFirstPerson)
+        styleElements.push("write in first person (I, me, my)")
+
       if (voice.customWritingStyle) {
         styleElements.push(voice.customWritingStyle)
       }
-      
+
       if (styleElements.length > 0) {
         writingStyle = `WRITING STYLE: ${styleElements.join(", ")}\n`
       }
@@ -592,7 +611,9 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
       }
     }
 
-    console.log(`🎯 [PERSONALIZED] Business context length: ${businessContext.length}`)
+    console.log(
+      `🎯 [PERSONALIZED] Business context length: ${businessContext.length}`
+    )
     console.log(`🎯 [PERSONALIZED] Writing style: ${writingStyle}`)
     console.log(`🎯 [PERSONALIZED] Persona: ${persona}`)
 
@@ -676,8 +697,12 @@ PRIORITIZE AUTHENTICITY AND VALUE. Most threads should score 30-60 unless they'r
       verboseComment: object.verboseComment
     }
 
-    console.log(`✅ [PERSONALIZED] Thread scored: ${result.score}/100 with personalized style`)
-    console.log(`✅ [PERSONALIZED] Reasoning: ${result.reasoning.slice(0, 100)}...`)
+    console.log(
+      `✅ [PERSONALIZED] Thread scored: ${result.score}/100 with personalized style`
+    )
+    console.log(
+      `✅ [PERSONALIZED] Reasoning: ${result.reasoning.slice(0, 100)}...`
+    )
 
     return {
       isSuccess: true,
@@ -685,7 +710,10 @@ PRIORITIZE AUTHENTICITY AND VALUE. Most threads should score 30-60 unless they'r
       data: result
     }
   } catch (error) {
-    console.error("❌ [PERSONALIZED] Error generating personalized comments:", error)
+    console.error(
+      "❌ [PERSONALIZED] Error generating personalized comments:",
+      error
+    )
     return {
       isSuccess: false,
       message: `Failed to generate personalized comments: ${error instanceof Error ? error.message : "Unknown error"}`

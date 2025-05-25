@@ -1,12 +1,24 @@
 "use client"
 
 import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Loader2, MessageCircle, Twitter, Sparkles } from "lucide-react"
 import { VoiceSettingsDocument, PersonaType, WritingStyle } from "@/db/schema"
@@ -25,17 +37,35 @@ export default function VoiceSettingsSection({
 }: VoiceSettingsSectionProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [isAnalyzingTwitter, setIsAnalyzingTwitter] = useState(false)
-  
+
   // Form state
-  const [writingStyle, setWritingStyle] = useState<WritingStyle>(voiceSettings?.writingStyle || "casual")
-  const [customWritingStyle, setCustomWritingStyle] = useState(voiceSettings?.customWritingStyle || "")
-  const [twitterHandle, setTwitterHandle] = useState(voiceSettings?.twitterHandle || "")
-  const [personaType, setPersonaType] = useState<PersonaType>(voiceSettings?.personaType || "user")
-  const [customPersona, setCustomPersona] = useState(voiceSettings?.customPersona || "")
-  const [useAllLowercase, setUseAllLowercase] = useState(voiceSettings?.useAllLowercase || false)
+  const [writingStyle, setWritingStyle] = useState<WritingStyle>(
+    voiceSettings?.writingStyle || "casual"
+  )
+  const [customWritingStyle, setCustomWritingStyle] = useState(
+    voiceSettings?.customWritingStyle || ""
+  )
+  const [manualWritingStyleDescription, setManualWritingStyleDescription] =
+    useState(voiceSettings?.manualWritingStyleDescription || "")
+  const [twitterHandle, setTwitterHandle] = useState(
+    voiceSettings?.twitterHandle || ""
+  )
+  const [personaType, setPersonaType] = useState<PersonaType>(
+    voiceSettings?.personaType || "user"
+  )
+  const [customPersona, setCustomPersona] = useState(
+    voiceSettings?.customPersona || ""
+  )
+  const [useAllLowercase, setUseAllLowercase] = useState(
+    voiceSettings?.useAllLowercase || false
+  )
   const [useEmojis, setUseEmojis] = useState(voiceSettings?.useEmojis || false)
-  const [useCasualTone, setUseCasualTone] = useState(voiceSettings?.useCasualTone || false)
-  const [useFirstPerson, setUseFirstPerson] = useState(voiceSettings?.useFirstPerson || false)
+  const [useCasualTone, setUseCasualTone] = useState(
+    voiceSettings?.useCasualTone || false
+  )
+  const [useFirstPerson, setUseFirstPerson] = useState(
+    voiceSettings?.useFirstPerson || false
+  )
 
   const { toast } = useToast()
 
@@ -52,9 +82,11 @@ export default function VoiceSettingsSection({
     setIsAnalyzingTwitter(true)
     try {
       // Fetch tweets
-      const { fetchUserTweetsAction } = await import("@/actions/integrations/twitter/twitter-aio-actions")
+      const { fetchUserTweetsAction } = await import(
+        "@/actions/integrations/twitter/twitter-aio-actions"
+      )
       const tweetsResult = await fetchUserTweetsAction(twitterHandle, 30)
-      
+
       if (!tweetsResult.isSuccess) {
         toast({
           title: "Error fetching tweets",
@@ -75,9 +107,14 @@ export default function VoiceSettingsSection({
       }))
 
       // Analyze writing style
-      const { analyzeTwitterWritingStyleAction } = await import("@/actions/integrations/openai/writing-style-analysis-actions")
-      const analysisResult = await analyzeTwitterWritingStyleAction(tweets, twitterHandle)
-      
+      const { analyzeTwitterWritingStyleAction } = await import(
+        "@/actions/integrations/openai/writing-style-analysis-actions"
+      )
+      const analysisResult = await analyzeTwitterWritingStyleAction(
+        tweets,
+        twitterHandle
+      )
+
       if (!analysisResult.isSuccess) {
         toast({
           title: "Error analyzing writing style",
@@ -88,7 +125,9 @@ export default function VoiceSettingsSection({
       }
 
       // Save Twitter analysis
-      const { createTwitterAnalysisAction } = await import("@/actions/db/personalization-actions")
+      const { createTwitterAnalysisAction } = await import(
+        "@/actions/db/personalization-actions"
+      )
       await createTwitterAnalysisAction({
         userId,
         twitterHandle,
@@ -103,9 +142,16 @@ export default function VoiceSettingsSection({
       })
 
       // Update form with analysis results
-      setWritingStyle(analysisResult.data.vocabularyLevel === "professional" ? "professional" : "casual")
+      setWritingStyle(
+        analysisResult.data.vocabularyLevel === "professional"
+          ? "professional"
+          : "casual"
+      )
       setUseEmojis(analysisResult.data.emojiUsage)
       setUseCasualTone(analysisResult.data.vocabularyLevel === "casual")
+
+      // Auto-fill the manual writing style description with the analysis
+      setManualWritingStyleDescription(analysisResult.data.writingStyleAnalysis)
 
       toast({
         title: "Twitter analysis complete",
@@ -127,10 +173,15 @@ export default function VoiceSettingsSection({
     try {
       if (voiceSettings) {
         // Update existing voice settings
-        const { updateVoiceSettingsAction } = await import("@/actions/db/personalization-actions")
+        const { updateVoiceSettingsAction } = await import(
+          "@/actions/db/personalization-actions"
+        )
         const result = await updateVoiceSettingsAction(voiceSettings.id, {
           writingStyle,
-          customWritingStyle: writingStyle === "custom" ? customWritingStyle : undefined,
+          customWritingStyle:
+            writingStyle === "custom" ? customWritingStyle : undefined,
+          manualWritingStyleDescription:
+            manualWritingStyleDescription || undefined,
           twitterHandle: twitterHandle || undefined,
           personaType,
           customPersona: personaType === "custom" ? customPersona : undefined,
@@ -139,7 +190,7 @@ export default function VoiceSettingsSection({
           useCasualTone,
           useFirstPerson
         })
-        
+
         if (result.isSuccess) {
           setVoiceSettings(result.data)
           toast({
@@ -155,11 +206,16 @@ export default function VoiceSettingsSection({
         }
       } else {
         // Create new voice settings
-        const { createVoiceSettingsAction } = await import("@/actions/db/personalization-actions")
+        const { createVoiceSettingsAction } = await import(
+          "@/actions/db/personalization-actions"
+        )
         const result = await createVoiceSettingsAction({
           userId,
           writingStyle,
-          customWritingStyle: writingStyle === "custom" ? customWritingStyle : undefined,
+          customWritingStyle:
+            writingStyle === "custom" ? customWritingStyle : undefined,
+          manualWritingStyleDescription:
+            manualWritingStyleDescription || undefined,
           twitterHandle: twitterHandle || undefined,
           personaType,
           customPersona: personaType === "custom" ? customPersona : undefined,
@@ -168,7 +224,7 @@ export default function VoiceSettingsSection({
           useCasualTone,
           useFirstPerson
         })
-        
+
         if (result.isSuccess) {
           setVoiceSettings(result.data)
           toast({
@@ -202,7 +258,8 @@ export default function VoiceSettingsSection({
           Voice & Writing Style
         </CardTitle>
         <CardDescription>
-          Configure how you want your comments to sound and what persona to adopt.
+          Configure how you want your comments to sound and what persona to
+          adopt.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -213,7 +270,7 @@ export default function VoiceSettingsSection({
             <Input
               placeholder="@username"
               value={twitterHandle}
-              onChange={(e) => setTwitterHandle(e.target.value)}
+              onChange={e => setTwitterHandle(e.target.value)}
               className="flex-1"
             />
             <Button
@@ -230,14 +287,35 @@ export default function VoiceSettingsSection({
             </Button>
           </div>
           <p className="text-sm text-gray-600">
-            Enter your Twitter handle to automatically analyze your writing style from your recent tweets.
+            Enter your Twitter handle to automatically analyze your writing
+            style from your recent tweets.
+          </p>
+        </div>
+
+        {/* Manual Writing Style Description */}
+        <div className="space-y-4">
+          <Label htmlFor="manual-style">Writing Style Description</Label>
+          <Textarea
+            id="manual-style"
+            placeholder="Describe your writing style (e.g., casual and conversational, uses emojis, short sentences, etc.). This will be auto-filled when you analyze your Twitter..."
+            value={manualWritingStyleDescription}
+            onChange={e => setManualWritingStyleDescription(e.target.value)}
+            rows={4}
+            className="resize-none"
+          />
+          <p className="text-sm text-gray-600">
+            Manually describe your writing style, or use Twitter analysis to
+            auto-fill this section.
           </p>
         </div>
 
         {/* Writing Style */}
         <div className="space-y-4">
           <Label>Writing Style</Label>
-          <Select value={writingStyle} onValueChange={(value: WritingStyle) => setWritingStyle(value)}>
+          <Select
+            value={writingStyle}
+            onValueChange={(value: WritingStyle) => setWritingStyle(value)}
+          >
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -249,12 +327,12 @@ export default function VoiceSettingsSection({
               <SelectItem value="custom">Custom</SelectItem>
             </SelectContent>
           </Select>
-          
+
           {writingStyle === "custom" && (
             <Textarea
               placeholder="Describe your custom writing style..."
               value={customWritingStyle}
-              onChange={(e) => setCustomWritingStyle(e.target.value)}
+              onChange={e => setCustomWritingStyle(e.target.value)}
               rows={3}
             />
           )}
@@ -263,23 +341,32 @@ export default function VoiceSettingsSection({
         {/* Persona Type */}
         <div className="space-y-4">
           <Label>Comment Persona</Label>
-          <Select value={personaType} onValueChange={(value: PersonaType) => setPersonaType(value)}>
+          <Select
+            value={personaType}
+            onValueChange={(value: PersonaType) => setPersonaType(value)}
+          >
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ceo">CEO/Founder - Direct and authoritative</SelectItem>
-              <SelectItem value="user">Satisfied User - Enthusiastic customer</SelectItem>
-              <SelectItem value="subtle">Subtle Recommender - Experienced user who's tried many solutions</SelectItem>
+              <SelectItem value="ceo">
+                CEO/Founder - Direct and authoritative
+              </SelectItem>
+              <SelectItem value="user">
+                Satisfied User - Enthusiastic customer
+              </SelectItem>
+              <SelectItem value="subtle">
+                Subtle Recommender - Experienced user who's tried many solutions
+              </SelectItem>
               <SelectItem value="custom">Custom Persona</SelectItem>
             </SelectContent>
           </Select>
-          
+
           {personaType === "custom" && (
             <Textarea
               placeholder="Describe your custom persona..."
               value={customPersona}
-              onChange={(e) => setCustomPersona(e.target.value)}
+              onChange={e => setCustomPersona(e.target.value)}
               rows={3}
             />
           )}
@@ -293,36 +380,46 @@ export default function VoiceSettingsSection({
               <Checkbox
                 id="lowercase"
                 checked={useAllLowercase}
-                onCheckedChange={(checked) => setUseAllLowercase(checked === true)}
+                onCheckedChange={checked =>
+                  setUseAllLowercase(checked === true)
+                }
               />
-              <Label htmlFor="lowercase" className="text-sm">Use all lowercase</Label>
+              <Label htmlFor="lowercase" className="text-sm">
+                Use all lowercase
+              </Label>
             </div>
-            
+
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="emojis"
                 checked={useEmojis}
-                onCheckedChange={(checked) => setUseEmojis(checked === true)}
+                onCheckedChange={checked => setUseEmojis(checked === true)}
               />
-              <Label htmlFor="emojis" className="text-sm">Use emojis</Label>
+              <Label htmlFor="emojis" className="text-sm">
+                Use emojis
+              </Label>
             </div>
-            
+
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="casual"
                 checked={useCasualTone}
-                onCheckedChange={(checked) => setUseCasualTone(checked === true)}
+                onCheckedChange={checked => setUseCasualTone(checked === true)}
               />
-              <Label htmlFor="casual" className="text-sm">Use casual tone</Label>
+              <Label htmlFor="casual" className="text-sm">
+                Use casual tone
+              </Label>
             </div>
-            
+
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="first-person"
                 checked={useFirstPerson}
-                onCheckedChange={(checked) => setUseFirstPerson(checked === true)}
+                onCheckedChange={checked => setUseFirstPerson(checked === true)}
               />
-              <Label htmlFor="first-person" className="text-sm">Write in first person</Label>
+              <Label htmlFor="first-person" className="text-sm">
+                Write in first person
+              </Label>
             </div>
           </div>
         </div>
@@ -335,17 +432,16 @@ export default function VoiceSettingsSection({
               Generated Writing Style Prompt
             </Label>
             <div className="rounded-lg bg-gray-50 p-4">
-              <p className="text-sm text-gray-700">{voiceSettings.generatedPrompt}</p>
+              <p className="text-sm text-gray-700">
+                {voiceSettings.generatedPrompt}
+              </p>
             </div>
           </div>
         )}
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button
-            onClick={handleSaveSettings}
-            disabled={isLoading}
-          >
+          <Button onClick={handleSaveSettings} disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 size-4 animate-spin" />}
             Save Settings
           </Button>
@@ -353,4 +449,4 @@ export default function VoiceSettingsSection({
       </CardContent>
     </Card>
   )
-} 
+}
