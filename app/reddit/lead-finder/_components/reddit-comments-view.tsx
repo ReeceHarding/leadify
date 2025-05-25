@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { 
   ThumbsUp, 
   ThumbsDown,
@@ -13,21 +14,26 @@ import {
   Share,
   Award,
   MoreHorizontal,
-  Loader2
+  Loader2,
+  AlertCircle,
+  RefreshCw
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useRouter } from "next/navigation"
 
 interface RedditComment {
   id: string
   author: string
   body: string
   score: number
-  created: string
-  isOP?: boolean
-  isGenerated?: boolean
+  created_utc: number
+  is_submitter?: boolean
   replies?: RedditComment[]
   depth?: number
   awards?: number
+  distinguished?: string
+  stickied?: boolean
+  isGenerated?: boolean
 }
 
 interface RedditCommentsViewProps {
@@ -47,83 +53,91 @@ export default function RedditCommentsView({
 }: RedditCommentsViewProps) {
   const [comments, setComments] = useState<RedditComment[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [requiresAuth, setRequiresAuth] = useState(false)
   const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set())
+  const router = useRouter()
 
   useEffect(() => {
     fetchComments()
-  }, [postId])
+  }, [postId, subreddit])
 
   const fetchComments = async () => {
     setLoading(true)
+    setError(null)
     
-    // Simulate fetching comments - in production this would call Reddit API
-    setTimeout(() => {
-      const mockComments: RedditComment[] = [
-        {
-          id: "c1",
-          author: "reddit_veteran",
-          body: "Great question! I've been researching this myself lately. There are definitely some hidden gems in the DR that most tourists don't know about.",
-          score: 127,
-          created: "4 hours ago",
-          awards: 2,
-          replies: [
-            {
-              id: "c1-1",
-              author: "travel_enthusiast",
-              body: "Could you share some of those hidden gems? I'm planning a trip next month!",
-              score: 45,
-              created: "3 hours ago",
-              depth: 1
-            },
-            {
-              id: "c1-2",
-              author: "DR_local",
-              body: "As someone who lives here, I can confirm there are amazing spots off the beaten path. The north coast has some incredible beaches.",
-              score: 89,
-              created: "2 hours ago",
-              depth: 1,
-              awards: 1
-            }
-          ]
-        },
-        {
-          id: "generated",
-          author: generatedCommentAuthor,
-          body: generatedComment,
-          score: 1,
-          created: "Just now",
-          isGenerated: true
-        },
-        {
-          id: "c2",
-          author: "beach_lover_23",
-          body: "I stayed at an all-inclusive last year but felt like I missed out on the authentic experience. Next time I want to explore more local spots.",
-          score: 64,
-          created: "6 hours ago",
-          replies: [
-            {
-              id: "c2-1",
-              author: "adventure_seeker",
-              body: "Same here! The resort was nice but I barely left. What areas would you recommend exploring?",
-              score: 23,
-              created: "5 hours ago",
-              depth: 1
-            }
-          ]
-        },
-        {
-          id: "c3",
-          author: "budget_traveler",
-          body: "For anyone on a budget, there are some fantastic local guesthouses that give you a much more authentic experience than the big resorts.",
-          score: 156,
-          created: "8 hours ago",
-          awards: 3
-        }
-      ]
+    try {
+      console.log(`🔍 [REDDIT-COMMENTS-VIEW] Fetching comments for ${postId} in r/${subreddit}`)
       
-      setComments(mockComments)
+      const response = await fetch(
+        `/api/reddit/comments?threadId=${postId}&subreddit=${subreddit}&sort=best&limit=100`
+      )
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        
+        if (response.status === 403 && errorData.requiresAuth) {
+          console.log("🔐 [REDDIT-COMMENTS-VIEW] Reddit authentication required")
+          setRequiresAuth(true)
+          setError("Reddit authentication required to view comments")
+          return
+        }
+        
+        if (response.status === 429) {
+          setError("Reddit API rate limit exceeded. Please try again in a few minutes.")
+          return
+        }
+        
+        throw new Error(errorData.error || "Failed to fetch comments")
+      }
+
+      const data = await response.json()
+      console.log(`✅ [REDDIT-COMMENTS-VIEW] Fetched ${data.comments.length} comments`)
+
+      // Transform Reddit API comments to our format and insert generated comment
+      const transformedComments = transformComments(data.comments)
+      
+      // Insert the generated comment at a strategic position (after first 2 comments)
+      const generatedCommentObj: RedditComment = {
+        id: "generated",
+        author: generatedCommentAuthor,
+        body: generatedComment,
+        score: 1,
+        created_utc: Date.now() / 1000,
+        isGenerated: true
+      }
+
+      // Find a good position for the generated comment
+      const insertPosition = Math.min(2, transformedComments.length)
+      transformedComments.splice(insertPosition, 0, generatedCommentObj)
+
+      setComments(transformedComments)
+    } catch (err) {
+      console.error("❌ [REDDIT-COMMENTS-VIEW] Error fetching comments:", err)
+      setError(err instanceof Error ? err.message : "Failed to fetch comments")
+    } finally {
       setLoading(false)
-    }, 1500)
+    }
+  }
+
+  const transformComments = (redditComments: any[]): RedditComment[] => {
+    return redditComments.map(comment => ({
+      ...comment,
+      // Convert any nested replies
+      replies: comment.replies ? transformComments(comment.replies) : []
+    }))
+  }
+
+  const formatTimestamp = (timestamp: number): string => {
+    const now = Date.now() / 1000
+    const diff = now - timestamp
+    
+    if (diff < 60) return "Just now"
+    if (diff < 3600) return `${Math.floor(diff / 60)} minute${Math.floor(diff / 60) > 1 ? 's' : ''} ago`
+    if (diff < 86400) return `${Math.floor(diff / 3600)} hour${Math.floor(diff / 3600) > 1 ? 's' : ''} ago`
+    if (diff < 2592000) return `${Math.floor(diff / 86400)} day${Math.floor(diff / 86400) > 1 ? 's' : ''} ago`
+    if (diff < 31536000) return `${Math.floor(diff / 2592000)} month${Math.floor(diff / 2592000) > 1 ? 's' : ''} ago`
+    return `${Math.floor(diff / 31536000)} year${Math.floor(diff / 31536000) > 1 ? 's' : ''} ago`
   }
 
   const toggleCommentExpansion = (commentId: string) => {
@@ -136,6 +150,10 @@ export default function RedditCommentsView({
       }
       return newSet
     })
+  }
+
+  const handleRedditAuth = () => {
+    router.push("/reddit-auth")
   }
 
   const renderComment = (comment: RedditComment, isNested = false) => {
@@ -162,7 +180,12 @@ export default function RedditCommentsView({
         <div className={cn("py-3", comment.isGenerated && "px-4")}>
           <div className="flex items-start gap-3">
             <Avatar className="size-8 shrink-0">
-              <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-xs text-white">
+              <AvatarFallback className={cn(
+                "text-xs text-white",
+                comment.isGenerated 
+                  ? "bg-gradient-to-br from-blue-500 to-purple-600"
+                  : "bg-gradient-to-br from-orange-500 to-red-600"
+              )}>
                 {comment.author.substring(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
@@ -175,13 +198,25 @@ export default function RedditCommentsView({
                 )}>
                   u/{comment.author}
                 </span>
-                {comment.isOP && (
+                {comment.is_submitter && (
                   <Badge variant="outline" className="border-blue-300 bg-blue-100 text-xs text-blue-700">
                     OP
                   </Badge>
                 )}
+                {comment.distinguished === "moderator" && (
+                  <Badge variant="outline" className="border-green-300 bg-green-100 text-xs text-green-700">
+                    MOD
+                  </Badge>
+                )}
+                {comment.stickied && (
+                  <Badge variant="outline" className="border-purple-300 bg-purple-100 text-xs text-purple-700">
+                    PINNED
+                  </Badge>
+                )}
                 <span className="text-muted-foreground text-xs">•</span>
-                <span className="text-muted-foreground text-xs">{comment.created}</span>
+                <span className="text-muted-foreground text-xs">
+                  {formatTimestamp(comment.created_utc)}
+                </span>
                 {comment.awards && comment.awards > 0 && (
                   <>
                     <span className="text-muted-foreground text-xs">•</span>
@@ -256,6 +291,30 @@ export default function RedditCommentsView({
             </div>
           </div>
         ))}
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="p-4">
+        <Alert variant={requiresAuth ? "default" : "destructive"}>
+          <AlertCircle className="size-4" />
+          <AlertDescription>
+            {error}
+          </AlertDescription>
+        </Alert>
+        <div className="mt-4 flex gap-2">
+          {requiresAuth && (
+            <Button onClick={handleRedditAuth} variant="default" size="sm">
+              Authenticate with Reddit
+            </Button>
+          )}
+          <Button onClick={fetchComments} variant="outline" size="sm">
+            <RefreshCw className="mr-2 size-4" />
+            Retry
+          </Button>
+        </div>
       </div>
     )
   }

@@ -28,6 +28,20 @@ export interface RedditThreadData {
   domain: string
 }
 
+export interface RedditComment {
+  id: string
+  author: string
+  body: string
+  score: number
+  created_utc: number
+  is_submitter?: boolean
+  replies?: RedditComment[]
+  depth?: number
+  awards?: number
+  distinguished?: string
+  stickied?: boolean
+}
+
 async function makeRedditApiCall(endpoint: string): Promise<any> {
   // Get access token
   const tokenResult = await getRedditAccessTokenAction()
@@ -265,6 +279,96 @@ export async function getSubredditInfoAction(
     return {
       isSuccess: false,
       message: `Failed to get subreddit info: ${error instanceof Error ? error.message : "Unknown error"}`
+    }
+  }
+}
+
+export async function fetchRedditCommentsAction(
+  threadId: string,
+  subreddit: string,
+  sort: "best" | "top" | "new" | "controversial" | "old" = "best",
+  limit: number = 100
+): Promise<ActionState<RedditComment[]>> {
+  try {
+    console.log(
+      `💬 Fetching Reddit comments for thread: ${threadId} from r/${subreddit}`
+    )
+
+    // Construct the API endpoint with sorting and limit
+    const endpoint = `/r/${subreddit}/comments/${threadId}.json?sort=${sort}&limit=${limit}`
+
+    const data = await makeRedditApiCall(endpoint)
+
+    // Reddit returns an array with [post, comments]
+    const commentsData = data[1]?.data?.children || []
+
+    const parseComment = (commentData: any, depth: number = 0): RedditComment | null => {
+      if (!commentData.data || commentData.kind !== "t1") {
+        return null
+      }
+
+      const comment: RedditComment = {
+        id: commentData.data.id,
+        author: commentData.data.author || "[deleted]",
+        body: commentData.data.body || "[removed]",
+        score: commentData.data.score || 0,
+        created_utc: commentData.data.created_utc || 0,
+        is_submitter: commentData.data.is_submitter || false,
+        depth,
+        distinguished: commentData.data.distinguished,
+        stickied: commentData.data.stickied,
+        awards: commentData.data.total_awards_received || 0
+      }
+
+      // Parse replies if they exist
+      if (commentData.data.replies && typeof commentData.data.replies === "object") {
+        const replyChildren = commentData.data.replies.data?.children || []
+        comment.replies = replyChildren
+          .map((reply: any) => parseComment(reply, depth + 1))
+          .filter((reply: RedditComment | null) => reply !== null) as RedditComment[]
+      }
+
+      return comment
+    }
+
+    const comments = commentsData
+      .map((comment: any) => parseComment(comment))
+      .filter((comment: RedditComment | null) => comment !== null) as RedditComment[]
+
+    console.log(`✅ Fetched ${comments.length} comments from Reddit`)
+
+    return {
+      isSuccess: true,
+      message: "Reddit comments fetched successfully",
+      data: comments
+    }
+  } catch (error) {
+    console.error("Error fetching Reddit comments:", error)
+
+    if (error instanceof Error) {
+      if (error.message.includes("authentication")) {
+        return {
+          isSuccess: false,
+          message: error.message
+        }
+      }
+      if (error.message.includes("404")) {
+        return {
+          isSuccess: false,
+          message: `Reddit thread not found: ${threadId}`
+        }
+      }
+      if (error.message.includes("429")) {
+        return {
+          isSuccess: false,
+          message: "Reddit API rate limit exceeded, please try again later"
+        }
+      }
+    }
+
+    return {
+      isSuccess: false,
+      message: `Failed to fetch Reddit comments: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }
