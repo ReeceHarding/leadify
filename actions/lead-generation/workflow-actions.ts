@@ -300,11 +300,12 @@ export async function runFullLeadGenerationWorkflowAction(
 
         // Immediately score and generate comment
         console.log(`🤖 [WORKFLOW] Starting AI scoring for thread: "${apiThread.title}"`)
-        const scoringResult = await scoreThreadAndGenerateThreeTierCommentsAction(
+        const { scoreThreadAndGeneratePersonalizedCommentsAction } = await import("@/actions/integrations/openai/openai-actions")
+        const scoringResult = await scoreThreadAndGeneratePersonalizedCommentsAction(
           apiThread.title,
           apiThread.content,
           apiThread.subreddit,
-          websiteContent
+          campaign.userId // Pass userId for personalization
         )
 
         if (scoringResult.isSuccess) {

@@ -491,3 +491,204 @@ The reply should feel like a natural continuation of the conversation from someo
     }
   }
 }
+
+// NEW: Personalized comment generation using the personalization system
+export async function scoreThreadAndGeneratePersonalizedCommentsAction(
+  threadTitle: string,
+  threadContent: string,
+  subreddit: string,
+  userId: string
+): Promise<ActionState<ThreeTierCommentResult>> {
+  try {
+    console.log(`🎯 [PERSONALIZED] Generating personalized comments for user: ${userId}`)
+    console.log(`🎯 [PERSONALIZED] Thread: "${threadTitle.slice(0, 50)}..."`)
+
+    // Get user's personalization data
+    const { getKnowledgeBaseByUserIdAction, getVoiceSettingsByUserIdAction } = await import("@/actions/db/personalization-actions")
+    const { getProfileByUserIdAction } = await import("@/actions/db/profiles-actions")
+
+    // Fetch all personalization data
+    const [knowledgeBaseResult, voiceSettingsResult, profileResult] = await Promise.all([
+      getKnowledgeBaseByUserIdAction(userId),
+      getVoiceSettingsByUserIdAction(userId),
+      getProfileByUserIdAction(userId)
+    ])
+
+    console.log(`🎯 [PERSONALIZED] Knowledge base found: ${knowledgeBaseResult.isSuccess}`)
+    console.log(`🎯 [PERSONALIZED] Voice settings found: ${voiceSettingsResult.isSuccess}`)
+    console.log(`🎯 [PERSONALIZED] Profile found: ${profileResult.isSuccess}`)
+
+    // Build personalized context
+    let businessContext = ""
+    let writingStyle = ""
+    let persona = "a genuine user who has experience with this service"
+
+    // Add knowledge base information
+    if (knowledgeBaseResult.isSuccess && knowledgeBaseResult.data) {
+      const kb = knowledgeBaseResult.data
+      businessContext += `BUSINESS INFORMATION:\n`
+      
+      if (kb.websiteUrl) {
+        businessContext += `Website: ${kb.websiteUrl}\n`
+      }
+      
+      if (kb.customInformation) {
+        businessContext += `Additional Info: ${kb.customInformation}\n`
+      }
+      
+      if (kb.summary) {
+        businessContext += `Summary: ${kb.summary}\n`
+      }
+      
+      if (kb.scrapedPages && kb.scrapedPages.length > 0) {
+        businessContext += `Key Pages: ${kb.scrapedPages.join(", ")}\n`
+      }
+    }
+
+    // Add profile information as fallback
+    if (profileResult.isSuccess && profileResult.data) {
+      const profile = profileResult.data
+      if (profile.website && !businessContext.includes("Website:")) {
+        businessContext += `Website: ${profile.website}\n`
+      }
+      if (profile.name) {
+        businessContext += `Business Name: ${profile.name}\n`
+      }
+    }
+
+    // Add voice settings
+    if (voiceSettingsResult.isSuccess && voiceSettingsResult.data) {
+      const voice = voiceSettingsResult.data
+      
+      // Set persona based on user's choice
+      if (voice.personaType === "ceo") {
+        persona = "a CEO/founder who built this solution and wants to help others"
+      } else if (voice.personaType === "user") {
+        persona = "a satisfied customer who had great results with this service"
+      } else if (voice.personaType === "subtle") {
+        persona = "someone who subtly recommends solutions without being pushy"
+      } else if (voice.personaType === "custom" && voice.customPersona) {
+        persona = voice.customPersona
+      }
+
+      // Build writing style instructions
+      const styleElements = []
+      if (voice.useAllLowercase) styleElements.push("use mostly lowercase text")
+      if (voice.useEmojis) styleElements.push("include relevant emojis")
+      if (voice.useCasualTone) styleElements.push("write in a very casual, conversational tone")
+      if (voice.useFirstPerson) styleElements.push("write in first person (I, me, my)")
+      
+      if (voice.customWritingStyle) {
+        styleElements.push(voice.customWritingStyle)
+      }
+      
+      if (styleElements.length > 0) {
+        writingStyle = `WRITING STYLE: ${styleElements.join(", ")}\n`
+      }
+
+      // Add generated prompt if available
+      if (voice.generatedPrompt) {
+        writingStyle += `GENERATED STYLE PROMPT: ${voice.generatedPrompt}\n`
+      }
+    }
+
+    console.log(`🎯 [PERSONALIZED] Business context length: ${businessContext.length}`)
+    console.log(`🎯 [PERSONALIZED] Writing style: ${writingStyle}`)
+    console.log(`🎯 [PERSONALIZED] Persona: ${persona}`)
+
+    const prompt = `You are ${persona}. You want to help others by sharing what worked for you.
+
+${businessContext}
+
+${writingStyle}
+
+REDDIT THREAD:
+Subreddit: r/${subreddit}
+Title: ${threadTitle}
+Content: ${threadContent.slice(0, 2000)}
+
+YOUR TASK:
+1. First, analyze the business information to understand:
+   - What company/service/product it represents
+   - What problem it solves
+   - Who their target audience is
+   
+2. Then critically score how relevant this Reddit thread is to that business (1-100)
+
+3. If relevant (70+), generate comments using your personalized writing style and persona
+
+CRITICAL SCORING (1-100) - BE HARSH:
+- 90-100: Thread directly asks for exactly what this business offers (rare)
+- 70-89: Thread problem strongly aligns, your experience would be genuinely valuable
+- 50-69: Some relevance but would feel forced or salesy to comment
+- 30-49: Weak connection, commenting would be obvious self-promotion  
+- 1-29: No relevant connection, would be spam to comment
+
+GENERATE 3 COMMENT LENGTH OPTIONS (authentic, helpful, non-salesy):
+
+ALWAYS GENERATE ALL THREE in this natural format:
+1. MICRO COMMENT: Ultra-brief helpful tip based on your experience (5-15 words)
+2. MEDIUM COMMENT: Share your experience trying different solutions:
+   - Start with empathy ("I've been there..." or "I struggled with this too...")
+   - Mention a free/basic option you tried first (what worked/didn't work)
+   - Naturally mention how you found this business/service and what specifically helped
+   - Mention a premium/alternative option for completeness
+   - End with encouragement or offer to help
+   (30-80 words total, conversational tone)
+3. VERBOSE COMMENT: Comprehensive advice sharing your full journey:
+   - Open with strong empathy and understanding
+   - Detail your struggle with the problem
+   - List solutions you tried with honest pros/cons:
+     * Free/basic option you tried first
+     * How you discovered and used this business/service (be specific)
+     * Premium alternative for those with different needs
+   - Share specific results or improvements you saw
+   - Offer to answer questions or share more details
+   (100-200 words, genuinely helpful tone)
+
+CRITICAL RULES:
+- FOLLOW YOUR PERSONALIZED WRITING STYLE AND PERSONA EXACTLY
+- Write like a real person sharing their experience, not a salesperson
+- Never use marketing language or superlatives unless that's your style
+- Be honest about pros/cons of each option
+- Focus on being helpful first, mentioning products second
+- Use Reddit-appropriate language that matches your style
+- Never pressure or push any specific solution
+- Keep the business mentions natural and contextual
+- If you're a CEO/founder, be humble and focus on helping, not selling
+
+PRIORITIZE AUTHENTICITY AND VALUE. Most threads should score 30-60 unless they're perfect matches.`
+
+    const { object } = await generateObject({
+      model: openai("o3-mini"),
+      schema: ThreadAnalysisSchema,
+      prompt,
+      providerOptions: {
+        openai: { reasoningEffort: "medium" }
+      }
+    })
+
+    const result: ThreeTierCommentResult = {
+      score: Math.max(1, Math.min(100, object.score)),
+      reasoning: object.reasoning,
+      microComment: object.microComment,
+      mediumComment: object.mediumComment,
+      verboseComment: object.verboseComment
+    }
+
+    console.log(`✅ [PERSONALIZED] Thread scored: ${result.score}/100 with personalized style`)
+    console.log(`✅ [PERSONALIZED] Reasoning: ${result.reasoning.slice(0, 100)}...`)
+
+    return {
+      isSuccess: true,
+      message: "Personalized comments generated successfully",
+      data: result
+    }
+  } catch (error) {
+    console.error("❌ [PERSONALIZED] Error generating personalized comments:", error)
+    return {
+      isSuccess: false,
+      message: `Failed to generate personalized comments: ${error instanceof Error ? error.message : "Unknown error"}`
+    }
+  }
+}
