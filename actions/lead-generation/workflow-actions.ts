@@ -54,6 +54,14 @@ export interface WorkflowProgress {
 export async function runFullLeadGenerationWorkflowAction(
   campaignId: string
 ): Promise<ActionState<WorkflowProgress>> {
+  // Call the new function with no keyword limits (will process all keywords)
+  return runLeadGenerationWorkflowWithLimitsAction(campaignId, {});
+}
+
+export async function runLeadGenerationWorkflowWithLimitsAction(
+  campaignId: string,
+  keywordLimits: Record<string, number> = {}
+): Promise<ActionState<WorkflowProgress>> {
   const progress: WorkflowProgress = {
     currentStep: "Starting workflow",
     totalSteps: 6,
@@ -68,6 +76,7 @@ export async function runFullLeadGenerationWorkflowAction(
     console.log(
       `🚀 Starting lead generation workflow for campaign: ${campaignId}`
     )
+    console.log(`🚀 Keyword limits:`, keywordLimits)
 
     const campaignResult = await getCampaignByIdAction(campaignId)
     if (!campaignResult.isSuccess) {
@@ -78,11 +87,21 @@ export async function runFullLeadGenerationWorkflowAction(
     const campaign = campaignResult.data
     await updateCampaignAction(campaignId, { status: "running" })
 
+    // Determine which keywords to process
+    const keywordsToProcess = Object.keys(keywordLimits).length > 0 
+      ? campaign.keywords.filter(k => keywordLimits[k] && keywordLimits[k] > 0)
+      : campaign.keywords;
+
     progress.results.push({
       step: "Load Campaign",
       success: true,
       message: `Campaign "${campaign.name}" loaded successfully`,
-      data: { campaignName: campaign.name, keywords: campaign.keywords }
+      data: { 
+        campaignName: campaign.name, 
+        allKeywords: campaign.keywords,
+        keywordsToProcess,
+        keywordLimits 
+      }
     })
     progress.completedSteps++
 
@@ -174,39 +193,38 @@ export async function runFullLeadGenerationWorkflowAction(
     // Step 3: Search for Reddit threads
     progress.currentStep = "Searching Reddit threads"
     console.log(
-      `🔍 Step 3: Searching for Reddit threads with ${campaign.keywords.length} keywords`
+      `🔍 Step 3: Searching for Reddit threads with ${keywordsToProcess.length} keywords`
     )
 
-    const searchResult = await searchMultipleKeywordsAction(
-      campaign.keywords,
-      10
-    )
-    if (!searchResult.isSuccess) {
-      progress.results.push({
-        step: "Search Reddit",
-        success: false,
-        message: searchResult.message
-      })
-      await updateCampaignAction(campaignId, { status: "error" })
-      progress.error = searchResult.message
-      return {
-        isSuccess: false,
-        message: `Reddit search failed: ${searchResult.message}`
+    // Search with limits per keyword
+    const searchPromises = keywordsToProcess.map(async (keyword) => {
+      const limit = keywordLimits[keyword] || 10; // Default to 10 if no limit specified
+      console.log(`🔍 Searching for keyword "${keyword}" with limit: ${limit}`);
+      
+      const { searchRedditThreadsAction } = await import("@/actions/integrations/google/google-search-actions");
+      return searchRedditThreadsAction(keyword, limit);
+    });
+
+    const searchResults = await Promise.all(searchPromises);
+    
+    // Combine all search results
+    const allSearchResults: any[] = [];
+    searchResults.forEach((result: any, index: number) => {
+      if (result.isSuccess) {
+        const keyword = keywordsToProcess[index];
+        result.data.forEach((searchResult: any) => {
+          allSearchResults.push({
+            campaignId,
+            keyword,
+            redditUrl: searchResult.link,
+            threadId: searchResult.threadId,
+            title: searchResult.title,
+            snippet: searchResult.snippet,
+            position: searchResult.position
+          });
+        });
       }
-    }
-
-    // Save search results to database
-    const allSearchResults = searchResult.data.flatMap(keywordResult =>
-      keywordResult.results.map(result => ({
-        campaignId,
-        keyword: keywordResult.keyword,
-        redditUrl: result.link,
-        threadId: result.threadId,
-        title: result.title,
-        snippet: result.snippet,
-        position: result.position
-      }))
-    )
+    });
 
     // Batch save search results
     const batch = writeBatch(db)
@@ -233,7 +251,11 @@ export async function runFullLeadGenerationWorkflowAction(
       message: `Found ${allSearchResults.length} Reddit threads`,
       data: {
         totalResults: allSearchResults.length,
-        keywords: campaign.keywords.length
+        keywordsProcessed: keywordsToProcess.length,
+        resultsPerKeyword: keywordsToProcess.map((k, i) => ({
+          keyword: k,
+          count: searchResults[i]?.isSuccess ? searchResults[i].data.length : 0
+        }))
       }
     })
     progress.completedSteps++
@@ -394,7 +416,8 @@ export async function runFullLeadGenerationWorkflowAction(
       data: {
         totalSearchResults: allSearchResults.length,
         totalThreadsAnalyzed: threadsProcessed,
-        totalCommentsGenerated: commentsGeneratedCount
+        totalCommentsGenerated: commentsGeneratedCount,
+        keywordLimits: Object.keys(keywordLimits).length > 0 ? keywordLimits : "All keywords processed"
       }
     })
 

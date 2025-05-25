@@ -29,6 +29,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { 
   Search, 
   Plus, 
@@ -40,7 +47,8 @@ import {
   Hash,
   TrendingDown,
   Star,
-  Activity
+  Activity,
+  ChevronDown
 } from "lucide-react";
 import { toast } from "sonner";
 import { getProfileByUserIdAction, updateProfileAction } from "@/actions/db/profiles-actions";
@@ -244,15 +252,31 @@ export default function FindMoreLeads({
         }
       }
 
-      // Run workflow (currently only supports running the full workflow)
-      // Note: The threadsPerKeyword feature would need to be implemented in the workflow
-      const workflowResult = await runFullLeadGenerationWorkflowAction(campaignId);
+      // Import the new workflow function
+      const { runLeadGenerationWorkflowWithLimitsAction } = await import("@/actions/lead-generation/workflow-actions");
+      
+      // Run workflow with keyword limits
+      const workflowResult = await runLeadGenerationWorkflowWithLimitsAction(
+        campaignId, 
+        threadsPerKeyword
+      );
 
       if (workflowResult.isSuccess) {
-        toast.success("Finding new leads! Check back in a few moments.");
+        const totalNewPosts = Object.values(threadsPerKeyword).reduce((sum, count) => sum + count, 0);
+        const message = totalNewPosts > 0 
+          ? `Finding ${totalNewPosts} more posts for selected keywords!`
+          : "Finding new leads!";
+        
+        toast.success(`${message} Check back in a few moments.`);
         setIsOpen(false);
         setNewKeywords("");
         setThreadsPerKeyword({});
+        setAiRefinementInput("");
+        
+        // Reload the keyword stats after a delay
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
       } else {
         toast.error(workflowResult.message || "Failed to start lead generation");
       }
@@ -264,16 +288,15 @@ export default function FindMoreLeads({
     }
   };
 
-  const handleThreadCountChange = (keyword: string, count: string) => {
-    const numCount = parseInt(count);
-    if (isNaN(numCount) || numCount <= 0) {
+  const handleThreadCountChange = (keyword: string, value: string) => {
+    if (value === "0") {
       const newThreadsPerKeyword = { ...threadsPerKeyword };
       delete newThreadsPerKeyword[keyword];
       setThreadsPerKeyword(newThreadsPerKeyword);
     } else {
       setThreadsPerKeyword({
         ...threadsPerKeyword,
-        [keyword]: Math.min(numCount, 100) // Cap at 100
+        [keyword]: parseInt(value)
       });
     }
   };
@@ -331,25 +354,24 @@ export default function FindMoreLeads({
                                 <span className="font-medium">{stat.keyword}</span>
                               </div>
                               <div className="flex items-center gap-2">
-                                <Input
-                                  type="number"
-                                  placeholder="More"
-                                  className="h-8 w-20 text-xs"
-                                  min="1"
-                                  max="100"
-                                  value={threadsPerKeyword[stat.keyword] || ""}
-                                  onChange={(e) => handleThreadCountChange(stat.keyword, e.target.value)}
-                                />
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger>
-                                      <Info className="size-3 text-gray-400" />
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p className="text-xs">Find more threads for this keyword</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
+                                <div className="flex flex-col items-end gap-1">
+                                  <Label className="text-xs text-gray-500">Find more posts</Label>
+                                  <Select
+                                    value={threadsPerKeyword[stat.keyword]?.toString() || "0"}
+                                    onValueChange={(value) => handleThreadCountChange(stat.keyword, value)}
+                                  >
+                                    <SelectTrigger className="h-8 w-24">
+                                      <SelectValue placeholder="Select" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="0">None</SelectItem>
+                                      <SelectItem value="10">10 posts</SelectItem>
+                                      <SelectItem value="25">25 posts</SelectItem>
+                                      <SelectItem value="50">50 posts</SelectItem>
+                                      <SelectItem value="100">100 posts</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
                               </div>
                             </div>
 
@@ -452,6 +474,23 @@ export default function FindMoreLeads({
                     </p>
                   </div>
                 </div>
+
+                {/* Selected Keywords Summary */}
+                {Object.keys(threadsPerKeyword).length > 0 && (
+                  <Alert className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/50">
+                    <Info className="size-4" />
+                    <AlertDescription className="text-xs">
+                      <strong>Selected for more posts:</strong>
+                      <ul className="mt-1 list-inside list-disc">
+                        {Object.entries(threadsPerKeyword).map(([keyword, count]) => (
+                          <li key={keyword}>
+                            {keyword}: {count} more posts
+                          </li>
+                        ))}
+                      </ul>
+                    </AlertDescription>
+                  </Alert>
+                )}
 
                 {/* Reddit API Rate Limit Info */}
                 <Alert className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/50">
