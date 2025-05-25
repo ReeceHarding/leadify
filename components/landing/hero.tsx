@@ -9,22 +9,61 @@ This client component provides the hero section for the landing page.
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
-import { ChevronRight, Rocket, Search, RotateCcw, Loader2 } from "lucide-react"
+import { ChevronRight, Rocket, Search, RotateCcw, Loader2, LayoutDashboard } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import posthog from "posthog-js"
 import { useUser } from "@clerk/nextjs"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { resetAccountAction } from "@/actions/db/profiles-actions"
+import { getGeneratedCommentsByCampaignAction } from "@/actions/db/lead-generation-actions"
+import { getCampaignsByUserIdAction } from "@/actions/db/campaign-actions"
 import AnimatedGradientText from "../magicui/animated-gradient-text"
 import HeroVideoDialog from "../magicui/hero-video-dialog"
 
 export const HeroSection = () => {
-  const { user } = useUser()
+  const { user, isLoaded } = useUser()
   const [isResetting, setIsResetting] = useState(false)
+  const [hasLeads, setHasLeads] = useState(false)
+  const [isCheckingLeads, setIsCheckingLeads] = useState(true)
+
+  // Check if user has leads
+  useEffect(() => {
+    const checkUserLeads = async () => {
+      if (!isLoaded || !user) {
+        setIsCheckingLeads(false)
+        return
+      }
+
+      try {
+        // Get user's campaigns
+        const campaignsResult = await getCampaignsByUserIdAction(user.id)
+        if (!campaignsResult.isSuccess || !campaignsResult.data.length) {
+          setHasLeads(false)
+          setIsCheckingLeads(false)
+          return
+        }
+
+        // Check if any campaign has leads
+        for (const campaign of campaignsResult.data) {
+          const leadsResult = await getGeneratedCommentsByCampaignAction(campaign.id)
+          if (leadsResult.isSuccess && leadsResult.data.length > 0) {
+            setHasLeads(true)
+            break
+          }
+        }
+      } catch (error) {
+        console.error("Error checking user leads:", error)
+      } finally {
+        setIsCheckingLeads(false)
+      }
+    }
+
+    checkUserLeads()
+  }, [user, isLoaded])
 
   const handleGetStartedClick = () => {
-    posthog.capture("clicked_get_started")
+    posthog.capture(user && hasLeads ? "clicked_view_dashboard" : "clicked_get_started")
   }
 
   const handleStartOver = async () => {
@@ -119,10 +158,22 @@ export const HeroSection = () => {
           transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
           className="flex flex-col items-center gap-4"
         >
-          <Link href="/onboarding" onClick={handleGetStartedClick}>
+          <Link 
+            href={user && hasLeads ? "/reddit/lead-finder" : "/onboarding"} 
+            onClick={handleGetStartedClick}
+          >
             <Button className="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-3 text-lg hover:from-blue-700 hover:to-blue-800 dark:from-blue-500 dark:to-blue-600 dark:hover:from-blue-600 dark:hover:to-blue-700">
-              <Search className="mr-2 size-5" />
-              Get Started &rarr;
+              {user && hasLeads ? (
+                <>
+                  <LayoutDashboard className="mr-2 size-5" />
+                  View Dashboard &rarr;
+                </>
+              ) : (
+                <>
+                  <Search className="mr-2 size-5" />
+                  Get Started &rarr;
+                </>
+              )}
             </Button>
           </Link>
 

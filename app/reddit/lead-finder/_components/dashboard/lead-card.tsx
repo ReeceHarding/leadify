@@ -160,9 +160,16 @@ export default function LeadCard({
           </div>
 
           {/* Post Title */}
-          <h3 className="line-clamp-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
-            {lead.postTitle}
-          </h3>
+          <a 
+            href={lead.postUrl} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="group cursor-pointer"
+          >
+            <h3 className="line-clamp-2 text-lg font-semibold text-gray-900 transition-colors group-hover:text-blue-600 dark:text-gray-100 dark:group-hover:text-blue-400">
+              {lead.postTitle}
+            </h3>
+          </a>
 
           {/* Generated Comment */}
           <div className="space-y-3">
