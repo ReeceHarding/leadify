@@ -12,7 +12,7 @@ import { Loader2, Plus, Settings, Play, Pause } from "lucide-react"
 import { getWarmupAccountByUserIdAction, createWarmupAccountAction, updateWarmupAccountAction } from "@/actions/db/warmup-actions"
 import { getRedditUserInfoAction } from "@/actions/integrations/reddit/reddit-warmup-actions"
 import { generateRedditAuthUrlAction } from "@/actions/integrations/reddit/reddit-oauth-actions"
-import { WarmupAccountDocument } from "@/db/firestore/warmup-collections"
+import { SerializedWarmupAccountDocument } from "@/db/firestore/warmup-collections"
 import SubredditSelector from "./subreddit-selector"
 import WarmupPostsList from "./warmup-posts-list"
 import WarmupSettings from "./warmup-settings"
@@ -22,7 +22,7 @@ interface WarmupDashboardProps {
 }
 
 export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
-  const [warmupAccount, setWarmupAccount] = useState<WarmupAccountDocument | null>(null)
+  const [warmupAccount, setWarmupAccount] = useState<SerializedWarmupAccountDocument | null>(null)
   const [redditUsername, setRedditUsername] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isConnecting, setIsConnecting] = useState(false)
@@ -242,8 +242,8 @@ export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
               </div>
               
               <div className="text-muted-foreground text-sm">
-                <p>Started: {new Date(warmupAccount.warmupStartDate.toDate()).toLocaleDateString()}</p>
-                <p>Ends: {new Date(warmupAccount.warmupEndDate.toDate()).toLocaleDateString()}</p>
+                <p>Started: {new Date(warmupAccount.warmupStartDate).toLocaleDateString()}</p>
+                <p>Ends: {new Date(warmupAccount.warmupEndDate).toLocaleDateString()}</p>
                 <p>Daily post limit: {warmupAccount.dailyPostLimit} posts</p>
                 <p>Posting mode: {warmupAccount.postingMode}</p>
               </div>

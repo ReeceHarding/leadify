@@ -10,16 +10,16 @@ import { useToast } from "@/components/ui/use-toast"
 import { Loader2, RefreshCw, Send, Clock, Edit3, Check, X } from "lucide-react"
 import { getWarmupPostsByUserIdAction, updateWarmupPostAction } from "@/actions/db/warmup-actions"
 import { generateAndScheduleWarmupPostsAction } from "@/actions/warmup-queue-actions"
-import { WarmupAccountDocument, WarmupPostDocument } from "@/db/firestore/warmup-collections"
+import { SerializedWarmupAccountDocument, SerializedWarmupPostDocument } from "@/db/firestore/warmup-collections"
 import { debounce } from "lodash"
 
 interface WarmupPostsListProps {
   userId: string
-  warmupAccount: WarmupAccountDocument
+  warmupAccount: SerializedWarmupAccountDocument
 }
 
 export default function WarmupPostsList({ userId, warmupAccount }: WarmupPostsListProps) {
-  const [posts, setPosts] = useState<WarmupPostDocument[]>([])
+  const [posts, setPosts] = useState<SerializedWarmupPostDocument[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isGenerating, setIsGenerating] = useState(false)
   const [editingPost, setEditingPost] = useState<string | null>(null)
@@ -110,7 +110,7 @@ export default function WarmupPostsList({ userId, warmupAccount }: WarmupPostsLi
     [posts]
   )
 
-  const handleEditPost = (post: WarmupPostDocument) => {
+  const handleEditPost = (post: SerializedWarmupPostDocument) => {
     setEditingPost(post.id)
     setEditedContent({
       ...editedContent,
@@ -275,7 +275,7 @@ export default function WarmupPostsList({ userId, warmupAccount }: WarmupPostsLi
                     {post.scheduledFor && (
                       <div className="flex items-center gap-1">
                         <Clock className="size-3" />
-                        Scheduled: {new Date(post.scheduledFor.toDate()).toLocaleString()}
+                        Scheduled: {new Date(post.scheduledFor).toLocaleString()}
                       </div>
                     )}
                   </div>

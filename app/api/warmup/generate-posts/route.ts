@@ -37,10 +37,13 @@ export async function POST(request: Request) {
         message: result.message
       })
     } else {
-      return NextResponse.json({
-        success: false,
-        message: result.message
-      }, { status: 400 })
+      return NextResponse.json(
+        {
+          success: false,
+          message: result.message
+        },
+        { status: 400 }
+      )
     }
   } catch (error) {
     console.error("❌ [GENERATE-POSTS-API] Error:", error)
@@ -49,4 +52,4 @@ export async function POST(request: Request) {
       { status: 500 }
     )
   }
-} 
+}

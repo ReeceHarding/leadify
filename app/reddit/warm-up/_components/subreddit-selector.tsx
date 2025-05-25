@@ -13,12 +13,12 @@ import { searchSubredditsAction, getRedditUserInfoAction } from "@/actions/integ
 import { recommendSubredditsAction } from "@/actions/integrations/openai/warmup-content-generation-actions"
 import { createWarmupAccountAction, updateWarmupAccountAction } from "@/actions/db/warmup-actions"
 import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
-import { WarmupAccountDocument } from "@/db/firestore/warmup-collections"
+import { SerializedWarmupAccountDocument } from "@/db/firestore/warmup-collections"
 import { debounce } from "lodash"
 
 interface SubredditSelectorProps {
   userId: string
-  warmupAccount: WarmupAccountDocument | null
+  warmupAccount: SerializedWarmupAccountDocument | null
   onUpdate: () => void
 }
 

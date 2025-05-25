@@ -29,11 +29,24 @@ export function middleware(request: NextRequest) {
   
   console.log("🔥🔥🔥 [MIDDLEWARE] Request URL:", request.url)
   console.log("🔥🔥🔥 [MIDDLEWARE] Pathname:", pathname)
+  console.log("🔥🔥🔥 [MIDDLEWARE] Headers:", Object.fromEntries(request.headers.entries()))
   
-  // Skip auth for public API routes
+  // Check for CRON_SECRET in authorization header for public API routes
   if (isPublicApiRoute(request)) {
-    console.log("🔥🔥🔥 [MIDDLEWARE] Public API route - skipping auth")
-    return NextResponse.next()
+    const authHeader = request.headers.get("authorization")
+    const expectedAuth = `Bearer ${process.env.CRON_SECRET}`
+    
+    console.log("🔥🔥🔥 [MIDDLEWARE] Public API route detected")
+    console.log("🔥🔥🔥 [MIDDLEWARE] Auth header:", authHeader)
+    console.log("🔥🔥🔥 [MIDDLEWARE] Expected auth:", expectedAuth)
+    
+    if (authHeader === expectedAuth) {
+      console.log("🔥🔥🔥 [MIDDLEWARE] CRON_SECRET valid - allowing request")
+      return NextResponse.next()
+    } else {
+      console.log("🔥🔥🔥 [MIDDLEWARE] CRON_SECRET invalid - rejecting request")
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
   }
   
   // For all other routes, use Clerk middleware

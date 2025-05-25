@@ -30,6 +30,18 @@ export interface WarmupAccountDocument {
   updatedAt: Timestamp
 }
 
+// Serialized version for client components
+export interface SerializedWarmupAccountDocument
+  extends Omit<
+    WarmupAccountDocument,
+    "warmupStartDate" | "warmupEndDate" | "createdAt" | "updatedAt"
+  > {
+  warmupStartDate: string
+  warmupEndDate: string
+  createdAt: string
+  updatedAt: string
+}
+
 // Generated posts for warm-up
 export interface WarmupPostDocument {
   id: string
@@ -50,6 +62,18 @@ export interface WarmupPostDocument {
   updatedAt: Timestamp
 }
 
+// Serialized version for client components
+export interface SerializedWarmupPostDocument
+  extends Omit<
+    WarmupPostDocument,
+    "scheduledFor" | "postedAt" | "createdAt" | "updatedAt"
+  > {
+  scheduledFor?: string | null
+  postedAt?: string
+  createdAt: string
+  updatedAt: string
+}
+
 // Comments for warm-up posts
 export interface WarmupCommentDocument {
   id: string
@@ -65,6 +89,18 @@ export interface WarmupCommentDocument {
   error?: string
   createdAt: Timestamp
   updatedAt: Timestamp
+}
+
+// Serialized version for client components
+export interface SerializedWarmupCommentDocument
+  extends Omit<
+    WarmupCommentDocument,
+    "scheduledFor" | "postedAt" | "createdAt" | "updatedAt"
+  > {
+  scheduledFor?: string | null
+  postedAt?: string
+  createdAt: string
+  updatedAt: string
 }
 
 // Cached subreddit analysis
@@ -85,6 +121,17 @@ export interface SubredditAnalysisDocument {
   updatedAt: Timestamp
 }
 
+// Serialized version for client components
+export interface SerializedSubredditAnalysisDocument
+  extends Omit<
+    SubredditAnalysisDocument,
+    "lastAnalyzedAt" | "createdAt" | "updatedAt"
+  > {
+  lastAnalyzedAt: string
+  createdAt: string
+  updatedAt: string
+}
+
 // Rate limiting for warm-up posts
 export interface WarmupRateLimitDocument {
   id: string // userId_subreddit
@@ -94,6 +141,17 @@ export interface WarmupRateLimitDocument {
   postsInLast3Days: number
   createdAt: Timestamp
   updatedAt: Timestamp
+}
+
+// Serialized version for client components
+export interface SerializedWarmupRateLimitDocument
+  extends Omit<
+    WarmupRateLimitDocument,
+    "lastPostTime" | "createdAt" | "updatedAt"
+  > {
+  lastPostTime: string
+  createdAt: string
+  updatedAt: string
 }
 
 // Create types

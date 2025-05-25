@@ -9,10 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/components/ui/use-toast"
 import { Loader2, Save } from "lucide-react"
 import { updateWarmupAccountAction } from "@/actions/db/warmup-actions"
-import { WarmupAccountDocument } from "@/db/firestore/warmup-collections"
+import { SerializedWarmupAccountDocument } from "@/db/firestore/warmup-collections"
 
 interface WarmupSettingsProps {
-  warmupAccount: WarmupAccountDocument
+  warmupAccount: SerializedWarmupAccountDocument
   onUpdate: () => void
 }
 
@@ -122,8 +122,8 @@ export default function WarmupSettings({ warmupAccount, onUpdate }: WarmupSettin
         <div className="bg-muted space-y-2 rounded-lg p-4">
           <h4 className="font-medium">Warm-up Period</h4>
           <div className="space-y-1 text-sm">
-            <p>Started: {new Date(warmupAccount.warmupStartDate.toDate()).toLocaleDateString()}</p>
-            <p>Ends: {new Date(warmupAccount.warmupEndDate.toDate()).toLocaleDateString()}</p>
+            <p>Started: {new Date(warmupAccount.warmupStartDate).toLocaleDateString()}</p>
+            <p>Ends: {new Date(warmupAccount.warmupEndDate).toLocaleDateString()}</p>
             <p className="text-muted-foreground">
               The warm-up period lasts for 7 days to establish your account's credibility
             </p>

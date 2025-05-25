@@ -14,6 +14,11 @@ import {
   WarmupCommentDocument,
   SubredditAnalysisDocument,
   WarmupRateLimitDocument,
+  SerializedWarmupAccountDocument,
+  SerializedWarmupPostDocument,
+  SerializedWarmupCommentDocument,
+  SerializedSubredditAnalysisDocument,
+  SerializedWarmupRateLimitDocument,
   CreateWarmupAccountData,
   CreateWarmupPostData,
   CreateWarmupCommentData,
@@ -38,11 +43,70 @@ import {
   limit
 } from "firebase/firestore"
 
+// Serialization helpers to convert Firestore Timestamps to ISO strings
+function serializeTimestamp(timestamp: any): string {
+  if (timestamp instanceof Timestamp) {
+    return timestamp.toDate().toISOString()
+  }
+  if (timestamp && typeof timestamp === 'object' && 'seconds' in timestamp) {
+    return new Date(timestamp.seconds * 1000).toISOString()
+  }
+  return timestamp
+}
+
+function serializeWarmupAccount(account: any): SerializedWarmupAccountDocument {
+  return {
+    ...account,
+    warmupStartDate: serializeTimestamp(account.warmupStartDate),
+    warmupEndDate: serializeTimestamp(account.warmupEndDate),
+    createdAt: serializeTimestamp(account.createdAt),
+    updatedAt: serializeTimestamp(account.updatedAt)
+  }
+}
+
+function serializeWarmupPost(post: any): SerializedWarmupPostDocument {
+  return {
+    ...post,
+    scheduledFor: post.scheduledFor ? serializeTimestamp(post.scheduledFor) : null,
+    postedAt: post.postedAt ? serializeTimestamp(post.postedAt) : undefined,
+    createdAt: serializeTimestamp(post.createdAt),
+    updatedAt: serializeTimestamp(post.updatedAt)
+  }
+}
+
+function serializeWarmupComment(comment: any): SerializedWarmupCommentDocument {
+  return {
+    ...comment,
+    scheduledFor: comment.scheduledFor ? serializeTimestamp(comment.scheduledFor) : null,
+    postedAt: comment.postedAt ? serializeTimestamp(comment.postedAt) : undefined,
+    createdAt: serializeTimestamp(comment.createdAt),
+    updatedAt: serializeTimestamp(comment.updatedAt)
+  }
+}
+
+function serializeSubredditAnalysis(analysis: any): SerializedSubredditAnalysisDocument {
+  return {
+    ...analysis,
+    lastAnalyzedAt: serializeTimestamp(analysis.lastAnalyzedAt),
+    createdAt: serializeTimestamp(analysis.createdAt),
+    updatedAt: serializeTimestamp(analysis.updatedAt)
+  }
+}
+
+function serializeRateLimit(rateLimit: any): SerializedWarmupRateLimitDocument {
+  return {
+    ...rateLimit,
+    lastPostTime: serializeTimestamp(rateLimit.lastPostTime),
+    createdAt: serializeTimestamp(rateLimit.createdAt),
+    updatedAt: serializeTimestamp(rateLimit.updatedAt)
+  }
+}
+
 // Warm-up Account Actions
 
 export async function createWarmupAccountAction(
   data: CreateWarmupAccountData
-): Promise<ActionState<WarmupAccountDocument>> {
+): Promise<ActionState<SerializedWarmupAccountDocument>> {
   try {
     console.log("🔧 [CREATE-WARMUP-ACCOUNT] Creating warm-up account for user:", data.userId)
     
@@ -86,7 +150,7 @@ export async function createWarmupAccountAction(
     return {
       isSuccess: true,
       message: "Warm-up account created successfully",
-      data: createdDoc.data() as WarmupAccountDocument
+      data: serializeWarmupAccount(createdDoc.data())
     }
   } catch (error) {
     console.error("❌ [CREATE-WARMUP-ACCOUNT] Error:", error)
@@ -96,7 +160,7 @@ export async function createWarmupAccountAction(
 
 export async function getWarmupAccountByUserIdAction(
   userId: string
-): Promise<ActionState<WarmupAccountDocument | null>> {
+): Promise<ActionState<SerializedWarmupAccountDocument | null>> {
   try {
     console.log("🔍 [GET-WARMUP-ACCOUNT] Fetching warm-up account for user:", userId)
     
@@ -115,13 +179,13 @@ export async function getWarmupAccountByUserIdAction(
       }
     }
     
-    const account = querySnapshot.docs[0].data() as WarmupAccountDocument
+    const account = querySnapshot.docs[0].data()
     console.log("✅ [GET-WARMUP-ACCOUNT] Warm-up account found")
     
     return {
       isSuccess: true,
       message: "Warm-up account retrieved successfully",
-      data: account
+      data: serializeWarmupAccount(account)
     }
   } catch (error) {
     console.error("❌ [GET-WARMUP-ACCOUNT] Error:", error)
@@ -132,7 +196,7 @@ export async function getWarmupAccountByUserIdAction(
 export async function updateWarmupAccountAction(
   accountId: string,
   data: UpdateWarmupAccountData
-): Promise<ActionState<WarmupAccountDocument>> {
+): Promise<ActionState<SerializedWarmupAccountDocument>> {
   try {
     console.log("🔧 [UPDATE-WARMUP-ACCOUNT] Updating warm-up account:", accountId)
     
@@ -151,7 +215,7 @@ export async function updateWarmupAccountAction(
     return {
       isSuccess: true,
       message: "Warm-up account updated successfully",
-      data: updatedDoc.data() as WarmupAccountDocument
+      data: serializeWarmupAccount(updatedDoc.data())
     }
   } catch (error) {
     console.error("❌ [UPDATE-WARMUP-ACCOUNT] Error:", error)
@@ -163,7 +227,7 @@ export async function updateWarmupAccountAction(
 
 export async function createWarmupPostAction(
   data: CreateWarmupPostData
-): Promise<ActionState<WarmupPostDocument>> {
+): Promise<ActionState<SerializedWarmupPostDocument>> {
   try {
     console.log("🔧 [CREATE-WARMUP-POST] Creating warm-up post for subreddit:", data.subreddit)
     
@@ -190,7 +254,7 @@ export async function createWarmupPostAction(
     return {
       isSuccess: true,
       message: "Warm-up post created successfully",
-      data: createdDoc.data() as WarmupPostDocument
+      data: serializeWarmupPost(createdDoc.data())
     }
   } catch (error) {
     console.error("❌ [CREATE-WARMUP-POST] Error:", error)
@@ -200,7 +264,7 @@ export async function createWarmupPostAction(
 
 export async function getWarmupPostsByUserIdAction(
   userId: string
-): Promise<ActionState<WarmupPostDocument[]>> {
+): Promise<ActionState<SerializedWarmupPostDocument[]>> {
   try {
     console.log("🔍 [GET-WARMUP-POSTS] Fetching warm-up posts for user:", userId)
     
@@ -211,7 +275,7 @@ export async function getWarmupPostsByUserIdAction(
     )
     const querySnapshot = await getDocs(postsQuery)
     
-    const posts = querySnapshot.docs.map(doc => doc.data() as WarmupPostDocument)
+    const posts = querySnapshot.docs.map(doc => serializeWarmupPost(doc.data()))
     console.log(`✅ [GET-WARMUP-POSTS] Found ${posts.length} warm-up posts`)
     
     return {
@@ -228,7 +292,7 @@ export async function getWarmupPostsByUserIdAction(
 export async function updateWarmupPostAction(
   postId: string,
   data: UpdateWarmupPostData
-): Promise<ActionState<WarmupPostDocument>> {
+): Promise<ActionState<SerializedWarmupPostDocument>> {
   try {
     console.log("🔧 [UPDATE-WARMUP-POST] Updating warm-up post:", postId)
     
@@ -247,7 +311,7 @@ export async function updateWarmupPostAction(
     return {
       isSuccess: true,
       message: "Warm-up post updated successfully",
-      data: updatedDoc.data() as WarmupPostDocument
+      data: serializeWarmupPost(updatedDoc.data())
     }
   } catch (error) {
     console.error("❌ [UPDATE-WARMUP-POST] Error:", error)
@@ -275,13 +339,13 @@ export async function getSubredditAnalysisAction(
       }
     }
     
-    const analysis = analysisDoc.data() as SubredditAnalysisDocument
+    const analysis = analysisDoc.data()
     console.log("✅ [GET-SUBREDDIT-ANALYSIS] Analysis found")
     
     return {
       isSuccess: true,
       message: "Subreddit analysis retrieved successfully",
-      data: analysis
+      data: serializeSubredditAnalysis(analysis)
     }
   } catch (error) {
     console.error("❌ [GET-SUBREDDIT-ANALYSIS] Error:", error)
@@ -319,7 +383,7 @@ export async function saveSubredditAnalysisAction(
     return {
       isSuccess: true,
       message: "Subreddit analysis saved successfully",
-      data: savedDoc.data() as SubredditAnalysisDocument
+      data: serializeSubredditAnalysis(savedDoc.data())
     }
   } catch (error) {
     console.error("❌ [SAVE-SUBREDDIT-ANALYSIS] Error:", error)
@@ -442,7 +506,7 @@ export async function createWarmupCommentAction(
     return {
       isSuccess: true,
       message: "Warm-up comment created successfully",
-      data: createdDoc.data() as WarmupCommentDocument
+      data: serializeWarmupComment(createdDoc.data())
     }
   } catch (error) {
     console.error("❌ [CREATE-WARMUP-COMMENT] Error:", error)
@@ -463,7 +527,7 @@ export async function getWarmupCommentsByPostIdAction(
     )
     const querySnapshot = await getDocs(commentsQuery)
     
-    const comments = querySnapshot.docs.map(doc => doc.data() as WarmupCommentDocument)
+    const comments = querySnapshot.docs.map(doc => serializeWarmupComment(doc.data()))
     console.log(`✅ [GET-WARMUP-COMMENTS] Found ${comments.length} comments`)
     
     return {
@@ -499,7 +563,7 @@ export async function updateWarmupCommentAction(
     return {
       isSuccess: true,
       message: "Warm-up comment updated successfully",
-      data: updatedDoc.data() as WarmupCommentDocument
+      data: serializeWarmupComment(updatedDoc.data())
     }
   } catch (error) {
     console.error("❌ [UPDATE-WARMUP-COMMENT] Error:", error)
