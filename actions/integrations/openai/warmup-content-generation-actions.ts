@@ -34,17 +34,23 @@ export async function recommendSubredditsAction(
     
     const prompt = `Based on these keywords: ${userKeywords.join(", ")} and this product/service description: "${productDescription}"
     
-    Recommend 5-10 subreddits where the user could build authority and eventually create demand for their product/service.
+    Recommend 5-10 subreddits where the user can naturally build karma and establish themselves as a helpful community member.
     
     Focus on subreddits where:
-    1. The target audience would be interested in the product/service
-    2. The user can provide genuine value and help
-    3. Self-promotion is allowed after building reputation
+    1. The user has genuine knowledge or interest related to the topics
+    2. The community is active and values helpful contributions
+    3. The user can participate naturally without forcing their product/service into conversations
+    4. Building karma through quality posts and comments is achievable
+    
+    Avoid subreddits that are:
+    - Too strict about new accounts
+    - Purely promotional or business-focused
+    - Inactive or have very high karma requirements
     
     Return a JSON array of objects with:
     - subreddit: the subreddit name (without r/)
-    - reason: why this subreddit is relevant
-    - relevance: score from 1-10
+    - reason: why this subreddit is good for building karma naturally
+    - relevance: score from 1-10 (based on how well it matches their expertise)
     
     Order by relevance score descending.`
 
@@ -156,28 +162,33 @@ export async function generateWarmupPostAction(
   try {
     console.log(`🤖 [GENERATE-POST] Generating warm-up post for r/${subreddit}`)
     
-    const prompt = `Generate a Reddit post for r/${subreddit} that:
+    const prompt = `Generate a Reddit post for r/${subreddit} that mimics the top posts in this subreddit.
     
-    1. Matches this writing style: ${writingStyle}
-    2. Relates to one of these common topics: ${commonTopics.join(", ")}
-    3. Is evergreen (no time-sensitive content, news events, etc.)
-    4. Encourages discussion and engagement
-    5. Provides genuine value to the community
-    6. Does NOT promote any product or service
-    7. Sounds natural and authentic
+    Your goal is to create a post that will get upvotes and build karma by:
+    1. Matching this exact writing style: ${writingStyle}
+    2. Focusing on one of these popular topics that get engagement: ${commonTopics.join(", ")}
+    3. Using the same format and tone as successful posts in this subreddit
+    4. Being genuinely helpful, interesting, or entertaining to the community
+    5. Encouraging discussion through questions or interesting observations
     
-    The post should subtly relate to these areas of expertise: ${userKeywords.join(", ")} but without any self-promotion.
+    DO NOT:
+    - Mention any products or services
+    - Include any self-promotion
+    - Reference the keywords: ${userKeywords.join(", ")} (these are just for context)
+    - Use time-sensitive content or current events
+    
+    The post should feel like it was written by a regular member of r/${subreddit} who understands what content performs well there.
     
     Return a JSON object with:
-    - title: the post title
-    - content: the post body (markdown formatted)`
+    - title: the post title (matching the subreddit's typical title style)
+    - content: the post body in PLAIN TEXT (no markdown, no formatting, just regular text)`
 
     const response = await openai.chat.completions.create({
       model: "o3-mini",
       messages: [
         {
           role: "system",
-          content: "You are a helpful Reddit user who creates engaging, valuable posts that encourage discussion."
+          content: `You are a regular Reddit user in r/${subreddit} who creates posts that get lots of upvotes by understanding what the community likes.`
         },
         {
           role: "user",
@@ -240,20 +251,23 @@ export async function generateWarmupCommentsAction(
     
     Generate replies that are:
     - Very short (max 10 words, preferably 3-7 words)
-    - Helpful and friendly
+    - Helpful, friendly, or add to the discussion
     - Natural and conversational
     - Relevant to the comment
+    - IN PLAIN TEXT ONLY (no markdown, no asterisks, no formatting)
+    
+    Focus on building karma by being a helpful community member, not promoting anything.
     
     Return a JSON object with an array called "replies", each containing:
     - commentIndex: the comment number (1-based)
-    - reply: the short reply text`
+    - reply: the short reply text in plain text`
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
-          content: "You are a helpful Reddit user who writes very short, friendly replies."
+          content: "You are a helpful Reddit user who writes very short, friendly replies in plain text to build karma and be a good community member."
         },
         {
           role: "user",
