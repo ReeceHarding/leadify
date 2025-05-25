@@ -32,10 +32,10 @@ export default function ToneCustomizer({
       <CardHeader className="border-b bg-gray-50/30 p-4 dark:bg-gray-900/30">
         <CardTitle className="flex items-center gap-2 text-base font-semibold">
           <Sparkles className="size-4 text-blue-500" />
-          Customize Comment Tone
+          Regenerate Comments
         </CardTitle>
         <CardDescription className="text-sm">
-          Refine all comments below with your brand's voice
+          Rewrite all comments below with your own style - make them more helpful, emphasize your product, change the tone, etc.
         </CardDescription>
       </CardHeader>
       <CardContent className="p-4">

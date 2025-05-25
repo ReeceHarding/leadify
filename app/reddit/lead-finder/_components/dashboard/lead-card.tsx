@@ -139,7 +139,7 @@ export default function LeadCard({
 
   return (
     <>
-      <Card className="overflow-hidden border shadow-sm hover:shadow-md transition-shadow">
+      <Card className="overflow-hidden border shadow-sm transition-shadow hover:shadow-md">
         <CardContent className="space-y-4 p-6">
           {/* Header with Match Score */}
           <div className="flex items-start justify-between gap-4">

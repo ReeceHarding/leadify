@@ -11,16 +11,6 @@ export default async function LeadFinderPage() {
   
   return (
     <div className="flex size-full flex-col">
-      <div className="mb-6 px-4">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Reddit Leadify</h2>
-          <p className="text-muted-foreground">
-            Find and engage with high-quality leads on Reddit using AI-powered
-            analysis
-          </p>
-        </div>
-      </div>
-
       <Suspense
         fallback={
           (() => {

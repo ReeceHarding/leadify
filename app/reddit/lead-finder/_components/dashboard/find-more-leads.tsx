@@ -281,7 +281,7 @@ export default function FindMoreLeads({
                 Manage Keywords
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+            <DialogContent className="max-h-[80vh] max-w-3xl overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Keyword Performance & Management</DialogTitle>
                 <DialogDescription>
@@ -289,14 +289,14 @@ export default function FindMoreLeads({
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="space-y-6 mt-4">
+              <div className="mt-4 space-y-6">
                 {/* Existing Keywords Performance */}
                 {keywordStats.length > 0 && (
                   <div className="space-y-3">
                     <Label className="text-sm font-medium">Keyword Performance</Label>
                     <div className="space-y-3">
                       {keywordStats.map((stat) => (
-                        <div key={stat.keyword} className="rounded-lg border bg-gray-50 dark:bg-gray-900/50 p-4">
+                        <div key={stat.keyword} className="rounded-lg border bg-gray-50 p-4 dark:bg-gray-900/50">
                           <div className="space-y-3">
                             {/* Keyword Header */}
                             <div className="flex items-center justify-between">
@@ -308,7 +308,7 @@ export default function FindMoreLeads({
                                 <Input
                                   type="number"
                                   placeholder="More"
-                                  className="w-20 h-8 text-xs"
+                                  className="h-8 w-20 text-xs"
                                   min="1"
                                   max="100"
                                   value={threadsPerKeyword[stat.keyword] || ""}
@@ -328,7 +328,7 @@ export default function FindMoreLeads({
                             </div>
 
                             {/* Performance Metrics */}
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                            <div className="grid grid-cols-2 gap-3 text-xs md:grid-cols-4">
                               <div>
                                 <p className="text-gray-500">Total Posts</p>
                                 <p className="font-semibold">{stat.totalPosts}</p>
@@ -351,19 +351,19 @@ export default function FindMoreLeads({
 
                             {/* Top and Lowest Performers */}
                             {(stat.topPerformer || stat.lowestPerformer) && (
-                              <div className="space-y-2 pt-2 border-t">
+                              <div className="space-y-2 border-t pt-2">
                                 {stat.topPerformer && (
                                   <div className="flex items-start gap-2">
-                                    <TrendingUp className="size-3 text-green-500 flex-shrink-0 mt-0.5" />
-                                    <span className="text-xs text-gray-600 break-words">
+                                    <TrendingUp className="mt-0.5 size-3 shrink-0 text-green-500" />
+                                    <span className="break-words text-xs text-gray-600">
                                       Top: "{stat.topPerformer.title}" ({stat.topPerformer.score}%)
                                     </span>
                                   </div>
                                 )}
                                 {stat.lowestPerformer && stat.lowestPerformer.score !== stat.topPerformer?.score && (
                                   <div className="flex items-start gap-2">
-                                    <TrendingDown className="size-3 text-red-500 flex-shrink-0 mt-0.5" />
-                                    <span className="text-xs text-gray-600 break-words">
+                                    <TrendingDown className="mt-0.5 size-3 shrink-0 text-red-500" />
+                                    <span className="break-words text-xs text-gray-600">
                                       Low: "{stat.lowestPerformer.title}" ({stat.lowestPerformer.score}%)
                                     </span>
                                   </div>

@@ -9,7 +9,14 @@ This client component provides the hero section for the landing page.
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
-import { ChevronRight, Rocket, Search, RotateCcw, Loader2, LayoutDashboard } from "lucide-react"
+import {
+  ChevronRight,
+  Rocket,
+  Search,
+  RotateCcw,
+  Loader2,
+  LayoutDashboard
+} from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import posthog from "posthog-js"
@@ -46,7 +53,9 @@ export const HeroSection = () => {
 
         // Check if any campaign has leads
         for (const campaign of campaignsResult.data) {
-          const leadsResult = await getGeneratedCommentsByCampaignAction(campaign.id)
+          const leadsResult = await getGeneratedCommentsByCampaignAction(
+            campaign.id
+          )
           if (leadsResult.isSuccess && leadsResult.data.length > 0) {
             setHasLeads(true)
             break
@@ -63,7 +72,9 @@ export const HeroSection = () => {
   }, [user, isLoaded])
 
   const handleGetStartedClick = () => {
-    posthog.capture(user && hasLeads ? "clicked_view_dashboard" : "clicked_get_started")
+    posthog.capture(
+      user && hasLeads ? "clicked_view_dashboard" : "clicked_get_started"
+    )
   }
 
   const handleStartOver = async () => {
@@ -158,8 +169,8 @@ export const HeroSection = () => {
           transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
           className="flex flex-col items-center gap-4"
         >
-          <Link 
-            href={user && hasLeads ? "/reddit/lead-finder" : "/onboarding"} 
+          <Link
+            href={user && hasLeads ? "/reddit/lead-finder" : "/onboarding"}
             onClick={handleGetStartedClick}
           >
             <Button className="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-3 text-lg hover:from-blue-700 hover:to-blue-800 dark:from-blue-500 dark:to-blue-600 dark:hover:from-blue-600 dark:hover:to-blue-700">
