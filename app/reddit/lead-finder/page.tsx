@@ -11,7 +11,7 @@ export default async function LeadFinderPage() {
   
   return (
     <div className="flex size-full flex-col">
-      <div className="flex items-center justify-between space-y-2">
+      <div className="mb-6 px-4">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Reddit Leadify</h2>
           <p className="text-muted-foreground">

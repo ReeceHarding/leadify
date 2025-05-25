@@ -353,18 +353,18 @@ export default function FindMoreLeads({
                             {(stat.topPerformer || stat.lowestPerformer) && (
                               <div className="space-y-2 pt-2 border-t">
                                 {stat.topPerformer && (
-                                  <div className="flex items-center gap-2">
-                                    <TrendingUp className="size-3 text-green-500" />
-                                    <span className="text-xs text-gray-600">
-                                      Top: "{stat.topPerformer.title.slice(0, 50)}..." ({stat.topPerformer.score}%)
+                                  <div className="flex items-start gap-2">
+                                    <TrendingUp className="size-3 text-green-500 flex-shrink-0 mt-0.5" />
+                                    <span className="text-xs text-gray-600 break-words">
+                                      Top: "{stat.topPerformer.title}" ({stat.topPerformer.score}%)
                                     </span>
                                   </div>
                                 )}
                                 {stat.lowestPerformer && stat.lowestPerformer.score !== stat.topPerformer?.score && (
-                                  <div className="flex items-center gap-2">
-                                    <TrendingDown className="size-3 text-red-500" />
-                                    <span className="text-xs text-gray-600">
-                                      Low: "{stat.lowestPerformer.title.slice(0, 50)}..." ({stat.lowestPerformer.score}%)
+                                  <div className="flex items-start gap-2">
+                                    <TrendingDown className="size-3 text-red-500 flex-shrink-0 mt-0.5" />
+                                    <span className="text-xs text-gray-600 break-words">
+                                      Low: "{stat.lowestPerformer.title}" ({stat.lowestPerformer.score}%)
                                     </span>
                                   </div>
                                 )}
@@ -393,7 +393,7 @@ export default function FindMoreLeads({
                       ) : (
                         <Sparkles className="size-3" />
                       )}
-                      Generate with AI
+                      Give me suggestions w/ AI
                     </Button>
                   </div>
                   <Textarea
