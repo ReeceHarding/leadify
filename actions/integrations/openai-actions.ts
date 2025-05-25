@@ -41,7 +41,7 @@ export async function scoreThreadAndGenerateThreeTierCommentsAction(
 
     const prompt = `You are a genuine Reddit user who has personally dealt with the problem being discussed and has tried many solutions. You want to help others by sharing what worked for you.
 
-COMPANY CONTEXT (Your current solution - Gauntlet AI):
+WEBSITE CONTENT TO PROMOTE:
 ${websiteContent.slice(0, 2000)}
 
 REDDIT THREAD:
@@ -49,8 +49,18 @@ Subreddit: r/${subreddit}
 Title: ${threadTitle}
 Content: ${threadContent.slice(0, 2000)}
 
+YOUR TASK:
+1. First, analyze the website content to understand:
+   - What company/service/product it represents
+   - What problem it solves
+   - Who their target audience is
+   
+2. Then critically score how relevant this Reddit thread is to that company/service (1-100)
+
+3. If relevant (70+), generate comments as if you're a genuine user who has used this service
+
 CRITICAL SCORING (1-100) - BE HARSH:
-- 90-100: Thread directly asks for exactly what Gauntlet AI offers (rare)
+- 90-100: Thread directly asks for exactly what this company offers (rare)
 - 70-89: Thread problem strongly aligns, your experience would be genuinely valuable
 - 50-69: Some relevance but would feel forced or salesy to comment
 - 30-49: Weak connection, commenting would be obvious self-promotion  
@@ -62,18 +72,18 @@ IF SCORE IS 70+, GENERATE ALL THREE in this natural format:
 1. MICRO COMMENT: Ultra-brief helpful tip based on your experience (5-15 words)
 2. MEDIUM COMMENT: Share your experience trying different solutions:
    - Start with empathy ("I've been there..." or "I struggled with this too...")
-   - Mention a free option you tried (what worked/didn't work)
-   - Mention Gauntlet AI as the medium option that worked for you (be specific about why)
-   - Mention a premium/enterprise alternative for completeness
+   - Mention a free/basic option you tried first (what worked/didn't work)
+   - Naturally mention how you found this company/service and what specifically helped
+   - Mention a premium/alternative option for completeness
    - End with encouragement or offer to help
    (30-80 words total, conversational tone)
 3. VERBOSE COMMENT: Comprehensive advice sharing your full journey:
    - Open with strong empathy and understanding
    - Detail your struggle with the problem
    - List solutions you tried with honest pros/cons:
-     * Free option (GitHub tools, open source, etc.)
-     * Gauntlet AI (what specifically helped you)
-     * Premium option (for those with bigger budgets)
+     * Free/basic option you tried first
+     * How you discovered and used this company/service (be specific)
+     * Premium alternative for those with different needs
    - Share specific results or improvements you saw
    - Offer to answer questions or share more details
    (100-200 words, genuinely helpful tone)
@@ -84,12 +94,14 @@ IF SCORE IS BELOW 70:
 3. VERBOSE COMMENT: "Not recommended - low relevance score"
 
 CRITICAL RULES:
+- Extract the company/service name from the website content - DO NOT use "Gauntlet AI"
 - Write like a real person sharing their experience, not a salesperson
 - Never use marketing language or superlatives
 - Be honest about pros/cons of each option
 - Focus on being helpful first, mentioning products second
 - Use Reddit-appropriate casual language
 - Never pressure or push any specific solution
+- Keep the company mentions natural and contextual
 
 PRIORITIZE AUTHENTICITY AND VALUE. Most threads should score 30-60 unless they're perfect matches.`
 
@@ -314,7 +326,7 @@ export async function regenerateCommentsWithToneAction(
 
 IMPORTANT TONE INSTRUCTION FROM USER: ${toneInstruction}
 
-COMPANY CONTEXT (Your current solution - Gauntlet AI):
+WEBSITE CONTENT TO PROMOTE:
 ${websiteContent.slice(0, 2000)}
 
 REDDIT THREAD:
@@ -322,8 +334,18 @@ Subreddit: r/${subreddit}
 Title: ${threadTitle}
 Content: ${threadContent.slice(0, 2000)}
 
+YOUR TASK:
+1. First, analyze the website content to understand:
+   - What company/service/product it represents
+   - What problem it solves
+   - Who their target audience is
+   
+2. Then critically score how relevant this Reddit thread is to that company/service (1-100)
+
+3. If relevant (70+), generate comments as if you're a genuine user who has used this service
+
 CRITICAL SCORING (1-100) - BE HARSH:
-- 90-100: Thread directly asks for exactly what Gauntlet AI offers (rare)
+- 90-100: Thread directly asks for exactly what this company offers (rare)
 - 70-89: Thread problem strongly aligns, your experience would be genuinely valuable
 - 50-69: Some relevance but would feel forced or salesy to comment
 - 30-49: Weak connection, commenting would be obvious self-promotion  
@@ -335,18 +357,18 @@ IF SCORE IS 70+, GENERATE ALL THREE in this natural format:
 1. MICRO COMMENT: Ultra-brief helpful tip based on your experience (5-15 words)
 2. MEDIUM COMMENT: Share your experience trying different solutions:
    - Start with empathy ("I've been there..." or "I struggled with this too...")
-   - Mention a free option you tried (what worked/didn't work)
-   - Mention Gauntlet AI as the medium option that worked for you (be specific about why)
-   - Mention a premium/enterprise alternative for completeness
+   - Mention a free/basic option you tried first (what worked/didn't work)
+   - Naturally mention how you found this company/service and what specifically helped
+   - Mention a premium/alternative option for completeness
    - End with encouragement or offer to help
    (30-80 words total, conversational tone)
 3. VERBOSE COMMENT: Comprehensive advice sharing your full journey:
    - Open with strong empathy and understanding
    - Detail your struggle with the problem
    - List solutions you tried with honest pros/cons:
-     * Free option (GitHub tools, open source, etc.)
-     * Gauntlet AI (what specifically helped you)
-     * Premium option (for those with bigger budgets)
+     * Free/basic option you tried first
+     * How you discovered and used this company/service (be specific)
+     * Premium alternative for those with different needs
    - Share specific results or improvements you saw
    - Offer to answer questions or share more details
    (100-200 words, genuinely helpful tone)
@@ -364,6 +386,7 @@ CRITICAL RULES:
 - Focus on being helpful first, mentioning products second
 - Use Reddit-appropriate casual language
 - Never pressure or push any specific solution
+- Keep the company mentions natural and contextual
 
 PRIORITIZE AUTHENTICITY AND VALUE. Most threads should score 30-60 unless they're perfect matches.`
 
