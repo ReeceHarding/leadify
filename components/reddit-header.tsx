@@ -39,6 +39,17 @@ export default function RedditHeader() {
         href: "/reddit/lead-finder",
         isActive: true
       })
+    } else if (pathname.startsWith("/reddit/my-posts")) {
+      breadcrumbs.push({
+        label: "Reddit",
+        href: "/reddit",
+        isActive: false
+      })
+      breadcrumbs.push({
+        label: "My Posts",
+        href: "/reddit/my-posts",
+        isActive: true
+      })
     } else if (pathname.startsWith("/reddit")) {
       breadcrumbs.push({
         label: "Reddit",

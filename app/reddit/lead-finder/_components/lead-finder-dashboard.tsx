@@ -428,7 +428,8 @@ export default function LeadFinderDashboard() {
               postScore: comment.postScore || 0,
               keyword: comment.keyword || "",
               createdAt: createdAtISO,
-              postCreatedAt: postCreatedAtISO
+              postCreatedAt: postCreatedAtISO,
+              postedCommentUrl: comment.postedCommentUrl || undefined
             } as LeadResult // Explicit cast to ensure all fields are covered or provide defaults
           }
         )
@@ -745,7 +746,13 @@ export default function LeadFinderDashboard() {
           setState(prev => ({
             ...prev,
             leads: prev.leads.map(l =>
-              l.id === lead.id ? { ...l, status: "posted" } : l
+              l.id === lead.id 
+                ? { 
+                    ...l, 
+                    status: "posted",
+                    postedCommentUrl: result.data.link
+                  } 
+                : l
             ),
             postingLeadId: null
           }))
@@ -875,7 +882,13 @@ export default function LeadFinderDashboard() {
         setState(prev => ({
           ...prev,
           leads: prev.leads.map(l =>
-            l.id === lead.id ? { ...l, status: "posted" } : l
+            l.id === lead.id 
+              ? { 
+                  ...l, 
+                  status: "posted",
+                  postedCommentUrl: result.data.link
+                } 
+              : l
           ),
           postingLeadId: null
         }))

@@ -29,6 +29,7 @@ export interface LeadResult {
   keyword?: string
   createdAt?: string // ISO string format
   postCreatedAt?: string // ISO string format - when the Reddit post was created
+  postedCommentUrl?: string // URL to the posted comment on Reddit
 }
 
 // Interface for tracking workflow progress of lead generation
