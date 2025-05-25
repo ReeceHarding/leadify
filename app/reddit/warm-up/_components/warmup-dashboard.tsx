@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
 import { Loader2, Plus, Settings, Play, Pause } from "lucide-react"
-import { getWarmupAccountByUserIdAction } from "@/actions/db/warmup-actions"
+import { getWarmupAccountByUserIdAction, createWarmupAccountAction, updateWarmupAccountAction } from "@/actions/db/warmup-actions"
 import { getRedditUserInfoAction } from "@/actions/integrations/reddit/reddit-warmup-actions"
 import { generateRedditAuthUrlAction } from "@/actions/integrations/reddit/reddit-oauth-actions"
 import { WarmupAccountDocument } from "@/db/firestore/warmup-collections"
@@ -26,6 +26,7 @@ export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
   const [redditUsername, setRedditUsername] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isConnecting, setIsConnecting] = useState(false)
+  const [isSettingUp, setIsSettingUp] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -88,6 +89,86 @@ export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
       })
     } finally {
       setIsConnecting(false)
+    }
+  }
+
+  const handleSetupWarmup = async () => {
+    try {
+      setIsSettingUp(true)
+      console.log("🔧 [WARMUP-DASHBOARD] Setting up warm-up account")
+      
+      if (!redditUsername) {
+        toast({
+          title: "Error",
+          description: "Please connect your Reddit account first",
+          variant: "destructive"
+        })
+        return
+      }
+
+      const result = await createWarmupAccountAction({
+        userId,
+        redditUsername,
+        targetSubreddits: [], // Start with empty, user will add them
+        postingMode: "manual",
+        dailyPostLimit: 3
+      })
+
+      if (result.isSuccess && result.data) {
+        setWarmupAccount(result.data)
+        toast({
+          title: "Success",
+          description: "Warm-up account created! Now add some subreddits to get started.",
+        })
+      } else {
+        toast({
+          title: "Error",
+          description: result.message || "Failed to create warm-up account",
+          variant: "destructive"
+        })
+      }
+    } catch (error) {
+      console.error("❌ [WARMUP-DASHBOARD] Error setting up warm-up:", error)
+      toast({
+        title: "Error",
+        description: "Failed to set up warm-up account",
+        variant: "destructive"
+      })
+    } finally {
+      setIsSettingUp(false)
+    }
+  }
+
+  const handleToggleActive = async (checked: boolean) => {
+    if (!warmupAccount) return
+
+    try {
+      console.log("🔧 [WARMUP-DASHBOARD] Toggling warm-up active state:", checked)
+      
+      const result = await updateWarmupAccountAction(warmupAccount.id, {
+        isActive: checked
+      })
+
+      if (result.isSuccess && result.data) {
+        setWarmupAccount(result.data)
+        toast({
+          title: "Success",
+          description: checked ? "Warm-up activated" : "Warm-up deactivated"
+        })
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to update warm-up status",
+          variant: "destructive"
+        })
+      }
+    } catch (error) {
+      console.error("❌ [WARMUP-DASHBOARD] Error toggling warm-up:", error)
+      toast({
+        title: "Error",
+        description: "Failed to update warm-up status",
+        variant: "destructive"
+      })
     }
   }
 
@@ -156,10 +237,7 @@ export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
                 <Switch
                   id="warmup-active"
                   checked={warmupAccount.isActive}
-                  onCheckedChange={(checked) => {
-                    // Handle toggle
-                    console.log("Toggle warm-up:", checked)
-                  }}
+                  onCheckedChange={handleToggleActive}
                 />
               </div>
               
@@ -175,12 +253,18 @@ export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
               <p className="text-muted-foreground mb-4">
                 No warm-up account found. Set up your warm-up configuration to get started.
               </p>
-              <Button onClick={() => {
-                // Handle setup
-                console.log("Setup warm-up account")
-              }}>
-                <Plus className="mr-2 size-4" />
-                Set Up Warm-up
+              <Button onClick={handleSetupWarmup} disabled={isSettingUp}>
+                {isSettingUp ? (
+                  <>
+                    <Loader2 className="mr-2 size-4 animate-spin" />
+                    Setting up...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="mr-2 size-4" />
+                    Set Up Warm-up
+                  </>
+                )}
               </Button>
             </div>
           )}

@@ -16,6 +16,11 @@ const isProtectedRoute = createRouteMatcher([
   "/reddit-auth(.*)"
 ])
 
+const isPublicApiRoute = createRouteMatcher([
+  "/api/queue/(.*)",
+  "/api/warmup/(.*)"
+])
+
 export default clerkMiddleware(async (auth, req) => {
   console.log("🔥🔥🔥 [MIDDLEWARE] Request URL:", req.url)
   console.log("🔥🔥🔥 [MIDDLEWARE] Pathname:", req.nextUrl.pathname)
@@ -23,6 +28,12 @@ export default clerkMiddleware(async (auth, req) => {
   const { userId } = await auth()
   console.log("🔥🔥🔥 [MIDDLEWARE] Auth userId:", userId)
   console.log("🔥🔥🔥 [MIDDLEWARE] Is protected route:", isProtectedRoute(req))
+  console.log("🔥🔥🔥 [MIDDLEWARE] Is public API route:", isPublicApiRoute(req))
+  
+  // Skip auth for public API routes (they use CRON_SECRET instead)
+  if (isPublicApiRoute(req)) {
+    return
+  }
   
   if (isProtectedRoute(req)) {
     await auth.protect()
