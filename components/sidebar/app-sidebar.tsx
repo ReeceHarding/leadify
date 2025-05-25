@@ -52,6 +52,7 @@ const data = {
       icon: MessageSquare,
       isActive: true,
       items: [
+        { title: "Warm Up", url: "/reddit/warm-up" },
         { title: "Leads", url: "/reddit/lead-finder" },
         { title: "My Posts", url: "/reddit/my-posts" },
         { title: "Knowledge Base", url: "/reddit/knowledge-base" },
