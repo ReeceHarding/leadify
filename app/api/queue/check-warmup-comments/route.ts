@@ -28,12 +28,8 @@ export async function POST(request: Request) {
     // Verify the request is authorized
     const headersList = await headers()
     const authHeader = headersList.get("authorization")
-    
-    // Support both CRON_SECRET and Vercel Cron authentication
-    const isVercelCron = process.env.VERCEL && headersList.get("x-vercel-cron") === "1"
-    const isAuthorized = authHeader === `Bearer ${process.env.CRON_SECRET}` || isVercelCron
 
-    if (!isAuthorized) {
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
