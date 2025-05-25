@@ -171,7 +171,7 @@ export async function generateWarmupPostAction(
     - content: the post body (markdown formatted)`
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "o3-mini",
       messages: [
         {
           role: "system",
@@ -183,7 +183,9 @@ export async function generateWarmupPostAction(
         }
       ],
       response_format: { type: "json_object" },
-      temperature: 0.8
+      temperature: 0.8,
+      // @ts-ignore - o3-mini specific parameter
+      reasoning_effort: "medium"
     })
 
     const content = response.choices[0].message.content

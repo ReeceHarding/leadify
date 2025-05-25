@@ -28628,3 +28628,4 @@
 [2025-05-25T17:01:54.987Z] ==================================================
 [2025-05-25T17:01:54.987Z] ERROR: Command failed with exit code 2
 [2025-05-25T17:01:55.030Z] NEXTJS_STDOUT: ✓ Compiled in 185ms (1147 modules)
+[2025-05-25T17:02:10.517Z] NEXTJS_STDOUT: ✓ Compiled in 935ms (3465 modules)
