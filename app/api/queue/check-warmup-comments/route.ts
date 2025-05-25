@@ -51,14 +51,18 @@ export async function POST(request: Request) {
     )
 
     const postsSnapshot = await getDocs(postsQuery)
-    
+
     // Filter posts from the last 7 days in memory
     const recentPosts = postsSnapshot.docs.filter(doc => {
       const data = doc.data()
-      return data.postedAt && data.postedAt.toMillis() >= sevenDaysAgo.toMillis()
+      return (
+        data.postedAt && data.postedAt.toMillis() >= sevenDaysAgo.toMillis()
+      )
     })
-    
-    console.log(`🔍 [CHECK-COMMENTS] Found ${recentPosts.length} posts from the last 7 days`)
+
+    console.log(
+      `🔍 [CHECK-COMMENTS] Found ${recentPosts.length} posts from the last 7 days`
+    )
 
     for (const postDoc of recentPosts) {
       const post = postDoc.data()
@@ -179,7 +183,7 @@ export async function POST(request: Request) {
       stack: error instanceof Error ? error.stack : undefined
     })
     return NextResponse.json(
-      { 
+      {
         error: "Internal server error",
         details: error instanceof Error ? error.message : "Unknown error"
       },

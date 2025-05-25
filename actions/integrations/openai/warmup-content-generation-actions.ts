@@ -198,6 +198,7 @@ export async function generateWarmupPostAction(
     - Include any self-promotion
     - Use time-sensitive content
     - Write in a generic "helpful AI" style - write EXACTLY like the community writes
+    - Use hyphenated words (write "tucked away" not "tucked-away")
     
     The post should be indistinguishable from a real top post in r/${subreddit}.
     

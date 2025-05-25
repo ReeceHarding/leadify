@@ -54,12 +54,14 @@ export async function POST(request: Request) {
 
     const postsSnapshot = await getDocs(postsQuery)
     console.log(`🔧 [PROCESS-WARMUP] Found ${postsSnapshot.size} queued posts`)
-    
+
     // Filter and sort in memory
     const postsToProcess = postsSnapshot.docs
       .filter(doc => {
         const data = doc.data()
-        return data.scheduledFor && data.scheduledFor.toMillis() <= now.toMillis()
+        return (
+          data.scheduledFor && data.scheduledFor.toMillis() <= now.toMillis()
+        )
       })
       .sort((a, b) => {
         const aTime = a.data().scheduledFor?.toMillis() || 0
@@ -67,8 +69,10 @@ export async function POST(request: Request) {
         return aTime - bTime
       })
       .slice(0, 10) // Process up to 10 posts at a time
-    
-    console.log(`🔧 [PROCESS-WARMUP] ${postsToProcess.length} posts ready to process`)
+
+    console.log(
+      `🔧 [PROCESS-WARMUP] ${postsToProcess.length} posts ready to process`
+    )
 
     for (const postDoc of postsToProcess) {
       const post = postDoc.data()
@@ -138,13 +142,17 @@ export async function POST(request: Request) {
     )
 
     const commentsSnapshot = await getDocs(commentsQuery)
-    console.log(`🔧 [PROCESS-WARMUP] Found ${commentsSnapshot.size} queued comments`)
-    
+    console.log(
+      `🔧 [PROCESS-WARMUP] Found ${commentsSnapshot.size} queued comments`
+    )
+
     // Filter and sort in memory
     const commentsToProcess = commentsSnapshot.docs
       .filter(doc => {
         const data = doc.data()
-        return data.scheduledFor && data.scheduledFor.toMillis() <= now.toMillis()
+        return (
+          data.scheduledFor && data.scheduledFor.toMillis() <= now.toMillis()
+        )
       })
       .sort((a, b) => {
         const aTime = a.data().scheduledFor?.toMillis() || 0
@@ -152,8 +160,10 @@ export async function POST(request: Request) {
         return aTime - bTime
       })
       .slice(0, 20) // Process up to 20 comments at a time
-    
-    console.log(`🔧 [PROCESS-WARMUP] ${commentsToProcess.length} comments ready to process`)
+
+    console.log(
+      `🔧 [PROCESS-WARMUP] ${commentsToProcess.length} comments ready to process`
+    )
 
     for (const commentDoc of commentsToProcess) {
       const comment = commentDoc.data()
@@ -232,7 +242,7 @@ export async function POST(request: Request) {
       stack: error instanceof Error ? error.stack : undefined
     })
     return NextResponse.json(
-      { 
+      {
         error: "Internal server error",
         details: error instanceof Error ? error.message : "Unknown error"
       },
