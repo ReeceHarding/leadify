@@ -19,7 +19,6 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Loader2, Twitter, Edit, Merge, Replace } from "lucide-react"
 import { SerializedVoiceSettingsDocument } from "@/actions/db/personalization-actions"
 import { PersonaType, WritingStyle } from "@/db/schema"
@@ -41,12 +40,6 @@ export default function EditVoiceSettings({
   const [isCombining, setIsCombining] = useState(false)
 
   // Form state
-  const [writingStyle, setWritingStyle] = useState<WritingStyle>(
-    voiceSettings?.writingStyle || "casual"
-  )
-  const [customWritingStyle, setCustomWritingStyle] = useState(
-    voiceSettings?.customWritingStyle || ""
-  )
   const [editableOldDescription, setEditableOldDescription] = useState(
     voiceSettings?.manualWritingStyleDescription || ""
   )
@@ -59,16 +52,6 @@ export default function EditVoiceSettings({
   )
   const [customPersona, setCustomPersona] = useState(
     voiceSettings?.customPersona || ""
-  )
-  const [useAllLowercase, setUseAllLowercase] = useState(
-    voiceSettings?.useAllLowercase || false
-  )
-  const [useEmojis, setUseEmojis] = useState(voiceSettings?.useEmojis || false)
-  const [useCasualTone, setUseCasualTone] = useState(
-    voiceSettings?.useCasualTone || false
-  )
-  const [useFirstPerson, setUseFirstPerson] = useState(
-    voiceSettings?.useFirstPerson || false
   )
 
   const { toast } = useToast()
@@ -160,15 +143,6 @@ export default function EditVoiceSettings({
       })
 
       // Update form with analysis results
-      setWritingStyle(
-        analysisResult.data.vocabularyLevel === "professional"
-          ? "professional"
-          : "casual"
-      )
-      setUseEmojis(analysisResult.data.emojiUsage)
-      setUseCasualTone(analysisResult.data.vocabularyLevel === "casual")
-
-      // Set the new style description from analysis
       setNewStyleDescription(analysisResult.data.writingStyleAnalysis)
 
       toast({
@@ -277,19 +251,16 @@ export default function EditVoiceSettings({
     setIsLoading(true)
     try {
       const settingsData = {
-        writingStyle,
-        customWritingStyle:
-          writingStyle === "custom" ? customWritingStyle : undefined,
+        writingStyle: "casual" as WritingStyle,
         manualWritingStyleDescription:
           manualWritingStyleDescription || editableOldDescription || undefined,
         twitterHandle: twitterHandle || undefined,
-        twitterAnalyzed: !!newStyleDescription, // Mark as analyzed if we got description from Twitter
         personaType,
         customPersona: personaType === "custom" ? customPersona : undefined,
-        useAllLowercase,
-        useEmojis,
-        useCasualTone,
-        useFirstPerson
+        useAllLowercase: false,
+        useEmojis: false,
+        useCasualTone: true,
+        useFirstPerson: false
       }
 
       if (voiceSettings) {
@@ -468,46 +439,17 @@ export default function EditVoiceSettings({
         </div>
 
         {voiceSettings?.manualWritingStyleDescription && (
-          <div className="rounded-lg bg-blue-50 p-3">
-            <p className="text-sm text-blue-900">
+          <div className="rounded-lg bg-blue-50 p-3 dark:bg-blue-900/30">
+            <p className="text-sm text-blue-900 dark:text-blue-100">
               <strong>Replace:</strong> Completely replaces existing description
               with new description.
             </p>
-            <p className="mt-1 text-sm text-blue-900">
+            <p className="mt-1 text-sm text-blue-900 dark:text-blue-100">
               <strong>Add to Old:</strong> Uses AI to intelligently combine old
               and new descriptions.
             </p>
           </div>
         )}
-
-        {/* Writing Style */}
-        <div className="space-y-4">
-          <Label>Writing Style</Label>
-          <Select
-            value={writingStyle}
-            onValueChange={(value: WritingStyle) => setWritingStyle(value)}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="casual">Casual</SelectItem>
-              <SelectItem value="professional">Professional</SelectItem>
-              <SelectItem value="friendly">Friendly</SelectItem>
-              <SelectItem value="technical">Technical</SelectItem>
-              <SelectItem value="custom">Custom</SelectItem>
-            </SelectContent>
-          </Select>
-
-          {writingStyle === "custom" && (
-            <Textarea
-              placeholder="Describe your custom writing style..."
-              value={customWritingStyle}
-              onChange={e => setCustomWritingStyle(e.target.value)}
-              rows={3}
-            />
-          )}
-        </div>
 
         {/* Persona Type */}
         <div className="space-y-4">
@@ -541,59 +483,6 @@ export default function EditVoiceSettings({
               rows={3}
             />
           )}
-        </div>
-
-        {/* Style Preferences */}
-        <div className="space-y-4">
-          <Label>Style Preferences</Label>
-          <div className="space-y-3">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="lowercase"
-                checked={useAllLowercase}
-                onCheckedChange={checked =>
-                  setUseAllLowercase(checked as boolean)
-                }
-              />
-              <Label htmlFor="lowercase" className="text-sm">
-                Use mostly lowercase text
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="emojis"
-                checked={useEmojis}
-                onCheckedChange={checked => setUseEmojis(checked as boolean)}
-              />
-              <Label htmlFor="emojis" className="text-sm">
-                Include relevant emojis
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="casual"
-                checked={useCasualTone}
-                onCheckedChange={checked =>
-                  setUseCasualTone(checked as boolean)
-                }
-              />
-              <Label htmlFor="casual" className="text-sm">
-                Write in a very casual, conversational tone
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="first-person"
-                checked={useFirstPerson}
-                onCheckedChange={checked =>
-                  setUseFirstPerson(checked as boolean)
-                }
-              />
-              <Label htmlFor="first-person" className="text-sm">
-                Write in first person (I, me, my)
-              </Label>
-            </div>
-          </div>
         </div>
 
         {/* Save All Settings */}

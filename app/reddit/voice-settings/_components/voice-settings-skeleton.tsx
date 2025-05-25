@@ -33,7 +33,7 @@ export default function VoiceSettingsSkeleton() {
                 <Skeleton className="h-4 w-24" />
               </div>
               <div className="rounded-lg bg-blue-50 p-3 dark:bg-blue-900/30">
-                <Skeleton className="h-4 w-20 mb-1" />
+                <Skeleton className="mb-1 h-4 w-20" />
                 <Skeleton className="h-3 w-32" />
               </div>
             </div>
@@ -45,7 +45,7 @@ export default function VoiceSettingsSkeleton() {
                 <Skeleton className="h-4 w-28" />
               </div>
               <div className="rounded-lg bg-green-50 p-3 dark:bg-green-900/30">
-                <Skeleton className="h-4 w-32 mb-1" />
+                <Skeleton className="mb-1 h-4 w-32" />
                 <Skeleton className="h-3 w-24" />
               </div>
             </div>
@@ -58,7 +58,7 @@ export default function VoiceSettingsSkeleton() {
                 <Skeleton className="h-4 w-16" />
               </div>
               <div className="rounded-lg bg-purple-50 p-3 dark:bg-purple-900/30">
-                <Skeleton className="h-4 w-24 mb-1" />
+                <Skeleton className="mb-1 h-4 w-24" />
                 <Skeleton className="h-3 w-40" />
               </div>
             </div>
@@ -70,8 +70,8 @@ export default function VoiceSettingsSkeleton() {
                 <Skeleton className="h-4 w-48" />
               </div>
               <div className="rounded-lg bg-orange-50 p-3 dark:bg-orange-900/30">
-                <Skeleton className="h-4 w-full mb-1" />
-                <Skeleton className="h-4 w-5/6 mb-1" />
+                <Skeleton className="mb-1 h-4 w-full" />
+                <Skeleton className="mb-1 h-4 w-5/6" />
                 <Skeleton className="h-4 w-3/4" />
               </div>
             </div>
@@ -82,8 +82,8 @@ export default function VoiceSettingsSkeleton() {
               <div className="flex flex-wrap gap-2">
                 <Skeleton className="h-6 w-20" />
                 <Skeleton className="h-6 w-24" />
-                <Skeleton className="h-6 w-18" />
-                <Skeleton className="h-6 w-22" />
+                <Skeleton className="w-18 h-6" />
+                <Skeleton className="w-22 h-6" />
               </div>
             </div>
 

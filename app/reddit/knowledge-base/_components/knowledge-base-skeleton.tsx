@@ -33,7 +33,7 @@ export default function KnowledgeBaseSkeleton() {
                 <Skeleton className="h-4 w-24" />
               </div>
               <div className="rounded-lg bg-blue-50 p-3 dark:bg-blue-900/30">
-                <Skeleton className="h-4 w-full mb-1" />
+                <Skeleton className="mb-1 h-4 w-full" />
                 <Skeleton className="h-3 w-3/4" />
               </div>
             </div>
@@ -45,8 +45,8 @@ export default function KnowledgeBaseSkeleton() {
                 <Skeleton className="h-4 w-32" />
               </div>
               <div className="rounded-lg bg-green-50 p-3 dark:bg-green-900/30">
-                <Skeleton className="h-4 w-full mb-1" />
-                <Skeleton className="h-4 w-5/6 mb-1" />
+                <Skeleton className="mb-1 h-4 w-full" />
+                <Skeleton className="mb-1 h-4 w-5/6" />
                 <Skeleton className="h-4 w-2/3" />
               </div>
             </div>
@@ -60,7 +60,7 @@ export default function KnowledgeBaseSkeleton() {
               <div className="space-y-2">
                 {[...Array(2)].map((_, index) => (
                   <div key={index} className="rounded-lg bg-purple-50 p-3 dark:bg-purple-900/30">
-                    <Skeleton className="h-4 w-full mb-1" />
+                    <Skeleton className="mb-1 h-4 w-full" />
                     <Skeleton className="h-3 w-4/5" />
                   </div>
                 ))}
@@ -119,7 +119,7 @@ export default function KnowledgeBaseSkeleton() {
 
             {/* Info Box */}
             <div className="rounded-lg bg-blue-50 p-3 dark:bg-blue-900/30">
-              <Skeleton className="h-3 w-full mb-1" />
+              <Skeleton className="mb-1 h-3 w-full" />
               <Skeleton className="h-3 w-5/6" />
             </div>
           </CardContent>
