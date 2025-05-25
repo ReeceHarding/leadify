@@ -17,16 +17,13 @@ export async function GET(
 ) {
   try {
     const { userId } = await auth()
-    
+
     if (!userId) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const { commentId } = await context.params
-    
+
     console.log(`📖 Fetching replies for comment: ${commentId}`)
 
     // TODO: Implement real Reddit API integration
@@ -62,4 +59,4 @@ export async function GET(
       { status: 500 }
     )
   }
-} 
+}
