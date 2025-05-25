@@ -35,7 +35,7 @@ export default function ToneCustomizer({
           Regenerate Comments
         </CardTitle>
         <CardDescription className="text-sm">
-          Rewrite all comments below with your own style - make them more helpful, emphasize your product, change the tone, etc.
+          Rewrite all comments below with your own style - you can ask AI to make them more helpful, emphasize your product, change the tone, etc.
         </CardDescription>
       </CardHeader>
       <CardContent className="p-4">
