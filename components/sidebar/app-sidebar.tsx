@@ -40,7 +40,7 @@ const data = {
       title: "Dashboard",
       url: "/dashboard",
       icon: User,
-      isActive: true,
+      isActive: false,
       items: [
         { title: "Overview", url: "/dashboard" },
         { title: "Profile", url: "/profile" }
@@ -50,6 +50,7 @@ const data = {
       title: "Reddit",
       url: "/reddit",
       icon: MessageSquare,
+      isActive: true,
       items: [
         { title: "Leads", url: "/reddit/lead-finder" },
         { title: "My Posts", url: "/reddit/my-posts" },

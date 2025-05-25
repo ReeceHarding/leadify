@@ -2,27 +2,29 @@
 
 import { Suspense } from "react"
 import { auth } from "@clerk/nextjs/server"
+import { redirect } from "next/navigation"
 import { getKnowledgeBaseByUserIdAction, getVoiceSettingsByUserIdAction } from "@/actions/db/personalization-actions"
 import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
 import PersonalizationClient from "./_components/personalization-client"
 import PersonalizationSkeleton from "./_components/personalization-skeleton"
 
 export default async function PersonalizationPage() {
-  return (
-    <Suspense fallback={<PersonalizationSkeleton />}>
-      <PersonalizationFetcher />
-    </Suspense>
-  )
-}
-
-async function PersonalizationFetcher() {
   const { userId } = await auth()
   
   if (!userId) {
-    throw new Error("User not authenticated")
+    redirect("/login")
   }
 
-  // Fetch all personalization data in parallel
+  return (
+    <div className="flex size-full flex-col">
+      <Suspense fallback={<PersonalizationSkeleton />}>
+        <PersonalizationFetcher userId={userId} />
+      </Suspense>
+    </div>
+  )
+}
+
+async function PersonalizationFetcher({ userId }: { userId: string }) {
   const [knowledgeBaseResult, voiceSettingsResult, profileResult] = await Promise.all([
     getKnowledgeBaseByUserIdAction(userId),
     getVoiceSettingsByUserIdAction(userId),
