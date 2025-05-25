@@ -44,26 +44,32 @@ export interface RedditComment {
 
 async function makeRedditApiCall(endpoint: string): Promise<any> {
   // Get access token
-  const tokenResult = await getRedditAccessTokenAction()
+  let tokenResult = await getRedditAccessTokenAction()
 
   if (!tokenResult.isSuccess) {
     // Try to refresh token if available
+    console.log("🔧 [REDDIT-API] Access token failed, attempting refresh...")
     const refreshResult = await refreshRedditTokenAction()
     if (!refreshResult.isSuccess) {
+      console.error("❌ [REDDIT-API] Token refresh failed:", refreshResult.message)
       throw new Error(
         "No valid Reddit access token available. Please re-authenticate."
       )
     }
     // Get the new token
-    const newTokenResult = await getRedditAccessTokenAction()
-    if (!newTokenResult.isSuccess) {
+    tokenResult = await getRedditAccessTokenAction()
+    if (!tokenResult.isSuccess) {
+      console.error("❌ [REDDIT-API] Failed to get refreshed access token after refresh.")
       throw new Error("Failed to get refreshed access token")
     }
+    console.log("✅ [REDDIT-API] Token refreshed successfully.")
   }
 
-  const accessToken = tokenResult.isSuccess
-    ? tokenResult.data
-    : (await getRedditAccessTokenAction()).data
+  const accessToken = tokenResult.data
+  if (!accessToken) {
+    console.error("❌ [REDDIT-API] Access token is undefined even after successful fetch/refresh.")
+    throw new Error("Access token is undefined.")
+  }
 
   const response = await fetch(`https://oauth.reddit.com${endpoint}`, {
     headers: {
@@ -75,11 +81,13 @@ async function makeRedditApiCall(endpoint: string): Promise<any> {
   if (!response.ok) {
     if (response.status === 401) {
       // Token expired, try to refresh
+      console.log("🔧 [REDDIT-API] GET request got 401, attempting refresh...")
       const refreshResult = await refreshRedditTokenAction()
       if (refreshResult.isSuccess) {
         // Retry with new token
         const newTokenResult = await getRedditAccessTokenAction()
-        if (newTokenResult.isSuccess) {
+        if (newTokenResult.isSuccess && newTokenResult.data) {
+          console.log("✅ [REDDIT-API] Retrying GET request with new token.")
           const retryResponse = await fetch(
             `https://oauth.reddit.com${endpoint}`,
             {
@@ -91,19 +99,141 @@ async function makeRedditApiCall(endpoint: string): Promise<any> {
             }
           )
           if (!retryResponse.ok) {
-            throw new Error(`Reddit API error: ${retryResponse.status}`)
+            const errorBody = await retryResponse.text()
+            console.error(
+              `❌ [REDDIT-API] Retry GET request failed: ${retryResponse.status} ${retryResponse.statusText}`,
+              errorBody
+            )
+            throw new Error(`Reddit API error on retry: ${retryResponse.status} ${retryResponse.statusText} - ${errorBody}`)
           }
           return await retryResponse.json()
         }
       }
+      console.error("❌ [REDDIT-API] Refresh failed after 401 on GET, or new token was invalid.")
       throw new Error("Reddit authentication expired. Please re-authenticate.")
     }
+    const errorBody = await response.text()
+    console.error(
+      `❌ [REDDIT-API] Initial GET request failed: ${response.status} ${response.statusText}`,
+      errorBody
+    )
     throw new Error(
-      `Reddit API error: ${response.status} ${response.statusText}`
+      `Reddit API error: ${response.status} ${response.statusText} - ${errorBody}`
     )
   }
 
   return await response.json()
+}
+
+async function makeRedditApiPostCall(
+  endpoint: string,
+  body: Record<string, any>
+): Promise<any> {
+  console.log(`🚀 [REDDIT-API-POST] Making POST call to: ${endpoint}`)
+  // Get access token
+  let tokenResult = await getRedditAccessTokenAction()
+
+  if (!tokenResult.isSuccess) {
+    console.log("🔧 [REDDIT-API-POST] Access token failed, attempting refresh...")
+    const refreshResult = await refreshRedditTokenAction()
+    if (!refreshResult.isSuccess) {
+      console.error("❌ [REDDIT-API-POST] Token refresh failed:", refreshResult.message)
+      throw new Error(
+        "No valid Reddit access token available. Please re-authenticate."
+      )
+    }
+    tokenResult = await getRedditAccessTokenAction()
+    if (!tokenResult.isSuccess) {
+      console.error("❌ [REDDIT-API-POST] Failed to get refreshed access token after refresh.")
+      throw new Error("Failed to get refreshed access token")
+    }
+    console.log("✅ [REDDIT-API-POST] Token refreshed successfully.")
+  }
+
+  const accessToken = tokenResult.data
+  if (!accessToken) {
+    console.error("❌ [REDDIT-API-POST] Access token is undefined even after successful fetch/refresh.")
+    throw new Error("Access token is undefined.")
+  }
+
+  const headers = {
+    Authorization: `Bearer ${accessToken}`,
+    "User-Agent": process.env.REDDIT_USER_AGENT || "reddit-lead-gen:v1.0.0",
+    "Content-Type": "application/x-www-form-urlencoded"
+  }
+
+  // Convert body to x-www-form-urlencoded
+  const formBody = new URLSearchParams()
+  for (const key in body) {
+    if (Object.prototype.hasOwnProperty.call(body, key)) {
+      formBody.append(key, body[key])
+    }
+  }
+  
+  console.log("📬 [REDDIT-API-POST] Request Headers:", headers)
+  console.log("📬 [REDDIT-API-POST] Request Body:", formBody.toString())
+
+  let response = await fetch(`https://oauth.reddit.com${endpoint}`, {
+    method: "POST",
+    headers,
+    body: formBody
+  })
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      console.log("🔧 [REDDIT-API-POST] POST request got 401, attempting refresh...")
+      const refreshResult = await refreshRedditTokenAction()
+      if (refreshResult.isSuccess) {
+        const newTokenResult = await getRedditAccessTokenAction()
+        if (newTokenResult.isSuccess && newTokenResult.data) {
+          console.log("✅ [REDDIT-API-POST] Retrying POST request with new token.")
+          const newHeaders = {
+            ...headers,
+            Authorization: `Bearer ${newTokenResult.data}`
+          }
+          console.log("📬 [REDDIT-API-POST] Retry Request Headers:", newHeaders)
+          response = await fetch(`https://oauth.reddit.com${endpoint}`, {
+            method: "POST",
+            headers: newHeaders,
+            body: formBody
+          })
+          if (!response.ok) {
+            const errorBody = await response.text()
+            console.error(
+              `❌ [REDDIT-API-POST] Retry POST request failed: ${response.status} ${response.statusText}`,
+              errorBody
+            )
+            throw new Error(`Reddit API error on retry: ${response.status} ${response.statusText} - ${errorBody}`)
+          }
+        } else {
+          console.error("❌ [REDDIT-API-POST] Failed to get new token after refresh during 401 handling.")
+          throw new Error("Reddit authentication expired. Please re-authenticate.")
+        }
+      } else {
+        console.error("❌ [REDDIT-API-POST] Token refresh failed during 401 handling.")
+        throw new Error("Reddit authentication expired. Please re-authenticate.")
+      }
+    } else {
+      const errorBody = await response.text()
+      const errorHeaders = Object.fromEntries(response.headers.entries())
+      console.error(
+        `❌ [REDDIT-API-POST] Initial POST request failed: ${response.status} ${response.statusText}`,
+        { body: errorBody, headers: errorHeaders }
+      )
+      throw new Error(
+        `Reddit API error: ${response.status} ${response.statusText} - ${errorBody}`
+      )
+    }
+  }
+  
+  const responseText = await response.text()
+  console.log("✅ [REDDIT-API-POST] Response Text:", responseText)
+  try {
+    return JSON.parse(responseText)
+  } catch (e) {
+    console.warn("⚠️ [REDDIT-API-POST] Response was not valid JSON, returning raw text.")
+    return responseText // Or handle non-JSON response appropriately
+  }
 }
 
 export async function fetchRedditThreadAction(
@@ -493,6 +623,144 @@ export async function fetchRedditCommentRepliesAction(
     return {
       isSuccess: false,
       message: `Failed to fetch Reddit comment replies: ${error instanceof Error ? error.message : "Unknown error"}`
+    }
+  }
+}
+
+export async function submitPostAction(
+  subreddit: string,
+  title: string,
+  text: string
+): Promise<ActionState<{ id: string; url: string }>> {
+  try {
+    console.log(`🔧 [SUBMIT-POST] Submitting post to r/${subreddit}`)
+    console.log(`📝 [SUBMIT-POST] Title: ${title}`)
+    console.log(`📄 [SUBMIT-POST] Text: ${text.substring(0, 100)}...`)
+
+    const body = {
+      api_type: "json",
+      kind: "self",
+      sr: subreddit,
+      title: title,
+      text: text,
+      resubmit: "true", // Allow resubmitting if a post with the same URL was already submitted (less relevant for self posts)
+      validate_on_submit: "true" // Perform validation before submitting
+    }
+
+    console.log("📤 [SUBMIT-POST] Sending request with body:", body)
+    const result = await makeRedditApiPostCall("/api/submit", body)
+    console.log("📥 [SUBMIT-POST] Raw API Result:", JSON.stringify(result, null, 2))
+
+    if (result.json?.errors?.length > 0) {
+      const errors = result.json.errors.map((err: any) => err[1]).join(", ")
+      console.error(`❌ [SUBMIT-POST] Reddit API returned errors: ${errors}`, result.json.errors)
+      return {
+        isSuccess: false,
+        message: `Failed to submit post: ${errors}`
+      }
+    }
+
+    if (!result.json?.data?.name) {
+        console.error("❌ [SUBMIT-POST] Reddit API response missing expected data (e.g., post name/ID). Full response:", result)
+        let detailedMessage = "Reddit API response missing expected data."
+        if(result.json && result.json.ratelimit) {
+            detailedMessage += ` Rate limit: ${result.json.ratelimit} seconds.`
+        }
+        return { isSuccess: false, message: detailedMessage }
+    }
+    
+    const postId = result.json.data.name // This is the fullname, e.g., t3_xxxxxx
+    const postUrl = result.json.data.url
+
+    console.log(`✅ [SUBMIT-POST] Post submitted successfully: ${postId}, URL: ${postUrl}`)
+
+    return {
+      isSuccess: true,
+      message: "Post submitted successfully",
+      data: { id: postId, url: postUrl }
+    }
+  } catch (error) {
+    console.error("❌ [SUBMIT-POST] Error submitting post:", error)
+    let errorMessage = "Failed to submit post."
+    if (error instanceof Error) {
+        errorMessage = `Failed to submit post: ${error.message}`
+    }
+    return { isSuccess: false, message: errorMessage }
+  }
+}
+
+export async function submitCommentAction(
+  parentId: string, // fullname of the post (t3_) or comment (t1_) to reply to
+  text: string
+): Promise<ActionState<{ id: string; parentId: string }>> {
+  try {
+    console.log(`🔧 [SUBMIT-COMMENT] Submitting comment to ${parentId}`)
+    console.log(`💬 [SUBMIT-COMMENT] Text: ${text.substring(0, 100)}...`)
+
+    const body = {
+      api_type: "json",
+      thing_id: parentId,
+      text: text
+    }
+    
+    console.log("📤 [SUBMIT-COMMENT] Sending request with body:", body)
+    const result = await makeRedditApiPostCall("/api/comment", body)
+    console.log("📥 [SUBMIT-COMMENT] Raw API Result:", JSON.stringify(result, null, 2))
+
+    if (result.json?.errors?.length > 0) {
+      const errors = result.json.errors.map((err: any) => err[1]).join(", ")
+      console.error(`❌ [SUBMIT-COMMENT] Reddit API returned errors: ${errors}`, result.json.errors)
+      return {
+        isSuccess: false,
+        message: `Failed to submit comment: ${errors}`
+      }
+    }
+    
+    if (!result.json?.data?.things?.[0]?.data?.id) {
+        console.error("❌ [SUBMIT-COMMENT] Reddit API response missing expected data (e.g., comment id). Full response:", result)
+        let detailedMessage = "Reddit API response missing expected data."
+        if(result.json && result.json.ratelimit) {
+            detailedMessage += ` Rate limit: ${result.json.ratelimit} seconds.`
+        }
+        return { isSuccess: false, message: detailedMessage }
+    }
+
+    const commentId = result.json.data.things[0].data.id
+    console.log(`✅ [SUBMIT-COMMENT] Comment submitted successfully: ${commentId} to ${parentId}`)
+
+    return {
+      isSuccess: true,
+      message: "Comment submitted successfully",
+      data: { id: commentId, parentId: parentId }
+    }
+  } catch (error) {
+    console.error("❌ [SUBMIT-COMMENT] Error submitting comment:", error)
+    let errorMessage = "Failed to submit comment."
+     if (error instanceof Error) {
+        errorMessage = `Failed to submit comment: ${error.message}`
+    }
+    return { isSuccess: false, message: errorMessage }
+  }
+}
+
+export async function getRedditUserInfoAction(): Promise<ActionState<{ name: string; karma: number }>> {
+  try {
+    // Test by fetching user info
+    const data = await makeRedditApiCall("/api/v1/me")
+
+    return {
+      isSuccess: true,
+      message: "Reddit OAuth connection test successful",
+      data: {
+        name: data.name || "",
+        karma: data.link_karma || 0
+      }
+    }
+  } catch (error) {
+    console.error("Error testing Reddit connection:", error)
+    return {
+      isSuccess: false,
+      message: `Reddit connection test failed: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }
