@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { SerializedVoiceSettingsDocument } from "@/types"
 import VoiceSettingsDisplay from "./voice-settings-display"
-import EditVoiceSettings, { RedditStyleCopierCard } from "./edit-voice-settings"
+import EditVoiceSettings from "./edit-voice-settings"
 
 interface VoiceSettingsClientProps {
   userId: string
@@ -35,22 +35,12 @@ export default function VoiceSettingsClient({
       </div>
 
       {/* Voice Settings Content */}
-      <div className="space-y-6">
-        <div className="grid gap-6 lg:grid-cols-2">
-          {/* Left Column: What We Know */}
-          <VoiceSettingsDisplay voiceSettings={voiceSettings} />
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Left Column: What We Know */}
+        <VoiceSettingsDisplay voiceSettings={voiceSettings} />
 
-          {/* Right Column: Edit Voice Settings */}
-          <EditVoiceSettings
-            userId={userId}
-            organizationId={organizationId}
-            voiceSettings={voiceSettings}
-            setVoiceSettings={setVoiceSettings}
-          />
-        </div>
-
-        {/* Reddit Style Copier - Full Width */}
-        <RedditStyleCopierCard
+        {/* Right Column: Edit Voice Settings */}
+        <EditVoiceSettings
           userId={userId}
           organizationId={organizationId}
           voiceSettings={voiceSettings}

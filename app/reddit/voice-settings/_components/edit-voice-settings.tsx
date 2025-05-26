@@ -504,6 +504,14 @@ export default function EditVoiceSettings({
           )}
         </div>
 
+        {/* Reddit Style Copier */}
+        <div className="space-y-4">
+          <Label>Copy Writing Style from Reddit Posts</Label>
+          <div className="rounded-lg border p-4 bg-gray-50 dark:bg-gray-800">
+            <RedditStyleCopier onStyleCopied={handleRedditStyleCopied} />
+          </div>
+        </div>
+
         {/* Save All Settings */}
         <div className="flex gap-2">
           <Button
@@ -519,62 +527,4 @@ export default function EditVoiceSettings({
   )
 }
 
-// Add the Reddit Style Copier as a separate component
-export function RedditStyleCopierCard({
-  userId,
-  organizationId,
-  voiceSettings,
-  setVoiceSettings
-}: EditVoiceSettingsProps) {
-  const handleRedditStyleCopied = async (analysis: string, postSource: any) => {
-    console.log("🔥 [REDDIT-STYLE] Style copied from Reddit post")
-    console.log("🔥 [REDDIT-STYLE] Analysis length:", analysis.length)
-    console.log("🔥 [REDDIT-STYLE] Post source:", postSource)
-    
-    try {
-      const settingsData = {
-        writingStyle: "casual" as WritingStyle,
-        redditWritingStyleAnalysis: analysis,
-        redditPostSource: postSource,
-        personaType: voiceSettings?.personaType || ("user" as PersonaType),
-        useAllLowercase: false,
-        useEmojis: false,
-        useCasualTone: true,
-        useFirstPerson: false
-      }
 
-      if (voiceSettings) {
-        // Update existing voice settings
-        const { updateVoiceSettingsAction } = await import(
-          "@/actions/db/personalization-actions"
-        )
-        const result = await updateVoiceSettingsAction(
-          voiceSettings.id,
-          settingsData
-        )
-
-        if (result.isSuccess) {
-          setVoiceSettings(result.data)
-        }
-      } else {
-        // Create new voice settings
-        const { createVoiceSettingsAction } = await import(
-          "@/actions/db/personalization-actions"
-        )
-        const result = await createVoiceSettingsAction({
-          userId,
-          organizationId,
-          ...settingsData
-        })
-
-        if (result.isSuccess) {
-          setVoiceSettings(result.data)
-        }
-      }
-    } catch (error) {
-      console.error("🔥 [REDDIT-STYLE] Error saving:", error)
-    }
-  }
-
-  return <RedditStyleCopier onStyleCopied={handleRedditStyleCopied} />
-}

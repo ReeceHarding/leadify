@@ -221,11 +221,11 @@ export default function VoiceSettingsDisplay({
                   </h4>
                 </div>
                 <div className="rounded-lg bg-orange-50 p-3">
-                  <p className="text-sm text-orange-900 mb-2">
+                  <p className="mb-2 text-sm text-orange-900">
                     {voiceSettings.redditWritingStyleAnalysis}
                   </p>
                   {voiceSettings.redditPostSource && (
-                    <div className="text-xs text-orange-700 border-t border-orange-200 pt-2">
+                    <div className="border-t border-orange-200 pt-2 text-xs text-orange-700">
                       <p>
                         <strong>Source:</strong> r/{voiceSettings.redditPostSource.subreddit} • 
                         u/{voiceSettings.redditPostSource.author} • 

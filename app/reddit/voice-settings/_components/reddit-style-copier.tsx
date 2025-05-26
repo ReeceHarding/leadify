@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -58,30 +58,47 @@ export default function RedditStyleCopier({
   
   const [analyzingPostId, setAnalyzingPostId] = useState<string | null>(null)
 
-  const searchSubreddits = async () => {
-    if (!searchQuery.trim() || searchQuery.length < 2) {
-      toast.error("Please enter at least 2 characters to search")
+  const searchSubreddits = useCallback(async (query?: string) => {
+    const searchTerm = query || searchQuery
+    if (!searchTerm.trim() || searchTerm.length < 2) {
+      setSubredditResults([])
       return
     }
 
     setIsSearchingSubreddits(true)
     try {
-      console.log("🔍 [REDDIT-STYLE] Searching subreddits:", searchQuery)
-      const result = await searchSubredditsAction(searchQuery, 20)
+      console.log("🔍 [REDDIT-STYLE] Searching subreddits:", searchTerm)
+      const result = await searchSubredditsAction(searchTerm, 20)
       
       if (result.isSuccess) {
         setSubredditResults(result.data)
         console.log("🔍 [REDDIT-STYLE] Found subreddits:", result.data.length)
+        console.log("🔍 [REDDIT-STYLE] First few results:", result.data.slice(0, 3).map(s => s.subreddit_name))
       } else {
         toast.error(result.message)
+        setSubredditResults([])
       }
     } catch (error) {
       console.error("🔍 [REDDIT-STYLE] Search error:", error)
       toast.error("Failed to search subreddits")
+      setSubredditResults([])
     } finally {
       setIsSearchingSubreddits(false)
     }
-  }
+  }, [searchQuery])
+
+  // Debounced search effect
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (searchQuery.trim().length >= 2) {
+        searchSubreddits(searchQuery)
+      } else {
+        setSubredditResults([])
+      }
+    }, 300) // 300ms debounce
+
+    return () => clearTimeout(timeoutId)
+  }, [searchQuery, searchSubreddits])
 
   const selectSubreddit = async (subreddit: SubredditData) => {
     setSelectedSubreddit(subreddit)
@@ -168,17 +185,7 @@ export default function RedditStyleCopier({
   }
 
   return (
-    <Card className="bg-white shadow-sm dark:bg-gray-900">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Copy className="size-5" />
-          Copy Writing Style from Reddit Posts
-        </CardTitle>
-        <CardDescription>
-          Search for subreddits, browse top posts, and copy the exact writing style from popular posts to make your comments feel more human and authentic.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
+    <div className="space-y-4">
         {/* Step 1: Search Subreddits */}
         <div className="space-y-4">
           <Label>Step 1: Search for a Subreddit</Label>
@@ -194,7 +201,7 @@ export default function RedditStyleCopier({
               }}
             />
             <Button
-              onClick={searchSubreddits}
+              onClick={() => searchSubreddits()}
               disabled={isSearchingSubreddits || searchQuery.length < 2}
             >
               {isSearchingSubreddits ? (
@@ -209,11 +216,11 @@ export default function RedditStyleCopier({
           {subredditResults.length > 0 && (
             <div className="space-y-2">
               <Label className="text-sm text-gray-600">Select a subreddit:</Label>
-              <div className="grid gap-2 max-h-60 overflow-y-auto">
+              <div className="grid max-h-60 gap-2 overflow-y-auto">
                 {subredditResults.map((subreddit) => (
                   <div
                     key={subreddit.base10_id}
-                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                    className="flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-colors hover:bg-gray-50"
                     onClick={() => selectSubreddit(subreddit)}
                   >
                     <div className="flex items-center gap-3">
@@ -236,7 +243,7 @@ export default function RedditStyleCopier({
         {selectedSubreddit && (
           <div className="space-y-4">
             <Label>Step 2: Selected Subreddit</Label>
-            <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center justify-between rounded-lg border border-blue-200 bg-blue-50 p-3">
               <div className="flex items-center gap-3">
                 <div>
                   <div className="font-medium">r/{selectedSubreddit.subreddit_name}</div>
@@ -290,17 +297,17 @@ export default function RedditStyleCopier({
                 ))}
               </div>
             ) : posts.length > 0 ? (
-              <div className="space-y-3 max-h-96 overflow-y-auto">
+              <div className="max-h-96 space-y-3 overflow-y-auto">
                 {posts.map((post) => (
                   <div
                     key={post.id}
-                    className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                    className="rounded-lg border p-4 transition-colors hover:bg-gray-50"
                   >
                     <div className="space-y-3">
                       {/* Post Header */}
                       <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-medium text-sm line-clamp-2 mb-1">
+                        <div className="min-w-0 flex-1">
+                          <h4 className="mb-1 line-clamp-2 text-sm font-medium">
                             {post.title}
                           </h4>
                           <div className="flex items-center gap-3 text-xs text-gray-500">
@@ -346,7 +353,7 @@ export default function RedditStyleCopier({
                       </div>
 
                       {/* Post Preview */}
-                      <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded border-l-4 border-blue-200">
+                      <div className="rounded border-l-4 border-blue-200 bg-gray-50 p-3 text-sm text-gray-700">
                         <p className="line-clamp-3">
                           {post.selftext.substring(0, 200)}
                           {post.selftext.length > 200 && "..."}
@@ -357,7 +364,7 @@ export default function RedditStyleCopier({
                 ))}
               </div>
             ) : selectedSubreddit && !isLoadingPosts ? (
-              <div className="text-center py-8 text-gray-500">
+              <div className="py-8 text-center text-gray-500">
                 <MessageSquare className="mx-auto mb-2 size-8" />
                 <p>No posts with substantial text found for this timeframe.</p>
                 <p className="text-sm">Try a different timeframe or subreddit.</p>
@@ -365,7 +372,6 @@ export default function RedditStyleCopier({
             ) : null}
           </div>
         )}
-      </CardContent>
-    </Card>
+    </div>
   )
 } 
