@@ -97,7 +97,11 @@ export default function RedditTestPage() {
     setLoading(true)
     try {
       // Test with a popular thread ID
-      const result = await fetchRedditThreadAction(organizationId, "1i2m7ya", "programming")
+      const result = await fetchRedditThreadAction(
+        organizationId,
+        "1i2m7ya",
+        "programming"
+      )
       setResults(prev => [
         ...prev,
         {

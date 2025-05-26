@@ -47,7 +47,10 @@ export async function GET(request: Request) {
 
     // Get user's organization
     const organizationsResult = await getOrganizationsByUserIdAction(userId)
-    if (!organizationsResult.isSuccess || organizationsResult.data.length === 0) {
+    if (
+      !organizationsResult.isSuccess ||
+      organizationsResult.data.length === 0
+    ) {
       console.log("❌ [REDDIT-COMMENTS-API] No organization found for user")
       return NextResponse.json(
         { error: "No organization found. Please complete onboarding." },

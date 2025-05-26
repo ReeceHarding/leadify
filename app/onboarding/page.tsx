@@ -104,7 +104,7 @@ export default function OnboardingPage() {
           profileName: user.fullName || "",
           profilePictureUrl: user.imageUrl || ""
         }))
-        
+
         initialOrganizationName = user.fullName || initialOrganizationName
 
         // Here, you might add logic to load an *existing* default/first organization for the user

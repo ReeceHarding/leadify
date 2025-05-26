@@ -16,7 +16,7 @@ import {
   FileText,
   Settings
 } from "lucide-react"
-import { SerializedVoiceSettingsDocument } from "@/actions/db/personalization-actions"
+import { SerializedVoiceSettingsDocument } from "@/types"
 
 interface VoiceSettingsDisplayProps {
   voiceSettings: SerializedVoiceSettingsDocument | null

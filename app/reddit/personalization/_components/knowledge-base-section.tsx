@@ -14,7 +14,10 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Loader2, Globe, Plus, X } from "lucide-react"
-import { SerializedKnowledgeBaseDocument, SerializedProfileDocument } from "@/types"
+import {
+  SerializedKnowledgeBaseDocument,
+  SerializedProfileDocument
+} from "@/types"
 import { useOrganization } from "@/components/utilities/organization-provider"
 import { useToast } from "@/hooks/use-toast"
 import WebsiteScrapeDialog from "./website-scrape-dialog"
@@ -38,6 +41,7 @@ export default function KnowledgeBaseSection({
   )
   const [showScrapeDialog, setShowScrapeDialog] = useState(false)
   const { toast } = useToast()
+  const { activeOrganization } = useOrganization()
 
   const handleSaveCustomInformation = async () => {
     setIsLoading(true)
@@ -71,6 +75,7 @@ export default function KnowledgeBaseSection({
         )
         const result = await createKnowledgeBaseAction({
           userId,
+          organizationId: activeOrganization?.id || "",
           customInformation,
           websiteUrl: activeOrganization?.website
         })
@@ -203,6 +208,7 @@ export default function KnowledgeBaseSection({
         onOpenChange={setShowScrapeDialog}
         websiteUrl={activeOrganization?.website || ""}
         userId={userId}
+        organizationId={activeOrganization?.id || ""}
         knowledgeBase={knowledgeBase}
         setKnowledgeBase={setKnowledgeBase}
       />

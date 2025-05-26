@@ -21,9 +21,10 @@ import {
 } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Loader2, MessageCircle, Twitter, Sparkles } from "lucide-react"
-import { SerializedVoiceSettingsDocument } from "@/actions/db/personalization-actions"
+import { SerializedVoiceSettingsDocument } from "@/types"
 import { PersonaType, WritingStyle } from "@/db/schema"
 import { useToast } from "@/hooks/use-toast"
+import { useOrganization } from "@/components/utilities/organization-provider"
 
 interface VoiceSettingsSectionProps {
   userId: string
@@ -69,6 +70,7 @@ export default function VoiceSettingsSection({
   )
 
   const { toast } = useToast()
+  const { activeOrganization } = useOrganization()
 
   const handleAnalyzeTwitter = async () => {
     if (!twitterHandle.trim()) {
@@ -131,6 +133,7 @@ export default function VoiceSettingsSection({
       )
       await createTwitterAnalysisAction({
         userId,
+        organizationId: activeOrganization?.id || "",
         twitterHandle,
         tweets,
         writingStyleAnalysis: analysisResult.data.writingStyleAnalysis,
@@ -212,6 +215,7 @@ export default function VoiceSettingsSection({
         )
         const result = await createVoiceSettingsAction({
           userId,
+          organizationId: activeOrganization?.id || "",
           writingStyle,
           customWritingStyle:
             writingStyle === "custom" ? customWritingStyle : undefined,
