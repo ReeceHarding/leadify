@@ -198,9 +198,17 @@ Respond in JSON format:
     // Parse JSON response
     let analysis
     try {
-      analysis = JSON.parse(analysisText)
+      // Clean the response by removing markdown code blocks
+      const cleanedText = analysisText
+        .replace(/```json\s*/g, '')
+        .replace(/```\s*/g, '')
+        .trim()
+      
+      console.log("✍️ [WRITING-STYLE] Cleaned analysis text:", cleanedText)
+      analysis = JSON.parse(cleanedText)
     } catch (parseError) {
       console.error("✍️ [WRITING-STYLE] Failed to parse JSON response:", parseError)
+      console.error("✍️ [WRITING-STYLE] Raw response:", analysisText)
       return {
         isSuccess: false,
         message: "Failed to parse analysis response"

@@ -14,8 +14,11 @@ import {
   User,
   Sparkles,
   FileText,
-  Settings
+  Settings,
+  Copy,
+  Edit
 } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { SerializedVoiceSettingsDocument } from "@/types"
 
 interface VoiceSettingsDisplayProps {
@@ -160,19 +163,40 @@ export default function VoiceSettingsDisplay({
               </div>
             )}
 
-            {/* Manual Writing Style Description */}
+            {/* Current Writing Style Prompt */}
             {voiceSettings?.manualWritingStyleDescription && (
               <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <FileText className="size-4 text-orange-600" />
-                  <h4 className="text-sm font-medium text-gray-900">
-                    Writing Style Description
-                  </h4>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="size-4 text-purple-600" />
+                    <h4 className="text-sm font-medium text-gray-900 dark:text-white">
+                      Current Writing Style Prompt
+                    </h4>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigator.clipboard.writeText(voiceSettings.manualWritingStyleDescription || "")}
+                    >
+                      <Copy className="mr-1 size-3" />
+                      Copy
+                    </Button>
+                  </div>
                 </div>
-                <div className="rounded-lg bg-orange-50 p-3">
-                  <p className="whitespace-pre-wrap text-sm text-orange-900">
+                <div className="max-h-80 overflow-y-auto rounded-lg bg-purple-50 p-4 dark:bg-purple-900/30">
+                  <pre className="whitespace-pre-wrap font-mono text-sm leading-relaxed text-purple-900 dark:text-purple-100">
                     {voiceSettings.manualWritingStyleDescription}
-                  </p>
+                  </pre>
+                  {voiceSettings.redditPostSource && (
+                    <div className="mt-4 border-t border-purple-200 pt-4 dark:border-purple-700">
+                      <div className="space-y-1 text-xs text-purple-700 dark:text-purple-300">
+                        <div><strong>Source:</strong> r/{voiceSettings.redditPostSource.subreddit}</div>
+                        <div><strong>Post:</strong> "{voiceSettings.redditPostSource.postTitle}"</div>
+                        <div><strong>Author:</strong> u/{voiceSettings.redditPostSource.author} ({voiceSettings.redditPostSource.score} upvotes)</div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -211,34 +235,7 @@ export default function VoiceSettingsDisplay({
               </div>
             )}
 
-            {/* Reddit Writing Style */}
-            {voiceSettings?.redditWritingStyleAnalysis && (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <MessageCircle className="size-4 text-orange-600" />
-                  <h4 className="text-sm font-medium text-gray-900">
-                    Reddit Writing Style
-                  </h4>
-                </div>
-                <div className="rounded-lg bg-orange-50 p-3">
-                  <p className="mb-2 text-sm text-orange-900">
-                    {voiceSettings.redditWritingStyleAnalysis}
-                  </p>
-                  {voiceSettings.redditPostSource && (
-                    <div className="border-t border-orange-200 pt-2 text-xs text-orange-700">
-                      <p>
-                        <strong>Source:</strong> r/{voiceSettings.redditPostSource.subreddit} • 
-                        u/{voiceSettings.redditPostSource.author} • 
-                        {voiceSettings.redditPostSource.score} upvotes
-                      </p>
-                      <p className="truncate">
-                        <strong>Post:</strong> {voiceSettings.redditPostSource.postTitle}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
+
 
             {/* Generated Prompt */}
             {voiceSettings?.generatedPrompt && (

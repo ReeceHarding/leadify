@@ -156,7 +156,9 @@ export async function createKnowledgeBaseAction(
 export async function getKnowledgeBaseByOrganizationIdAction(
   organizationId: string
 ): Promise<ActionState<SerializedKnowledgeBaseDocument | null>> {
-  console.log("🔥 [KNOWLEDGE-BASE] Starting getKnowledgeBaseByOrganizationIdAction")
+  console.log(
+    "🔥 [KNOWLEDGE-BASE] Starting getKnowledgeBaseByOrganizationIdAction"
+  )
   console.log("🔥 [KNOWLEDGE-BASE] Organization ID:", organizationId)
 
   try {
@@ -164,11 +166,16 @@ export async function getKnowledgeBaseByOrganizationIdAction(
       db,
       PERSONALIZATION_COLLECTIONS.KNOWLEDGE_BASE
     )
-    const q = query(knowledgeBaseRef, where("organizationId", "==", organizationId))
+    const q = query(
+      knowledgeBaseRef,
+      where("organizationId", "==", organizationId)
+    )
     const querySnapshot = await getDocs(q)
 
     if (querySnapshot.empty) {
-      console.log("🔥 [KNOWLEDGE-BASE] No knowledge base found for organization")
+      console.log(
+        "🔥 [KNOWLEDGE-BASE] No knowledge base found for organization"
+      )
       return {
         isSuccess: true,
         message: "No knowledge base found",
@@ -200,7 +207,9 @@ export async function getKnowledgeBaseByOrganizationIdAction(
 export async function getKnowledgeBaseByUserIdAction(
   userId: string
 ): Promise<ActionState<SerializedKnowledgeBaseDocument | null>> {
-  console.log("🔥 [KNOWLEDGE-BASE] Starting getKnowledgeBaseByUserIdAction (LEGACY)")
+  console.log(
+    "🔥 [KNOWLEDGE-BASE] Starting getKnowledgeBaseByUserIdAction (LEGACY)"
+  )
   console.log("🔥 [KNOWLEDGE-BASE] User ID:", userId)
 
   try {
@@ -316,7 +325,14 @@ export async function createVoiceSettingsAction(
       updatedAt: serverTimestamp()
     }
 
-    await setDoc(voiceSettingsRef, voiceSettingsData)
+    // Remove undefined values to prevent Firestore errors
+    const cleanData = Object.fromEntries(
+      Object.entries(voiceSettingsData).filter(
+        ([_, value]) => value !== undefined
+      )
+    )
+
+    await setDoc(voiceSettingsRef, cleanData)
 
     const createdDoc = await getDoc(voiceSettingsRef)
     const serializedData = serializeVoiceSettings(
@@ -341,7 +357,9 @@ export async function createVoiceSettingsAction(
 export async function getVoiceSettingsByOrganizationIdAction(
   organizationId: string
 ): Promise<ActionState<SerializedVoiceSettingsDocument | null>> {
-  console.log("🔥 [VOICE-SETTINGS] Starting getVoiceSettingsByOrganizationIdAction")
+  console.log(
+    "🔥 [VOICE-SETTINGS] Starting getVoiceSettingsByOrganizationIdAction"
+  )
   console.log("🔥 [VOICE-SETTINGS] Organization ID:", organizationId)
 
   try {
@@ -349,11 +367,16 @@ export async function getVoiceSettingsByOrganizationIdAction(
       db,
       PERSONALIZATION_COLLECTIONS.VOICE_SETTINGS
     )
-    const q = query(voiceSettingsRef, where("organizationId", "==", organizationId))
+    const q = query(
+      voiceSettingsRef,
+      where("organizationId", "==", organizationId)
+    )
     const querySnapshot = await getDocs(q)
 
     if (querySnapshot.empty) {
-      console.log("🔥 [VOICE-SETTINGS] No voice settings found for organization")
+      console.log(
+        "🔥 [VOICE-SETTINGS] No voice settings found for organization"
+      )
       return {
         isSuccess: true,
         message: "No voice settings found",
@@ -385,7 +408,9 @@ export async function getVoiceSettingsByOrganizationIdAction(
 export async function getVoiceSettingsByUserIdAction(
   userId: string
 ): Promise<ActionState<SerializedVoiceSettingsDocument | null>> {
-  console.log("🔥 [VOICE-SETTINGS] Starting getVoiceSettingsByUserIdAction (LEGACY)")
+  console.log(
+    "🔥 [VOICE-SETTINGS] Starting getVoiceSettingsByUserIdAction (LEGACY)"
+  )
   console.log("🔥 [VOICE-SETTINGS] User ID:", userId)
 
   try {
@@ -444,7 +469,12 @@ export async function updateVoiceSettingsAction(
       updatedAt: serverTimestamp()
     }
 
-    await updateDoc(voiceSettingsRef, updateData)
+    // Remove undefined values to prevent Firestore errors
+    const cleanUpdateData = Object.fromEntries(
+      Object.entries(updateData).filter(([_, value]) => value !== undefined)
+    )
+
+    await updateDoc(voiceSettingsRef, cleanUpdateData)
 
     const updatedDoc = await getDoc(voiceSettingsRef)
     const serializedData = serializeVoiceSettings(
@@ -528,7 +558,9 @@ export async function createScrapedContentAction(
 export async function getScrapedContentByOrganizationIdAction(
   organizationId: string
 ): Promise<ActionState<SerializedScrapedContentDocument[]>> {
-  console.log("🔥 [SCRAPED-CONTENT] Starting getScrapedContentByOrganizationIdAction")
+  console.log(
+    "🔥 [SCRAPED-CONTENT] Starting getScrapedContentByOrganizationIdAction"
+  )
   console.log("🔥 [SCRAPED-CONTENT] Organization ID:", organizationId)
 
   try {
@@ -536,7 +568,10 @@ export async function getScrapedContentByOrganizationIdAction(
       db,
       PERSONALIZATION_COLLECTIONS.SCRAPED_CONTENT
     )
-    const q = query(scrapedContentRef, where("organizationId", "==", organizationId))
+    const q = query(
+      scrapedContentRef,
+      where("organizationId", "==", organizationId)
+    )
     const querySnapshot = await getDocs(q)
 
     const scrapedContent = querySnapshot.docs.map(doc =>
@@ -621,7 +656,9 @@ export async function getTwitterAnalysisByOrganizationIdAction(
   organizationId: string,
   twitterHandle?: string
 ): Promise<ActionState<SerializedTwitterAnalysisDocument | null>> {
-  console.log("🔥 [TWITTER-ANALYSIS] Starting getTwitterAnalysisByOrganizationIdAction")
+  console.log(
+    "🔥 [TWITTER-ANALYSIS] Starting getTwitterAnalysisByOrganizationIdAction"
+  )
   console.log("🔥 [TWITTER-ANALYSIS] Organization ID:", organizationId)
   console.log("🔥 [TWITTER-ANALYSIS] Twitter handle:", twitterHandle)
 
@@ -631,7 +668,10 @@ export async function getTwitterAnalysisByOrganizationIdAction(
       PERSONALIZATION_COLLECTIONS.TWITTER_ANALYSIS
     )
 
-    let q = query(twitterAnalysisRef, where("organizationId", "==", organizationId))
+    let q = query(
+      twitterAnalysisRef,
+      where("organizationId", "==", organizationId)
+    )
     if (twitterHandle) {
       q = query(
         twitterAnalysisRef,
@@ -663,7 +703,10 @@ export async function getTwitterAnalysisByOrganizationIdAction(
       data: twitterAnalysis
     }
   } catch (error) {
-    console.error("🔥 [TWITTER-ANALYSIS] Error getting twitter analysis:", error)
+    console.error(
+      "🔥 [TWITTER-ANALYSIS] Error getting twitter analysis:",
+      error
+    )
     return {
       isSuccess: false,
       message: `Failed to get twitter analysis: ${error instanceof Error ? error.message : "Unknown error"}`

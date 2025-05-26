@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select"
-import { Loader2, Twitter, Edit, Merge, Replace } from "lucide-react"
+import { Loader2, Twitter, Edit, Merge, Replace, Copy } from "lucide-react"
 import { SerializedVoiceSettingsDocument } from "@/types"
 import { PersonaType, WritingStyle } from "@/db/schema"
 import { useToast } from "@/hooks/use-toast"
@@ -256,8 +256,35 @@ export default function EditVoiceSettings({
     console.log("🔥 [REDDIT-STYLE] Analysis length:", analysis.length)
     console.log("🔥 [REDDIT-STYLE] Post source:", postSource)
     
-    // Save the Reddit writing style analysis
-    await saveVoiceSettings(analysis, postSource)
+    // Create a comprehensive writing style prompt
+    const comprehensivePrompt = `You are writing Reddit comments with the following exact writing style:
+
+WRITING STYLE ANALYSIS:
+${analysis}
+
+POST SOURCE:
+- Subreddit: r/${postSource.subreddit}
+- Post Title: "${postSource.postTitle}"
+- Author: u/${postSource.author}
+- Score: ${postSource.score} upvotes
+
+INSTRUCTIONS:
+- Copy this writing style EXACTLY, including any grammar mistakes, spelling errors, casual language, slang, etc.
+- Maintain the same tone, formality level, and personality traits
+- Use similar sentence structure and vocabulary level
+- Include any quirks or unique patterns from the original style
+- Make your comments feel human and authentic, not AI-generated
+- Stay true to the persona and voice captured in this analysis
+
+Remember: The goal is to replicate this writing style so perfectly that your comments blend in naturally with authentic Reddit users.`
+
+    // Save the comprehensive prompt as the writing style description
+    await saveVoiceSettings(comprehensivePrompt, postSource)
+    
+    toast({
+      title: "Writing style copied!",
+      description: `Successfully copied writing style from r/${postSource.subreddit} post`
+    })
   }
 
   const saveVoiceSettings = async (manualWritingStyleDescription?: string, redditPostSource?: any) => {
@@ -341,186 +368,187 @@ export default function EditVoiceSettings({
     <Card className="bg-white shadow-sm dark:bg-gray-900">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Edit className="size-5" />
-          Edit Voice Settings
+          <Copy className="size-5" />
+          Copy Writing Style from Reddit Posts
         </CardTitle>
         <CardDescription>
-          Configure and refine your writing style and persona
+          Search for subreddits, browse top posts, and copy the exact writing style from popular posts to make your comments feel more human and authentic.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Twitter Analysis */}
-        <div className="space-y-4">
-          <Label>Twitter Writing Style Analysis</Label>
-          <div className="space-y-2">
-            <Label htmlFor="twitter-handle">Twitter Handle</Label>
-            <div className="flex gap-2">
-              <Input
-                id="twitter-handle"
-                placeholder="@username"
-                value={twitterHandle}
-                onChange={e => setTwitterHandle(e.target.value)}
-              />
-              <Button
-                onClick={handleAnalyzeTwitter}
-                disabled={isAnalyzingTwitter || !twitterHandle.trim()}
-              >
-                {isAnalyzingTwitter ? (
-                  <>
-                    <Loader2 className="mr-2 size-4 animate-spin" />
-                    Analyzing...
-                  </>
-                ) : (
-                  "Analyze"
-                )}
-              </Button>
-            </div>
-            <p className="text-muted-foreground text-sm">
-              We'll analyze your recent tweets to understand your writing style
-            </p>
-          </div>
-        </div>
+        {/* Reddit Style Copier */}
+        <RedditStyleCopier onStyleCopied={handleRedditStyleCopied} />
 
-        {/* Edit Existing Description */}
-        {voiceSettings?.manualWritingStyleDescription && (
-          <div className="space-y-2">
-            <Label htmlFor="edit-description">
-              Edit Existing Style Description
-            </Label>
-            <Textarea
-              id="edit-description"
-              placeholder="Edit your existing writing style description..."
-              value={editableOldDescription}
-              onChange={e => setEditableOldDescription(e.target.value)}
-              rows={4}
-              className="resize-none"
-            />
+        {/* Manual Writing Style Options */}
+        <div className="border-t pt-6">
+          <h3 className="mb-4 text-lg font-medium">Or Configure Manually</h3>
+          <div className="space-y-6">
+            {/* Twitter Analysis */}
+            <div className="space-y-4">
+              <Label>Twitter Writing Style Analysis</Label>
+              <div className="space-y-2">
+                <Label htmlFor="twitter-handle">Twitter Handle</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="twitter-handle"
+                    placeholder="@username"
+                    value={twitterHandle}
+                    onChange={e => setTwitterHandle(e.target.value)}
+                  />
+                  <Button
+                    onClick={handleAnalyzeTwitter}
+                    disabled={isAnalyzingTwitter || !twitterHandle.trim()}
+                  >
+                    {isAnalyzingTwitter ? (
+                      <>
+                        <Loader2 className="mr-2 size-4 animate-spin" />
+                        Analyzing...
+                      </>
+                    ) : (
+                      "Analyze"
+                    )}
+                  </Button>
+                </div>
+                <p className="text-muted-foreground text-sm">
+                  We'll analyze your recent tweets to understand your writing style
+                </p>
+              </div>
+            </div>
+
+            {/* Edit Existing Description */}
+            {voiceSettings?.manualWritingStyleDescription && (
+              <div className="space-y-2">
+                <Label htmlFor="edit-description">
+                  Edit Existing Style Description
+                </Label>
+                <Textarea
+                  id="edit-description"
+                  placeholder="Edit your existing writing style description..."
+                  value={editableOldDescription}
+                  onChange={e => setEditableOldDescription(e.target.value)}
+                  rows={4}
+                  className="resize-none"
+                />
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleSaveEditedDescription}
+                    disabled={
+                      isLoading ||
+                      editableOldDescription ===
+                        voiceSettings.manualWritingStyleDescription
+                    }
+                  >
+                    {isLoading && <Loader2 className="mr-2 size-4 animate-spin" />}
+                    Save Changes
+                  </Button>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Edit and refine your existing style description.
+                </p>
+              </div>
+            )}
+
+            {/* Add New Style Description */}
+            <div className="space-y-2">
+              <Label htmlFor="new-description">Add New Style Description</Label>
+              <Textarea
+                id="new-description"
+                placeholder="Describe your writing style (e.g., casual and conversational, uses emojis, short sentences, etc.)..."
+                value={newStyleDescription}
+                onChange={e => setNewStyleDescription(e.target.value)}
+                rows={4}
+                className="resize-none"
+              />
+              <p className="text-sm text-gray-600">
+                Add a new description of your writing style, or use Twitter analysis
+                to auto-fill.
+              </p>
+            </div>
+
+            {/* Action Buttons for Descriptions */}
             <div className="flex gap-2">
               <Button
+                onClick={handleReplaceDescription}
+                disabled={isLoading || isCombining || !newStyleDescription.trim()}
                 variant="outline"
-                size="sm"
-                onClick={handleSaveEditedDescription}
-                disabled={
-                  isLoading ||
-                  editableOldDescription ===
-                    voiceSettings.manualWritingStyleDescription
-                }
               >
                 {isLoading && <Loader2 className="mr-2 size-4 animate-spin" />}
-                Save Changes
+                <Replace className="mr-2 size-4" />
+                Replace Old Description
+              </Button>
+
+              {voiceSettings?.manualWritingStyleDescription && (
+                <Button
+                  onClick={handleCombineDescriptions}
+                  disabled={isLoading || isCombining || !newStyleDescription.trim()}
+                >
+                  {isCombining && <Loader2 className="mr-2 size-4 animate-spin" />}
+                  <Merge className="mr-2 size-4" />
+                  {isCombining ? "Combining with AI..." : "Add to Old Description"}
+                </Button>
+              )}
+            </div>
+
+            {voiceSettings?.manualWritingStyleDescription && (
+              <div className="rounded-lg bg-blue-50 p-3 dark:bg-blue-900/30">
+                <p className="text-sm text-blue-900 dark:text-blue-100">
+                  <strong>Replace:</strong> Completely replaces existing description
+                  with new description.
+                </p>
+                <p className="mt-1 text-sm text-blue-900 dark:text-blue-100">
+                  <strong>Add to Old:</strong> Uses AI to intelligently combine old
+                  and new descriptions.
+                </p>
+              </div>
+            )}
+
+            {/* Persona Type */}
+            <div className="space-y-4">
+              <Label>Comment Persona</Label>
+              <Select
+                value={personaType}
+                onValueChange={(value: PersonaType) => setPersonaType(value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ceo">
+                    CEO/Founder - Direct and authoritative
+                  </SelectItem>
+                  <SelectItem value="user">
+                    Satisfied User - Enthusiastic customer
+                  </SelectItem>
+                  <SelectItem value="subtle">
+                    Subtle Recommender - Experienced user who's tried many solutions
+                  </SelectItem>
+                  <SelectItem value="custom">Custom Persona</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {personaType === "custom" && (
+                <Textarea
+                  placeholder="Describe your custom persona..."
+                  value={customPersona}
+                  onChange={e => setCustomPersona(e.target.value)}
+                  rows={3}
+                />
+              )}
+            </div>
+
+            {/* Save All Settings */}
+            <div className="flex gap-2">
+              <Button
+                onClick={() => saveVoiceSettings()}
+                disabled={isLoading || isCombining}
+              >
+                {isLoading && <Loader2 className="mr-2 size-4 animate-spin" />}
+                Save All Settings
               </Button>
             </div>
-            <p className="text-sm text-gray-600">
-              Edit and refine your existing style description.
-            </p>
           </div>
-        )}
-
-        {/* Add New Style Description */}
-        <div className="space-y-2">
-          <Label htmlFor="new-description">Add New Style Description</Label>
-          <Textarea
-            id="new-description"
-            placeholder="Describe your writing style (e.g., casual and conversational, uses emojis, short sentences, etc.)..."
-            value={newStyleDescription}
-            onChange={e => setNewStyleDescription(e.target.value)}
-            rows={4}
-            className="resize-none"
-          />
-          <p className="text-sm text-gray-600">
-            Add a new description of your writing style, or use Twitter analysis
-            to auto-fill.
-          </p>
-        </div>
-
-        {/* Action Buttons for Descriptions */}
-        <div className="flex gap-2">
-          <Button
-            onClick={handleReplaceDescription}
-            disabled={isLoading || isCombining || !newStyleDescription.trim()}
-            variant="outline"
-          >
-            {isLoading && <Loader2 className="mr-2 size-4 animate-spin" />}
-            <Replace className="mr-2 size-4" />
-            Replace Old Description
-          </Button>
-
-          {voiceSettings?.manualWritingStyleDescription && (
-            <Button
-              onClick={handleCombineDescriptions}
-              disabled={isLoading || isCombining || !newStyleDescription.trim()}
-            >
-              {isCombining && <Loader2 className="mr-2 size-4 animate-spin" />}
-              <Merge className="mr-2 size-4" />
-              {isCombining ? "Combining with AI..." : "Add to Old Description"}
-            </Button>
-          )}
-        </div>
-
-        {voiceSettings?.manualWritingStyleDescription && (
-          <div className="rounded-lg bg-blue-50 p-3 dark:bg-blue-900/30">
-            <p className="text-sm text-blue-900 dark:text-blue-100">
-              <strong>Replace:</strong> Completely replaces existing description
-              with new description.
-            </p>
-            <p className="mt-1 text-sm text-blue-900 dark:text-blue-100">
-              <strong>Add to Old:</strong> Uses AI to intelligently combine old
-              and new descriptions.
-            </p>
-          </div>
-        )}
-
-        {/* Persona Type */}
-        <div className="space-y-4">
-          <Label>Comment Persona</Label>
-          <Select
-            value={personaType}
-            onValueChange={(value: PersonaType) => setPersonaType(value)}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ceo">
-                CEO/Founder - Direct and authoritative
-              </SelectItem>
-              <SelectItem value="user">
-                Satisfied User - Enthusiastic customer
-              </SelectItem>
-              <SelectItem value="subtle">
-                Subtle Recommender - Experienced user who's tried many solutions
-              </SelectItem>
-              <SelectItem value="custom">Custom Persona</SelectItem>
-            </SelectContent>
-          </Select>
-
-          {personaType === "custom" && (
-            <Textarea
-              placeholder="Describe your custom persona..."
-              value={customPersona}
-              onChange={e => setCustomPersona(e.target.value)}
-              rows={3}
-            />
-          )}
-        </div>
-
-        {/* Reddit Style Copier */}
-        <div className="space-y-4">
-          <Label>Copy Writing Style from Reddit Posts</Label>
-          <div className="rounded-lg border p-4 bg-gray-50 dark:bg-gray-800">
-            <RedditStyleCopier onStyleCopied={handleRedditStyleCopied} />
-          </div>
-        </div>
-
-        {/* Save All Settings */}
-        <div className="flex gap-2">
-          <Button
-            onClick={() => saveVoiceSettings()}
-            disabled={isLoading || isCombining}
-          >
-            {isLoading && <Loader2 className="mr-2 size-4 animate-spin" />}
-            Save All Settings
-          </Button>
         </div>
       </CardContent>
     </Card>

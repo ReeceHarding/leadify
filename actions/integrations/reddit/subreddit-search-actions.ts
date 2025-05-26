@@ -13,6 +13,11 @@ export interface SubredditData {
   subscribers_count: string
 }
 
+// Cache for parsed subreddit data
+let cachedSubreddits: SubredditData[] | null = null
+let cacheTimestamp: number = 0
+const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
+
 export async function searchSubredditsAction(
   query: string,
   limit: number = 50
@@ -40,26 +45,40 @@ export async function searchSubredditsAction(
       }
     }
 
-    console.log("🔍 [SUBREDDIT-SEARCH] Reading CSV file...")
-    const csvContent = fs.readFileSync(csvPath, "utf-8")
-    
-    // Parse CSV with streaming to handle large file
-    const records = parse(csvContent, {
-      columns: true,
-      skip_empty_lines: true,
-      cast: false,
-      relax_column_count: true, // Allow inconsistent column counts
-      relax_quotes: true, // Handle malformed quotes
-      on_record: (record: any) => {
-        // Filter out records with missing required fields
-        if (!record.subreddit_name || record.subreddit_name.trim() === '') {
-          return null
-        }
-        return record
-      }
-    }) as SubredditData[]
+    let records: SubredditData[]
 
-    console.log("🔍 [SUBREDDIT-SEARCH] Total subreddits loaded:", records.length)
+    // Check if we have cached data that's still valid
+    const now = Date.now()
+    if (cachedSubreddits && (now - cacheTimestamp) < CACHE_DURATION) {
+      console.log("🔍 [SUBREDDIT-SEARCH] Using cached subreddit data")
+      records = cachedSubreddits
+    } else {
+      console.log("🔍 [SUBREDDIT-SEARCH] Reading CSV file...")
+      const csvContent = fs.readFileSync(csvPath, "utf-8")
+      
+      // Parse CSV with streaming to handle large file
+      records = parse(csvContent, {
+        columns: true,
+        skip_empty_lines: true,
+        cast: false,
+        relax_column_count: true, // Allow inconsistent column counts
+        relax_quotes: true, // Handle malformed quotes
+        on_record: (record: any) => {
+          // Filter out records with missing required fields
+          if (!record.subreddit_name || record.subreddit_name.trim() === '') {
+            return null
+          }
+          return record
+        }
+      }) as SubredditData[]
+
+      // Cache the results
+      cachedSubreddits = records
+      cacheTimestamp = now
+      console.log("🔍 [SUBREDDIT-SEARCH] Cached subreddit data")
+    }
+
+    console.log("🔍 [SUBREDDIT-SEARCH] Total subreddits available:", records.length)
 
     // Filter subreddits based on query
     const searchTerm = query.toLowerCase().trim()

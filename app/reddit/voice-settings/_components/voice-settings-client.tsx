@@ -35,17 +35,17 @@ export default function VoiceSettingsClient({
       </div>
 
       {/* Voice Settings Content */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Left Column: What We Know */}
-        <VoiceSettingsDisplay voiceSettings={voiceSettings} />
-
-        {/* Right Column: Edit Voice Settings */}
+      <div className="space-y-6">
+        {/* Reddit Style Copier - Full Width Top */}
         <EditVoiceSettings
           userId={userId}
           organizationId={organizationId}
           voiceSettings={voiceSettings}
           setVoiceSettings={setVoiceSettings}
         />
+
+        {/* Voice Settings Display - Full Width Bottom */}
+        <VoiceSettingsDisplay voiceSettings={voiceSettings} />
       </div>
     </div>
   )
