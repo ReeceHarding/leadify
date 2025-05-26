@@ -1608,11 +1608,52 @@ export default function LeadFinderDashboard() {
       <CreateCampaignDialog
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
-        onSuccess={() => {
+        onSuccess={async () => {
           addDebugLog(
-            "New campaign created or existing selected, onSnapshot will update leads."
+            "New campaign created, refreshing campaigns list..."
           )
           setCreateDialogOpen(false)
+          
+          // Refresh the campaigns list to get the new campaign
+          if (user?.id) {
+            try {
+              const campaignsResult = await getCampaignsByUserIdAction(user.id)
+              
+              if (campaignsResult.isSuccess && campaignsResult.data.length > 0) {
+                // Get the latest campaign (most recently created)
+                const latestCampaign = campaignsResult.data.sort((a, b) => {
+                  const dateA = typeof a.createdAt === "string"
+                    ? new Date(a.createdAt)
+                    : (a.createdAt as Timestamp)?.toDate()
+                  const dateB = typeof b.createdAt === "string"
+                    ? new Date(b.createdAt)
+                    : (b.createdAt as Timestamp)?.toDate()
+                  return (dateB?.getTime() || 0) - (dateA?.getTime() || 0)
+                })[0]
+                
+                addDebugLog("Selected new campaign", {
+                  campaignId: latestCampaign.id,
+                  status: latestCampaign.status
+                })
+                
+                // Update state with the new campaign
+                setState(prev => ({ 
+                  ...prev, 
+                  campaignId: latestCampaign.id,
+                  campaignName: latestCampaign.name || null,
+                  workflowRunning: true // Workflow is running in the background
+                }))
+                
+                // Update keywords
+                const campaignDetailsResult = await getCampaignByIdAction(latestCampaign.id)
+                if (campaignDetailsResult.isSuccess && campaignDetailsResult.data) {
+                  setCurrentCampaignKeywords(campaignDetailsResult.data.keywords || [])
+                }
+              }
+            } catch (error) {
+              addDebugLog("Error refreshing campaigns", { error })
+            }
+          }
         }}
       />
 

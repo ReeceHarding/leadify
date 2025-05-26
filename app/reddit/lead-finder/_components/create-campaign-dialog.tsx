@@ -225,25 +225,38 @@ export default function CreateCampaignDialog({
         throw new Error(campaignResult.message || "Failed to create campaign")
       }
 
-      // Run the lead generation workflow
-      const workflowResult = await runFullLeadGenerationWorkflowAction(
-        campaignResult.data.id
-      )
-
-      if (!workflowResult.isSuccess) {
-        throw new Error(workflowResult.message || "Failed to start lead generation")
-      }
-
-      toast.success("Campaign created! Finding leads...")
+      // Close the dialog immediately after creating campaign
+      toast.success("Campaign created! Starting lead generation...")
       onSuccess?.()
       onOpenChange(false)
       
       // Reset form
       form.reset()
+
+      // Run the lead generation workflow in the background
+      runFullLeadGenerationWorkflowAction(campaignResult.data.id)
+        .then((workflowResult) => {
+          if (workflowResult.isSuccess) {
+            const progress = workflowResult.data
+            const commentsGenerated = progress.results.find(r => r.step === "Score and Generate Comments")?.data?.commentsGenerated || 0
+            
+            if (commentsGenerated > 0) {
+              toast.success(`Lead generation complete! Found ${commentsGenerated} potential leads.`)
+            } else {
+              toast.warning("Lead generation complete but no leads were found. Try different keywords.")
+            }
+          } else {
+            toast.error(`Lead generation failed: ${workflowResult.message}`)
+          }
+        })
+        .catch((error) => {
+          console.error("Workflow error:", error)
+          toast.error("Lead generation encountered an error. Please check the dashboard.")
+        })
+      
     } catch (error) {
       console.error("Error creating campaign:", error)
       toast.error(error instanceof Error ? error.message : "Failed to create campaign")
-    } finally {
       setIsCreating(false)
     }
   }
