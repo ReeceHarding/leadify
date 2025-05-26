@@ -623,8 +623,6 @@ export async function resetOnboardingAction(
     await updateDoc(profileRef, {
       onboardingCompleted: false,
       name: "",
-      website: "",
-      keywords: deleteField(), // Remove the keywords field entirely
       updatedAt: serverTimestamp()
     })
 
@@ -663,8 +661,7 @@ export async function resetAccountAction(
       // Proceed to delete associated lead gen data even if profile doc is gone or was never fully created
     }
 
-    console.log("🔧 [RESET-ACCOUNT] Clearing Reddit tokens...")
-    await clearRedditTokensAction()
+    console.log("🔧 [RESET-ACCOUNT] Note: Reddit tokens are now organization-based, not profile-based")
 
     // --- Start Deleting Lead Generation Data ---
     console.log(
@@ -747,8 +744,6 @@ export async function resetAccountAction(
         onboardingCompleted: false,
         name: deleteField(),
         profilePictureUrl: deleteField(),
-        website: deleteField(),
-        keywords: deleteField(),
         updatedAt: serverTimestamp()
       })
       console.log("🔧 [RESET-ACCOUNT] Profile document fields reset.")
