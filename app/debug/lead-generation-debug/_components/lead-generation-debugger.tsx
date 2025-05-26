@@ -32,7 +32,7 @@ import { toast } from "sonner"
 // Actions
 import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
 import {
-  getCampaignsByUserIdAction,
+  getCampaignsByOrganizationIdAction,
   createCampaignAction
 } from "@/actions/db/campaign-actions"
 import {

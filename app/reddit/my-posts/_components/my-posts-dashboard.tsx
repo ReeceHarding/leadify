@@ -32,13 +32,14 @@ import {
   ArrowDown
 } from "lucide-react"
 import { toast } from "sonner"
-import { getGeneratedCommentsByUserAction } from "@/actions/db/lead-generation-actions"
+import { getGeneratedCommentsByOrganizationIdAction } from "@/actions/db/lead-generation-actions"
 import { getCampaignByIdAction } from "@/actions/db/campaign-actions"
 import { generateReplyToCommentAction } from "@/actions/integrations/openai/openai-actions"
 import { postCommentToRedditAction } from "@/actions/integrations/reddit/reddit-posting-actions"
 import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
-import type { SerializedGeneratedCommentDocument } from "@/actions/db/lead-generation-actions"
+import type { SerializedGeneratedCommentDocument } from "@/types"
 import { fetchRedditCommentRepliesAction } from "@/actions/integrations/reddit/reddit-actions"
+import { useOrganization } from "@/components/utilities/organization-provider"
 
 interface RedditComment {
   id: string
@@ -61,6 +62,7 @@ interface MyPostsDashboardProps {
 }
 
 export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
+  const { activeOrganization, isLoading: orgLoading } = useOrganization()
   const [posts, setPosts] = useState<PostedComment[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [expandedPosts, setExpandedPosts] = useState<Set<string>>(new Set())
@@ -71,13 +73,17 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
 
   // Fetch posted comments
   useEffect(() => {
-    fetchPosts()
-  }, [userId])
+    if (activeOrganization && !orgLoading) {
+      fetchPosts()
+    }
+  }, [activeOrganization, orgLoading])
 
   const fetchPosts = async () => {
+    if (!activeOrganization) return
+    
     try {
       setIsLoading(true)
-      const result = await getGeneratedCommentsByUserAction(userId)
+      const result = await getGeneratedCommentsByOrganizationIdAction(activeOrganization.id)
 
       if (result.isSuccess) {
         // Filter only posted comments with URLs and extract subreddit
@@ -102,6 +108,8 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
   }
 
   const fetchRedditReplies = async (postId: string, commentUrl: string) => {
+    if (!activeOrganization) return
+    
     console.log("🔍 [MY-POSTS] Fetching replies for:", commentUrl)
 
     // Set loading state
@@ -118,7 +126,7 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
     )
 
     try {
-      const result = await fetchRedditCommentRepliesAction(commentUrl)
+      const result = await fetchRedditCommentRepliesAction(activeOrganization.id, commentUrl)
 
       if (result.isSuccess) {
         console.log(`✅ [MY-POSTS] Fetched ${result.data.length} replies`)
@@ -241,6 +249,7 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
       console.log(`📤 [MY-POSTS] Posting reply to comment: ${parentId}`)
 
       const result = await postCommentToRedditAction({
+        organizationId: activeOrganization?.id || "",
         parentId,
         text: replyText
       })

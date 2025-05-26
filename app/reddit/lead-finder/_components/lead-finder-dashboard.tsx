@@ -100,7 +100,7 @@ import {
 } from "@/actions/db/lead-generation-actions"
 import {
   createCampaignAction,
-  getCampaignsByUserIdAction,
+  getCampaignsByOrganizationIdAction,
   getCampaignByIdAction
 } from "@/actions/db/campaign-actions"
 import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
@@ -326,18 +326,32 @@ export default function LeadFinderDashboard() {
         }))
 
         const profileResult = await getProfileByUserIdAction(user.id)
-        if (!profileResult.isSuccess || !profileResult.data?.website) {
-          toast.error(
-            "User profile is missing website information. Cannot create campaign."
-          )
-          addDebugLog("Profile missing website for campaign creation", {
+        if (!profileResult.isSuccess) {
+          toast.error("Failed to load user profile. Cannot create campaign.")
+          addDebugLog("Failed to load profile for campaign creation", {
             userId: user.id
           })
           setState(prev => ({
             ...prev,
             workflowRunning: false,
             isLoading: false,
-            error: "Profile missing website"
+            error: "Failed to load profile"
+          }))
+          return
+        }
+
+        if (!activeOrganization.website) {
+          toast.error(
+            "Organization is missing website information. Cannot create campaign."
+          )
+          addDebugLog("Organization missing website for campaign creation", {
+            organizationId: activeOrganization.id
+          })
+          setState(prev => ({
+            ...prev,
+            workflowRunning: false,
+            isLoading: false,
+            error: "Organization missing website"
           }))
           return
         }
@@ -346,7 +360,7 @@ export default function LeadFinderDashboard() {
           userId: user.id,
           organizationId: activeOrganization.id,
           name: `Lead Gen - ${new Date().toLocaleDateString()}`,
-          website: profileResult.data.website,
+          website: activeOrganization.website,
           keywords: keywords
         })
 
@@ -553,10 +567,16 @@ export default function LeadFinderDashboard() {
       setState(prev => ({ ...prev, isLoading: true }))
 
       try {
-        const campaignsResult = await getCampaignsByUserIdAction(user.id)
+        if (!activeOrganization) {
+          addDebugLog("No active organization available for campaign lookup")
+          setState(prev => ({ ...prev, isLoading: false }))
+          return
+        }
+
+        const campaignsResult = await getCampaignsByOrganizationIdAction(activeOrganization.id)
 
         if (campaignsResult.isSuccess && campaignsResult.data.length > 0) {
-          const latestCampaign = campaignsResult.data.sort((a, b) => {
+          const latestCampaign = campaignsResult.data.sort((a: any, b: any) => {
             // Assuming createdAt is a string (ISO format) or Timestamp
             const dateA =
               typeof a.createdAt === "string"
@@ -1662,16 +1682,16 @@ export default function LeadFinderDashboard() {
           setCreateDialogOpen(false)
 
           // Refresh the campaigns list to get the new campaign
-          if (user?.id) {
+          if (user?.id && activeOrganization) {
             try {
-              const campaignsResult = await getCampaignsByUserIdAction(user.id)
+              const campaignsResult = await getCampaignsByOrganizationIdAction(activeOrganization.id)
 
               if (
                 campaignsResult.isSuccess &&
                 campaignsResult.data.length > 0
               ) {
                 // Get the latest campaign (most recently created)
-                const latestCampaign = campaignsResult.data.sort((a, b) => {
+                const latestCampaign = campaignsResult.data.sort((a: any, b: any) => {
                   const dateA =
                     typeof a.createdAt === "string"
                       ? new Date(a.createdAt)

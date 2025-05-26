@@ -4,9 +4,10 @@ import LeadsStream from "./leads-stream"
 import StartLeadGeneration from "./start-lead-generation"
 import { auth } from "@clerk/nextjs/server"
 import {
-  getCampaignsByUserIdAction,
+  getCampaignsByOrganizationIdAction,
   createCampaignAction
 } from "@/actions/db/campaign-actions"
+import { getOrganizationsByUserIdAction } from "@/actions/db/organizations-actions"
 import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
 import { Suspense } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -39,84 +40,70 @@ export default async function CampaignSelector() {
     return <div className="text-destructive">Not authenticated</div>
   }
 
-  // Get user profile to check if they've completed onboarding
+  // Get user's organizations
   console.log(
-    "🔥🔥🔥 [CAMPAIGN-SELECTOR] 📊 Fetching profile for userId:",
+    "🔥🔥🔥 [CAMPAIGN-SELECTOR] 🏢 Fetching organizations for userId:",
     userId
   )
-  const profileResult = await getProfileByUserIdAction(userId)
-  console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] Profile fetch complete")
-  console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] Profile result:", {
-    isSuccess: profileResult.isSuccess,
-    hasData: !!profileResult.data,
-    message: profileResult.message,
-    dataKeys: profileResult.data ? Object.keys(profileResult.data) : []
+  const organizationsResult = await getOrganizationsByUserIdAction(userId)
+  console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] Organizations fetch complete")
+  console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] Organizations result:", {
+    isSuccess: organizationsResult.isSuccess,
+    count: organizationsResult.data?.length || 0,
+    message: organizationsResult.message
   })
 
-  if (!profileResult.isSuccess || !profileResult.data) {
-    console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] ❌ Profile fetch failed or no data")
-    console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] Error details:", {
-      isSuccess: profileResult.isSuccess,
-      message: profileResult.message,
-      hasData: !!profileResult.data
-    })
+  if (!organizationsResult.isSuccess || !organizationsResult.data || organizationsResult.data.length === 0) {
+    console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] ❌ No organizations found")
     console.log(
-      "🔥🔥🔥 [CAMPAIGN-SELECTOR] ========== COMPONENT END (NO PROFILE) =========="
+      "🔥🔥🔥 [CAMPAIGN-SELECTOR] ========== COMPONENT END (NO ORGANIZATIONS) =========="
     )
     return (
       <Alert>
         <AlertCircle className="size-4" />
         <AlertDescription>
-          Please complete your profile setup first.
+          Please create an organization first to start using campaigns.
         </AlertDescription>
       </Alert>
     )
   }
 
-  const profile = profileResult.data
-  console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] ✅ Profile loaded successfully")
-  console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] Profile data:", {
-    name: profile.name,
-    website: profile.website,
-    onboardingCompleted: profile.onboardingCompleted,
-    hasKeywords: !!(profile.keywords && profile.keywords.length > 0),
-    keywordCount: profile.keywords?.length || 0
+  const activeOrganization = organizationsResult.data[0] // Use first organization
+  console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] ✅ Organization loaded successfully")
+  console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] Organization data:", {
+    id: activeOrganization.id,
+    name: activeOrganization.name,
+    website: activeOrganization.website,
+    hasWebsite: !!activeOrganization.website
   })
 
-  // Check if onboarding is completed
-  if (!profile.onboardingCompleted) {
-    console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] ⚠️ Onboarding not completed")
-    console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] Profile status:", {
-      name: profile.name,
-      website: profile.website,
-      keywordCount: profile.keywords?.length || 0,
-      onboardingCompleted: profile.onboardingCompleted
-    })
-    console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] Prompting user to complete profile")
+  // Check if organization has required setup
+  if (!activeOrganization.website) {
+    console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] ⚠️ Organization missing website")
     console.log(
-      "🔥🔥🔥 [CAMPAIGN-SELECTOR] ========== COMPONENT END (ONBOARDING INCOMPLETE) =========="
+      "🔥🔥🔥 [CAMPAIGN-SELECTOR] ========== COMPONENT END (ORGANIZATION INCOMPLETE) =========="
     )
     return (
       <div className="flex flex-col items-center justify-center space-y-4 py-12">
         <Alert>
           <AlertCircle className="size-4" />
           <AlertDescription>
-            Please complete your profile setup before creating campaigns.
+            Please complete your organization setup by adding a website before creating campaigns.
           </AlertDescription>
         </Alert>
         <Button asChild>
-          <a href="/onboarding">Complete Profile Setup</a>
+          <a href="/onboarding">Complete Organization Setup</a>
         </Button>
       </div>
     )
   }
 
-  // Get existing campaigns
+  // Get existing campaigns for this organization
   console.log(
-    "🔥🔥🔥 [CAMPAIGN-SELECTOR] 📋 Fetching campaigns for userId:",
-    userId
+    "🔥🔥🔥 [CAMPAIGN-SELECTOR] 📋 Fetching campaigns for organizationId:",
+    activeOrganization.id
   )
-  const campaignsResult = await getCampaignsByUserIdAction(userId)
+  const campaignsResult = await getCampaignsByOrganizationIdAction(activeOrganization.id)
   console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] Campaigns fetch complete")
   console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] Campaigns result:", {
     isSuccess: campaignsResult.isSuccess,

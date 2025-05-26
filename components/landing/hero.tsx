@@ -24,7 +24,8 @@ import { useUser } from "@clerk/nextjs"
 import { useState, useEffect } from "react"
 import { resetAccountAction } from "@/actions/db/profiles-actions"
 import { getGeneratedCommentsByCampaignAction } from "@/actions/db/lead-generation-actions"
-import { getCampaignsByUserIdAction } from "@/actions/db/campaign-actions"
+import { getCampaignsByOrganizationIdAction } from "@/actions/db/campaign-actions"
+import { getOrganizationsByUserIdAction } from "@/actions/db/organizations-actions"
 import AnimatedGradientText from "../magicui/animated-gradient-text"
 import HeroVideoDialog from "../magicui/hero-video-dialog"
 
@@ -43,8 +44,17 @@ export const HeroSection = () => {
       }
 
       try {
-        // Get user's campaigns
-        const campaignsResult = await getCampaignsByUserIdAction(user.id)
+        // Get user's organizations
+        const organizationsResult = await getOrganizationsByUserIdAction(user.id)
+        if (!organizationsResult.isSuccess || !organizationsResult.data.length) {
+          setHasLeads(false)
+          setIsCheckingLeads(false)
+          return
+        }
+
+        // Get campaigns for the first organization
+        const firstOrg = organizationsResult.data[0]
+        const campaignsResult = await getCampaignsByOrganizationIdAction(firstOrg.id)
         if (!campaignsResult.isSuccess || !campaignsResult.data.length) {
           setHasLeads(false)
           setIsCheckingLeads(false)
