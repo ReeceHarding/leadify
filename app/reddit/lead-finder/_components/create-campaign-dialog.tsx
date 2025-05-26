@@ -48,18 +48,17 @@ import { useOrganization } from "@/components/utilities/organization-provider"
 import { getKnowledgeBaseByOrganizationIdAction } from "@/actions/db/personalization-actions"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
-const campaignSchema = z
-  .object({
-    name: z
-      .string()
-      .min(1, "Campaign name is required")
-      .max(100, "Name too long"),
-    businessDescription: z.string().optional(),
-    keywords: z
-      .array(z.string())
-      .min(1, "At least one keyword is required")
-      .max(10, "Maximum 10 keywords allowed")
-  })
+const campaignSchema = z.object({
+  name: z
+    .string()
+    .min(1, "Campaign name is required")
+    .max(100, "Name too long"),
+  businessDescription: z.string().optional(),
+  keywords: z
+    .array(z.string())
+    .min(1, "At least one keyword is required")
+    .max(10, "Maximum 10 keywords allowed")
+})
 
 type CampaignForm = z.infer<typeof campaignSchema>
 
@@ -84,7 +83,8 @@ export default function CreateCampaignDialog({
   const [generationStep, setGenerationStep] = useState<
     "idle" | "scraping" | "generating"
   >("idle")
-  const [organizationDescription, setOrganizationDescription] = useState<string>("")
+  const [organizationDescription, setOrganizationDescription] =
+    useState<string>("")
   const [hasLoadedOrgData, setHasLoadedOrgData] = useState(false)
 
   const form = useForm<CampaignForm>({
@@ -102,38 +102,49 @@ export default function CreateCampaignDialog({
   // Load organization data when dialog opens
   useEffect(() => {
     const loadOrganizationData = async () => {
-      if (!open || hasLoadedOrgData || !organizationId || !activeOrganization) return
-      
+      if (!open || hasLoadedOrgData || !organizationId || !activeOrganization)
+        return
+
       try {
         console.log("🏢 [CREATE-CAMPAIGN] Loading organization data")
-        
+
         // Build comprehensive business description from organization data
         let fullDescription = ""
-        
+
         if (activeOrganization.businessDescription) {
           fullDescription = activeOrganization.businessDescription
         }
-        
+
         // Try to get knowledge base for additional context
-        const kbResult = await getKnowledgeBaseByOrganizationIdAction(organizationId)
+        const kbResult =
+          await getKnowledgeBaseByOrganizationIdAction(organizationId)
         if (kbResult.isSuccess && kbResult.data) {
           if (kbResult.data.summary) {
-            fullDescription += fullDescription ? `\n\n${kbResult.data.summary}` : kbResult.data.summary
+            fullDescription += fullDescription
+              ? `\n\n${kbResult.data.summary}`
+              : kbResult.data.summary
           }
           if (kbResult.data.customInformation) {
-            fullDescription += fullDescription ? `\n\n${kbResult.data.customInformation}` : kbResult.data.customInformation
+            fullDescription += fullDescription
+              ? `\n\n${kbResult.data.customInformation}`
+              : kbResult.data.customInformation
           }
         }
-        
+
         setOrganizationDescription(fullDescription)
         setHasLoadedOrgData(true)
-        
-        console.log("🏢 [CREATE-CAMPAIGN] Organization data loaded successfully")
+
+        console.log(
+          "🏢 [CREATE-CAMPAIGN] Organization data loaded successfully"
+        )
       } catch (error) {
-        console.error("❌ [CREATE-CAMPAIGN] Error loading organization data:", error)
+        console.error(
+          "❌ [CREATE-CAMPAIGN] Error loading organization data:",
+          error
+        )
       }
     }
-    
+
     loadOrganizationData()
   }, [open, organizationId, activeOrganization, hasLoadedOrgData])
 
@@ -158,8 +169,10 @@ export default function CreateCampaignDialog({
           const nameResult = await generateCampaignNameAction({
             keywords: keywordsForm,
             website: activeOrganization?.website || undefined,
-            businessDescription: businessDescriptionForm || organizationDescription || undefined,
-            businessName: activeOrganization?.name || user?.fullName || undefined
+            businessDescription:
+              businessDescriptionForm || organizationDescription || undefined,
+            businessName:
+              activeOrganization?.name || user?.fullName || undefined
           })
 
           if (nameResult.isSuccess) {
@@ -175,7 +188,14 @@ export default function CreateCampaignDialog({
 
     const timer = setTimeout(generateName, 500) // Debounce
     return () => clearTimeout(timer)
-  }, [keywordsForm, businessDescriptionForm, organizationDescription, activeOrganization, user?.fullName, form])
+  }, [
+    keywordsForm,
+    businessDescriptionForm,
+    organizationDescription,
+    activeOrganization,
+    user?.fullName,
+    form
+  ])
 
   const handleAddKeyword = () => {
     const keywords = form.getValues("keywords")
@@ -197,7 +217,8 @@ export default function CreateCampaignDialog({
     const businessDescription = form.getValues("businessDescription")
 
     // Use organization description as fallback
-    const effectiveDescription = businessDescription?.trim() || organizationDescription
+    const effectiveDescription =
+      businessDescription?.trim() || organizationDescription
     const website = activeOrganization?.website
 
     if (!website?.trim() && !effectiveDescription) {
@@ -279,7 +300,8 @@ export default function CreateCampaignDialog({
         : undefined
 
       // Use campaign-specific description if provided, otherwise use organization description
-      const effectiveDescription = data.businessDescription?.trim() || organizationDescription
+      const effectiveDescription =
+        data.businessDescription?.trim() || organizationDescription
 
       // Create the campaign
       const campaignResult = await createCampaignAction({
@@ -380,8 +402,12 @@ export default function CreateCampaignDialog({
               <Alert className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/30">
                 <Info className="size-4 text-blue-600 dark:text-blue-400" />
                 <AlertDescription>
-                  <strong className="text-blue-900 dark:text-blue-100">Using organization:</strong>{" "}
-                  <span className="text-blue-800 dark:text-blue-200">{activeOrganization.name}</span>
+                  <strong className="text-blue-900 dark:text-blue-100">
+                    Using organization:
+                  </strong>{" "}
+                  <span className="text-blue-800 dark:text-blue-200">
+                    {activeOrganization.name}
+                  </span>
                   {activeOrganization.website && (
                     <span className="text-blue-600 dark:text-blue-400 block text-xs mt-1">
                       {activeOrganization.website}
@@ -430,7 +456,9 @@ export default function CreateCampaignDialog({
                   <FormLabel className="flex items-center gap-2">
                     <Building2 className="size-4" />
                     Campaign-Specific Details
-                    <span className="text-muted-foreground text-xs font-normal">(Optional)</span>
+                    <span className="text-muted-foreground text-xs font-normal">
+                      (Optional)
+                    </span>
                   </FormLabel>
                   <FormControl>
                     <Textarea
@@ -441,7 +469,8 @@ export default function CreateCampaignDialog({
                     />
                   </FormControl>
                   <FormDescription>
-                    Only add details specific to this campaign. Your organization's description is already included.
+                    Only add details specific to this campaign. Your
+                    organization's description is already included.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

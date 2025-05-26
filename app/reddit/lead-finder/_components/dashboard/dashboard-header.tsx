@@ -94,24 +94,31 @@ export default function DashboardHeader({
                     <DropdownMenuLabel>All Lead Searches</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     {campaigns.length > 0 ? (
-                      campaigns.map((campaign) => (
+                      campaigns.map(campaign => (
                         <DropdownMenuItem
                           key={campaign.id}
                           onClick={() => onSelectCampaign(campaign.id)}
                           className={`flex items-center justify-between p-3 ${
-                            campaign.id === campaignId ? "bg-blue-50 dark:bg-blue-950/30" : ""
+                            campaign.id === campaignId
+                              ? "bg-blue-50 dark:bg-blue-950/30"
+                              : ""
                           }`}
                         >
                           <div className="flex-1">
                             <div className="font-medium">{campaign.name}</div>
                             <div className="mt-1 text-xs text-gray-500">
                               {campaign.keywords.slice(0, 3).join(", ")}
-                              {campaign.keywords.length > 3 && ` +${campaign.keywords.length - 3} more`}
+                              {campaign.keywords.length > 3 &&
+                                ` +${campaign.keywords.length - 3} more`}
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Badge 
-                              variant={campaign.status === "running" ? "default" : "secondary"}
+                            <Badge
+                              variant={
+                                campaign.status === "running"
+                                  ? "default"
+                                  : "secondary"
+                              }
                               className="text-xs"
                             >
                               {campaign.status}

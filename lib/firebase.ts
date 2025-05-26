@@ -19,7 +19,8 @@ const firebaseConfig = {
 }
 
 // Initialize Firebase only if it hasn't been initialized already
-const app: FirebaseApp = getApps().length > 0 ? getApps()[0] : initializeApp(firebaseConfig)
+const app: FirebaseApp =
+  getApps().length > 0 ? getApps()[0] : initializeApp(firebaseConfig)
 
 // Initialize Firebase services
 export const db: Firestore = getFirestore(app)
@@ -27,12 +28,15 @@ export const storage: FirebaseStorage = getStorage(app)
 
 // Conditionally initialize and export auth
 let auth: Auth | undefined = undefined
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   // Only initialize Auth in the browser environment
   try {
     auth = getAuth(app)
   } catch (error) {
-    console.warn("Firebase Auth could not be initialized. This might be expected in a server-only environment.", error)
+    console.warn(
+      "Firebase Auth could not be initialized. This might be expected in a server-only environment.",
+      error
+    )
   }
 }
 

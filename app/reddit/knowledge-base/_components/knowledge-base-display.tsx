@@ -9,7 +9,10 @@ import {
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Globe, FileText, Link, Brain } from "lucide-react"
-import { SerializedKnowledgeBaseDocument, SerializedProfileDocument } from "@/types"
+import {
+  SerializedKnowledgeBaseDocument,
+  SerializedProfileDocument
+} from "@/types"
 import { useOrganization } from "@/components/utilities/organization-provider"
 
 interface KnowledgeBaseDisplayProps {

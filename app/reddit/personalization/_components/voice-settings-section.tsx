@@ -20,7 +20,13 @@ import {
   SelectValue
 } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Loader2, MessageCircle, Twitter, Sparkles, Replace } from "lucide-react"
+import {
+  Loader2,
+  MessageCircle,
+  Twitter,
+  Sparkles,
+  Replace
+} from "lucide-react"
 import { SerializedVoiceSettingsDocument } from "@/types"
 import { PersonaType, WritingStyle } from "@/db/schema"
 import { useToast } from "@/hooks/use-toast"
@@ -163,10 +169,10 @@ Key characteristics:
 • Tone: ${analysisResult.data.toneAnalysis}
 • Vocabulary: ${analysisResult.data.vocabularyLevel}
 • Average tweet length: ${analysisResult.data.averageTweetLength} characters
-• Uses emojis: ${analysisResult.data.emojiUsage ? 'Yes' : 'No'}
-• Uses hashtags: ${analysisResult.data.hashtagUsage ? 'Yes' : 'No'}
+• Uses emojis: ${analysisResult.data.emojiUsage ? "Yes" : "No"}
+• Uses hashtags: ${analysisResult.data.hashtagUsage ? "Yes" : "No"}
 
-Common phrases: ${analysisResult.data.commonPhrases.slice(0, 3).join(', ')}`
+Common phrases: ${analysisResult.data.commonPhrases.slice(0, 3).join(", ")}`
 
       setManualWritingStyleDescription(analysisText)
 
@@ -321,7 +327,8 @@ Common phrases: ${analysisResult.data.commonPhrases.slice(0, 3).join(', ')}`
             className="resize-none"
           />
           <p className="text-sm text-gray-600">
-            Add a new description of your writing style, or use Twitter analysis to auto-fill.
+            Add a new description of your writing style, or use Twitter analysis
+            to auto-fill.
           </p>
         </div>
 

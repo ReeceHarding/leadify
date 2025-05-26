@@ -76,12 +76,17 @@ export async function updateLeadGenerationProgressAction(
     }
 
     const currentData = progressDoc.data() as LeadGenerationProgress
-    const updateData: any = {}
+    const updateData: Record<string, any> = {
+      updatedAt: serverTimestamp()
+    }
 
     if (updates.status) {
       updateData.status = updates.status
-      if (updates.status === "completed") {
+      if (updates.status === "completed" && !currentData.completedAt) {
         updateData.completedAt = serverTimestamp()
+      }
+      if (updates.status === "error" && !updates.error) {
+        updateData.error = "An unspecified error occurred."
       }
     }
 
@@ -96,25 +101,32 @@ export async function updateLeadGenerationProgressAction(
 
       if (stageIndex !== -1) {
         const updatedStages = [...currentData.stages]
-        updatedStages[stageIndex] = {
-          ...updatedStages[stageIndex],
-          status: updates.stageUpdate.status,
-          message: updates.stageUpdate.message,
-          progress: updates.stageUpdate.progress
+        const stageToUpdate = { ...updatedStages[stageIndex] }
+
+        stageToUpdate.status = updates.stageUpdate.status
+        
+        if (updates.stageUpdate.message !== undefined) {
+          stageToUpdate.message = updates.stageUpdate.message
+        }
+        if (updates.stageUpdate.progress !== undefined) {
+          stageToUpdate.progress = updates.stageUpdate.progress
         }
 
         if (
           updates.stageUpdate.status === "in_progress" &&
-          !updatedStages[stageIndex].startedAt
+          !stageToUpdate.startedAt
         ) {
-          updatedStages[stageIndex].startedAt = serverTimestamp() as Timestamp
+          stageToUpdate.startedAt = serverTimestamp() as Timestamp
         }
 
-        if (updates.stageUpdate.status === "completed") {
-          updatedStages[stageIndex].completedAt = serverTimestamp() as Timestamp
+        if (updates.stageUpdate.status === "completed" && !stageToUpdate.completedAt) {
+          stageToUpdate.completedAt = serverTimestamp() as Timestamp
         }
-
+        
+        updatedStages[stageIndex] = stageToUpdate
         updateData.stages = updatedStages
+      } else {
+        console.warn(`[PROGRESS-UPDATE] Stage "${updates.stageUpdate.stageName}" not found for campaign ${campaignId}`)
       }
     }
 
@@ -122,15 +134,31 @@ export async function updateLeadGenerationProgressAction(
       updateData.totalProgress = updates.totalProgress
     }
 
-    if (updates.error) {
+    if (updates.error && updates.error.trim() !== "") {
       updateData.error = updates.error
+      if (updateData.status !== 'error') {
+        updateData.status = 'error'
+      }
+    } else if (updates.hasOwnProperty('error') && updates.error === null) {
+      updateData.error = null
     }
 
     if (updates.results) {
       updateData.results = updates.results
     }
+    
+    for (const key in updateData) {
+      if (updateData[key] === undefined) {
+        delete updateData[key]
+      }
+    }
 
-    await setDoc(progressRef, updateData, { merge: true })
+    if (Object.keys(updateData).length > 1) {
+        await setDoc(progressRef, updateData, { merge: true })
+        console.log(`[PROGRESS-UPDATE] Progress updated for ${campaignId}:`, updateData)
+    } else {
+        console.log(`[PROGRESS-UPDATE] No actual changes to update for ${campaignId} besides timestamp.`)
+    }
 
     return {
       isSuccess: true,

@@ -16,6 +16,7 @@ import {
   ThumbsUp
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { LeadGenerationProgress as WorkflowProgressFromTypes } from "@/types"
 
 interface LoadingStateProps {
   title?: string
@@ -219,18 +220,21 @@ export function StepIndicator({ steps, className }: StepIndicatorProps) {
 }
 
 interface GenerationProgressProps {
-  currentStep: string
-  completedSteps: number
-  totalSteps: number
-  foundLeads: number
+  progress: WorkflowProgressFromTypes
+  className?: string
 }
 
 export function GenerationProgress({
-  currentStep,
-  completedSteps,
-  totalSteps,
-  foundLeads
+  progress,
+  className
 }: GenerationProgressProps) {
+  const currentStep = progress.currentStage || "Processing..."
+  const completedSteps = progress.stages.filter(
+    s => s.status === "completed"
+  ).length
+  const totalSteps = progress.stages.length
+  const foundLeads = progress.results?.totalCommentsGenerated || 0
+
   const steps: Array<{
     name: string
     status: "completed" | "current" | "pending"
@@ -279,7 +283,7 @@ export function GenerationProgress({
   ]
 
   return (
-    <Card className="shadow-lg dark:border-gray-700">
+    <Card className={cn("shadow-lg dark:border-gray-700", className)}>
       <CardHeader className="border-b p-4 dark:border-gray-700">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">

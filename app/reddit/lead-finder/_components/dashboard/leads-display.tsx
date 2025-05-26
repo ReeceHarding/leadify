@@ -12,16 +12,18 @@ import {
   GenerationProgress
 } from "../enhanced-loading-states" // Adjust path as these are one level up
 import { EnhancedErrorState, EmptyState } from "../enhanced-error-states" // Adjust path
-import { MessageSquare } from "lucide-react"
+import { MessageSquare, Search, Filter } from "lucide-react"
 
 interface LeadsDisplayProps {
-  workflowProgress: WorkflowProgress
+  // Remove workflowProgress from here as it's handled by the parent for the main loader
+  // workflowProgress: WorkflowProgress
   leads: LeadResult[]
   filteredAndSortedLeads: LeadResult[]
   paginatedLeads: LeadResult[]
   newLeadIds: Set<string>
   activeTab: "all" | "queue"
   campaignId: string | null
+  isWorkflowRunning?: boolean // Add this prop to know if workflow is running
 
   // Props for child components
   selectedLength: "micro" | "medium" | "verbose"
@@ -60,13 +62,14 @@ interface LeadsDisplayProps {
 }
 
 export default function LeadsDisplay({
-  workflowProgress,
+  // workflowProgress, // Removed
   leads,
   filteredAndSortedLeads,
   paginatedLeads,
   newLeadIds,
   activeTab,
   campaignId,
+  isWorkflowRunning = false, // Add with default value
   selectedLength,
   onEditComment,
   onPostComment,
@@ -95,47 +98,48 @@ export default function LeadsDisplay({
 }: LeadsDisplayProps) {
   const renderLoadingSkeleton = () => <EnhancedLeadSkeleton />
 
-  const renderWorkflowProgress = () => (
-    <div className="space-y-6">
-      {workflowProgress.error ? (
-        <EnhancedErrorState
-          error={workflowProgress.error}
-          onRetry={() => window.location.reload()} // Or a more specific retry if possible
-        />
-      ) : (
-        <GenerationProgress
-          currentStep={workflowProgress.currentStep}
-          completedSteps={workflowProgress.completedSteps}
-          totalSteps={workflowProgress.totalSteps}
-          foundLeads={leads.length} // Use total leads before filtering for this progress text
-        />
-      )}
-      {/* Show skeleton only if isLoading is true AND no error AND no leads yet from any source */}
-      {workflowProgress.isLoading &&
-        !workflowProgress.error &&
-        leads.length === 0 &&
-        renderLoadingSkeleton()}
-    </div>
-  )
+  // Removed renderWorkflowProgress function as it's handled by parent
 
   // Main conditional rendering logic
-  if (
-    workflowProgress.isLoading &&
-    leads.length === 0 &&
-    !workflowProgress.error
-  ) {
-    return renderWorkflowProgress()
-  }
+  // The parent LeadFinderDashboard will handle the main loading/error for the workflow.
+  // This component now focuses on displaying leads or an empty/error state for the leads list.
 
-  if (workflowProgress.error && leads.length === 0) {
-    // Prominent error display if loading finished with an error and no leads were ever loaded
+  if (leads.length === 0 && campaignId) {
+    // If there's a campaign selected but no leads, show appropriate empty state.
+    // The parent dashboard handles the "workflow still processing" case via GenerationProgress.
+    // Don't show empty state if workflow is running - let the parent's GenerationProgress show instead
+    if (isWorkflowRunning) {
+      return null // Return nothing, let parent's GenerationProgress be visible
+    }
+    
     return (
-      <EnhancedErrorState
-        error={workflowProgress.error}
-        onRetry={() => window.location.reload()} // Or a more specific retry action
+      <EmptyState
+        title="No leads found for this search yet"
+        description="The lead search might still be in progress, or no matching discussions were found with your current keywords."
+        icon={<Search className="size-12" />}
       />
     )
   }
+
+  if (leads.length === 0 && !campaignId) {
+    // No campaign selected, prompt to create one.
+    return (
+      <EmptyState
+        title="No leads found"
+        description="Select or create a lead search to start finding leads."
+        icon={<MessageSquare className="size-12" />}
+        action={{
+          label: "Create New Lead Search",
+          onClick: onTriggerCreateCampaign
+        }}
+      />
+    )
+  }
+
+  // This error state is if fetching/filtering leads specifically fails,
+  // not for the overall workflow error, which is handled by the parent.
+  // Consider if a specific error prop for leads data is needed here.
+  // For now, relying on leads.length for empty/non-empty display.
 
   return (
     <>
@@ -179,34 +183,23 @@ export default function LeadsDisplay({
         </div>
       ) : (
         // Show empty state only if not globally loading, no errors, but still no filtered leads
-        !workflowProgress.isLoading &&
-        !workflowProgress.error && (
-          <EmptyState
-            title="No leads found"
-            description={
-              campaignId
-                ? "No leads match your current filters or the lead search is still processing."
-                : "Select or create a lead search to start finding leads."
-            }
-            icon={<MessageSquare className="size-12" />}
-            action={
-              !campaignId
-                ? {
-                    label: "Create New Lead Search",
-                    onClick: onTriggerCreateCampaign
+        // This condition might need refinement based on how parent handles overall loading/error
+        <EmptyState
+          title="No leads match your filters"
+          description="Try adjusting your search query or filters."
+          icon={<Filter className="size-12" />}
+          action={
+            filterKeyword || filterScore > 0
+              ? {
+                  label: "Clear Filters",
+                  onClick: () => {
+                    onFilterKeywordChange("")
+                    onFilterScoreChange(0)
                   }
-                : filterKeyword || filterScore > 0
-                  ? {
-                      label: "Clear Filters",
-                      onClick: () => {
-                        onFilterKeywordChange("")
-                        onFilterScoreChange(0)
-                      }
-                    }
-                  : undefined
-            }
-          />
-        )
+                }
+              : undefined
+          }
+        />
       )}
 
       <PaginationControls

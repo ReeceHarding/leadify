@@ -84,15 +84,17 @@ export default function OrganizationSettings() {
 
   const handleConnectReddit = async () => {
     if (!activeOrganization) return
-    
+
     try {
       // Store organization ID in cookie for Reddit callback
       document.cookie = `reddit_auth_org_id=${activeOrganization.id}; path=/; max-age=600; SameSite=Lax`
-      
+
       // Generate Reddit auth URL and redirect directly
-      const { generateRedditAuthUrlAction } = await import("@/actions/integrations/reddit/reddit-oauth-actions")
+      const { generateRedditAuthUrlAction } = await import(
+        "@/actions/integrations/reddit/reddit-oauth-actions"
+      )
       const result = await generateRedditAuthUrlAction()
-      
+
       if (result.isSuccess) {
         window.location.href = result.data.authUrl
       } else {

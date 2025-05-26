@@ -16,8 +16,9 @@ export default function LeadGenerationDebugger() {
             <AlertCircle className="size-4" />
             <AlertTitle>Debug Component Under Maintenance</AlertTitle>
             <AlertDescription>
-              This debug component is being updated to work with the new organization-based architecture.
-              It will be restored in a future update.
+              This debug component is being updated to work with the new
+              organization-based architecture. It will be restored in a future
+              update.
             </AlertDescription>
           </Alert>
         </CardContent>

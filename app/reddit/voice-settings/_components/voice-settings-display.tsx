@@ -177,7 +177,11 @@ export default function VoiceSettingsDisplay({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => navigator.clipboard.writeText(voiceSettings.manualWritingStyleDescription || "")}
+                      onClick={() =>
+                        navigator.clipboard.writeText(
+                          voiceSettings.manualWritingStyleDescription || ""
+                        )
+                      }
                     >
                       <Copy className="mr-1 size-3" />
                       Copy
@@ -191,9 +195,19 @@ export default function VoiceSettingsDisplay({
                   {voiceSettings.redditPostSource && (
                     <div className="mt-4 border-t border-purple-200 pt-4 dark:border-purple-700">
                       <div className="space-y-1 text-xs text-purple-700 dark:text-purple-300">
-                        <div><strong>Source:</strong> r/{voiceSettings.redditPostSource.subreddit}</div>
-                        <div><strong>Post:</strong> "{voiceSettings.redditPostSource.postTitle}"</div>
-                        <div><strong>Author:</strong> u/{voiceSettings.redditPostSource.author} ({voiceSettings.redditPostSource.score} upvotes)</div>
+                        <div>
+                          <strong>Source:</strong> r/
+                          {voiceSettings.redditPostSource.subreddit}
+                        </div>
+                        <div>
+                          <strong>Post:</strong> "
+                          {voiceSettings.redditPostSource.postTitle}"
+                        </div>
+                        <div>
+                          <strong>Author:</strong> u/
+                          {voiceSettings.redditPostSource.author} (
+                          {voiceSettings.redditPostSource.score} upvotes)
+                        </div>
                       </div>
                     </div>
                   )}

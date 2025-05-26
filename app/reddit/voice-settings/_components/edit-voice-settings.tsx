@@ -255,7 +255,7 @@ export default function EditVoiceSettings({
     console.log("🔥 [REDDIT-STYLE] Style copied from Reddit post")
     console.log("🔥 [REDDIT-STYLE] Analysis length:", analysis.length)
     console.log("🔥 [REDDIT-STYLE] Post source:", postSource)
-    
+
     // Create a comprehensive writing style prompt
     const comprehensivePrompt = `You are writing Reddit comments with the following exact writing style:
 
@@ -280,14 +280,17 @@ Remember: The goal is to replicate this writing style so perfectly that your com
 
     // Save the comprehensive prompt as the writing style description
     await saveVoiceSettings(comprehensivePrompt, postSource)
-    
+
     toast({
       title: "Writing style copied!",
       description: `Successfully copied writing style from r/${postSource.subreddit} post`
     })
   }
 
-  const saveVoiceSettings = async (manualWritingStyleDescription?: string, redditPostSource?: any) => {
+  const saveVoiceSettings = async (
+    manualWritingStyleDescription?: string,
+    redditPostSource?: any
+  ) => {
     setIsLoading(true)
     try {
       const settingsData = {
@@ -295,7 +298,9 @@ Remember: The goal is to replicate this writing style so perfectly that your com
         manualWritingStyleDescription:
           manualWritingStyleDescription || editableOldDescription || undefined,
         twitterHandle: twitterHandle || undefined,
-        redditWritingStyleAnalysis: redditPostSource ? manualWritingStyleDescription : undefined,
+        redditWritingStyleAnalysis: redditPostSource
+          ? manualWritingStyleDescription
+          : undefined,
         redditPostSource: redditPostSource || undefined,
         personaType,
         customPersona: personaType === "custom" ? customPersona : undefined,
@@ -372,7 +377,9 @@ Remember: The goal is to replicate this writing style so perfectly that your com
           Copy Writing Style from Reddit Posts
         </CardTitle>
         <CardDescription>
-          Search for subreddits, browse top posts, and copy the exact writing style from popular posts to make your comments feel more human and authentic.
+          Search for subreddits, browse top posts, and copy the exact writing
+          style from popular posts to make your comments feel more human and
+          authentic.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -410,7 +417,8 @@ Remember: The goal is to replicate this writing style so perfectly that your com
                   </Button>
                 </div>
                 <p className="text-muted-foreground text-sm">
-                  We'll analyze your recent tweets to understand your writing style
+                  We'll analyze your recent tweets to understand your writing
+                  style
                 </p>
               </div>
             </div>
@@ -440,7 +448,9 @@ Remember: The goal is to replicate this writing style so perfectly that your com
                         voiceSettings.manualWritingStyleDescription
                     }
                   >
-                    {isLoading && <Loader2 className="mr-2 size-4 animate-spin" />}
+                    {isLoading && (
+                      <Loader2 className="mr-2 size-4 animate-spin" />
+                    )}
                     Save Changes
                   </Button>
                 </div>
@@ -462,8 +472,8 @@ Remember: The goal is to replicate this writing style so perfectly that your com
                 className="resize-none"
               />
               <p className="text-sm text-gray-600">
-                Add a new description of your writing style, or use Twitter analysis
-                to auto-fill.
+                Add a new description of your writing style, or use Twitter
+                analysis to auto-fill.
               </p>
             </div>
 
@@ -471,7 +481,9 @@ Remember: The goal is to replicate this writing style so perfectly that your com
             <div className="flex gap-2">
               <Button
                 onClick={handleReplaceDescription}
-                disabled={isLoading || isCombining || !newStyleDescription.trim()}
+                disabled={
+                  isLoading || isCombining || !newStyleDescription.trim()
+                }
                 variant="outline"
               >
                 {isLoading && <Loader2 className="mr-2 size-4 animate-spin" />}
@@ -482,11 +494,17 @@ Remember: The goal is to replicate this writing style so perfectly that your com
               {voiceSettings?.manualWritingStyleDescription && (
                 <Button
                   onClick={handleCombineDescriptions}
-                  disabled={isLoading || isCombining || !newStyleDescription.trim()}
+                  disabled={
+                    isLoading || isCombining || !newStyleDescription.trim()
+                  }
                 >
-                  {isCombining && <Loader2 className="mr-2 size-4 animate-spin" />}
+                  {isCombining && (
+                    <Loader2 className="mr-2 size-4 animate-spin" />
+                  )}
                   <Merge className="mr-2 size-4" />
-                  {isCombining ? "Combining with AI..." : "Add to Old Description"}
+                  {isCombining
+                    ? "Combining with AI..."
+                    : "Add to Old Description"}
                 </Button>
               )}
             </div>
@@ -494,12 +512,12 @@ Remember: The goal is to replicate this writing style so perfectly that your com
             {voiceSettings?.manualWritingStyleDescription && (
               <div className="rounded-lg bg-blue-50 p-3 dark:bg-blue-900/30">
                 <p className="text-sm text-blue-900 dark:text-blue-100">
-                  <strong>Replace:</strong> Completely replaces existing description
-                  with new description.
+                  <strong>Replace:</strong> Completely replaces existing
+                  description with new description.
                 </p>
                 <p className="mt-1 text-sm text-blue-900 dark:text-blue-100">
-                  <strong>Add to Old:</strong> Uses AI to intelligently combine old
-                  and new descriptions.
+                  <strong>Add to Old:</strong> Uses AI to intelligently combine
+                  old and new descriptions.
                 </p>
               </div>
             )}
@@ -522,7 +540,8 @@ Remember: The goal is to replicate this writing style so perfectly that your com
                     Satisfied User - Enthusiastic customer
                   </SelectItem>
                   <SelectItem value="subtle">
-                    Subtle Recommender - Experienced user who's tried many solutions
+                    Subtle Recommender - Experienced user who's tried many
+                    solutions
                   </SelectItem>
                   <SelectItem value="custom">Custom Persona</SelectItem>
                 </SelectContent>
@@ -554,5 +573,3 @@ Remember: The goal is to replicate this writing style so perfectly that your com
     </Card>
   )
 }
-
-

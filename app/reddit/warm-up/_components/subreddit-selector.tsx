@@ -70,22 +70,37 @@ export default function SubredditSelector({
   const [isOpen, setIsOpen] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
-  const [hasLoadedInitialSuggestions, setHasLoadedInitialSuggestions] = useState(false)
+  const [hasLoadedInitialSuggestions, setHasLoadedInitialSuggestions] =
+    useState(false)
 
   useEffect(() => {
-    if (currentOrganizationId && activeOrganization && !hasLoadedInitialSuggestions && selectedSubreddits.length === 0) {
+    if (
+      currentOrganizationId &&
+      activeOrganization &&
+      !hasLoadedInitialSuggestions &&
+      selectedSubreddits.length === 0
+    ) {
       loadInitialSuggestions()
     }
-  }, [currentOrganizationId, activeOrganization, hasLoadedInitialSuggestions, selectedSubreddits.length])
+  }, [
+    currentOrganizationId,
+    activeOrganization,
+    hasLoadedInitialSuggestions,
+    selectedSubreddits.length
+  ])
 
   const loadInitialSuggestions = async () => {
     if (!currentOrganizationId || !activeOrganization) return
-    
+
     try {
-      console.log("🤖 [SUBREDDIT-SELECTOR] Loading initial AI suggestions based on knowledge base")
-      
-      const kbResult = await getKnowledgeBaseByOrganizationIdAction(currentOrganizationId)
-      
+      console.log(
+        "🤖 [SUBREDDIT-SELECTOR] Loading initial AI suggestions based on knowledge base"
+      )
+
+      const kbResult = await getKnowledgeBaseByOrganizationIdAction(
+        currentOrganizationId
+      )
+
       let productDesc = activeOrganization.name || ""
       if (activeOrganization.businessDescription) {
         productDesc += ` - ${activeOrganization.businessDescription}`
@@ -101,29 +116,33 @@ export default function SubredditSelector({
       if (activeOrganization.website) {
         productDesc += ` (Website: ${activeOrganization.website})`
       }
-      
-      const keywordsForRecommendation = (activeOrganization as any).keywordsForAi || []
-      
+
+      const keywordsForRecommendation =
+        (activeOrganization as any).keywordsForAi || []
+
       const result = await recommendSubredditsAction(
         keywordsForRecommendation,
         productDesc
       )
-      
+
       if (result.isSuccess && result.data) {
         const recommendedSubreddits = result.data
           .slice(0, 3)
           .map(rec => rec.subreddit)
-        
+
         setSelectedSubreddits(recommendedSubreddits)
         setHasLoadedInitialSuggestions(true)
-        
+
         toast({
           title: "AI Suggestions Applied",
           description: `Automatically selected ${recommendedSubreddits.length} relevant subreddits based on your organization's profile`
         })
       }
     } catch (error) {
-      console.error("❌ [SUBREDDIT-SELECTOR] Error loading initial suggestions:", error)
+      console.error(
+        "❌ [SUBREDDIT-SELECTOR] Error loading initial suggestions:",
+        error
+      )
     }
   }
 
@@ -136,14 +155,15 @@ export default function SubredditSelector({
 
       setIsSearching(true)
       try {
-        console.log(
-          `🔍 [SUBREDDIT-SELECTOR] Searching for: "${query}"`
-        )
+        console.log(`🔍 [SUBREDDIT-SELECTOR] Searching for: "${query}"`)
         const result = await searchSubredditsCSVAction(query, 20)
 
         if (result.isSuccess && result.data) {
           setSuggestions(result.data)
-          console.log("🔍 [SUBREDDIT-SELECTOR] Found subreddits:", result.data.length)
+          console.log(
+            "🔍 [SUBREDDIT-SELECTOR] Found subreddits:",
+            result.data.length
+          )
         }
       } catch (error) {
         console.error("❌ [SUBREDDIT-SELECTOR] Search error:", error)
@@ -375,18 +395,24 @@ export default function SubredditSelector({
                     <CommandEmpty>No subreddits found.</CommandEmpty>
                   ) : (
                     <CommandGroup>
-                      {suggestions.map((sub) => (
+                      {suggestions.map(sub => (
                         <CommandItem
                           key={sub.base10_id}
-                          onSelect={() => handleAddSubreddit(sub.subreddit_name)}
+                          onSelect={() =>
+                            handleAddSubreddit(sub.subreddit_name)
+                          }
                         >
                           <div className="flex-1">
-                            <div className="font-medium">r/{sub.subreddit_name}</div>
-                            {sub.subscribers_count && sub.subscribers_count !== 'None' && (
-                              <div className="text-muted-foreground text-sm">
-                                {formatSubscribers(sub.subscribers_count)} members
-                              </div>
-                            )}
+                            <div className="font-medium">
+                              r/{sub.subreddit_name}
+                            </div>
+                            {sub.subscribers_count &&
+                              sub.subscribers_count !== "None" && (
+                                <div className="text-muted-foreground text-sm">
+                                  {formatSubscribers(sub.subscribers_count)}{" "}
+                                  members
+                                </div>
+                              )}
                           </div>
                         </CommandItem>
                       ))}

@@ -145,8 +145,12 @@ import { usePostHog } from "posthog-js/react"
 import { useSearchParams } from "next/navigation"
 
 // Import newly created types and utils
-import { LeadResult, WorkflowProgress } from "./dashboard/types"
+import { LeadResult } from "./dashboard/types"
 import { getTimeAgo, serializeTimestampToISO } from "./dashboard/utils"
+import {
+  LeadGenerationProgress as WorkflowProgress,
+  LEAD_GENERATION_STAGES
+} from "@/types"
 
 const ITEMS_PER_PAGE = 10
 const POLLING_INTERVAL = 5000 // 5 seconds
@@ -294,6 +298,8 @@ export default function LeadFinderDashboard() {
   >([])
   const newLeadIds = useRef(new Set<string>())
   const searchParams = useSearchParams()
+  const [liveFirestoreProgress, setLiveFirestoreProgress] =
+    useState<WorkflowProgress | null>(null)
 
   // Debug logging
   const addDebugLog = useCallback(
@@ -423,6 +429,65 @@ export default function LeadFinderDashboard() {
     },
     [user, activeOrganization, addDebugLog]
   )
+
+  // Real-time workflow progress listener
+  useEffect(() => {
+    if (!state.campaignId) {
+      setLiveFirestoreProgress(null)
+      return
+    }
+
+    addDebugLog("Setting up Firestore listener for workflow progress", {
+      campaignId: state.campaignId
+    })
+
+    const progressDocRef = doc(db, "lead_generation_progress", state.campaignId)
+    const unsubscribe = onSnapshot(
+      progressDocRef,
+      docSnapshot => {
+        if (docSnapshot.exists()) {
+          const progressData = docSnapshot.data() as WorkflowProgress
+          addDebugLog("Workflow progress snapshot received", {
+            data: progressData
+          })
+          setLiveFirestoreProgress(progressData)
+
+          setState(prev => ({
+            ...prev,
+            workflowRunning: progressData.status === "in_progress",
+            error:
+              progressData.status === "error"
+                ? progressData.error || "Workflow error from Firestore"
+                : prev.error
+          }))
+        } else {
+          addDebugLog(
+            "Workflow progress document does not exist for campaign:",
+            state.campaignId
+          )
+          setLiveFirestoreProgress(null)
+          setState(prev => ({ ...prev, workflowRunning: false }))
+        }
+      },
+      error => {
+        console.error("Error listening to workflow progress:", error)
+        addDebugLog("Error listening to workflow progress", { error })
+        setLiveFirestoreProgress(null)
+        setState(prev => ({
+          ...prev,
+          workflowRunning: false,
+          error: "Failed to load workflow progress"
+        }))
+      }
+    )
+
+    return () => {
+      addDebugLog("Cleaning up Firestore listener for workflow progress", {
+        campaignId: state.campaignId
+      })
+      unsubscribe()
+    }
+  }, [state.campaignId, addDebugLog])
 
   // Real-time leads listener using Firestore onSnapshot
   useEffect(() => {
@@ -589,16 +654,18 @@ export default function LeadFinderDashboard() {
         )
 
         // Transform campaigns data for the dropdown
-        const transformedCampaigns: Campaign[] = campaignsResult.isSuccess 
+        const transformedCampaigns: Campaign[] = campaignsResult.isSuccess
           ? campaignsResult.data.map(campaign => ({
               id: campaign.id,
               name: campaign.name,
               keywords: campaign.keywords || [],
               status: campaign.status || "draft",
               totalCommentsGenerated: 0, // TODO: Get actual count from generated_comments
-              createdAt: typeof campaign.createdAt === "string" 
-                ? campaign.createdAt 
-                : (campaign.createdAt as any)?.toDate?.()?.toISOString() || new Date().toISOString()
+              createdAt:
+                typeof campaign.createdAt === "string"
+                  ? campaign.createdAt
+                  : (campaign.createdAt as any)?.toDate?.()?.toISOString() ||
+                    new Date().toISOString()
             }))
           : []
 
@@ -1366,7 +1433,7 @@ export default function LeadFinderDashboard() {
   ])
 
   // Render loading state
-  if (state.isLoading) {
+  if (state.isLoading && !liveFirestoreProgress && !state.error) {
     return (
       <div className="container mx-auto space-y-6 py-6">
         <EnhancedLeadSkeleton />
@@ -1477,6 +1544,17 @@ export default function LeadFinderDashboard() {
           </CardContent>
         </Card>
       )}
+
+      {/* Workflow Progress Display */}
+      {state.campaignId &&
+        liveFirestoreProgress &&
+        liveFirestoreProgress.status !== "completed" &&
+        liveFirestoreProgress.status !== "error" && (
+          <GenerationProgress
+            progress={liveFirestoreProgress}
+            className="mb-6"
+          />
+        )}
 
       {/* Dashboard Header */}
       <DashboardHeader
@@ -1658,21 +1736,13 @@ export default function LeadFinderDashboard() {
 
         {/* Main Leads Display */}
         <LeadsDisplay
-          workflowProgress={{
-            currentStep: state.workflowRunning
-              ? "Lead generation running..."
-              : "Ready",
-            completedSteps: state.workflowRunning ? 3 : 6,
-            totalSteps: 6,
-            isLoading: state.isLoading,
-            error: state.error || undefined
-          }}
           leads={state.leads}
           filteredAndSortedLeads={filteredLeads}
           paginatedLeads={paginatedLeads}
           newLeadIds={newLeadIds.current}
           activeTab={state.activeTab}
           campaignId={state.campaignId}
+          isWorkflowRunning={state.workflowRunning || (liveFirestoreProgress?.status === "in_progress")}
           selectedLength={state.selectedLength}
           onEditComment={handleCommentEdit}
           onPostComment={handlePostNow}
