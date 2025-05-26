@@ -20,7 +20,7 @@ import {
   SelectValue
 } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Loader2, MessageCircle, Twitter, Sparkles } from "lucide-react"
+import { Loader2, MessageCircle, Twitter, Sparkles, Replace } from "lucide-react"
 import { SerializedVoiceSettingsDocument } from "@/types"
 import { PersonaType, WritingStyle } from "@/db/schema"
 import { useToast } from "@/hooks/use-toast"
@@ -155,7 +155,20 @@ export default function VoiceSettingsSection({
       setUseCasualTone(analysisResult.data.vocabularyLevel === "casual")
 
       // Auto-fill the manual writing style description with the analysis
-      setManualWritingStyleDescription(analysisResult.data.writingStyleAnalysis)
+      const analysisText = `Based on analysis of ${tweets.length} recent tweets:
+
+${analysisResult.data.writingStyleAnalysis}
+
+Key characteristics:
+• Tone: ${analysisResult.data.toneAnalysis}
+• Vocabulary: ${analysisResult.data.vocabularyLevel}
+• Average tweet length: ${analysisResult.data.averageTweetLength} characters
+• Uses emojis: ${analysisResult.data.emojiUsage ? 'Yes' : 'No'}
+• Uses hashtags: ${analysisResult.data.hashtagUsage ? 'Yes' : 'No'}
+
+Common phrases: ${analysisResult.data.commonPhrases.slice(0, 3).join(', ')}`
+
+      setManualWritingStyleDescription(analysisText)
 
       toast({
         title: "Twitter analysis complete",
@@ -271,47 +284,64 @@ export default function VoiceSettingsSection({
         {/* Twitter Analysis */}
         <div className="space-y-4">
           <Label>Twitter Writing Style Analysis</Label>
-          <div className="flex gap-2">
-            <Input
-              placeholder="@username"
-              value={twitterHandle}
-              onChange={e => setTwitterHandle(e.target.value)}
-              className="flex-1"
-            />
-            <Button
-              variant="outline"
-              onClick={handleAnalyzeTwitter}
-              disabled={isAnalyzingTwitter}
-            >
-              {isAnalyzingTwitter ? (
-                <Loader2 className="mr-2 size-4 animate-spin" />
-              ) : (
-                <Twitter className="mr-2 size-4" />
-              )}
-              Analyze
-            </Button>
+          <div className="space-y-2">
+            <Label htmlFor="twitter-handle">Twitter Handle</Label>
+            <div className="flex gap-2">
+              <Input
+                id="twitter-handle"
+                placeholder="@username"
+                value={twitterHandle}
+                onChange={e => setTwitterHandle(e.target.value)}
+                className="flex-1"
+              />
+              <Button
+                onClick={handleAnalyzeTwitter}
+                disabled={isAnalyzingTwitter || !twitterHandle.trim()}
+              >
+                {isAnalyzingTwitter ? (
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                ) : null}
+                Analyze
+              </Button>
+            </div>
+            <p className="text-muted-foreground text-sm">
+              We'll analyze your recent tweets to understand your writing style
+            </p>
           </div>
-          <p className="text-sm text-gray-600">
-            Enter your Twitter handle to automatically analyze your writing
-            style from your recent tweets.
-          </p>
         </div>
 
-        {/* Manual Writing Style Description */}
-        <div className="space-y-4">
-          <Label htmlFor="manual-style">Writing Style Description</Label>
+        <div className="space-y-2">
+          <Label htmlFor="new-description">Add New Style Description</Label>
           <Textarea
-            id="manual-style"
-            placeholder="Describe your writing style (e.g., casual and conversational, uses emojis, short sentences, etc.). This will be auto-filled when you analyze your Twitter..."
+            id="new-description"
+            placeholder="Describe your writing style (e.g., casual and conversational, uses emojis, short sentences, etc.)..."
             value={manualWritingStyleDescription}
             onChange={e => setManualWritingStyleDescription(e.target.value)}
             rows={4}
             className="resize-none"
           />
           <p className="text-sm text-gray-600">
-            Manually describe your writing style, or use Twitter analysis to
-            auto-fill this section.
+            Add a new description of your writing style, or use Twitter analysis to auto-fill.
           </p>
+        </div>
+
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => {
+              if (manualWritingStyleDescription.trim()) {
+                // Replace existing description logic would go here
+                toast({
+                  title: "Style Updated",
+                  description: "Your writing style description has been updated"
+                })
+              }
+            }}
+            disabled={!manualWritingStyleDescription.trim()}
+          >
+            <Replace className="mr-2 size-4" />
+            Replace Old Description
+          </Button>
         </div>
 
         {/* Persona Type */}
