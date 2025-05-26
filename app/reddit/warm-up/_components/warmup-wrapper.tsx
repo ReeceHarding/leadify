@@ -19,7 +19,7 @@ export default function WarmupWrapper({ userId }: WarmupWrapperProps) {
   if (!activeOrganization) {
     return (
       <Alert>
-        <AlertCircle className="h-4 w-4" />
+        <AlertCircle className="size-4" />
         <AlertDescription>
           No organization selected. Please select an organization from the sidebar.
         </AlertDescription>

@@ -40,8 +40,8 @@ const data = {
       icon: MessageSquare,
       isActive: true,
       items: [
+        { title: "Lead Searches", url: "/reddit/lead-finder" },
         { title: "Warm Up", url: "/reddit/warm-up" },
-        { title: "Lead Finder", url: "/reddit/lead-finder" },
         { title: "My Posts", url: "/reddit/my-posts" },
         { title: "Knowledge Base", url: "/reddit/knowledge-base" },
         { title: "Voice", url: "/reddit/voice-settings" },

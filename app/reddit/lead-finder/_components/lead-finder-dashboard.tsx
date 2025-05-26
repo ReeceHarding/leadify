@@ -110,6 +110,7 @@ import {
   testRedditPostingAction
 } from "@/actions/integrations/reddit/reddit-posting-actions"
 import { useUser } from "@clerk/nextjs"
+import { useOrganization } from "@/components/utilities/organization-provider"
 import {
   Timestamp,
   onSnapshot,
@@ -273,6 +274,7 @@ const matchesSearchQuery = (lead: LeadResult, query: string): boolean => {
 
 export default function LeadFinderDashboard() {
   const { user, isLoaded: userLoaded } = useUser()
+  const { activeOrganization } = useOrganization()
   const [state, setState] = useState<DashboardState>(initialState)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [findNewLeadsOpen, setFindNewLeadsOpen] = useState(false)
@@ -307,6 +309,12 @@ export default function LeadFinderDashboard() {
         return
       }
 
+      if (!activeOrganization) {
+        addDebugLog("createAndRunCampaign: No active organization")
+        toast.error("Please select an organization first")
+        return
+      }
+
       addDebugLog("Creating new campaign", { keywords })
 
       try {
@@ -336,6 +344,7 @@ export default function LeadFinderDashboard() {
 
         const campaignResult = await createCampaignAction({
           userId: user.id,
+          organizationId: activeOrganization.id,
           name: `Lead Gen - ${new Date().toLocaleDateString()}`,
           website: profileResult.data.website,
           keywords: keywords
@@ -387,7 +396,7 @@ export default function LeadFinderDashboard() {
         toast.error(errorMessage)
       }
     },
-    [user, addDebugLog]
+    [user, activeOrganization, addDebugLog]
   )
 
   // Real-time leads listener using Firestore onSnapshot
@@ -1705,6 +1714,7 @@ export default function LeadFinderDashboard() {
             }
           }
         }}
+        organizationId={activeOrganization?.id}
       />
 
       <FindNewLeadsDialog

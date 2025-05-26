@@ -185,14 +185,14 @@ export default function LeadsDisplay({
             title="No leads found"
             description={
               campaignId
-                ? "No leads match your current filters or the campaign is still processing."
-                : "Select or create a campaign to start finding leads."
+                ? "No leads match your current filters or the lead search is still processing."
+                : "Select or create a lead search to start finding leads."
             }
             icon={<MessageSquare className="size-12" />}
             action={
               !campaignId
                 ? {
-                    label: "Create New Campaign",
+                    label: "Create New Lead Search",
                     onClick: onTriggerCreateCampaign
                   }
                 : filterKeyword || filterScore > 0

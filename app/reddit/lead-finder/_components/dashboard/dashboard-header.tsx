@@ -69,7 +69,7 @@ export default function DashboardHeader({
               <div className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 dark:border-blue-800 dark:bg-blue-950/30">
                 <Sparkles className="size-4 text-blue-600 dark:text-blue-400" />
                 <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                  {campaignName || "Untitled Campaign"}
+                  {campaignName || "Untitled Lead Search"}
                 </span>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -78,19 +78,19 @@ export default function DashboardHeader({
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Campaign Actions</DropdownMenuLabel>
+                    <DropdownMenuLabel>Lead Search Actions</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       onClick={() =>
-                        toast.info("Campaign editing coming soon!")
+                        toast.info("Lead search editing coming soon!")
                       }
                     >
                       <Edit2 className="mr-2 size-4" />
-                      Edit Campaign
+                      Edit Lead Search
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={onCreateCampaign}>
                       <Plus className="mr-2 size-4" />
-                      New Campaign
+                      New Lead Search
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -122,7 +122,7 @@ export default function DashboardHeader({
             className="gap-2"
           >
             <Plus className="size-4" />
-            New Campaign
+            New Lead Search
           </Button>
         </div>
       </div>

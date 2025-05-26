@@ -173,7 +173,7 @@ export function TeamSwitcher() {
                   <Plus className="size-4" />
                 </div>
                 <div className="text-muted-foreground font-medium">
-                  New Organization & Campaign
+                  New Organization
                 </div>
               </DropdownMenuItem>
             </DropdownMenuContent>

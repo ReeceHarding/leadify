@@ -24,25 +24,10 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
-import {
-  X,
-  Plus,
-  Loader2,
-  Globe,
-  Search,
-  Target,
-  Sparkles,
-  Building2
-} from "lucide-react"
+import { Loader2, Globe, Building2 } from "lucide-react"
 import { createOrganizationAction } from "@/actions/db/organizations-actions"
-import { createCampaignAction } from "@/actions/db/campaign-actions"
-import { runFullLeadGenerationWorkflowAction } from "@/actions/lead-generation/workflow-actions"
-import { generateCampaignNameAction } from "@/actions/lead-generation/campaign-name-actions"
 import { toast } from "sonner"
 import { useUser } from "@clerk/nextjs"
-import { generateKeywordsAction } from "@/actions/lead-generation/keywords-actions"
-import { scrapeWebsiteAction } from "@/actions/integrations/firecrawl/website-scraping-actions"
 
 const organizationSchema = z
   .object({
@@ -51,11 +36,7 @@ const organizationSchema = z
       .min(1, "Organization name is required")
       .max(100, "Name too long"),
     website: z.string().optional(),
-    businessDescription: z.string().optional(),
-    keywords: z
-      .array(z.string())
-      .min(1, "At least one keyword is required")
-      .max(10, "Maximum 10 keywords allowed")
+    businessDescription: z.string().optional()
   })
   .superRefine((data, ctx) => {
     // Custom validation for website
@@ -101,94 +82,15 @@ export default function CreateOrganizationDialog({
 }: CreateOrganizationDialogProps) {
   const { user } = useUser()
   const [isCreating, setIsCreating] = useState(false)
-  const [currentKeyword, setCurrentKeyword] = useState("")
-  const [isGeneratingKeywords, setIsGeneratingKeywords] = useState(false)
-  const [generationStep, setGenerationStep] = useState<
-    "scraping" | "generating"
-  >("scraping")
 
   const form = useForm<OrganizationForm>({
     resolver: zodResolver(organizationSchema),
     defaultValues: {
       name: "",
       website: "",
-      businessDescription: "",
-      keywords: []
+      businessDescription: ""
     }
   })
-
-  const websiteForm = form.watch("website")
-  const businessDescriptionForm = form.watch("businessDescription")
-
-  const handleAddKeyword = () => {
-    const keyword = currentKeyword.trim()
-    if (keyword && form.getValues("keywords").length < 10) {
-      const currentKeywords = form.getValues("keywords")
-      if (!currentKeywords.includes(keyword)) {
-        form.setValue("keywords", [...currentKeywords, keyword])
-        setCurrentKeyword("")
-      }
-    }
-  }
-
-  const handleRemoveKeyword = (index: number) => {
-    const currentKeywords = form.getValues("keywords")
-    form.setValue(
-      "keywords",
-      currentKeywords.filter((_, i) => i !== index)
-    )
-  }
-
-  const handleGenerateWithAI = async () => {
-    setIsGeneratingKeywords(true)
-
-    try {
-      let businessContext = businessDescriptionForm || ""
-      let websiteUrl = websiteForm || undefined
-
-      // If website is provided, scrape it first
-      if (websiteForm?.trim()) {
-        setGenerationStep("scraping")
-        console.log("🌐 Scraping website:", websiteForm)
-
-        const scrapeResult = await scrapeWebsiteAction(websiteForm)
-        if (scrapeResult.isSuccess && scrapeResult.data) {
-          businessContext = scrapeResult.data.content
-          console.log("✅ Website scraped successfully")
-        } else {
-          console.warn(
-            "⚠️ Website scraping failed, using business description only"
-          )
-        }
-      }
-
-      // Generate keywords
-      setGenerationStep("generating")
-      console.log(
-        "🤖 Generating keywords with context length:",
-        businessContext.length
-      )
-
-      const keywordsResult = await generateKeywordsAction({
-        website: websiteUrl,
-        businessDescription: businessContext
-      })
-
-      if (keywordsResult.isSuccess && keywordsResult.data) {
-        form.setValue("keywords", keywordsResult.data.keywords)
-        toast.success(
-          `Generated ${keywordsResult.data.keywords.length} keywords!`
-        )
-      } else {
-        toast.error(keywordsResult.message || "Failed to generate keywords")
-      }
-    } catch (error) {
-      console.error("Error generating keywords:", error)
-      toast.error("Failed to generate keywords")
-    } finally {
-      setIsGeneratingKeywords(false)
-    }
-  }
 
   const onSubmit = async (data: OrganizationForm) => {
     setIsCreating(true)
@@ -211,72 +113,25 @@ export default function CreateOrganizationDialog({
         throw new Error(orgResult.message || "Failed to create organization")
       }
 
-      // Create the first campaign for this organization
-      const campaignResult = await createCampaignAction({
-        userId: user.id,
-        organizationId: orgResult.data.id,
-        name: `${data.name} - Initial Campaign`,
-        website: data.website || undefined,
-        businessDescription: data.businessDescription || undefined,
-        keywords: data.keywords
-      })
-
-      if (!campaignResult.isSuccess || !campaignResult.data) {
-        throw new Error(campaignResult.message || "Failed to create campaign")
-      }
-
-      // Close the dialog immediately after creating organization and campaign
-      toast.success("Organization created! Starting lead generation...")
+      // Success - close dialog and notify
+      toast.success("Organization created successfully!")
       onSuccess?.(orgResult.data.id)
       onOpenChange(false)
 
       // Reset form
       form.reset()
-
-      // Run the lead generation workflow in the background
-      runFullLeadGenerationWorkflowAction(campaignResult.data.id)
-        .then(workflowResult => {
-          if (workflowResult.isSuccess) {
-            const progress = workflowResult.data
-            const commentsGenerated =
-              progress.results.find(
-                (r: any) => r.step === "Score and Generate Comments"
-              )?.data?.commentsGenerated || 0
-
-            if (commentsGenerated > 0) {
-              toast.success(
-                `Lead generation complete! Found ${commentsGenerated} potential leads.`
-              )
-            } else {
-              toast.warning(
-                "Lead generation complete but no leads were found. Try different keywords."
-              )
-            }
-          } else {
-            toast.error(`Lead generation failed: ${workflowResult.message}`)
-          }
-        })
-        .catch(error => {
-          console.error("Workflow error:", error)
-          toast.error(
-            "Lead generation encountered an error. Please check the dashboard."
-          )
-        })
     } catch (error) {
       console.error("Error creating organization:", error)
       toast.error(
         error instanceof Error ? error.message : "Failed to create organization"
       )
+    } finally {
       setIsCreating(false)
     }
   }
 
-  const keywords = form.watch("keywords")
-  const estimatedThreads = keywords.length * 10
-
   // Check if form should be submittable
   const canSubmit =
-    keywords.length > 0 &&
     form.getValues("name").trim().length > 0 &&
     (form.getValues("website")?.trim() ||
       form.getValues("businessDescription")?.trim()) &&
@@ -288,8 +143,8 @@ export default function CreateOrganizationDialog({
         <DialogHeader>
           <DialogTitle>Create New Organization</DialogTitle>
           <DialogDescription>
-            Set up a new organization with its own Reddit account and lead
-            generation campaigns.
+            Set up a new organization with its own Reddit account. You can
+            create lead searches after setting up your organization.
           </DialogDescription>
         </DialogHeader>
 
@@ -337,7 +192,7 @@ export default function CreateOrganizationDialog({
                     />
                   </FormControl>
                   <FormDescription>
-                    We'll analyze your website to understand your business
+                    Your organization's website URL
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -362,120 +217,12 @@ export default function CreateOrganizationDialog({
                     />
                   </FormControl>
                   <FormDescription>
-                    Help us understand your business to generate better keywords
+                    Help us understand your business
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
-            <FormField
-              control={form.control}
-              name="keywords"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    <Search className="size-4" />
-                    Search Keywords
-                  </FormLabel>
-                  <div className="space-y-3">
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="e.g., software developer hiring"
-                        value={currentKeyword}
-                        onChange={e => setCurrentKeyword(e.target.value)}
-                        onKeyPress={e => {
-                          if (e.key === "Enter") {
-                            e.preventDefault()
-                            handleAddKeyword()
-                          }
-                        }}
-                        disabled={isCreating || field.value.length >= 10}
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={handleAddKeyword}
-                        disabled={
-                          !currentKeyword.trim() ||
-                          field.value.length >= 10 ||
-                          isCreating
-                        }
-                      >
-                        <Plus className="size-4" />
-                      </Button>
-                    </div>
-
-                    {/* AI Generation Button */}
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={handleGenerateWithAI}
-                      disabled={
-                        (!websiteForm?.trim() &&
-                          !businessDescriptionForm?.trim()) ||
-                        field.value.length >= 10 ||
-                        isGeneratingKeywords ||
-                        isCreating
-                      }
-                      className="w-full"
-                    >
-                      {isGeneratingKeywords ? (
-                        <>
-                          <Loader2 className="mr-2 size-4 animate-spin" />
-                          {generationStep === "scraping" ? (
-                            <>
-                              <Globe className="mr-2 size-4" />
-                              Scraping homepage...
-                            </>
-                          ) : (
-                            <>
-                              <Sparkles className="mr-2 size-4" />
-                              Generating keywords...
-                            </>
-                          )}
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="mr-2 size-4" />
-                          Generate with AI
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                  <FormDescription>
-                    Keywords to search for on Reddit. We'll score threads
-                    related to these terms. ({field.value.length}/10)
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Keywords Display */}
-            {keywords.length > 0 && (
-              <div className="space-y-2">
-                <div className="flex flex-wrap gap-2">
-                  {keywords.map((keyword, index) => (
-                    <Badge
-                      key={index}
-                      variant="secondary"
-                      className="flex items-center gap-1"
-                    >
-                      {keyword}
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveKeyword(index)}
-                        className="ml-1 hover:text-red-500"
-                        disabled={isCreating}
-                      >
-                        <X className="size-3" />
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
 
             <DialogFooter>
               <Button
@@ -493,7 +240,7 @@ export default function CreateOrganizationDialog({
                     Creating Organization...
                   </>
                 ) : (
-                  `Create & Score ${estimatedThreads} Threads`
+                  "Create Organization"
                 )}
               </Button>
             </DialogFooter>

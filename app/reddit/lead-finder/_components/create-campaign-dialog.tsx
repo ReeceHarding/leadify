@@ -91,12 +91,14 @@ interface CreateCampaignDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onSuccess?: () => void
+  organizationId?: string
 }
 
 export default function CreateCampaignDialog({
   open,
   onOpenChange,
-  onSuccess
+  onSuccess,
+  organizationId
 }: CreateCampaignDialogProps) {
   const { user } = useUser()
   const [currentKeyword, setCurrentKeyword] = useState("")
@@ -240,9 +242,15 @@ export default function CreateCampaignDialog({
         return
       }
 
+      if (!organizationId) {
+        toast.error("Please select an organization first")
+        return
+      }
+
       // Create the campaign
       const campaignResult = await createCampaignAction({
         userId: user.id,
+        organizationId: organizationId,
         name: data.name,
         website: data.website || undefined,
         businessDescription: data.businessDescription || undefined,
@@ -254,7 +262,7 @@ export default function CreateCampaignDialog({
       }
 
       // Close the dialog immediately after creating campaign
-      toast.success("Campaign created! Starting lead generation...")
+      toast.success("Lead search created! Starting lead generation...")
       onSuccess?.()
       onOpenChange(false)
 
@@ -324,10 +332,10 @@ export default function CreateCampaignDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Create New Campaign</DialogTitle>
+          <DialogTitle>Create New Lead Search</DialogTitle>
           <DialogDescription>
-            Set up a new lead generation campaign to find potential customers on
-            Reddit.
+            Set up a new lead search to find potential customers on Reddit based
+            on specific keywords.
           </DialogDescription>
         </DialogHeader>
 
@@ -341,11 +349,11 @@ export default function CreateCampaignDialog({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Campaign Name</FormLabel>
+                  <FormLabel>Search Name</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input
-                        placeholder="e.g., Q1 2024 Lead Generation"
+                        placeholder="e.g., Q1 2024 Lead Search"
                         {...field}
                         disabled={isCreating}
                       />
@@ -358,8 +366,8 @@ export default function CreateCampaignDialog({
                   </FormControl>
                   <FormDescription>
                     {isGeneratingKeywords
-                      ? "AI is generating a campaign name based on your keywords..."
-                      : "Give your campaign a descriptive name or let AI generate one."}
+                      ? "AI is generating a search name based on your keywords..."
+                      : "Give your lead search a descriptive name or let AI generate one."}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -551,10 +559,10 @@ export default function CreateCampaignDialog({
                 {isCreating ? (
                   <>
                     <Loader2 className="mr-2 size-4 animate-spin" />
-                    Creating Campaign...
+                    Creating Lead Search...
                   </>
                 ) : (
-                  `Create & Score ${estimatedThreads} Threads`
+                  `Create & Find ${estimatedThreads} Threads`
                 )}
               </Button>
             </DialogFooter>
