@@ -104,7 +104,7 @@ export default function DashboardHeader({
                         >
                           <div className="flex-1">
                             <div className="font-medium">{campaign.name}</div>
-                            <div className="text-xs text-gray-500 mt-1">
+                            <div className="mt-1 text-xs text-gray-500">
                               {campaign.keywords.slice(0, 3).join(", ")}
                               {campaign.keywords.length > 3 && ` +${campaign.keywords.length - 3} more`}
                             </div>
