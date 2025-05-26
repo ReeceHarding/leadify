@@ -45,8 +45,13 @@ export const HeroSection = () => {
 
       try {
         // Get user's organizations
-        const organizationsResult = await getOrganizationsByUserIdAction(user.id)
-        if (!organizationsResult.isSuccess || !organizationsResult.data.length) {
+        const organizationsResult = await getOrganizationsByUserIdAction(
+          user.id
+        )
+        if (
+          !organizationsResult.isSuccess ||
+          !organizationsResult.data.length
+        ) {
           setHasLeads(false)
           setIsCheckingLeads(false)
           return
@@ -54,7 +59,9 @@ export const HeroSection = () => {
 
         // Get campaigns for the first organization
         const firstOrg = organizationsResult.data[0]
-        const campaignsResult = await getCampaignsByOrganizationIdAction(firstOrg.id)
+        const campaignsResult = await getCampaignsByOrganizationIdAction(
+          firstOrg.id
+        )
         if (!campaignsResult.isSuccess || !campaignsResult.data.length) {
           setHasLeads(false)
           setIsCheckingLeads(false)

@@ -8,7 +8,7 @@ import {
   createCampaignAction
 } from "@/actions/db/campaign-actions"
 import { getOrganizationsByUserIdAction } from "@/actions/db/organizations-actions"
-import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
+
 import { Suspense } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
@@ -53,7 +53,11 @@ export default async function CampaignSelector() {
     message: organizationsResult.message
   })
 
-  if (!organizationsResult.isSuccess || !organizationsResult.data || organizationsResult.data.length === 0) {
+  if (
+    !organizationsResult.isSuccess ||
+    !organizationsResult.data ||
+    organizationsResult.data.length === 0
+  ) {
     console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] ❌ No organizations found")
     console.log(
       "🔥🔥🔥 [CAMPAIGN-SELECTOR] ========== COMPONENT END (NO ORGANIZATIONS) =========="
@@ -88,7 +92,8 @@ export default async function CampaignSelector() {
         <Alert>
           <AlertCircle className="size-4" />
           <AlertDescription>
-            Please complete your organization setup by adding a website before creating campaigns.
+            Please complete your organization setup by adding a website before
+            creating campaigns.
           </AlertDescription>
         </Alert>
         <Button asChild>
@@ -103,7 +108,9 @@ export default async function CampaignSelector() {
     "🔥🔥🔥 [CAMPAIGN-SELECTOR] 📋 Fetching campaigns for organizationId:",
     activeOrganization.id
   )
-  const campaignsResult = await getCampaignsByOrganizationIdAction(activeOrganization.id)
+  const campaignsResult = await getCampaignsByOrganizationIdAction(
+    activeOrganization.id
+  )
   console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] Campaigns fetch complete")
   console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] Campaigns result:", {
     isSuccess: campaignsResult.isSuccess,

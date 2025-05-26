@@ -34,7 +34,7 @@ import {
   Info
 } from "lucide-react"
 import { toast } from "sonner"
-import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
+import { useOrganization } from "@/components/utilities/organization-provider"
 import { generateKeywordsAction } from "@/actions/lead-generation/keywords-actions"
 import { runLeadGenerationWorkflowWithLimitsAction } from "@/actions/lead-generation/workflow-actions"
 import CustomizeKeywordsDialog from "./dashboard/customize-keywords-dialog"
@@ -56,6 +56,7 @@ export default function FindNewLeadsDialog({
   currentKeywords,
   onSuccess
 }: FindNewLeadsDialogProps) {
+  const { activeOrganization } = useOrganization()
   const [selectedKeywords, setSelectedKeywords] = useState<string[]>([])
   const [suggestedKeywords, setSuggestedKeywords] = useState<string[]>([])
   const [customKeyword, setCustomKeyword] = useState("")
@@ -76,9 +77,8 @@ export default function FindNewLeadsDialog({
   const loadSuggestedKeywords = async () => {
     setIsGeneratingKeywords(true)
     try {
-      const profileResult = await getProfileByUserIdAction(userId)
-      if (!profileResult.isSuccess || !profileResult.data) {
-        toast.error("Failed to load profile")
+      if (!activeOrganization?.website) {
+        toast.error("Organization website not found")
         return
       }
 
@@ -89,7 +89,7 @@ export default function FindNewLeadsDialog({
           : ""
 
       const keywordsResult = await generateKeywordsAction({
-        website: profileResult.data.website || "",
+        website: activeOrganization.website,
         refinement: refinement
       })
 
@@ -118,9 +118,8 @@ export default function FindNewLeadsDialog({
 
     setIsGeneratingKeywords(true)
     try {
-      const profileResult = await getProfileByUserIdAction(userId)
-      if (!profileResult.isSuccess || !profileResult.data) {
-        toast.error("Failed to load profile")
+      if (!activeOrganization?.website) {
+        toast.error("Organization website not found")
         return
       }
 
@@ -128,7 +127,7 @@ export default function FindNewLeadsDialog({
       const refinement = `${aiRefinement}. Do not suggest these existing keywords: ${currentKeywords.join(", ")}`
 
       const keywordsResult = await generateKeywordsAction({
-        website: profileResult.data.website || "",
+        website: activeOrganization.website,
         refinement: refinement
       })
 

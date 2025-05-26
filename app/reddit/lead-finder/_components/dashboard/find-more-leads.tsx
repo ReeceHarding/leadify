@@ -55,10 +55,7 @@ import {
   Target
 } from "lucide-react"
 import { toast } from "sonner"
-import {
-  getProfileByUserIdAction,
-  updateProfileAction
-} from "@/actions/db/profiles-actions"
+import { useOrganization } from "@/components/utilities/organization-provider"
 import { getGeneratedCommentsByCampaignAction } from "@/actions/db/lead-generation-actions"
 import { runLeadGenerationWorkflowWithLimitsAction } from "@/actions/lead-generation/workflow-actions"
 import { generateKeywordsAction } from "@/actions/lead-generation/keywords-actions"
@@ -93,6 +90,7 @@ export default function FindMoreLeads({
   onFindingLeads,
   disabled
 }: FindMoreLeadsProps) {
+  const { activeOrganization } = useOrganization()
   const [isOpen, setIsOpen] = useState(false)
   const [keywords, setKeywords] = useState<string[]>([])
   const [keywordStats, setKeywordStats] = useState<KeywordStats[]>([])
@@ -251,17 +249,15 @@ export default function FindMoreLeads({
 
     setIsGeneratingKeywords(true)
     try {
-      // Get profile for website
-      const profileResult = await getProfileByUserIdAction(userId)
-      if (!profileResult.isSuccess || !profileResult.data) {
-        throw new Error("Failed to load profile")
+      if (!activeOrganization?.website) {
+        throw new Error("Organization website not found")
       }
 
       // Generate keywords with custom refinement
       const refinement = `${aiDescription}. Generate keywords for finding these specific types of customers.`
 
       const keywordsResult = await generateKeywordsAction({
-        website: profileResult.data.website || "",
+        website: activeOrganization.website,
         refinement: refinement
       })
 

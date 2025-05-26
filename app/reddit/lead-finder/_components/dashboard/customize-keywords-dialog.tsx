@@ -23,7 +23,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Sparkles, Info, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { generateKeywordsAction } from "@/actions/lead-generation/keywords-actions"
-import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
+import { useOrganization } from "@/components/utilities/organization-provider"
 
 interface CustomizeKeywordsDialogProps {
   open: boolean
@@ -40,6 +40,7 @@ export default function CustomizeKeywordsDialog({
   currentKeywords,
   onKeywordsGenerated
 }: CustomizeKeywordsDialogProps) {
+  const { activeOrganization } = useOrganization()
   const [refinementInstructions, setRefinementInstructions] = useState("")
   const [keywordCount, setKeywordCount] = useState("10")
   const [isGenerating, setIsGenerating] = useState(false)
@@ -52,10 +53,8 @@ export default function CustomizeKeywordsDialog({
 
     setIsGenerating(true)
     try {
-      // Get user profile for website content
-      const profileResult = await getProfileByUserIdAction(userId)
-      if (!profileResult.isSuccess || !profileResult.data) {
-        toast.error("Failed to load profile")
+      if (!activeOrganization?.website) {
+        toast.error("Organization website not found")
         return
       }
 
@@ -68,14 +67,14 @@ export default function CustomizeKeywordsDialog({
         Current keywords to avoid duplicating: ${currentKeywords.join(", ")}
         
         Business context:
-        - Name: ${profileResult.data.name || ""}
-        - Website: ${profileResult.data.website || ""}
+        - Name: ${activeOrganization.name || ""}
+        - Website: ${activeOrganization.website}
       `.trim()
 
       console.log("🎯 Generating keywords with refinement:", fullRefinement)
 
       const result = await generateKeywordsAction({
-        website: profileResult.data.website || "",
+        website: activeOrganization.website,
         refinement: fullRefinement
       })
 

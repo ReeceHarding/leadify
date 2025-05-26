@@ -103,7 +103,7 @@ import {
   getCampaignsByOrganizationIdAction,
   getCampaignByIdAction
 } from "@/actions/db/campaign-actions"
-import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
+
 import { regenerateCommentsWithToneAction } from "@/actions/integrations/openai/openai-actions"
 import {
   postCommentAndUpdateStatusAction,
@@ -325,17 +325,17 @@ export default function LeadFinderDashboard() {
           error: null
         }))
 
-        const profileResult = await getProfileByUserIdAction(user.id)
-        if (!profileResult.isSuccess) {
-          toast.error("Failed to load user profile. Cannot create campaign.")
-          addDebugLog("Failed to load profile for campaign creation", {
+        // Profile check removed - using organization context instead
+        if (!activeOrganization) {
+          toast.error("No organization selected. Cannot create campaign.")
+          addDebugLog("No organization selected for campaign creation", {
             userId: user.id
           })
           setState(prev => ({
             ...prev,
             workflowRunning: false,
             isLoading: false,
-            error: "Failed to load profile"
+            error: "No organization selected"
           }))
           return
         }
@@ -573,7 +573,9 @@ export default function LeadFinderDashboard() {
           return
         }
 
-        const campaignsResult = await getCampaignsByOrganizationIdAction(activeOrganization.id)
+        const campaignsResult = await getCampaignsByOrganizationIdAction(
+          activeOrganization.id
+        )
 
         if (campaignsResult.isSuccess && campaignsResult.data.length > 0) {
           const latestCampaign = campaignsResult.data.sort((a: any, b: any) => {
@@ -1684,24 +1686,28 @@ export default function LeadFinderDashboard() {
           // Refresh the campaigns list to get the new campaign
           if (user?.id && activeOrganization) {
             try {
-              const campaignsResult = await getCampaignsByOrganizationIdAction(activeOrganization.id)
+              const campaignsResult = await getCampaignsByOrganizationIdAction(
+                activeOrganization.id
+              )
 
               if (
                 campaignsResult.isSuccess &&
                 campaignsResult.data.length > 0
               ) {
                 // Get the latest campaign (most recently created)
-                const latestCampaign = campaignsResult.data.sort((a: any, b: any) => {
-                  const dateA =
-                    typeof a.createdAt === "string"
-                      ? new Date(a.createdAt)
-                      : (a.createdAt as Timestamp)?.toDate()
-                  const dateB =
-                    typeof b.createdAt === "string"
-                      ? new Date(b.createdAt)
-                      : (b.createdAt as Timestamp)?.toDate()
-                  return (dateB?.getTime() || 0) - (dateA?.getTime() || 0)
-                })[0]
+                const latestCampaign = campaignsResult.data.sort(
+                  (a: any, b: any) => {
+                    const dateA =
+                      typeof a.createdAt === "string"
+                        ? new Date(a.createdAt)
+                        : (a.createdAt as Timestamp)?.toDate()
+                    const dateB =
+                      typeof b.createdAt === "string"
+                        ? new Date(b.createdAt)
+                        : (b.createdAt as Timestamp)?.toDate()
+                    return (dateB?.getTime() || 0) - (dateA?.getTime() || 0)
+                  }
+                )[0]
 
                 addDebugLog("Selected new campaign", {
                   campaignId: latestCampaign.id,

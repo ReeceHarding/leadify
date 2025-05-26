@@ -3,22 +3,24 @@
 import { useEffect, useState } from "react"
 import { useOrganization } from "@/components/utilities/organization-provider"
 import { getKnowledgeBaseByOrganizationIdAction } from "@/actions/db/personalization-actions"
-import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
+
 import KnowledgeBaseClient from "./knowledge-base-client"
 import KnowledgeBaseSkeleton from "./knowledge-base-skeleton"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
 import { SerializedKnowledgeBaseDocument } from "@/types"
-import { SerializedProfileDocument } from "@/types"
 
 interface KnowledgeBaseWrapperProps {
   userId: string
 }
 
-export default function KnowledgeBaseWrapper({ userId }: KnowledgeBaseWrapperProps) {
+export default function KnowledgeBaseWrapper({
+  userId
+}: KnowledgeBaseWrapperProps) {
   const { activeOrganization, isLoading: orgLoading } = useOrganization()
-  const [knowledgeBase, setKnowledgeBase] = useState<SerializedKnowledgeBaseDocument | null>(null)
-  const [userProfile, setUserProfile] = useState<SerializedProfileDocument | null>(null)
+  const [knowledgeBase, setKnowledgeBase] =
+    useState<SerializedKnowledgeBaseDocument | null>(null)
+
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -32,13 +34,10 @@ export default function KnowledgeBaseWrapper({ userId }: KnowledgeBaseWrapperPro
 
     try {
       setIsLoading(true)
-      const [knowledgeBaseResult, profileResult] = await Promise.all([
-        getKnowledgeBaseByOrganizationIdAction(activeOrganization.id),
-        getProfileByUserIdAction(userId)
-      ])
-
+      const knowledgeBaseResult = await getKnowledgeBaseByOrganizationIdAction(
+        activeOrganization.id
+      )
       setKnowledgeBase(knowledgeBaseResult.data || null)
-      setUserProfile(profileResult.data || null)
     } catch (error) {
       console.error("Error loading knowledge base:", error)
     } finally {
@@ -55,7 +54,8 @@ export default function KnowledgeBaseWrapper({ userId }: KnowledgeBaseWrapperPro
       <Alert>
         <AlertCircle className="size-4" />
         <AlertDescription>
-          No organization selected. Please select an organization from the sidebar.
+          No organization selected. Please select an organization from the
+          sidebar.
         </AlertDescription>
       </Alert>
     )
@@ -66,7 +66,7 @@ export default function KnowledgeBaseWrapper({ userId }: KnowledgeBaseWrapperPro
       userId={userId}
       organizationId={activeOrganization.id}
       initialKnowledgeBase={knowledgeBase}
-      userProfile={userProfile}
+      userProfile={null}
     />
   )
-} 
+}
