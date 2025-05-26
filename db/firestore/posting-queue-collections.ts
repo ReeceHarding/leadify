@@ -1,3 +1,10 @@
+/*
+<ai_context>
+Defines Firestore collections for Reddit posting queue management.
+Updated to include organizationId for organization-specific posting.
+</ai_context>
+*/
+
 import { Timestamp } from "firebase/firestore"
 
 export const POSTING_QUEUE_COLLECTIONS = {
@@ -10,6 +17,7 @@ export interface PostingQueueDocument {
   leadId: string
   threadId: string
   userId: string
+  organizationId: string
   comment: string
   priority: number
   scheduledFor: Timestamp
@@ -27,6 +35,7 @@ export interface PostingQueueDocument {
 export interface RedditRateLimitDocument {
   id: string
   userId: string
+  organizationId: string
   lastPostTime: Timestamp
   postsInLastHour: number
   createdAt: Timestamp
@@ -37,6 +46,7 @@ export interface CreatePostingQueueData {
   leadId: string
   threadId: string
   userId: string
+  organizationId: string
   comment: string
   priority?: number
   scheduledFor?: Timestamp

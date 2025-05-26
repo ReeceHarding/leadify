@@ -1,6 +1,7 @@
 /*
 <ai_context>
 Defines Firestore collections for personalization features including knowledge base and voice settings.
+Updated to include organizationId for organization-specific personalization.
 </ai_context>
 */
 
@@ -18,6 +19,7 @@ export const PERSONALIZATION_COLLECTIONS = {
 export interface KnowledgeBaseDocument {
   id: string
   userId: string
+  organizationId: string
   websiteUrl?: string
   customInformation?: string
   scrapedPages?: string[]
@@ -29,6 +31,7 @@ export interface KnowledgeBaseDocument {
 
 export interface CreateKnowledgeBaseData {
   userId: string
+  organizationId: string
   websiteUrl?: string
   customInformation?: string
   scrapedPages?: string[]
@@ -57,6 +60,7 @@ export type WritingStyle =
 export interface VoiceSettingsDocument {
   id: string
   userId: string
+  organizationId: string
 
   // Writing style preferences
   writingStyle: WritingStyle
@@ -84,6 +88,7 @@ export interface VoiceSettingsDocument {
 
 export interface CreateVoiceSettingsData {
   userId: string
+  organizationId: string
   writingStyle: WritingStyle
   customWritingStyle?: string
   manualWritingStyleDescription?: string
@@ -118,6 +123,7 @@ export interface UpdateVoiceSettingsData {
 export interface ScrapedContentDocument {
   id: string
   userId: string
+  organizationId: string
   url: string
   title?: string
   content: string
@@ -132,6 +138,7 @@ export interface ScrapedContentDocument {
 
 export interface CreateScrapedContentData {
   userId: string
+  organizationId: string
   url: string
   title?: string
   content: string
@@ -156,6 +163,7 @@ export interface UpdateScrapedContentData {
 export interface TwitterAnalysisDocument {
   id: string
   userId: string
+  organizationId: string
   twitterHandle: string
   tweets: TwitterTweet[]
   writingStyleAnalysis: string
@@ -181,6 +189,7 @@ export interface TwitterTweet {
 
 export interface CreateTwitterAnalysisData {
   userId: string
+  organizationId: string
   twitterHandle: string
   tweets: TwitterTweet[]
   writingStyleAnalysis: string

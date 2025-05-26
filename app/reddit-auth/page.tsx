@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { generateRedditAuthUrlAction } from "@/actions/integrations/reddit/reddit-oauth-actions"
 import { Button } from "@/components/ui/button"
 import {
@@ -10,10 +10,23 @@ import {
   CardHeader,
   CardTitle
 } from "@/components/ui/card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { AlertCircle } from "lucide-react"
+import { useOrganization } from "@/components/utilities/organization-provider"
 
 export default function RedditAuthPage() {
   const [loading, setLoading] = useState(false)
   const [authUrl, setAuthUrl] = useState<string>("")
+  const { activeOrganization } = useOrganization()
+  const [pendingOrgId, setPendingOrgId] = useState<string | null>(null)
+
+  useEffect(() => {
+    // Check if we have a pending organization ID from settings
+    const orgId = sessionStorage.getItem("pendingRedditOrgId")
+    if (orgId) {
+      setPendingOrgId(orgId)
+    }
+  }, [])
 
   const handleGenerateAuthUrl = async () => {
     setLoading(true)
@@ -21,6 +34,19 @@ export default function RedditAuthPage() {
       const result = await generateRedditAuthUrlAction()
       if (result.isSuccess) {
         setAuthUrl(result.data.authUrl)
+
+        // Set organization ID cookie for the callback
+        const orgId = pendingOrgId || activeOrganization?.id
+        if (orgId) {
+          // Set cookie that will be read by the callback
+          document.cookie = `reddit_auth_org_id=${orgId}; path=/; max-age=3600; samesite=lax`
+        }
+
+        // Clear the pending org ID from session storage
+        if (pendingOrgId) {
+          sessionStorage.removeItem("pendingRedditOrgId")
+        }
+
         // Automatically redirect to Reddit
         window.location.href = result.data.authUrl
       } else {
@@ -33,20 +59,35 @@ export default function RedditAuthPage() {
     }
   }
 
+  const targetOrg = pendingOrgId
+    ? `for organization`
+    : activeOrganization
+      ? `for ${activeOrganization.name}`
+      : ""
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Reddit API Authentication</CardTitle>
           <CardDescription>
-            Click the button below to authenticate with Reddit and grant access
-            to your app.
+            Connect your Reddit account {targetOrg}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {!activeOrganization && !pendingOrgId && (
+            <Alert>
+              <AlertCircle className="size-4" />
+              <AlertDescription>
+                No organization selected. Please select an organization from the
+                sidebar first.
+              </AlertDescription>
+            </Alert>
+          )}
+
           <Button
             onClick={handleGenerateAuthUrl}
-            disabled={loading}
+            disabled={loading || (!activeOrganization && !pendingOrgId)}
             className="w-full"
             size="lg"
           >

@@ -2,6 +2,7 @@
 <ai_context>
 Defines Firestore collections for Reddit account warm-up feature.
 This feature helps users build karma and authority in target subreddits.
+Updated to include organizationId for organization-specific warmup campaigns.
 </ai_context>
 */
 
@@ -19,6 +20,7 @@ export const WARMUP_COLLECTIONS = {
 export interface WarmupAccountDocument {
   id: string
   userId: string
+  organizationId: string
   redditUsername: string
   targetSubreddits: string[] // List of subreddits to post in
   postingMode: "auto" | "manual" // Auto-post or manual verification
@@ -46,6 +48,7 @@ export interface SerializedWarmupAccountDocument
 export interface WarmupPostDocument {
   id: string
   userId: string
+  organizationId: string
   warmupAccountId: string
   subreddit: string
   title: string
@@ -78,6 +81,7 @@ export interface SerializedWarmupPostDocument
 export interface WarmupCommentDocument {
   id: string
   userId: string
+  organizationId: string
   warmupPostId: string
   parentCommentId?: string // For replies to comments
   redditParentCommentId?: string // The Reddit comment ID we're replying to
@@ -134,8 +138,9 @@ export interface SerializedSubredditAnalysisDocument
 
 // Rate limiting for warm-up posts
 export interface WarmupRateLimitDocument {
-  id: string // userId_subreddit
+  id: string // userId_organizationId_subreddit
   userId: string
+  organizationId: string
   subreddit: string
   lastPostTime: Timestamp
   postsInLast3Days: number
@@ -157,6 +162,7 @@ export interface SerializedWarmupRateLimitDocument
 // Create types
 export interface CreateWarmupAccountData {
   userId: string
+  organizationId: string
   redditUsername: string
   targetSubreddits: string[]
   postingMode?: "auto" | "manual"
@@ -165,6 +171,7 @@ export interface CreateWarmupAccountData {
 
 export interface CreateWarmupPostData {
   userId: string
+  organizationId: string
   warmupAccountId: string
   subreddit: string
   title: string
@@ -174,6 +181,7 @@ export interface CreateWarmupPostData {
 
 export interface CreateWarmupCommentData {
   userId: string
+  organizationId: string
   warmupPostId: string
   parentCommentId?: string
   redditParentCommentId?: string

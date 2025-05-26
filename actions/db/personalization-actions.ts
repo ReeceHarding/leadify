@@ -1,6 +1,7 @@
 /*
 <ai_context>
 Contains server actions related to personalization features in Firestore.
+Updated to include organizationId for organization-specific personalization.
 </ai_context>
 */
 
@@ -103,6 +104,7 @@ export async function createKnowledgeBaseAction(
 ): Promise<ActionState<SerializedKnowledgeBaseDocument>> {
   console.log("🔥 [KNOWLEDGE-BASE] Starting createKnowledgeBaseAction")
   console.log("🔥 [KNOWLEDGE-BASE] User ID:", data.userId)
+  console.log("🔥 [KNOWLEDGE-BASE] Organization ID:", data.organizationId)
 
   try {
     const knowledgeBaseRef = doc(
@@ -112,6 +114,7 @@ export async function createKnowledgeBaseAction(
     const knowledgeBaseData = {
       id: knowledgeBaseRef.id,
       userId: data.userId,
+      organizationId: data.organizationId,
       websiteUrl: data.websiteUrl || "",
       customInformation: data.customInformation || "",
       scrapedPages: data.scrapedPages || [],
@@ -150,10 +153,54 @@ export async function createKnowledgeBaseAction(
   }
 }
 
+export async function getKnowledgeBaseByOrganizationIdAction(
+  organizationId: string
+): Promise<ActionState<SerializedKnowledgeBaseDocument | null>> {
+  console.log("🔥 [KNOWLEDGE-BASE] Starting getKnowledgeBaseByOrganizationIdAction")
+  console.log("🔥 [KNOWLEDGE-BASE] Organization ID:", organizationId)
+
+  try {
+    const knowledgeBaseRef = collection(
+      db,
+      PERSONALIZATION_COLLECTIONS.KNOWLEDGE_BASE
+    )
+    const q = query(knowledgeBaseRef, where("organizationId", "==", organizationId))
+    const querySnapshot = await getDocs(q)
+
+    if (querySnapshot.empty) {
+      console.log("🔥 [KNOWLEDGE-BASE] No knowledge base found for organization")
+      return {
+        isSuccess: true,
+        message: "No knowledge base found",
+        data: null
+      }
+    }
+
+    const doc = querySnapshot.docs[0]
+    const knowledgeBase = serializeKnowledgeBase(
+      doc.data() as KnowledgeBaseDocument
+    )
+
+    console.log("🔥 [KNOWLEDGE-BASE] Knowledge base retrieved successfully")
+    return {
+      isSuccess: true,
+      message: "Knowledge base retrieved successfully",
+      data: knowledgeBase
+    }
+  } catch (error) {
+    console.error("🔥 [KNOWLEDGE-BASE] Error getting knowledge base:", error)
+    return {
+      isSuccess: false,
+      message: `Failed to get knowledge base: ${error instanceof Error ? error.message : "Unknown error"}`
+    }
+  }
+}
+
+// Keep legacy function for backward compatibility
 export async function getKnowledgeBaseByUserIdAction(
   userId: string
 ): Promise<ActionState<SerializedKnowledgeBaseDocument | null>> {
-  console.log("🔥 [KNOWLEDGE-BASE] Starting getKnowledgeBaseByUserIdAction")
+  console.log("🔥 [KNOWLEDGE-BASE] Starting getKnowledgeBaseByUserIdAction (LEGACY)")
   console.log("🔥 [KNOWLEDGE-BASE] User ID:", userId)
 
   try {
@@ -240,6 +287,7 @@ export async function createVoiceSettingsAction(
 ): Promise<ActionState<SerializedVoiceSettingsDocument>> {
   console.log("🔥 [VOICE-SETTINGS] Starting createVoiceSettingsAction")
   console.log("🔥 [VOICE-SETTINGS] User ID:", data.userId)
+  console.log("🔥 [VOICE-SETTINGS] Organization ID:", data.organizationId)
 
   try {
     const voiceSettingsRef = doc(
@@ -249,6 +297,7 @@ export async function createVoiceSettingsAction(
     const voiceSettingsData = {
       id: voiceSettingsRef.id,
       userId: data.userId,
+      organizationId: data.organizationId,
       writingStyle: data.writingStyle,
       customWritingStyle: data.customWritingStyle,
       manualWritingStyleDescription: data.manualWritingStyleDescription,
@@ -287,10 +336,54 @@ export async function createVoiceSettingsAction(
   }
 }
 
+export async function getVoiceSettingsByOrganizationIdAction(
+  organizationId: string
+): Promise<ActionState<SerializedVoiceSettingsDocument | null>> {
+  console.log("🔥 [VOICE-SETTINGS] Starting getVoiceSettingsByOrganizationIdAction")
+  console.log("🔥 [VOICE-SETTINGS] Organization ID:", organizationId)
+
+  try {
+    const voiceSettingsRef = collection(
+      db,
+      PERSONALIZATION_COLLECTIONS.VOICE_SETTINGS
+    )
+    const q = query(voiceSettingsRef, where("organizationId", "==", organizationId))
+    const querySnapshot = await getDocs(q)
+
+    if (querySnapshot.empty) {
+      console.log("🔥 [VOICE-SETTINGS] No voice settings found for organization")
+      return {
+        isSuccess: true,
+        message: "No voice settings found",
+        data: null
+      }
+    }
+
+    const doc = querySnapshot.docs[0]
+    const voiceSettings = serializeVoiceSettings(
+      doc.data() as VoiceSettingsDocument
+    )
+
+    console.log("🔥 [VOICE-SETTINGS] Voice settings retrieved successfully")
+    return {
+      isSuccess: true,
+      message: "Voice settings retrieved successfully",
+      data: voiceSettings
+    }
+  } catch (error) {
+    console.error("🔥 [VOICE-SETTINGS] Error getting voice settings:", error)
+    return {
+      isSuccess: false,
+      message: `Failed to get voice settings: ${error instanceof Error ? error.message : "Unknown error"}`
+    }
+  }
+}
+
+// Keep legacy function for backward compatibility
 export async function getVoiceSettingsByUserIdAction(
   userId: string
 ): Promise<ActionState<SerializedVoiceSettingsDocument | null>> {
-  console.log("🔥 [VOICE-SETTINGS] Starting getVoiceSettingsByUserIdAction")
+  console.log("🔥 [VOICE-SETTINGS] Starting getVoiceSettingsByUserIdAction (LEGACY)")
   console.log("🔥 [VOICE-SETTINGS] User ID:", userId)
 
   try {
@@ -377,6 +470,7 @@ export async function createScrapedContentAction(
 ): Promise<ActionState<SerializedScrapedContentDocument>> {
   console.log("🔥 [SCRAPED-CONTENT] Starting createScrapedContentAction")
   console.log("🔥 [SCRAPED-CONTENT] User ID:", data.userId)
+  console.log("🔥 [SCRAPED-CONTENT] Organization ID:", data.organizationId)
   console.log("🔥 [SCRAPED-CONTENT] URL:", data.url)
 
   try {
@@ -387,6 +481,7 @@ export async function createScrapedContentAction(
     const scrapedContentData = {
       id: scrapedContentRef.id,
       userId: data.userId,
+      organizationId: data.organizationId,
       url: data.url,
       title: data.title || "",
       content: data.content,
@@ -428,18 +523,18 @@ export async function createScrapedContentAction(
   }
 }
 
-export async function getScrapedContentByUserIdAction(
-  userId: string
+export async function getScrapedContentByOrganizationIdAction(
+  organizationId: string
 ): Promise<ActionState<SerializedScrapedContentDocument[]>> {
-  console.log("🔥 [SCRAPED-CONTENT] Starting getScrapedContentByUserIdAction")
-  console.log("🔥 [SCRAPED-CONTENT] User ID:", userId)
+  console.log("🔥 [SCRAPED-CONTENT] Starting getScrapedContentByOrganizationIdAction")
+  console.log("🔥 [SCRAPED-CONTENT] Organization ID:", organizationId)
 
   try {
     const scrapedContentRef = collection(
       db,
       PERSONALIZATION_COLLECTIONS.SCRAPED_CONTENT
     )
-    const q = query(scrapedContentRef, where("userId", "==", userId))
+    const q = query(scrapedContentRef, where("organizationId", "==", organizationId))
     const querySnapshot = await getDocs(q)
 
     const scrapedContent = querySnapshot.docs.map(doc =>
@@ -447,8 +542,7 @@ export async function getScrapedContentByUserIdAction(
     )
 
     console.log(
-      "🔥 [SCRAPED-CONTENT] Scraped content retrieved successfully:",
-      scrapedContent.length
+      `🔥 [SCRAPED-CONTENT] Retrieved ${scrapedContent.length} scraped content items`
     )
     return {
       isSuccess: true,
@@ -470,6 +564,7 @@ export async function createTwitterAnalysisAction(
 ): Promise<ActionState<SerializedTwitterAnalysisDocument>> {
   console.log("🔥 [TWITTER-ANALYSIS] Starting createTwitterAnalysisAction")
   console.log("🔥 [TWITTER-ANALYSIS] User ID:", data.userId)
+  console.log("🔥 [TWITTER-ANALYSIS] Organization ID:", data.organizationId)
   console.log("🔥 [TWITTER-ANALYSIS] Twitter handle:", data.twitterHandle)
 
   try {
@@ -480,6 +575,7 @@ export async function createTwitterAnalysisAction(
     const twitterAnalysisData = {
       id: twitterAnalysisRef.id,
       userId: data.userId,
+      organizationId: data.organizationId,
       twitterHandle: data.twitterHandle,
       tweets: data.tweets,
       writingStyleAnalysis: data.writingStyleAnalysis,
@@ -519,22 +615,33 @@ export async function createTwitterAnalysisAction(
   }
 }
 
-export async function getTwitterAnalysisByUserIdAction(
-  userId: string
+export async function getTwitterAnalysisByOrganizationIdAction(
+  organizationId: string,
+  twitterHandle?: string
 ): Promise<ActionState<SerializedTwitterAnalysisDocument | null>> {
-  console.log("🔥 [TWITTER-ANALYSIS] Starting getTwitterAnalysisByUserIdAction")
-  console.log("🔥 [TWITTER-ANALYSIS] User ID:", userId)
+  console.log("🔥 [TWITTER-ANALYSIS] Starting getTwitterAnalysisByOrganizationIdAction")
+  console.log("🔥 [TWITTER-ANALYSIS] Organization ID:", organizationId)
+  console.log("🔥 [TWITTER-ANALYSIS] Twitter handle:", twitterHandle)
 
   try {
     const twitterAnalysisRef = collection(
       db,
       PERSONALIZATION_COLLECTIONS.TWITTER_ANALYSIS
     )
-    const q = query(twitterAnalysisRef, where("userId", "==", userId))
+
+    let q = query(twitterAnalysisRef, where("organizationId", "==", organizationId))
+    if (twitterHandle) {
+      q = query(
+        twitterAnalysisRef,
+        where("organizationId", "==", organizationId),
+        where("twitterHandle", "==", twitterHandle)
+      )
+    }
+
     const querySnapshot = await getDocs(q)
 
     if (querySnapshot.empty) {
-      console.log("🔥 [TWITTER-ANALYSIS] No twitter analysis found for user")
+      console.log("🔥 [TWITTER-ANALYSIS] No twitter analysis found")
       return {
         isSuccess: true,
         message: "No twitter analysis found",
@@ -554,10 +661,7 @@ export async function getTwitterAnalysisByUserIdAction(
       data: twitterAnalysis
     }
   } catch (error) {
-    console.error(
-      "🔥 [TWITTER-ANALYSIS] Error getting twitter analysis:",
-      error
-    )
+    console.error("🔥 [TWITTER-ANALYSIS] Error getting twitter analysis:", error)
     return {
       isSuccess: false,
       message: `Failed to get twitter analysis: ${error instanceof Error ? error.message : "Unknown error"}`

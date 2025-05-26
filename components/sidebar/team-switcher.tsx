@@ -10,7 +10,6 @@ Updated to use organizations from Firestore and include create organization func
 import { ChevronsUpDown, Plus, Building2 } from "lucide-react"
 import * as React from "react"
 import { useRouter } from "next/navigation"
-import { toast } from "sonner"
 
 import {
   DropdownMenu,
@@ -28,88 +27,36 @@ import {
   useSidebar
 } from "@/components/ui/sidebar"
 import CreateOrganizationDialog from "./create-organization-dialog"
-import { getOrganizationsByUserIdAction } from "@/actions/db/organizations-actions"
-import { useUser } from "@clerk/nextjs"
-import { SerializedOrganizationDocument } from "@/db/schema"
+import { useOrganization } from "@/components/utilities/organization-provider"
 
 export function TeamSwitcher() {
   const { isMobile } = useSidebar()
-  const { user } = useUser()
   const router = useRouter()
-  const [organizations, setOrganizations] = React.useState<
-    SerializedOrganizationDocument[]
-  >([])
-  const [activeOrg, setActiveOrg] =
-    React.useState<SerializedOrganizationDocument | null>(null)
-  const [isLoading, setIsLoading] = React.useState(true)
+  const {
+    organizations,
+    activeOrganization,
+    isLoading,
+    setActiveOrganization,
+    refreshOrganizations
+  } = useOrganization()
   const [showCreateDialog, setShowCreateDialog] = React.useState(false)
 
-  // Load organizations on mount
-  React.useEffect(() => {
-    if (user?.id) {
-      loadOrganizations()
-    }
-  }, [user?.id])
-
-  const loadOrganizations = async () => {
-    if (!user?.id) return
-
-    try {
-      setIsLoading(true)
-      const result = await getOrganizationsByUserIdAction(user.id)
-
-      if (result.isSuccess && result.data) {
-        setOrganizations(result.data)
-
-        // Set the first organization as active if none is selected
-        if (result.data.length > 0 && !activeOrg) {
-          setActiveOrg(result.data[0])
-          // Store in localStorage for persistence
-          localStorage.setItem("activeOrgId", result.data[0].id)
-        } else if (activeOrg) {
-          // Update activeOrg with fresh data
-          const updated = result.data.find(
-            (org: SerializedOrganizationDocument) => org.id === activeOrg.id
-          )
-          if (updated) {
-            setActiveOrg(updated)
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Error loading organizations:", error)
-      toast.error("Failed to load organizations")
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  // Load active org from localStorage on mount
-  React.useEffect(() => {
-    const storedOrgId = localStorage.getItem("activeOrgId")
-    if (storedOrgId && organizations.length > 0) {
-      const org = organizations.find(o => o.id === storedOrgId)
-      if (org) {
-        setActiveOrg(org)
-      }
-    }
-  }, [organizations])
-
-  const handleOrganizationSwitch = (org: SerializedOrganizationDocument) => {
-    setActiveOrg(org)
-    localStorage.setItem("activeOrgId", org.id)
-    // Optionally refresh the page or update context
+  const handleOrganizationSwitch = (org: (typeof organizations)[0]) => {
+    setActiveOrganization(org)
+    // Refresh the page to update all components
     router.refresh()
   }
 
-  const handleCreateSuccess = (organizationId: string) => {
-    // Reload organizations and switch to the new one
-    loadOrganizations().then(() => {
-      const newOrg = organizations.find(org => org.id === organizationId)
-      if (newOrg) {
-        handleOrganizationSwitch(newOrg)
-      }
-    })
+  const handleCreateSuccess = async (organizationId: string) => {
+    // Reload organizations
+    await refreshOrganizations()
+
+    // Find and switch to the new organization
+    const newOrg = organizations.find(org => org.id === organizationId)
+    if (newOrg) {
+      handleOrganizationSwitch(newOrg)
+    }
+
     // Navigate to lead finder
     router.push("/reddit/lead-finder")
   }
@@ -179,10 +126,10 @@ export function TeamSwitcher() {
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">
-                    {activeOrg?.name || "Select Organization"}
+                    {activeOrganization?.name || "Select Organization"}
                   </span>
                   <span className="truncate text-xs">
-                    {activeOrg?.plan || "Free"}
+                    {activeOrganization?.plan || "Free"}
                   </span>
                 </div>
                 <ChevronsUpDown className="ml-auto" />

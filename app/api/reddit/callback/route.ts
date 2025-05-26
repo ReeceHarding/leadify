@@ -2,6 +2,8 @@
 
 import { NextRequest, NextResponse } from "next/server"
 import { exchangeRedditCodeForTokensUserAction } from "@/actions/integrations/reddit/reddit-oauth-user-actions"
+import { exchangeRedditCodeForTokensOrganizationAction } from "@/actions/integrations/reddit/reddit-oauth-organization-actions"
+import { cookies } from "next/headers"
 
 export async function GET(request: NextRequest) {
   try {
@@ -51,8 +53,31 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Exchange code for tokens and save to user profile
-    const result = await exchangeRedditCodeForTokensUserAction(code, state)
+    // Check if we have an organization ID in the cookies (set by client)
+    const cookieStore = await cookies()
+    const orgIdCookie = cookieStore.get("reddit_auth_org_id")
+    const organizationId = orgIdCookie?.value
+
+    let result
+    if (organizationId) {
+      // Organization-specific authentication
+      console.log(
+        "Processing organization-specific Reddit auth for org:",
+        organizationId
+      )
+      result = await exchangeRedditCodeForTokensOrganizationAction(
+        code,
+        state,
+        organizationId
+      )
+
+      // Clear the organization ID cookie
+      cookieStore.delete("reddit_auth_org_id")
+    } else {
+      // User profile authentication (legacy)
+      console.log("Processing user profile Reddit auth")
+      result = await exchangeRedditCodeForTokensUserAction(code, state)
+    }
 
     if (!result.isSuccess) {
       console.error("Token exchange failed:", result.message)
@@ -74,10 +99,10 @@ export async function GET(request: NextRequest) {
     }
 
     // Parse return URL from state
-    let returnUrl = "/onboarding"
+    let returnUrl = organizationId ? "/reddit/settings" : "/onboarding"
     try {
       const stateData = JSON.parse(Buffer.from(state, "base64").toString())
-      returnUrl = stateData.returnUrl || "/onboarding"
+      returnUrl = stateData.returnUrl || returnUrl
     } catch (error) {
       console.error("Failed to parse state parameter:", error)
     }

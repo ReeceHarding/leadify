@@ -44,7 +44,8 @@ const data = {
         { title: "Lead Finder", url: "/reddit/lead-finder" },
         { title: "My Posts", url: "/reddit/my-posts" },
         { title: "Knowledge Base", url: "/reddit/knowledge-base" },
-        { title: "Voice", url: "/reddit/voice-settings" }
+        { title: "Voice", url: "/reddit/voice-settings" },
+        { title: "Settings", url: "/reddit/settings" }
       ]
     }
   ],
