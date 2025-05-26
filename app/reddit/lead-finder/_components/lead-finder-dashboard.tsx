@@ -109,10 +109,6 @@ import {
   postCommentAndUpdateStatusAction,
   testRedditPostingAction
 } from "@/actions/integrations/reddit/reddit-posting-actions"
-import {
-  queuePostsForAsyncProcessing,
-  getPostingQueueStatus
-} from "@/actions/integrations/reddit/reddit-posting-queue"
 import { useUser } from "@clerk/nextjs"
 import {
   Timestamp,
@@ -1116,6 +1112,8 @@ export default function LeadFinderDashboard() {
         comment: getDisplayComment(lead)
       }))
 
+      // Dynamic import to avoid importing server action in client component
+      const { queuePostsForAsyncProcessing } = await import("@/actions/integrations/reddit/reddit-posting-queue")
       const result = await queuePostsForAsyncProcessing(user.id, posts)
 
       if (result.isSuccess) {
@@ -1142,6 +1140,8 @@ export default function LeadFinderDashboard() {
     if (!user?.id) return
 
     try {
+      // Dynamic import to avoid importing server action in client component
+      const { getPostingQueueStatus } = await import("@/actions/integrations/reddit/reddit-posting-queue")
       const result = await getPostingQueueStatus(user.id)
 
       if (result.isSuccess) {
