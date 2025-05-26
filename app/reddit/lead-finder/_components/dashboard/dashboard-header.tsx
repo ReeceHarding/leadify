@@ -35,14 +35,25 @@ import {
   Edit2
 } from "lucide-react"
 
+interface Campaign {
+  id: string
+  name: string
+  keywords: string[]
+  status: "draft" | "running" | "completed" | "paused" | "error"
+  totalCommentsGenerated: number
+  createdAt: string
+}
+
 interface DashboardHeaderProps {
   campaignName?: string
   campaignId: string | null
+  campaigns: Campaign[]
   totalLeads: number
   queuedLeads: number
   postedLeads: number
   onCreateCampaign: () => void
   onRunWorkflow: () => void
+  onSelectCampaign: (campaignId: string) => void
   isWorkflowRunning: boolean
   onMassPost?: () => void
 }
@@ -50,11 +61,13 @@ interface DashboardHeaderProps {
 export default function DashboardHeader({
   campaignName,
   campaignId,
+  campaigns,
   totalLeads,
   queuedLeads,
   postedLeads,
   onCreateCampaign,
   onRunWorkflow,
+  onSelectCampaign,
   isWorkflowRunning,
   onMassPost
 }: DashboardHeaderProps) {
@@ -77,17 +90,44 @@ export default function DashboardHeader({
                       <ChevronDown className="size-3" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Lead Search Actions</DropdownMenuLabel>
+                  <DropdownMenuContent align="end" className="w-80">
+                    <DropdownMenuLabel>All Lead Searches</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={() =>
-                        toast.info("Lead search editing coming soon!")
-                      }
-                    >
-                      <Edit2 className="mr-2 size-4" />
-                      Edit Lead Search
-                    </DropdownMenuItem>
+                    {campaigns.length > 0 ? (
+                      campaigns.map((campaign) => (
+                        <DropdownMenuItem
+                          key={campaign.id}
+                          onClick={() => onSelectCampaign(campaign.id)}
+                          className={`flex items-center justify-between p-3 ${
+                            campaign.id === campaignId ? "bg-blue-50 dark:bg-blue-950/30" : ""
+                          }`}
+                        >
+                          <div className="flex-1">
+                            <div className="font-medium">{campaign.name}</div>
+                            <div className="text-xs text-gray-500 mt-1">
+                              {campaign.keywords.slice(0, 3).join(", ")}
+                              {campaign.keywords.length > 3 && ` +${campaign.keywords.length - 3} more`}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge 
+                              variant={campaign.status === "running" ? "default" : "secondary"}
+                              className="text-xs"
+                            >
+                              {campaign.status}
+                            </Badge>
+                            <span className="text-xs text-gray-500">
+                              {campaign.totalCommentsGenerated} leads
+                            </span>
+                          </div>
+                        </DropdownMenuItem>
+                      ))
+                    ) : (
+                      <DropdownMenuItem disabled>
+                        <span className="text-gray-500">No campaigns yet</span>
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={onCreateCampaign}>
                       <Plus className="mr-2 size-4" />
                       New Lead Search

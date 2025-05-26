@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useOrganization } from "@/components/utilities/organization-provider"
 import {
   Card,
@@ -35,6 +35,15 @@ export default function OrganizationSettings() {
     activeOrganization?.businessDescription || ""
   )
   const router = useRouter()
+
+  // Sync form state with active organization
+  useEffect(() => {
+    if (activeOrganization) {
+      setOrgName(activeOrganization.name || "")
+      setWebsite(activeOrganization.website || "")
+      setBusinessDescription(activeOrganization.businessDescription || "")
+    }
+  }, [activeOrganization])
 
   if (!activeOrganization) {
     return (
@@ -73,10 +82,26 @@ export default function OrganizationSettings() {
     }
   }
 
-  const handleConnectReddit = () => {
-    // Store organization ID in session storage for Reddit callback
-    sessionStorage.setItem("pendingRedditOrgId", activeOrganization.id)
-    router.push("/reddit-auth")
+  const handleConnectReddit = async () => {
+    if (!activeOrganization) return
+    
+    try {
+      // Store organization ID in cookie for Reddit callback
+      document.cookie = `reddit_auth_org_id=${activeOrganization.id}; path=/; max-age=600; SameSite=Lax`
+      
+      // Generate Reddit auth URL and redirect directly
+      const { generateRedditAuthUrlAction } = await import("@/actions/integrations/reddit/reddit-oauth-actions")
+      const result = await generateRedditAuthUrlAction()
+      
+      if (result.isSuccess) {
+        window.location.href = result.data.authUrl
+      } else {
+        toast.error(result.message || "Failed to generate Reddit auth URL")
+      }
+    } catch (error) {
+      console.error("Error connecting Reddit:", error)
+      toast.error("Failed to connect Reddit account")
+    }
   }
 
   return (

@@ -151,10 +151,20 @@ import { getTimeAgo, serializeTimestampToISO } from "./dashboard/utils"
 const ITEMS_PER_PAGE = 10
 const POLLING_INTERVAL = 5000 // 5 seconds
 
+interface Campaign {
+  id: string
+  name: string
+  keywords: string[]
+  status: "draft" | "running" | "completed" | "paused" | "error"
+  totalCommentsGenerated: number
+  createdAt: string
+}
+
 interface DashboardState {
   // Core state
   campaignId: string | null
   campaignName: string | null
+  campaigns: Campaign[]
   leads: LeadResult[]
   isLoading: boolean
   error: string | null
@@ -197,6 +207,7 @@ interface DashboardState {
 const initialState: DashboardState = {
   campaignId: null,
   campaignName: null,
+  campaigns: [],
   leads: [],
   isLoading: true,
   error: null,
@@ -576,6 +587,22 @@ export default function LeadFinderDashboard() {
         const campaignsResult = await getCampaignsByOrganizationIdAction(
           activeOrganization.id
         )
+
+        // Transform campaigns data for the dropdown
+        const transformedCampaigns: Campaign[] = campaignsResult.isSuccess 
+          ? campaignsResult.data.map(campaign => ({
+              id: campaign.id,
+              name: campaign.name,
+              keywords: campaign.keywords || [],
+              status: campaign.status || "draft",
+              totalCommentsGenerated: 0, // TODO: Get actual count from generated_comments
+              createdAt: typeof campaign.createdAt === "string" 
+                ? campaign.createdAt 
+                : (campaign.createdAt as any)?.toDate?.()?.toISOString() || new Date().toISOString()
+            }))
+          : []
+
+        setState(prev => ({ ...prev, campaigns: transformedCampaigns }))
 
         if (campaignsResult.isSuccess && campaignsResult.data.length > 0) {
           const latestCampaign = campaignsResult.data.sort((a: any, b: any) => {
@@ -1455,11 +1482,25 @@ export default function LeadFinderDashboard() {
       <DashboardHeader
         campaignId={state.campaignId}
         campaignName={state.campaignName || undefined}
+        campaigns={state.campaigns}
         totalLeads={state.leads.length}
         queuedLeads={state.leads.filter(l => l.status === "queued").length}
         postedLeads={state.leads.filter(l => l.status === "posted").length}
         onCreateCampaign={() => setCreateDialogOpen(true)}
         onRunWorkflow={manualRunWorkflow}
+        onSelectCampaign={(campaignId: string) => {
+          setState(prev => ({ ...prev, campaignId, isLoading: true }))
+          // Load campaign details
+          getCampaignByIdAction(campaignId).then(result => {
+            if (result.isSuccess && result.data) {
+              setState(prev => ({
+                ...prev,
+                campaignName: result.data.name || null
+              }))
+              setCurrentCampaignKeywords(result.data.keywords || [])
+            }
+          })
+        }}
         isWorkflowRunning={state.workflowRunning}
         onMassPost={handleMassPost}
       />

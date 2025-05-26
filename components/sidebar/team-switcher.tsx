@@ -48,14 +48,24 @@ export function TeamSwitcher() {
   }
 
   const handleCreateSuccess = async (organizationId: string) => {
-    // Reload organizations
+    // Reload organizations first
     await refreshOrganizations()
 
-    // Find and switch to the new organization
-    const newOrg = organizations.find(org => org.id === organizationId)
-    if (newOrg) {
-      handleOrganizationSwitch(newOrg)
-    }
+    // Wait a bit for the state to update, then find and switch to the new organization
+    setTimeout(() => {
+      const newOrg = organizations.find(org => org.id === organizationId)
+      if (newOrg) {
+        handleOrganizationSwitch(newOrg)
+      } else {
+        // If not found, refresh again and try once more
+        refreshOrganizations().then(() => {
+          const retryOrg = organizations.find(org => org.id === organizationId)
+          if (retryOrg) {
+            handleOrganizationSwitch(retryOrg)
+          }
+        })
+      }
+    }, 100)
 
     // Navigate to lead finder
     router.push("/reddit/lead-finder")
