@@ -33,7 +33,8 @@ import {
   Search,
   Target,
   Sparkles,
-  Building2
+  Building2,
+  Info
 } from "lucide-react"
 import { createCampaignAction } from "@/actions/db/campaign-actions"
 import { runFullLeadGenerationWorkflowAction } from "@/actions/lead-generation/workflow-actions"
@@ -43,6 +44,9 @@ import { useUser } from "@clerk/nextjs"
 import { generateKeywordsAction } from "@/actions/lead-generation/keywords-actions"
 import { scrapeWebsiteAction } from "@/actions/integrations/firecrawl/website-scraping-actions"
 import { normalizeUrl, isValidUrl } from "@/lib/utils"
+import { useOrganization } from "@/components/utilities/organization-provider"
+import { getKnowledgeBaseByOrganizationIdAction } from "@/actions/db/personalization-actions"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 const campaignSchema = z
   .object({
@@ -102,12 +106,15 @@ export default function CreateCampaignDialog({
   organizationId
 }: CreateCampaignDialogProps) {
   const { user } = useUser()
+  const { activeOrganization } = useOrganization()
   const [currentKeyword, setCurrentKeyword] = useState("")
   const [isCreating, setIsCreating] = useState(false)
   const [isGeneratingKeywords, setIsGeneratingKeywords] = useState(false)
   const [generationStep, setGenerationStep] = useState<
     "idle" | "scraping" | "generating"
   >("idle")
+  const [organizationDescription, setOrganizationDescription] = useState<string>("")
+  const [hasLoadedOrgData, setHasLoadedOrgData] = useState(false)
 
   const form = useForm<CampaignForm>({
     resolver: zodResolver(campaignSchema),
@@ -122,6 +129,57 @@ export default function CreateCampaignDialog({
   const keywordsForm = form.watch("keywords")
   const websiteForm = form.watch("website")
   const businessDescriptionForm = form.watch("businessDescription")
+
+  // Load organization data when dialog opens
+  useEffect(() => {
+    const loadOrganizationData = async () => {
+      if (!open || hasLoadedOrgData || !organizationId || !activeOrganization) return
+      
+      try {
+        console.log("🏢 [CREATE-CAMPAIGN] Loading organization data")
+        
+        // Set website from organization
+        if (activeOrganization.website) {
+          form.setValue("website", activeOrganization.website)
+        }
+        
+        // Build comprehensive business description from organization data
+        let fullDescription = ""
+        
+        if (activeOrganization.businessDescription) {
+          fullDescription = activeOrganization.businessDescription
+        }
+        
+        // Try to get knowledge base for additional context
+        const kbResult = await getKnowledgeBaseByOrganizationIdAction(organizationId)
+        if (kbResult.isSuccess && kbResult.data) {
+          if (kbResult.data.summary) {
+            fullDescription += fullDescription ? `\n\n${kbResult.data.summary}` : kbResult.data.summary
+          }
+          if (kbResult.data.customInformation) {
+            fullDescription += fullDescription ? `\n\n${kbResult.data.customInformation}` : kbResult.data.customInformation
+          }
+        }
+        
+        setOrganizationDescription(fullDescription)
+        setHasLoadedOrgData(true)
+        
+        console.log("🏢 [CREATE-CAMPAIGN] Organization data loaded successfully")
+      } catch (error) {
+        console.error("❌ [CREATE-CAMPAIGN] Error loading organization data:", error)
+      }
+    }
+    
+    loadOrganizationData()
+  }, [open, organizationId, activeOrganization, hasLoadedOrgData, form])
+
+  // Reset when dialog closes
+  useEffect(() => {
+    if (!open) {
+      setHasLoadedOrgData(false)
+      setOrganizationDescription("")
+    }
+  }, [open])
 
   // Auto-generate campaign name when keywords or website/description change
   useEffect(() => {
@@ -175,7 +233,10 @@ export default function CreateCampaignDialog({
     const website = form.getValues("website")
     const businessDescription = form.getValues("businessDescription")
 
-    if (!website?.trim() && !businessDescription?.trim()) {
+    // Use organization description as fallback
+    const effectiveDescription = businessDescription?.trim() || organizationDescription
+
+    if (!website?.trim() && !effectiveDescription) {
       toast.error(
         "Please enter your website URL or describe your business first"
       )
@@ -186,7 +247,7 @@ export default function CreateCampaignDialog({
     setGenerationStep(website ? "scraping" : "generating")
 
     try {
-      let contentForKeywords = businessDescription || ""
+      let contentForKeywords = effectiveDescription || ""
 
       if (website) {
         // Step 1: Scrape the website
@@ -198,7 +259,7 @@ export default function CreateCampaignDialog({
         }
 
         contentForKeywords =
-          scrapeResult.data.content || businessDescription || ""
+          scrapeResult.data.content || effectiveDescription || ""
       }
 
       // Step 2: Generate keywords
@@ -207,7 +268,7 @@ export default function CreateCampaignDialog({
 
       const keywordsResult = await generateKeywordsAction({
         website: website || undefined,
-        businessDescription: contentForKeywords || businessDescription,
+        businessDescription: contentForKeywords || effectiveDescription,
         refinement:
           "Generate 10 diverse keywords for finding potential customers on Reddit"
       })
@@ -253,13 +314,16 @@ export default function CreateCampaignDialog({
         ? normalizeUrl(data.website.trim())
         : undefined
 
+      // Use campaign-specific description if provided, otherwise use organization description
+      const effectiveDescription = data.businessDescription?.trim() || organizationDescription
+
       // Create the campaign
       const campaignResult = await createCampaignAction({
         userId: user.id,
         organizationId: organizationId,
         name: data.name,
         website: normalizedWebsite,
-        businessDescription: data.businessDescription || undefined,
+        businessDescription: effectiveDescription || undefined,
         keywords: data.keywords
       })
 
@@ -331,7 +395,8 @@ export default function CreateCampaignDialog({
     keywords.length > 0 &&
     form.getValues("name").trim().length > 0 &&
     (form.getValues("website")?.trim() ||
-      form.getValues("businessDescription")?.trim()) &&
+      form.getValues("businessDescription")?.trim() ||
+      organizationDescription) &&
     !isCreating
 
   return (
@@ -350,6 +415,21 @@ export default function CreateCampaignDialog({
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-4 py-4"
           >
+            {/* Show organization info if available */}
+            {activeOrganization && organizationDescription && (
+              <Alert>
+                <Info className="size-4" />
+                <AlertDescription>
+                  <strong>Using organization profile:</strong> {activeOrganization.name}
+                  {activeOrganization.website && (
+                    <span className="text-muted-foreground block text-xs mt-1">
+                      Website: {activeOrganization.website}
+                    </span>
+                  )}
+                </AlertDescription>
+              </Alert>
+            )}
+
             <FormField
               control={form.control}
               name="name"
@@ -405,7 +485,7 @@ export default function CreateCampaignDialog({
               )}
             />
 
-            {/* Show business description field when no website is provided */}
+            {/* Update business description field */}
             {!websiteForm && (
               <FormField
                 control={form.control}
@@ -414,19 +494,22 @@ export default function CreateCampaignDialog({
                   <FormItem>
                     <FormLabel className="flex items-center gap-2">
                       <Building2 className="size-4" />
-                      Business Description
+                      Campaign-Specific Details (Optional)
                     </FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Describe your business, products, or services. What do you offer? Who are your ideal customers?"
+                        placeholder={organizationDescription 
+                          ? "Add any campaign-specific details or leave blank to use your organization's description"
+                          : "Describe your business, products, or services. What do you offer? Who are your ideal customers?"}
                         className="min-h-[100px] resize-none"
                         {...field}
                         disabled={isCreating}
                       />
                     </FormControl>
                     <FormDescription>
-                      Help us understand your business to generate better
-                      keywords
+                      {organizationDescription 
+                        ? "Add campaign-specific details to supplement your organization's description"
+                        : "Help us understand your business to generate better keywords"}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -478,7 +561,8 @@ export default function CreateCampaignDialog({
                       onClick={handleGenerateWithAI}
                       disabled={
                         (!websiteForm?.trim() &&
-                          !businessDescriptionForm?.trim()) ||
+                          !businessDescriptionForm?.trim() &&
+                          !organizationDescription) ||
                         field.value.length >= 10 ||
                         isGeneratingKeywords ||
                         isCreating
