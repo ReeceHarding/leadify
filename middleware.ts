@@ -49,6 +49,12 @@ export default clerkMiddleware(async (auth, req) => {
     }
   }
   
+  // Skip authentication for /reddit/lead-finder (testing purposes)
+  if (pathname === "/reddit/lead-finder") {
+    console.log("🔥🔥🔥 [MIDDLEWARE] Skipping auth for /reddit/lead-finder (testing)")
+    return NextResponse.next()
+  }
+  
   // For all other routes, check authentication
   const { userId } = await auth()
   console.log("🔥🔥🔥 [MIDDLEWARE] Auth userId:", userId)
