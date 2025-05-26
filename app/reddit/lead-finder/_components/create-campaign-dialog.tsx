@@ -76,18 +76,8 @@ const campaignSchema = z
       }
     }
 
-    // Ensure either website or businessDescription is provided
-    const hasWebsite = data.website && data.website.trim().length > 0
-    const hasDescription =
-      data.businessDescription && data.businessDescription.trim().length > 0
-
-    if (!hasWebsite && !hasDescription) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Either website or business description is required",
-        path: ["businessDescription"]
-      })
-    }
+    // Remove the requirement for website or businessDescription
+    // This validation is now handled by the component's organizationDescription
   })
 
 type CampaignForm = z.infer<typeof campaignSchema>
