@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
 import { Plus, AlertCircle } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import CreateCampaignDialog from "./create-campaign-dialog"
 
 export default async function CampaignSelector() {
   console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] Starting CampaignSelector component")
@@ -22,7 +23,7 @@ export default async function CampaignSelector() {
     return <div className="text-destructive">Not authenticated</div>
   }
 
-  // Get user profile to check keywords
+  // Get user profile to check if they've completed onboarding
   console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] Fetching profile for userId:", userId)
   const profileResult = await getProfileByUserIdAction(userId)
   console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] Profile result:", {
@@ -47,21 +48,18 @@ export default async function CampaignSelector() {
   console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] Profile data:", {
     name: profile.name,
     website: profile.website,
-    keywordsCount: profile.keywords?.length || 0,
-    keywords: profile.keywords
+    onboardingCompleted: profile.onboardingCompleted
   })
-  
-  const hasKeywords = profile.keywords && profile.keywords.length > 0
-  console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] Has keywords:", hasKeywords)
 
-  if (!hasKeywords) {
-    console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] No keywords found, prompting user to complete profile")
+  // Check if onboarding is completed
+  if (!profile.onboardingCompleted) {
+    console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] Onboarding not completed, prompting user to complete profile")
     return (
       <div className="flex flex-col items-center justify-center space-y-4 py-12">
         <Alert>
           <AlertCircle className="size-4" />
           <AlertDescription>
-            You need to add keywords to your profile before creating campaigns.
+            Please complete your profile setup before creating campaigns.
           </AlertDescription>
         </Alert>
         <Button asChild>
@@ -91,57 +89,26 @@ export default async function CampaignSelector() {
     keywords: current?.keywords
   })
 
-  // If no campaign exists, create one automatically
-  if (!current && hasKeywords) {
-    console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] No campaign found, creating one automatically")
-    console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] Creating with data:", {
-      userId,
-      keywords: profile.keywords,
-      name: profile.name || "Untitled Campaign",
-      website: profile.website || ""
-    })
-    
-    // Generate campaign name using AI
-    const { generateCampaignNameAction } = await import("@/actions/lead-generation/campaign-name-actions")
-    
-    const nameResult = await generateCampaignNameAction({
-      keywords: profile.keywords || [],
-      website: profile.website,
-      businessName: profile.name
-    })
-
-    const campaignName = nameResult.isSuccess 
-      ? nameResult.data 
-      : profile.name || "Untitled Campaign"
-    
-    const createResult = await createCampaignAction({
-      userId,
-      keywords: profile.keywords || [],
-      name: campaignName,
-      website: profile.website || ""
-    })
-    
-    console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] Create campaign result:", {
-      isSuccess: createResult.isSuccess,
-      hasData: !!createResult.data,
-      message: createResult.message,
-      campaignId: createResult.data?.id
-    })
-
-    if (createResult.isSuccess && createResult.data) {
-      current = createResult.data
-    }
-  }
-
+  // If no campaign exists, show the create campaign dialog
   if (!current) {
-    console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] Failed to create or find campaign")
+    console.log("🔥🔥🔥 [CAMPAIGN-SELECTOR] No campaign found, showing create campaign prompt")
     return (
-      <Alert>
-        <AlertCircle className="size-4" />
-        <AlertDescription>
-          Failed to create campaign. Please try again.
-        </AlertDescription>
-      </Alert>
+      <div className="space-y-4 pt-6">
+        <Alert>
+          <AlertCircle className="size-4" />
+          <AlertDescription>
+            You need to create a campaign to start finding leads. Each campaign can have its own specific keywords.
+          </AlertDescription>
+        </Alert>
+        <div className="flex justify-center">
+          <Button asChild>
+            <a href="/reddit/lead-finder">
+              <Plus className="mr-2 size-4" />
+              Create Your First Campaign
+            </a>
+          </Button>
+        </div>
+      </div>
     )
   }
 
@@ -155,7 +122,7 @@ export default async function CampaignSelector() {
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold">
-            Active Campaign
+            Active Campaign: {current.name}
           </h3>
           <p className="text-muted-foreground text-sm">
             Keywords: {current.keywords?.join(", ") || "None"}
