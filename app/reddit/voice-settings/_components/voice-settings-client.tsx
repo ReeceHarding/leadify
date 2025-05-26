@@ -1,17 +1,19 @@
 "use client"
 
 import { useState } from "react"
-import { SerializedVoiceSettingsDocument } from "@/actions/db/personalization-actions"
+import { SerializedVoiceSettingsDocument } from "@/types"
 import VoiceSettingsDisplay from "./voice-settings-display"
 import EditVoiceSettings from "./edit-voice-settings"
 
 interface VoiceSettingsClientProps {
   userId: string
+  organizationId: string
   initialVoiceSettings: SerializedVoiceSettingsDocument | null
 }
 
 export default function VoiceSettingsClient({
   userId,
+  organizationId,
   initialVoiceSettings
 }: VoiceSettingsClientProps) {
   const [voiceSettings, setVoiceSettings] =
@@ -26,7 +28,7 @@ export default function VoiceSettingsClient({
             Voice Settings
           </h1>
           <p className="text-gray-600 dark:text-gray-300">
-            Customize your writing style and tone to create more authentic
+            Customize your organization's writing style and tone to create more authentic
             Reddit comments that match your voice.
           </p>
         </div>
@@ -40,6 +42,7 @@ export default function VoiceSettingsClient({
         {/* Right Column: Edit Voice Settings */}
         <EditVoiceSettings
           userId={userId}
+          organizationId={organizationId}
           voiceSettings={voiceSettings}
           setVoiceSettings={setVoiceSettings}
         />

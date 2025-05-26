@@ -20,18 +20,20 @@ import {
   SelectValue
 } from "@/components/ui/select"
 import { Loader2, Twitter, Edit, Merge, Replace } from "lucide-react"
-import { SerializedVoiceSettingsDocument } from "@/actions/db/personalization-actions"
+import { SerializedVoiceSettingsDocument } from "@/types"
 import { PersonaType, WritingStyle } from "@/db/schema"
 import { useToast } from "@/hooks/use-toast"
 
 interface EditVoiceSettingsProps {
   userId: string
+  organizationId: string
   voiceSettings: SerializedVoiceSettingsDocument | null
   setVoiceSettings: (vs: SerializedVoiceSettingsDocument | null) => void
 }
 
 export default function EditVoiceSettings({
   userId,
+  organizationId,
   voiceSettings,
   setVoiceSettings
 }: EditVoiceSettingsProps) {
@@ -131,6 +133,7 @@ export default function EditVoiceSettings({
       )
       await createTwitterAnalysisAction({
         userId,
+        organizationId,
         twitterHandle,
         tweets,
         writingStyleAnalysis: analysisResult.data.writingStyleAnalysis,
@@ -293,6 +296,7 @@ export default function EditVoiceSettings({
         )
         const result = await createVoiceSettingsAction({
           userId,
+          organizationId,
           ...settingsData
         })
 
