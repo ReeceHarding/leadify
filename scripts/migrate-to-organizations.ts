@@ -1,7 +1,6 @@
 /*
 Migration script to move Reddit tokens and business data from profiles to organizations.
-Run with: GOOGLE_APPLICATION_CREDENTIALS="./serviceAccountKey.json" npx tsx scripts/migrate-to-organizations.ts
-(Replace serviceAccountKey.json with your actual key file name/path)
+Run with: npx tsx scripts/migrate-to-organizations.ts
 
 This script will:
 1. Create organizations for users with Reddit tokens in their profile
@@ -9,17 +8,18 @@ This script will:
 3. Move business data (website, name) to organization
 4. Add organizationId to all generated comments
 5. Clean up profile documents
+
+Prerequisites:
+- Set GOOGLE_APPLICATION_CREDENTIALS environment variable in .env.local
+- The service account key should be stored securely outside the project directory
 */
 
 import * as admin from "firebase-admin";
-// IMPORTANT: Make sure your service account key JSON file is in the specified path
-// or set the GOOGLE_APPLICATION_CREDENTIALS environment variable.
-// For local development, you might place the key in the root and gitignore it.
-const serviceAccount = require("../serviceAccountKey.json"); // ADJUST PATH AS NEEDED
 
+// Initialize Firebase Admin SDK using environment variable
 if (!admin.apps.length) {
   admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
+    credential: admin.credential.applicationDefault()
   });
 }
 

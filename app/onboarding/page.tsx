@@ -75,7 +75,8 @@ export default function OnboardingPage() {
       const tokenResult = await getCurrentOrganizationTokens(
         organizationIdToCheck
       )
-      const isConnected = tokenResult.isSuccess && !!tokenResult.data.accessToken
+      const isConnected =
+        tokenResult.isSuccess && !!tokenResult.data.accessToken
       console.log(
         `🔍 [ONBOARDING] Reddit connection status for org ${organizationIdToCheck}:`,
         isConnected
@@ -97,7 +98,7 @@ export default function OnboardingPage() {
       setIsLoading(true)
       try {
         const profileResult = await getProfileByUserIdAction(user.id)
-        let initialOrganizationName = `${user.fullName || 'My'} Organization`
+        let initialOrganizationName = `${user.fullName || "My"} Organization`
         let initialWebsite = ""
         let initialKeywords: string[] = []
         let isRedditConnectedForCurrentOrg = false
@@ -108,25 +109,27 @@ export default function OnboardingPage() {
           setOnboardingData(prev => ({
             ...prev,
             profileName: profile.name || user.fullName || "",
-            profilePictureUrl: profile.profilePictureUrl || user.imageUrl || "",
+            profilePictureUrl: profile.profilePictureUrl || user.imageUrl || ""
           }))
           // Note: profile.website and profile.keywords are legacy and removed.
           // We use a default org name based on profile/user name if no org is yet created/focused.
-          initialOrganizationName = profile.name || user.fullName || initialOrganizationName;
+          initialOrganizationName =
+            profile.name || user.fullName || initialOrganizationName
         }
 
         // Here, you might add logic to load an *existing* default/first organization for the user
         // if they are returning to onboarding. For now, we assume a new/default setup.
         // If an org ID is already in state (e.g. from previous step), use it.
         if (currentOrgId) {
-             const orgRedditStatus = await checkRedditConnection(currentOrgId);
-             isRedditConnectedForCurrentOrg = orgRedditStatus;
+          const orgRedditStatus = await checkRedditConnection(currentOrgId)
+          isRedditConnectedForCurrentOrg = orgRedditStatus
         } else {
-            // If no org ID yet, it will be created after the profile step.
-            // Set default organization name if not already set (e.g. by website step)
-            if (!onboardingData.organizationName) {
-                 initialOrganizationName = onboardingData.profileName || initialOrganizationName;
-            }
+          // If no org ID yet, it will be created after the profile step.
+          // Set default organization name if not already set (e.g. by website step)
+          if (!onboardingData.organizationName) {
+            initialOrganizationName =
+              onboardingData.profileName || initialOrganizationName
+          }
         }
 
         setOnboardingData(prev => ({
@@ -134,10 +137,14 @@ export default function OnboardingPage() {
           organizationName: prev.organizationName || initialOrganizationName,
           // website & keywords will be set by their respective steps
           // organizationId will be set after profile step or if loaded
-          redditConnected: isRedditConnectedForCurrentOrg 
+          redditConnected: isRedditConnectedForCurrentOrg
         }))
 
-        if (profileResult.data?.onboardingCompleted && currentOrgId && isRedditConnectedForCurrentOrg) {
+        if (
+          profileResult.data?.onboardingCompleted &&
+          currentOrgId &&
+          isRedditConnectedForCurrentOrg
+        ) {
           router.push("/reddit/lead-finder")
         } else {
           // Stay on current step or default to profile. CurrentStep is already managed.
@@ -148,7 +155,7 @@ export default function OnboardingPage() {
           ...prev,
           profileName: user.fullName || "",
           profilePictureUrl: user.imageUrl || "",
-          organizationName: `${user.fullName || 'My'} Organization` // Default if everything fails
+          organizationName: `${user.fullName || "My"} Organization` // Default if everything fails
         }))
       } finally {
         setIsLoading(false)
@@ -178,7 +185,9 @@ export default function OnboardingPage() {
           setOnboardingData(prev => ({ ...prev, redditConnected: true }))
           setCurrentStep("complete")
         } else {
-          console.error("🔍 [ONBOARDING] Reddit connection verification failed after callback")
+          console.error(
+            "🔍 [ONBOARDING] Reddit connection verification failed after callback"
+          )
         }
         const url = new URL(window.location.href)
         url.searchParams.delete("success")
@@ -199,11 +208,14 @@ export default function OnboardingPage() {
     if (currentStep === "profile") {
       // After profile step, ensure an organization is created
       if (!onboardingData.organizationId && user?.id) {
-        const orgName = onboardingData.organizationName || onboardingData.profileName || `${user.fullName || 'User'}\'s Organization`
+        const orgName =
+          onboardingData.organizationName ||
+          onboardingData.profileName ||
+          `${user.fullName || "User"}\'s Organization`
         const orgResult = await createOrganizationAction({
           ownerId: user.id,
           name: orgName,
-          website: onboardingData.website, // Website collected in a later step, but can be set if available
+          website: onboardingData.website // Website collected in a later step, but can be set if available
           // businessDescription can be added later
         })
         if (orgResult.isSuccess && orgResult.data) {
@@ -219,7 +231,7 @@ export default function OnboardingPage() {
         }
       }
     }
-    
+
     // Save user profile (not org specific data here, that's handled by org actions)
     await saveProfileProgress()
 
@@ -246,7 +258,9 @@ export default function OnboardingPage() {
     }
   }
 
-  const saveProfileProgress = async (dataToSave?: Partial<typeof onboardingData>) => {
+  const saveProfileProgress = async (
+    dataToSave?: Partial<typeof onboardingData>
+  ) => {
     if (!user?.id) return
     const currentData = dataToSave || onboardingData
     try {
@@ -261,7 +275,7 @@ export default function OnboardingPage() {
       console.error("❌ [ONBOARDING] Error saving profile progress:", error)
     }
   }
-  
+
   const completeOnboarding = async () => {
     if (!user?.id || !onboardingData.organizationId) {
       console.error(
@@ -292,18 +306,22 @@ export default function OnboardingPage() {
         profilePictureUrl: onboardingData.profilePictureUrl,
         onboardingCompleted: true
       })
-      console.log("✅ [ONBOARDING] User profile marked as onboarding completed.")
+      console.log(
+        "✅ [ONBOARDING] User profile marked as onboarding completed."
+      )
 
       // Update the organization with final details (website, business description if collected)
       // This assumes these might have been collected or refined in later steps.
       // For simplicity, we use what's in onboardingData. This might need updating OrganizationAction.
-      const { updateOrganizationAction } = await import("@/actions/db/organizations-actions")
+      const { updateOrganizationAction } = await import(
+        "@/actions/db/organizations-actions"
+      )
       await updateOrganizationAction(onboardingData.organizationId, {
-          name: onboardingData.organizationName,
-          website: onboardingData.website,
-          // businessDescription: onboardingData.businessDescription, // If collected
-      });
-      console.log("✅ [ONBOARDING] Organization details updated.");
+        name: onboardingData.organizationName,
+        website: onboardingData.website
+        // businessDescription: onboardingData.businessDescription, // If collected
+      })
+      console.log("✅ [ONBOARDING] Organization details updated.")
 
       // Create the first Lead Search (Campaign)
       const { generateCampaignNameAction } = await import(
@@ -351,23 +369,29 @@ export default function OnboardingPage() {
           <ProfileStep
             data={{
               name: onboardingData.profileName,
-              profilePictureUrl: onboardingData.profilePictureUrl,
+              profilePictureUrl: onboardingData.profilePictureUrl
             }}
-            onUpdate={(d) => updateData({ profileName: d.name, profilePictureUrl: d.profilePictureUrl }, true)}
+            onUpdate={d =>
+              updateData(
+                { profileName: d.name, profilePictureUrl: d.profilePictureUrl },
+                true
+              )
+            }
             onNext={nextStep}
           />
         )
       case "website":
         return (
           <WebsiteStep
-            data={{ 
-                website: onboardingData.website, 
-                businessName: onboardingData.organizationName 
+            data={{
+              website: onboardingData.website,
+              businessName: onboardingData.organizationName
             }}
-            onUpdate={(d) => 
+            onUpdate={d =>
               updateData({
                 website: d.website,
-                organizationName: d.businessName || onboardingData.organizationName 
+                organizationName:
+                  d.businessName || onboardingData.organizationName
               })
             }
             onNext={nextStep}
@@ -382,7 +406,7 @@ export default function OnboardingPage() {
               website: onboardingData.website,
               businessDescription: onboardingData.organizationName
             }}
-            onUpdate={(d) => updateData({ keywords: d.keywords })}
+            onUpdate={d => updateData({ keywords: d.keywords })}
             onNext={nextStep}
             onPrevious={previousStep}
           />
@@ -392,12 +416,12 @@ export default function OnboardingPage() {
           <ConnectRedditStep
             data={{
               // Pass context data; profilePictureUrl is removed as it's not org-specific
-              name: onboardingData.organizationName, 
+              name: onboardingData.organizationName,
               website: onboardingData.website,
               keywords: onboardingData.keywords,
               redditConnected: onboardingData.redditConnected
             }}
-            onUpdate={(d) => updateData({ redditConnected: d.redditConnected })}
+            onUpdate={d => updateData({ redditConnected: d.redditConnected })}
             onNext={nextStep}
             onPrevious={previousStep}
             organizationId={onboardingData.organizationId} // Pass the current orgId
@@ -426,8 +450,9 @@ export default function OnboardingPage() {
           <h1 className="text-center text-3xl font-bold">
             Welcome to Leadify! Let's get you set up.
           </h1>
-          <p className="mt-2 text-center text-muted-foreground">
-            Follow these simple steps to configure your first lead generation agent.
+          <p className="text-muted-foreground mt-2 text-center">
+            Follow these simple steps to configure your first lead generation
+            agent.
           </p>
         </div>
 

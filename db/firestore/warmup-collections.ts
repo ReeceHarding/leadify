@@ -28,16 +28,16 @@ export interface WarmupAccountDocument {
   warmupStartDate: Timestamp
   warmupEndDate: Timestamp // 7 days after start
   dailyPostLimit: number // 2-5 posts per day
-  
+
   // NEW: Tracking fields for warmup progress
-  currentDay?: number         // Current day of the warmup cycle (e.g., 1 to 7)
-  postsToday?: number         // Number of posts made today for this account
-  commentsToday?: number      // Number of comments made today for this account
-  totalPostsMade?: number     // Total posts made during the warmup period
-  totalCommentsMade?: number  // Total comments made during the warmup period
+  currentDay?: number // Current day of the warmup cycle (e.g., 1 to 7)
+  postsToday?: number // Number of posts made today for this account
+  commentsToday?: number // Number of comments made today for this account
+  totalPostsMade?: number // Total posts made during the warmup period
+  totalCommentsMade?: number // Total comments made during the warmup period
   status?: "active" | "paused" | "completed" | "error" // Overall status of the warmup account
-  error?: string; // NEW: To store error messages if status is 'error' or 'paused' due to an issue
-  lastActivityAt?: Timestamp  // Timestamp of the last post or comment made
+  error?: string // NEW: To store error messages if status is 'error' or 'paused' due to an issue
+  lastActivityAt?: Timestamp // Timestamp of the last post or comment made
 
   createdAt: Timestamp
   updatedAt: Timestamp
@@ -47,13 +47,17 @@ export interface WarmupAccountDocument {
 export interface SerializedWarmupAccountDocument
   extends Omit<
     WarmupAccountDocument,
-    "warmupStartDate" | "warmupEndDate" | "createdAt" | "updatedAt" | "lastActivityAt"
+    | "warmupStartDate"
+    | "warmupEndDate"
+    | "createdAt"
+    | "updatedAt"
+    | "lastActivityAt"
   > {
   warmupStartDate: string
   warmupEndDate: string
   createdAt: string
   updatedAt: string
-  error?: string; // NEW
+  error?: string // NEW
   lastActivityAt?: string
 }
 
@@ -207,16 +211,16 @@ export interface UpdateWarmupAccountData {
   postingMode?: "auto" | "manual"
   isActive?: boolean
   dailyPostLimit?: number
-  
+
   // Allow updating tracking fields if needed (e.g., by a cron job or process)
-  currentDay?: number        
-  postsToday?: number        
-  commentsToday?: number     
-  totalPostsMade?: number    
-  totalCommentsMade?: number 
+  currentDay?: number
+  postsToday?: number
+  commentsToday?: number
+  totalPostsMade?: number
+  totalCommentsMade?: number
   status?: "active" | "paused" | "completed" | "error"
-  error?: string; // NEW: Allow updating error message
-  lastActivityAt?: Timestamp 
+  error?: string // NEW: Allow updating error message
+  lastActivityAt?: Timestamp
 
   updatedAt?: Timestamp // This is usually set by serverTimestamp() in the action
 }
