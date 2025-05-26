@@ -547,7 +547,7 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
   threadTitle: string,
   threadContent: string,
   subreddit: string,
-  userId: string,
+  organizationId: string,
   campaignWebsiteContent?: string,
   existingComments?: string[]
 ): Promise<
@@ -565,60 +565,79 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
     )
     console.log("🤖 [OPENAI-PERSONALIZED] Thread title:", threadTitle)
     console.log("🤖 [OPENAI-PERSONALIZED] Subreddit:", subreddit)
-    console.log("🤖 [OPENAI-PERSONALIZED] User ID:", userId)
+    console.log("🤖 [OPENAI-PERSONALIZED] Organization ID:", organizationId)
     console.log(
       "🤖 [OPENAI-PERSONALIZED] Existing comments provided:",
       existingComments?.length || 0
     )
 
-    // Get user profile for personalization
-    const profileResult = await getProfileByUserIdAction(userId)
-    if (!profileResult.isSuccess || !profileResult.data) {
-      console.error("❌ [OPENAI-PERSONALIZED] Failed to get user profile")
-      return { isSuccess: false, message: "Failed to get user profile" }
+    // Get organization data for personalization
+    const { getOrganizationByIdAction } = await import("@/actions/db/organizations-actions")
+    const { getKnowledgeBaseByOrganizationIdAction, getVoiceSettingsByOrganizationIdAction } = await import("@/actions/db/personalization-actions")
+    
+    const orgResult = await getOrganizationByIdAction(organizationId)
+    if (!orgResult.isSuccess || !orgResult.data) {
+      console.error("❌ [OPENAI-PERSONALIZED] Failed to get organization")
+      return { isSuccess: false, message: "Failed to get organization" }
     }
 
-    const profile = profileResult.data
-    const userWebsiteUrl = profile.website || ""
-    const businessName = profile.name || "our solution"
+    const organization = orgResult.data
+    const businessWebsiteUrl = organization.website || ""
+    const businessName = organization.name || "our solution"
 
     console.log(
-      "🤖 [OPENAI-PERSONALIZED] Business name from profile:",
+      "🤖 [OPENAI-PERSONALIZED] Business name from organization:",
       businessName
     )
     console.log(
-      "🤖 [OPENAI-PERSONALIZED] User website from profile:",
-      userWebsiteUrl
+      "🤖 [OPENAI-PERSONALIZED] Organization website:",
+      businessWebsiteUrl
     )
     console.log(
       "🤖 [OPENAI-PERSONALIZED] Campaign website content provided:",
       !!campaignWebsiteContent
     )
 
-    // Prioritize campaign-specific content, then user's profile website
-    let primaryBusinessContent = campaignWebsiteContent || ""
-    let contentSource = campaignWebsiteContent ? "campaign" : "profile_fallback"
+    // Get knowledge base for the organization
+    const knowledgeBaseResult = await getKnowledgeBaseByOrganizationIdAction(organizationId)
+    let knowledgeBaseSummary = ""
+    if (knowledgeBaseResult.isSuccess && knowledgeBaseResult.data) {
+      knowledgeBaseSummary = knowledgeBaseResult.data.summary || ""
+      console.log("✅ [OPENAI-PERSONALIZED] Found knowledge base for organization")
+    }
 
-    if (!primaryBusinessContent && userWebsiteUrl) {
+    // Get voice settings for the organization
+    const voiceSettingsResult = await getVoiceSettingsByOrganizationIdAction(organizationId)
+    let voicePrompt = ""
+    if (voiceSettingsResult.isSuccess && voiceSettingsResult.data) {
+      voicePrompt = voiceSettingsResult.data.generatedPrompt || ""
+      console.log("✅ [OPENAI-PERSONALIZED] Found voice settings for organization")
+    }
+
+    // Prioritize campaign-specific content, then knowledge base, then organization website
+    let primaryBusinessContent = campaignWebsiteContent || knowledgeBaseSummary || ""
+    let contentSource = campaignWebsiteContent ? "campaign" : (knowledgeBaseSummary ? "knowledge_base" : "organization_website")
+
+    if (!primaryBusinessContent && businessWebsiteUrl) {
       console.log(
-        "🌐 [OPENAI-PERSONALIZED] No campaign content, scraping user's profile website:",
-        userWebsiteUrl
+        "🌐 [OPENAI-PERSONALIZED] No campaign content or knowledge base, scraping organization website:",
+        businessWebsiteUrl
       )
-      const scrapeResult = await scrapeWebsiteAction(userWebsiteUrl)
+      const scrapeResult = await scrapeWebsiteAction(businessWebsiteUrl)
       if (scrapeResult.isSuccess) {
         primaryBusinessContent = scrapeResult.data.content
-        contentSource = "profile_scraped"
+        contentSource = "organization_scraped"
         console.log(
-          "✅ [OPENAI-PERSONALIZED] User's profile website scraped successfully"
+          "✅ [OPENAI-PERSONALIZED] Organization website scraped successfully"
         )
       } else {
         console.warn(
-          "⚠️ [OPENAI-PERSONALIZED] Failed to scrape user's profile website"
+          "⚠️ [OPENAI-PERSONALIZED] Failed to scrape organization website"
         )
       }
     } else if (primaryBusinessContent) {
       console.log(
-        `✅ [OPENAI-PERSONALIZED] Using provided campaign content (source: ${contentSource})`
+        `✅ [OPENAI-PERSONALIZED] Using ${contentSource} content`
       )
     }
 
@@ -667,6 +686,8 @@ Provide a brief analysis of:
 2. Generate natural, authentic Reddit comments that match the community's style
 
 ${primaryBusinessContent ? `Business Context: ${primaryBusinessContent.substring(0, 1500)}` : "The business offers general solutions."}
+
+${voicePrompt ? `\nVoice Instructions:\n${voicePrompt}\n` : ""}
 
 ${toneAnalysis ? `\nCommunity Tone Analysis:\n${toneAnalysis}\n` : ""}
 

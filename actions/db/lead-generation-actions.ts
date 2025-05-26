@@ -241,6 +241,7 @@ export async function createGeneratedCommentAction(
       "createdAt" | "updatedAt" | "id"
     > & { createdAt?: any; updatedAt?: any } = {
       campaignId: data.campaignId,
+      organizationId: data.organizationId,
       redditThreadId: data.redditThreadId,
       threadId: data.threadId,
       postUrl: data.postUrl,
@@ -451,6 +452,36 @@ export async function getGeneratedCommentsByCampaignAction(
   } catch (error) {
     console.error("Error getting generated comments:", error)
     return { isSuccess: false, message: "Failed to get generated comments" }
+  }
+}
+
+export async function getGeneratedCommentByIdAction(
+  id: string
+): Promise<ActionState<GeneratedCommentDocument>> {
+  try {
+    console.log(`📖 [LEAD-GEN] Fetching comment by ID: ${id}`)
+    
+    const commentRef = doc(db, LEAD_COLLECTIONS.GENERATED_COMMENTS, id)
+    const commentDoc = await getDoc(commentRef)
+    
+    if (!commentDoc.exists()) {
+      return {
+        isSuccess: false,
+        message: "Comment not found"
+      }
+    }
+    
+    const comment = commentDoc.data() as GeneratedCommentDocument
+    console.log(`✅ [LEAD-GEN] Found comment for campaign: ${comment.campaignId}`)
+    
+    return {
+      isSuccess: true,
+      message: "Comment retrieved successfully",
+      data: comment
+    }
+  } catch (error) {
+    console.error("Error getting comment by ID:", error)
+    return { isSuccess: false, message: "Failed to get comment" }
   }
 }
 

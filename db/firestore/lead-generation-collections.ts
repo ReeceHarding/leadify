@@ -126,6 +126,7 @@ export interface CreateRedditThreadData {
 export interface GeneratedCommentDocument {
   id: string
   campaignId: string
+  organizationId: string
   redditThreadId: string // ID of the document in REDDIT_THREADS collection
   threadId: string // Actual Reddit thread ID (e.g., "t3_xxxxxx")
   postUrl: string // Direct URL to the specific Reddit post or comment
@@ -165,6 +166,7 @@ export interface GeneratedCommentDocument {
 // Create generated comment data
 export interface CreateGeneratedCommentData {
   campaignId: string
+  organizationId: string
   redditThreadId: string
   threadId: string
   postUrl: string

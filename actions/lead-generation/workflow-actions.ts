@@ -98,6 +98,22 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
     const campaign = campaignResult.data
     await updateCampaignAction(campaignId, { status: "running" })
 
+    // Get organization for personalization
+    const organizationId = campaign.organizationId
+    if (!organizationId) {
+      console.error("❌ [WORKFLOW] Campaign has no organizationId")
+      await updateLeadGenerationProgressAction(campaignId, {
+        status: "error",
+        error: "Campaign is not associated with an organization"
+      })
+      return {
+        isSuccess: false,
+        message: "Campaign is not associated with an organization"
+      }
+    }
+    
+    console.log(`🏢 [WORKFLOW] Using organization: ${organizationId}`)
+
     // Determine which keywords to process
     const keywordsToProcess =
       Object.keys(keywordLimits).length > 0
@@ -598,7 +614,7 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
             apiThread.title,
             apiThread.content,
             apiThread.subreddit,
-            campaign.userId, // Pass userId for personalization
+            organizationId, // Pass organizationId instead of userId
             websiteContent, // Pass campaign website content (scraped or description)
             existingComments // Pass existing comments for tone matching
           )
@@ -633,6 +649,7 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
 
           const commentPayload: CreateGeneratedCommentData = {
             campaignId,
+            organizationId, // Add organizationId to the comment
             redditThreadId: threadRef.id,
             threadId: apiThread.id,
             postUrl: apiThread.url,

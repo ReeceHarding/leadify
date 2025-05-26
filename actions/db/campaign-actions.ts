@@ -38,6 +38,7 @@ function serializeCampaignDocument(
 ): SerializedCampaignDocument {
   return {
     ...campaign,
+    organizationId: campaign.organizationId,
     createdAt:
       campaign.createdAt instanceof Timestamp
         ? campaign.createdAt.toDate().toISOString()

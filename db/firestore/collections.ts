@@ -14,25 +14,17 @@ export const COLLECTIONS = {
 // Membership enum equivalent
 export type MembershipType = "free" | "pro"
 
-// Profile document interface
+// Profile document interface - simplified to only contain user identity and subscription info
 export interface ProfileDocument {
   userId: string
   membership: MembershipType
   stripeCustomerId?: string
   stripeSubscriptionId?: string
 
-  // Onboarding fields
+  // User identity fields only
   name?: string
   profilePictureUrl?: string
-  website?: string
-  keywords?: string[] // Keywords for lead generation
   onboardingCompleted?: boolean
-
-  // Reddit OAuth fields
-  redditAccessToken?: string
-  redditRefreshToken?: string
-  redditTokenExpiresAt?: Timestamp
-  redditUsername?: string
 
   createdAt: Timestamp
   updatedAt: Timestamp
@@ -46,32 +38,16 @@ export interface CreateProfileData {
   stripeSubscriptionId?: string
   name?: string
   profilePictureUrl?: string
-  website?: string
-  keywords?: string[] // Keywords for lead generation
   onboardingCompleted?: boolean
-
-  // Reddit OAuth fields
-  redditAccessToken?: string
-  redditRefreshToken?: string
-  redditTokenExpiresAt?: Timestamp
-  redditUsername?: string
 }
 
-// Types for updating profiles (all optional except userId for identification)
+// Types for updating profiles (all optional)
 export interface UpdateProfileData {
   membership?: MembershipType
   stripeCustomerId?: string
   stripeSubscriptionId?: string
   name?: string
   profilePictureUrl?: string
-  website?: string
-  keywords?: string[] // Keywords for lead generation
   onboardingCompleted?: boolean
   updatedAt?: Timestamp
-
-  // Reddit OAuth fields
-  redditAccessToken?: string
-  redditRefreshToken?: string
-  redditTokenExpiresAt?: Timestamp
-  redditUsername?: string
 }

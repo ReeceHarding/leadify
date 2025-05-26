@@ -179,6 +179,7 @@ export interface SerializedGeneratedCommentDocument {
 export interface SerializedCampaignDocument {
   id: string
   userId: string
+  organizationId: string
   name: string
   website?: string
   businessDescription?: string

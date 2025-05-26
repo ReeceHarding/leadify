@@ -7,16 +7,15 @@ Contains server actions for posting comments to Reddit using OAuth2 authenticati
 "use server"
 
 import { ActionState } from "@/types"
-import {
-  getRedditTokensFromProfileAction,
-  refreshRedditTokenFromProfileAction
-} from "./reddit-oauth-user-actions"
-import { updateGeneratedCommentAction } from "@/actions/db/lead-generation-actions"
+import { getCurrentOrganizationTokens, makeRedditApiPost as makeAuthenticatedPost } from "./reddit-auth-helpers"
+import { updateGeneratedCommentAction, getGeneratedCommentByIdAction } from "@/actions/db/lead-generation-actions"
 import { updatePostingHistoryAction } from "@/actions/db/posting-history-actions"
+import { getCampaignByIdAction } from "@/actions/db/campaign-actions"
 
 interface PostCommentParams {
   parentId: string // thread ID or comment ID (t3_xxx for posts, t1_xxx for comments)
   text: string
+  organizationId: string // NEW: Required for organization context
 }
 
 interface PostedComment {
@@ -28,49 +27,17 @@ interface PostedComment {
   created: number
 }
 
-async function makeRedditApiPost(endpoint: string, body: any): Promise<any> {
-  // Get access token from user's profile
-  const tokenResult = await getRedditTokensFromProfileAction()
-
-  if (!tokenResult.isSuccess) {
-    // Try to refresh token if available
-    const refreshResult = await refreshRedditTokenFromProfileAction()
-    if (!refreshResult.isSuccess) {
-      throw new Error(
-        "No valid Reddit access token available. Please re-authenticate."
-      )
-    }
-    // Get the new token
-    const newTokenResult = await getRedditTokensFromProfileAction()
-    if (!newTokenResult.isSuccess) {
-      throw new Error("Failed to get refreshed access token")
-    }
-  }
-
-  const accessToken = tokenResult.isSuccess
-    ? tokenResult.data.accessToken
-    : (await getRedditTokensFromProfileAction()).data?.accessToken
-
-  if (!accessToken) {
-    throw new Error("No access token available")
-  }
-
-  const response = await fetch(`https://oauth.reddit.com${endpoint}`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "User-Agent": process.env.REDDIT_USER_AGENT || "reddit-lead-gen:v1.0.0",
-      "Content-Type": "application/x-www-form-urlencoded"
-    },
-    body: new URLSearchParams(body).toString()
-  })
-
+async function makeRedditApiPost(organizationId: string, endpoint: string, body: any): Promise<any> {
+  console.log("🔑 [REDDIT-POST] Getting tokens for organization:", organizationId)
+  
+  const response = await makeAuthenticatedPost(organizationId, endpoint, body)
+  
   if (!response.ok) {
     const errorData = await response.text()
     console.error("Reddit API error:", response.status, errorData)
 
     if (response.status === 401) {
-      throw new Error("Reddit authentication expired. Please re-authenticate.")
+      throw new Error("Reddit authentication expired. Please re-authenticate in organization settings.")
     }
 
     if (response.status === 403) {
@@ -96,6 +63,7 @@ export async function postCommentToRedditAction(
 ): Promise<ActionState<PostedComment>> {
   try {
     console.log(`📝 Posting comment to Reddit: ${params.parentId}`)
+    console.log(`🏢 Using organization: ${params.organizationId}`)
 
     // Ensure parent ID has proper prefix
     const parentFullname =
@@ -103,7 +71,7 @@ export async function postCommentToRedditAction(
         ? params.parentId
         : `t3_${params.parentId}`
 
-    const data = await makeRedditApiPost("/api/comment", {
+    const data = await makeRedditApiPost(params.organizationId, "/api/comment", {
       parent: parentFullname,
       text: params.text,
       api_type: "json"
@@ -160,24 +128,46 @@ export async function postCommentAndUpdateStatusAction(
     console.log("📤 [REDDIT-POST] Thread ID:", threadId)
     console.log("📤 [REDDIT-POST] Comment length:", comment.length)
 
-    // Get the current user's Reddit tokens
-    const tokensResult = await getRedditTokensFromProfileAction()
+    // Get the lead to find its organization
+    const leadResult = await getGeneratedCommentByIdAction(leadId)
+    if (!leadResult.isSuccess || !leadResult.data) {
+      console.error("📤 [REDDIT-POST] Failed to get lead data")
+      return {
+        isSuccess: false,
+        message: "Failed to get lead information"
+      }
+    }
+
+    const organizationId = leadResult.data.organizationId
+    if (!organizationId) {
+      console.error("📤 [REDDIT-POST] Lead has no organizationId")
+      return {
+        isSuccess: false,
+        message: "Lead is not associated with an organization"
+      }
+    }
+
+    console.log("📤 [REDDIT-POST] Using organization:", organizationId)
+
+    // Get the organization's Reddit tokens
+    const tokensResult = await getCurrentOrganizationTokens(organizationId)
     if (!tokensResult.isSuccess || !tokensResult.data.accessToken) {
       console.error("📤 [REDDIT-POST] No valid Reddit access token found")
       return {
         isSuccess: false,
         message:
-          "No valid Reddit access token found. Please re-authenticate with Reddit."
+          "No valid Reddit access token found. Please re-authenticate with Reddit in organization settings."
       }
     }
 
-    const { accessToken, username } = tokensResult.data
+    const { username } = tokensResult.data
     console.log("📤 [REDDIT-POST] Using Reddit username:", username)
 
     // Post the comment
     const postResult = await postCommentToRedditAction({
       parentId: threadId,
-      text: comment
+      text: comment,
+      organizationId
     })
 
     if (!postResult.isSuccess) {
@@ -248,17 +238,19 @@ export async function postCommentAndUpdateStatusAction(
   }
 }
 
-export async function testRedditPostingAction(): Promise<
-  ActionState<{ canPost: boolean; username?: string }>
-> {
+export async function testRedditPostingAction(
+  organizationId: string
+): Promise<ActionState<{ canPost: boolean; username?: string }>> {
   try {
+    console.log("🧪 [REDDIT-POST] Testing posting capability for organization:", organizationId)
+    
     // Test by getting user info
-    const tokenResult = await getRedditTokensFromProfileAction()
+    const tokenResult = await getCurrentOrganizationTokens(organizationId)
 
     if (!tokenResult.isSuccess) {
       return {
         isSuccess: false,
-        message: "No Reddit access token found. Please authenticate."
+        message: "No Reddit access token found. Please authenticate in organization settings."
       }
     }
 
