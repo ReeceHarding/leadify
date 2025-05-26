@@ -30,7 +30,7 @@ import {
   deleteField,
   writeBatch
 } from "firebase/firestore"
-import { clearRedditTokensAction } from "../integrations/reddit/reddit-oauth-actions"
+// clearRedditTokensAction removed - Reddit tokens are now organization-based
 import { LEAD_COLLECTIONS } from "@/db/schema"
 
 // Helper function to serialize ProfileDocument to remove Firestore Timestamps
