@@ -106,87 +106,115 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
     })
     progress.completedSteps++
 
-    // Step 2: Scrape website content
-    progress.currentStep = "Scraping website"
-    console.log(`🔥 Step 2: Scraping website: ${campaign.website}`)
+    // Step 2: Scrape website content OR use business description
+    progress.currentStep = "Preparing business content"
+    console.log(`🔥 Step 2: Preparing business content`)
+    console.log(`🔥 Campaign has website: ${!!campaign.website}`)
+    console.log(`🔥 Campaign has businessDescription: ${!!campaign.businessDescription}`)
 
     let websiteContent = campaign.websiteContent
     let skipScraping = false
 
-    // Check if we already have recent website content (less than 24 hours old)
-    if (websiteContent && campaign.updatedAt) {
-      // Handle serialized updatedAt as ISO string
-      const lastUpdate = new Date(campaign.updatedAt)
-      const now = new Date()
-      const hoursSinceUpdate =
-        (now.getTime() - lastUpdate.getTime()) / (1000 * 60 * 60)
+    // Check if campaign has a website
+    if (campaign.website) {
+      console.log(`🔥 Campaign has website: ${campaign.website}`)
+      
+      // Check if we already have recent website content (less than 24 hours old)
+      if (websiteContent && campaign.updatedAt) {
+        // Handle serialized updatedAt as ISO string
+        const lastUpdate = new Date(campaign.updatedAt)
+        const now = new Date()
+        const hoursSinceUpdate =
+          (now.getTime() - lastUpdate.getTime()) / (1000 * 60 * 60)
 
-      if (hoursSinceUpdate < 24) {
-        console.log(
-          `🔥 Using cached website content (${Math.round(hoursSinceUpdate)}h old)`
-        )
-        skipScraping = true
-      } else {
-        console.log(
-          `🔥 Website content is ${Math.round(hoursSinceUpdate)}h old, re-scraping...`
-        )
-      }
-    }
-
-    if (!skipScraping) {
-      console.log(`🔥 Scraping website: ${campaign.website}`)
-      const scrapeResult = await scrapeWebsiteAction(campaign.website)
-      if (!scrapeResult.isSuccess) {
-        progress.results.push({
-          step: "Scrape Website",
-          success: false,
-          message: scrapeResult.message
-        })
-        await updateCampaignAction(campaignId, { status: "error" })
-        progress.error = scrapeResult.message
-        return {
-          isSuccess: false,
-          message: `Website scraping failed: ${scrapeResult.message}`
+        if (hoursSinceUpdate < 24) {
+          console.log(
+            `🔥 Using cached website content (${Math.round(hoursSinceUpdate)}h old)`
+          )
+          skipScraping = true
+        } else {
+          console.log(
+            `🔥 Website content is ${Math.round(hoursSinceUpdate)}h old, re-scraping...`
+          )
         }
       }
 
-      // Update campaign with fresh website content
-      websiteContent = scrapeResult.data.content
+      if (!skipScraping) {
+        console.log(`🔥 Scraping website: ${campaign.website}`)
+        const scrapeResult = await scrapeWebsiteAction(campaign.website)
+        if (!scrapeResult.isSuccess) {
+          progress.results.push({
+            step: "Scrape Website",
+            success: false,
+            message: scrapeResult.message
+          })
+          await updateCampaignAction(campaignId, { status: "error" })
+          progress.error = scrapeResult.message
+          return {
+            isSuccess: false,
+            message: `Website scraping failed: ${scrapeResult.message}`
+          }
+        }
+
+        // Update campaign with fresh website content
+        websiteContent = scrapeResult.data.content
+        await updateCampaignAction(campaignId, {
+          websiteContent: websiteContent
+        })
+
+        progress.results.push({
+          step: "Prepare Business Content",
+          success: true,
+          message: `Website scraped: ${scrapeResult.data.content.length} characters`,
+          data: {
+            source: "website",
+            title: scrapeResult.data.title,
+            contentLength: scrapeResult.data.content.length
+          }
+        })
+      } else {
+        progress.results.push({
+          step: "Prepare Business Content",
+          success: true,
+          message: `Using cached website content: ${websiteContent?.length || 0} characters`,
+          data: {
+            source: "website",
+            cached: true,
+            contentLength: websiteContent?.length || 0
+          }
+        })
+      }
+    } else if (campaign.businessDescription) {
+      // Use business description as content if no website
+      console.log(`🔥 No website provided, using business description`)
+      websiteContent = campaign.businessDescription
+      
+      // Save business description as websiteContent for consistency
       await updateCampaignAction(campaignId, {
         websiteContent: websiteContent
       })
-
+      
       progress.results.push({
-        step: "Scrape Website",
+        step: "Prepare Business Content",
         success: true,
-        message: `Website scraped: ${scrapeResult.data.content.length} characters`,
+        message: `Using business description: ${websiteContent.length} characters`,
         data: {
-          title: scrapeResult.data.title,
-          contentLength: scrapeResult.data.content.length
-        }
-      })
-    } else {
-      progress.results.push({
-        step: "Scrape Website",
-        success: true,
-        message: `Using cached website content: ${websiteContent?.length || 0} characters`,
-        data: {
-          cached: true,
-          contentLength: websiteContent?.length || 0
+          source: "businessDescription",
+          contentLength: websiteContent.length
         }
       })
     }
 
-    // Ensure we have website content before proceeding
+    // Ensure we have content before proceeding
     if (!websiteContent) {
       progress.results.push({
-        step: "Scrape Website",
+        step: "Prepare Business Content",
         success: false,
-        message: "No website content available"
+        message: "No website or business description available"
       })
       await updateCampaignAction(campaignId, { status: "error" })
-      progress.error = "No website content available"
-      return { isSuccess: false, message: "No website content available" }
+      progress.error = "No website or business description available"
+      return { isSuccess: false, message: "No website or business description available" }
     }
 
     progress.completedSteps++
