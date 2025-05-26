@@ -28,6 +28,7 @@ import { Loader2, Globe, Building2 } from "lucide-react"
 import { createOrganizationAction } from "@/actions/db/organizations-actions"
 import { toast } from "sonner"
 import { useUser } from "@clerk/nextjs"
+import { normalizeUrl, isValidUrl } from "@/lib/utils"
 
 const organizationSchema = z
   .object({
@@ -41,13 +42,13 @@ const organizationSchema = z
   .superRefine((data, ctx) => {
     // Custom validation for website
     if (data.website && data.website.trim().length > 0) {
-      // Only validate URL if website is provided
-      try {
-        new URL(data.website)
-      } catch {
+      // Normalize and validate URL
+      const normalizedUrl = normalizeUrl(data.website)
+      if (!isValidUrl(normalizedUrl)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "Please enter a valid website URL",
+          message:
+            "Please enter a valid website URL (e.g., example.com or https://example.com)",
           path: ["website"]
         })
       }
@@ -101,11 +102,16 @@ export default function CreateOrganizationDialog({
         return
       }
 
+      // Normalize website URL if provided
+      const normalizedWebsite = data.website?.trim()
+        ? normalizeUrl(data.website.trim())
+        : undefined
+
       // Create the organization
       const orgResult = await createOrganizationAction({
         ownerId: user.id,
         name: data.name,
-        website: data.website || undefined,
+        website: normalizedWebsite,
         businessDescription: data.businessDescription || undefined
       })
 

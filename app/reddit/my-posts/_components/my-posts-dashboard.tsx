@@ -40,6 +40,7 @@ import { postCommentToRedditAction } from "@/actions/integrations/reddit/reddit-
 import type { SerializedGeneratedCommentDocument } from "@/types"
 import { fetchRedditCommentRepliesAction } from "@/actions/integrations/reddit/reddit-actions"
 import { useOrganization } from "@/components/utilities/organization-provider"
+import Link from "next/link"
 
 interface RedditComment {
   id: string
@@ -332,14 +333,24 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
 
   if (posts.length === 0) {
     return (
-      <Alert>
-        <MessageSquare className="size-4" />
-        <AlertTitle>No Posts Yet</AlertTitle>
-        <AlertDescription>
-          You haven't posted any comments to Reddit yet. Head to the Lead Finder
-          to start posting!
-        </AlertDescription>
-      </Alert>
+      <div className="space-y-4">
+        <Alert>
+          <MessageSquare className="size-4" />
+          <AlertTitle>No Posts Yet</AlertTitle>
+          <AlertDescription>
+            You haven't posted any comments to Reddit yet. Head to the Lead
+            Finder to start posting!
+          </AlertDescription>
+        </Alert>
+        <div className="flex justify-center">
+          <Button asChild>
+            <Link href="/reddit/lead-finder">
+              <MessageSquare className="mr-2 size-4" />
+              Go to Lead Finder
+            </Link>
+          </Button>
+        </div>
+      </div>
     )
   }
 

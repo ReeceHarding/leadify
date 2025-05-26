@@ -42,6 +42,7 @@ import { toast } from "sonner"
 import { useUser } from "@clerk/nextjs"
 import { generateKeywordsAction } from "@/actions/lead-generation/keywords-actions"
 import { scrapeWebsiteAction } from "@/actions/integrations/firecrawl/website-scraping-actions"
+import { normalizeUrl, isValidUrl } from "@/lib/utils"
 
 const campaignSchema = z
   .object({
@@ -59,13 +60,13 @@ const campaignSchema = z
   .superRefine((data, ctx) => {
     // Custom validation for website
     if (data.website && data.website.trim().length > 0) {
-      // Only validate URL if website is provided
-      try {
-        new URL(data.website)
-      } catch {
+      // Normalize and validate URL
+      const normalizedUrl = normalizeUrl(data.website)
+      if (!isValidUrl(normalizedUrl)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "Please enter a valid website URL",
+          message:
+            "Please enter a valid website URL (e.g., example.com or https://example.com)",
           path: ["website"]
         })
       }
@@ -247,12 +248,17 @@ export default function CreateCampaignDialog({
         return
       }
 
+      // Normalize website URL if provided
+      const normalizedWebsite = data.website?.trim()
+        ? normalizeUrl(data.website.trim())
+        : undefined
+
       // Create the campaign
       const campaignResult = await createCampaignAction({
         userId: user.id,
         organizationId: organizationId,
         name: data.name,
-        website: data.website || undefined,
+        website: normalizedWebsite,
         businessDescription: data.businessDescription || undefined,
         keywords: data.keywords
       })

@@ -24,12 +24,25 @@ const isPublicApiRoute = createRouteMatcher([
   "/api/test-warmup"
 ])
 
+const isTestApiRoute = createRouteMatcher([
+  "/api/test-twitter-analysis",
+  "/api/test-twitter-direct",
+  "/api/test-keywords",
+  "/api/test-personalized-comments"
+])
+
 // Create a custom middleware that checks for public API routes first
 export default clerkMiddleware(async (auth, req) => {
   const pathname = req.nextUrl.pathname
 
   console.log("🔥🔥🔥 [MIDDLEWARE] Request URL:", req.url)
   console.log("🔥🔥🔥 [MIDDLEWARE] Pathname:", pathname)
+
+  // Allow test API routes without any authentication
+  if (isTestApiRoute(req)) {
+    console.log("🔥🔥🔥 [MIDDLEWARE] Test API route - allowing without auth")
+    return NextResponse.next()
+  }
 
   // Check for CRON_SECRET in authorization header for public API routes
   if (isPublicApiRoute(req)) {
@@ -62,7 +75,7 @@ export default clerkMiddleware(async (auth, req) => {
   console.log("🔥🔥🔥 [MIDDLEWARE] Auth userId:", userId)
   console.log("🔥🔥🔥 [MIDDLEWARE] Is protected route:", isProtectedRoute(req))
 
-  if (isProtectedRoute(req) && !isPublicApiRoute(req)) {
+  if (isProtectedRoute(req) && !isPublicApiRoute(req) && !isTestApiRoute(req)) {
     await auth.protect()
   }
 })

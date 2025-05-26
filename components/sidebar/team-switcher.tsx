@@ -139,7 +139,10 @@ export function TeamSwitcher() {
                     {activeOrganization?.name || "Select Organization"}
                   </span>
                   <span className="truncate text-xs">
-                    {activeOrganization?.plan || "Free"}
+                    {(activeOrganization?.plan || "free")
+                      .charAt(0)
+                      .toUpperCase() +
+                      (activeOrganization?.plan || "free").slice(1)}
                   </span>
                 </div>
                 <ChevronsUpDown className="ml-auto" />
