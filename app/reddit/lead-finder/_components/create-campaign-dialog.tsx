@@ -39,15 +39,38 @@ const campaignSchema = z.object({
     .string()
     .min(1, "Campaign name is required")
     .max(100, "Name too long"),
-  website: z.string().url("Please enter a valid website URL").optional().or(z.literal("")),
+  website: z.string().optional(),
   businessDescription: z.string().optional(),
   keywords: z
     .array(z.string())
     .min(1, "At least one keyword is required")
     .max(10, "Maximum 10 keywords allowed")
-}).refine((data) => data.website || data.businessDescription, {
-  message: "Either website or business description is required",
-  path: ["businessDescription"]
+}).superRefine((data, ctx) => {
+  // Custom validation for website
+  if (data.website && data.website.trim().length > 0) {
+    // Only validate URL if website is provided
+    try {
+      new URL(data.website)
+    } catch {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Please enter a valid website URL",
+        path: ["website"]
+      })
+    }
+  }
+  
+  // Ensure either website or businessDescription is provided
+  const hasWebsite = data.website && data.website.trim().length > 0
+  const hasDescription = data.businessDescription && data.businessDescription.trim().length > 0
+  
+  if (!hasWebsite && !hasDescription) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Either website or business description is required",
+      path: ["businessDescription"]
+    })
+  }
 })
 
 type CampaignForm = z.infer<typeof campaignSchema>
@@ -227,6 +250,23 @@ export default function CreateCampaignDialog({
 
   const keywords = form.watch("keywords")
   const estimatedThreads = keywords.length * 10
+
+  // Debug form state
+  useEffect(() => {
+    console.log("🔍 Form State Debug:", {
+      isValid: form.formState.isValid,
+      errors: form.formState.errors,
+      values: form.getValues(),
+      isDirty: form.formState.isDirty
+    })
+  }, [form.formState.isValid, form.formState.errors, form.formState.isDirty])
+
+  // Check if form should be submittable
+  const canSubmit = 
+    keywords.length > 0 && 
+    form.getValues("name").trim().length > 0 &&
+    (form.getValues("website")?.trim() || form.getValues("businessDescription")?.trim()) &&
+    !isCreating
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -441,7 +481,7 @@ export default function CreateCampaignDialog({
               </Button>
               <Button
                 type="submit"
-                disabled={isCreating || !form.formState.isValid}
+                disabled={!canSubmit}
               >
                 {isCreating ? (
                   <>
