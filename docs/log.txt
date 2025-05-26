@@ -1503,3 +1503,6 @@
 [2025-05-26T03:43:28.511Z] NEXTJS_STDOUT: 📖 [LEAD-GEN-GET] Found 10 comments with enriched data
 [2025-05-26T03:43:28.511Z] NEXTJS_STDOUT: 📖 [LEAD-GEN-GET] ====== FETCH COMPLETE ======
 [2025-05-26T03:43:28.511Z] NEXTJS_STDOUT: POST /reddit/lead-finder 200 in 209ms
+[2025-05-26T03:44:05.669Z] NEXTJS_STDOUT: ✓ Compiled in 218ms (1868 modules)
+[2025-05-26T03:47:29.797Z] NEXTJS_STDOUT: ✓ Compiled in 277ms (1868 modules)
+[2025-05-26T03:48:02.866Z] NEXTJS_STDOUT: ✓ Compiled in 387ms (2984 modules)

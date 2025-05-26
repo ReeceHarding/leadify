@@ -36,32 +36,9 @@ export async function searchRedditThreadsAction(
       }
     }
 
-    // Refined search query to target hirers
-    // More flexible approach: if the keyword already implies hiring intent, don't over-filter
-    let refinedKeyword = keyword;
-    let searchQuery = "";
-    
-    // Check if the keyword already has hiring intent
-    const hiringIntentKeywords = [
-      "where to find", "how to hire", "looking for", "need", "hiring", 
-      "recruit", "find developers", "find engineers", "find freelancers",
-      "best place to find", "where can I find", "how do I find"
-    ];
-    
-    const hasHiringIntent = hiringIntentKeywords.some(term => 
-      keyword.toLowerCase().includes(term.toLowerCase())
-    );
-    
-    if (hasHiringIntent) {
-      // If keyword already has hiring intent, use it as-is with minimal filtering
-      searchQuery = `${keyword} site:reddit.com -"looking for work" -"job search" -"my resume"`;
-      console.log(`🔍 Searching Google (hiring intent detected): "${searchQuery}"`);
-    } else {
-      // If keyword is generic, add hiring qualifiers
-      refinedKeyword = `${keyword} (hiring OR "looking for" OR "need a" OR "need someone" OR "recommendations for")`;
-      searchQuery = `${refinedKeyword} site:reddit.com -"looking for work" -"job search" -"my resume"`;
-      console.log(`🔍 Searching Google (adding hiring qualifiers): "${searchQuery}"`);
-    }
+    // Use the keyword directly as provided
+    const searchQuery = `${keyword} site:reddit.com`;
+    console.log(`🔍 Searching Google with keyword: "${searchQuery}"`);
 
     // Build Google Custom Search API URL
     const apiUrl = new URL("https://www.googleapis.com/customsearch/v1")

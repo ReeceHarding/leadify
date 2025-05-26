@@ -168,28 +168,17 @@ function extractKeywordsFromText(text: string): string[] {
 
   console.log("🔍 [KEYWORDS-ACTION] Extracted keywords:", keywords)
 
-  // If no keywords found, return some natural search term defaults
+  // If no keywords found, return empty array
   if (keywords.length === 0) {
     console.log(
-      "🔍 [KEYWORDS-ACTION] No keywords found, using natural search term defaults"
+      "🔍 [KEYWORDS-ACTION] No keywords found in the provided text"
     )
-    const defaults = [
-      "where to find reliable services",
-      "recommendations for local businesses",
-      "best providers in my area",
-      "anyone know good companies for",
-      "help finding quality services"
-    ]
-    console.log(
-      "🔍 [KEYWORDS-ACTION] Natural search term default keywords:",
-      defaults
-    )
-    return defaults
+    return []
   }
 
-  const finalKeywords = keywords.slice(0, 2) // Limit to 2 search terms for testing
+  const finalKeywords = keywords.slice(0, 10) // Limit to 10 keywords
   console.log(
-    "🔍 [KEYWORDS-ACTION] Final natural search terms (limited to 2):",
+    "🔍 [KEYWORDS-ACTION] Final keywords:",
     finalKeywords
   )
   return finalKeywords
