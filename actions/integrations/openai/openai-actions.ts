@@ -536,8 +536,8 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
   threadTitle: string,
   threadContent: string,
   subreddit: string,
-  campaignBusinessName: string,
-  campaignWebsiteContentOrDescription: string,
+  userId: string,
+  campaignWebsiteContent?: string,
   existingComments?: string[]
 ): Promise<
   ActionState<{
@@ -552,12 +552,47 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
     console.log("🤖 [OPENAI-PERSONALIZED] Starting personalized scoring and comment generation")
     console.log("🤖 [OPENAI-PERSONALIZED] Thread title:", threadTitle)
     console.log("🤖 [OPENAI-PERSONALIZED] Subreddit:", subreddit)
-    console.log("🤖 [OPENAI-PERSONALIZED] Campaign Business Name:", campaignBusinessName)
-    console.log("🤖 [OPENAI-PERSONALIZED] Campaign Website Content/Description length:", campaignWebsiteContentOrDescription.length)
+    console.log("🤖 [OPENAI-PERSONALIZED] User ID:", userId)
     console.log("🤖 [OPENAI-PERSONALIZED] Existing comments provided:", existingComments?.length || 0)
 
-    const businessName = campaignBusinessName || "our solution";
-    const websiteContent = campaignWebsiteContentOrDescription;
+    // Get user profile for personalization
+    const profileResult = await getProfileByUserIdAction(userId)
+    if (!profileResult.isSuccess || !profileResult.data) {
+      console.error("❌ [OPENAI-PERSONALIZED] Failed to get user profile")
+      return { isSuccess: false, message: "Failed to get user profile" }
+    }
+
+    const profile = profileResult.data
+    const userWebsiteUrl = profile.website || ""
+    const businessName = profile.name || "our solution"
+
+    console.log("🤖 [OPENAI-PERSONALIZED] Business name from profile:", businessName)
+    console.log("🤖 [OPENAI-PERSONALIZED] User website from profile:", userWebsiteUrl)
+    console.log("🤖 [OPENAI-PERSONALIZED] Campaign website content provided:", !!campaignWebsiteContent)
+
+    // Prioritize campaign-specific content, then user's profile website
+    let primaryBusinessContent = campaignWebsiteContent || ""
+    let contentSource = campaignWebsiteContent ? "campaign" : "profile_fallback"
+
+    if (!primaryBusinessContent && userWebsiteUrl) {
+      console.log("🌐 [OPENAI-PERSONALIZED] No campaign content, scraping user's profile website:", userWebsiteUrl)
+      const scrapeResult = await scrapeWebsiteAction(userWebsiteUrl)
+      if (scrapeResult.isSuccess) {
+        primaryBusinessContent = scrapeResult.data.content
+        contentSource = "profile_scraped"
+        console.log("✅ [OPENAI-PERSONALIZED] User's profile website scraped successfully")
+      } else {
+        console.warn("⚠️ [OPENAI-PERSONALIZED] Failed to scrape user's profile website")
+      }
+    } else if (primaryBusinessContent) {
+      console.log(`✅ [OPENAI-PERSONALIZED] Using provided campaign content (source: ${contentSource})`)
+    }
+
+    if (!primaryBusinessContent) {
+      console.warn("⚠️ [OPENAI-PERSONALIZED] No business content available for AI. Using generic approach.")
+      // Potentially, we could have a very generic prompt here or return an error/low score.
+      // For now, we'll proceed, and the AI will have less context.
+    }
 
     // Analyze existing comments for tone and style
     let toneAnalysis = ""
@@ -588,9 +623,9 @@ Provide a brief analysis of:
 
     const systemPrompt = `You are a Reddit comment analyzer and generator. Your job is to:
 1. Score how relevant a Reddit thread is for promoting ${businessName}
-2. Generate natural, authentic Reddit comments that match the community\'s style
+2. Generate natural, authentic Reddit comments that match the community's style
 
-${websiteContent ? `Business Context: ${websiteContent.substring(0, 1000)}` : ""}
+${primaryBusinessContent ? `Business Context: ${primaryBusinessContent.substring(0, 1500)}` : "The business offers general solutions."}
 
 ${toneAnalysis ? `\nCommunity Tone Analysis:\n${toneAnalysis}\n` : ""}
 

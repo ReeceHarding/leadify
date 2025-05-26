@@ -36,19 +36,11 @@ export async function searchRedditThreadsAction(
       }
     }
 
-    // Refined search queries to target hiring discussions
-    const searchQueries = [
-      `"hiring software developers" ${keyword} site:reddit.com -jobs -job`, // Prioritize exact phrase
-      `"looking to hire software engineers" ${keyword} site:reddit.com -jobs -job`,
-      `"best place to find software developers for hire" ${keyword} site:reddit.com -jobs -job`,
-      `${keyword} "recruiting developers" site:reddit.com -jobs -job`,
-      `${keyword} "developer job posting" site:reddit.com -jobs -job` // Less ideal but can catch some
-    ];
-
-    // For now, let's try the first, most promising query. 
-    // In the future, we could iterate or combine results from multiple queries.
-    const searchQuery = searchQueries[0];
-    console.log(`🔍 Searching Google for: "${searchQuery}"`);
+    // Refined search query to target hirers
+    // Adds terms like "hiring", "looking for", "needed" and excludes common job seeker terms
+    const refinedKeyword = `"${keyword}" AND (hiring OR "looking for" OR needed OR FTE OR contract OR freelance) -"seeking job" -"looking for work" -"my resume" -"job search"`;
+    const searchQuery = `${refinedKeyword} site:reddit.com`;
+    console.log(`🔍 Searching Google for (refined hirer query): "${searchQuery}"`);
 
     // Build Google Custom Search API URL
     const apiUrl = new URL("https://www.googleapis.com/customsearch/v1")

@@ -373,14 +373,12 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
         // Immediately score and generate comment with tone analysis
         console.log(`🤖 [WORKFLOW] Starting AI scoring for thread: "${apiThread.title}"`)
         const { scoreThreadAndGeneratePersonalizedCommentsAction } = await import("@/actions/integrations/openai/openai-actions")
-        
-        // Use campaign.name and the determined websiteContent (either scraped or from businessDescription)
         const scoringResult = await scoreThreadAndGeneratePersonalizedCommentsAction(
           apiThread.title,
           apiThread.content,
           apiThread.subreddit,
-          campaign.name, // Pass campaign name
-          websiteContent, // Pass campaign-specific website content or business description
+          campaign.userId, // Pass userId for personalization
+          websiteContent, // Pass campaign website content (scraped or description)
           existingComments // Pass existing comments for tone matching
         )
 
@@ -390,6 +388,9 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
           console.log(`📝 [WORKFLOW] Reasoning: ${scoringData.reasoning}`)
           
           // Prepare comment data with keyword tracking
+          const postCreatedAtValue = apiThread.created ? Timestamp.fromDate(new Date(apiThread.created * 1000)) : undefined
+          console.log(`💾 [WORKFLOW] Extracted post creation timestamp: ${apiThread.created}, Firestore Timestamp: ${postCreatedAtValue?.toDate()?.toISOString() || 'undefined'}`)
+
           const commentPayload: CreateGeneratedCommentData = {
             campaignId,
             redditThreadId: threadRef.id,
@@ -405,8 +406,8 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
             verboseComment: scoringData.verboseComment,
             status: "new",
             keyword: threadToFetch.keyword, // Track which keyword found this
-                          postScore: apiThread.score, // Track Reddit post score
-              postCreatedAt: apiThread.created ? Timestamp.fromDate(new Date(apiThread.created * 1000)) : undefined // Convert Unix timestamp to Firestore Timestamp
+            postScore: apiThread.score, // Track Reddit post score
+            postCreatedAt: postCreatedAtValue // Use the derived Timestamp
           }
 
           console.log(`💾 [WORKFLOW] Saving generated comment to Firestore...`)
