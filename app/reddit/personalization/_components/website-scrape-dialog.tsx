@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { Loader2, Globe, AlertTriangle, X } from "lucide-react"
-import { SerializedKnowledgeBaseDocument } from "@/actions/db/personalization-actions"
+import { SerializedKnowledgeBaseDocument } from "@/types"
 import { useToast } from "@/hooks/use-toast"
 
 interface SitemapPage {
@@ -26,6 +26,7 @@ interface WebsiteScrapeDialogProps {
   onOpenChange: (open: boolean) => void
   websiteUrl: string
   userId: string
+  organizationId: string
   knowledgeBase: SerializedKnowledgeBaseDocument | null
   setKnowledgeBase: (kb: SerializedKnowledgeBaseDocument | null) => void
 }
@@ -35,6 +36,7 @@ export default function WebsiteScrapeDialog({
   onOpenChange,
   websiteUrl,
   userId,
+  organizationId,
   knowledgeBase,
   setKnowledgeBase
 }: WebsiteScrapeDialogProps) {
@@ -133,6 +135,7 @@ export default function WebsiteScrapeDialog({
         for (const page of scrapeResult.data) {
           await createScrapedContentAction({
             userId,
+            organizationId,
             url: page.url,
             title: page.title,
             content: page.content,
@@ -165,6 +168,7 @@ export default function WebsiteScrapeDialog({
           )
           const createResult = await createKnowledgeBaseAction({
             userId,
+            organizationId,
             websiteUrl,
             scrapedPages: selectedPages
           })

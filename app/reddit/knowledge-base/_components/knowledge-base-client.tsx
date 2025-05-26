@@ -1,19 +1,20 @@
 "use client"
 
 import { useState } from "react"
-import { SerializedKnowledgeBaseDocument } from "@/actions/db/personalization-actions"
-import { SerializedProfileDocument } from "@/actions/db/profiles-actions"
+import { SerializedKnowledgeBaseDocument, SerializedProfileDocument } from "@/types"
 import KnowledgeBaseDisplay from "./knowledge-base-display"
 import AddToKnowledgeBase from "./add-to-knowledge-base"
 
 interface KnowledgeBaseClientProps {
   userId: string
+  organizationId: string
   initialKnowledgeBase: SerializedKnowledgeBaseDocument | null
   userProfile: SerializedProfileDocument | null
 }
 
 export default function KnowledgeBaseClient({
   userId,
+  organizationId,
   initialKnowledgeBase,
   userProfile
 }: KnowledgeBaseClientProps) {
@@ -29,7 +30,7 @@ export default function KnowledgeBaseClient({
             Knowledge Base
           </h1>
           <p className="text-gray-600 dark:text-gray-300">
-            Build your knowledge base with website content, scraped data, and
+            Build your organization's knowledge base with website content, scraped data, and
             additional information to create more informed Reddit comments.
           </p>
         </div>
@@ -46,6 +47,7 @@ export default function KnowledgeBaseClient({
         {/* Right Column: Add to Knowledge Base */}
         <AddToKnowledgeBase
           userId={userId}
+          organizationId={organizationId}
           knowledgeBase={knowledgeBase}
           setKnowledgeBase={setKnowledgeBase}
           userProfile={userProfile}

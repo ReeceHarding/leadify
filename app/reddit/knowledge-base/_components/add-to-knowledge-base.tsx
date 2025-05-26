@@ -13,13 +13,13 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Loader2, Globe, Plus, FileText, Merge, Replace } from "lucide-react"
-import { SerializedKnowledgeBaseDocument } from "@/actions/db/personalization-actions"
-import { SerializedProfileDocument } from "@/actions/db/profiles-actions"
+import { SerializedKnowledgeBaseDocument, SerializedProfileDocument } from "@/types"
 import { useToast } from "@/hooks/use-toast"
 import WebsiteScrapeDialog from "../../personalization/_components/website-scrape-dialog"
 
 interface AddToKnowledgeBaseProps {
   userId: string
+  organizationId: string
   knowledgeBase: SerializedKnowledgeBaseDocument | null
   setKnowledgeBase: (kb: SerializedKnowledgeBaseDocument | null) => void
   userProfile: SerializedProfileDocument | null
@@ -27,6 +27,7 @@ interface AddToKnowledgeBaseProps {
 
 export default function AddToKnowledgeBase({
   userId,
+  organizationId,
   knowledgeBase,
   setKnowledgeBase,
   userProfile
@@ -88,6 +89,7 @@ export default function AddToKnowledgeBase({
         )
         const result = await createKnowledgeBaseAction({
           userId,
+          organizationId,
           customInformation: newInformation,
           websiteUrl: userProfile?.website
         })
@@ -184,6 +186,7 @@ export default function AddToKnowledgeBase({
           )
           const result = await createKnowledgeBaseAction({
             userId,
+            organizationId,
             customInformation: combineResult.data.combinedInformation,
             websiteUrl: userProfile?.website
           })
@@ -268,7 +271,7 @@ export default function AddToKnowledgeBase({
             Add to Knowledge Base
           </CardTitle>
           <CardDescription>
-            Expand your knowledge base with website scraping and additional
+            Expand your organization's knowledge base with website scraping and additional
             information
           </CardDescription>
         </CardHeader>
@@ -403,6 +406,7 @@ export default function AddToKnowledgeBase({
         onOpenChange={setShowScrapeDialog}
         websiteUrl={userProfile?.website || ""}
         userId={userId}
+        organizationId={organizationId}
         knowledgeBase={knowledgeBase}
         setKnowledgeBase={setKnowledgeBase}
       />
