@@ -12,54 +12,66 @@ import { ActionState, RedditOAuthTokens } from "@/types"
 import { Timestamp } from "firebase/firestore"
 import { cookies } from "next/headers"
 
-export async function generateRedditAuthUrlAction(): Promise<
-  ActionState<{ authUrl: string }>
-> {
+export interface GenerateRedditAuthUrlOptions {
+  returnUrl?: string;
+}
+
+export async function generateRedditAuthUrlAction(
+  options?: GenerateRedditAuthUrlOptions
+): Promise<ActionState<{ authUrl: string }>> {
   try {
     if (!process.env.REDDIT_CLIENT_ID) {
-      return { isSuccess: false, message: "Reddit client ID not configured" }
+      return { isSuccess: false, message: "Reddit client ID not configured" };
     }
 
     const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
       ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
-      : "http://localhost:3000"
+      : "http://localhost:3000";
 
-    const redirectUri = `${baseUrl}/api/reddit/callback`
-    const state = crypto.randomUUID()
-    const scopes = ["identity", "read", "submit", "edit", "history"]
+    const redirectUri = `${baseUrl}/api/reddit/callback`;
+    const csrfToken = crypto.randomUUID();
+    
+    // Prepare state object
+    const stateObject = {
+      csrf: csrfToken,
+      returnUrl: options?.returnUrl || "/dashboard" // Default to dashboard or a relevant page
+    };
+    const stateString = Buffer.from(JSON.stringify(stateObject)).toString("base64");
 
-    // Store state in cookie for verification
-    const cookieStore = await cookies()
-    cookieStore.set("reddit_oauth_state", state, {
+    const cookieStore = await cookies();
+    // Store only the CSRF token in the cookie for validation, not the whole state object
+    cookieStore.set("reddit_oauth_csrf", csrfToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       maxAge: 10 * 60, // 10 minutes
-      path: "/", // Added path for better cookie management
-      sameSite: "lax" // Added sameSite for security
-    })
+      path: "/",
+      sameSite: "lax"
+    });
 
-    const authUrl = new URL("https://www.reddit.com/api/v1/authorize")
-    authUrl.searchParams.set("client_id", process.env.REDDIT_CLIENT_ID)
-    authUrl.searchParams.set("response_type", "code")
-    authUrl.searchParams.set("state", state)
-    authUrl.searchParams.set("redirect_uri", redirectUri)
-    authUrl.searchParams.set("duration", "permanent")
-    authUrl.searchParams.set("scope", scopes.join(" "))
+    const authUrl = new URL("https://www.reddit.com/api/v1/authorize");
+    authUrl.searchParams.set("client_id", process.env.REDDIT_CLIENT_ID);
+    authUrl.searchParams.set("response_type", "code");
+    authUrl.searchParams.set("state", stateString); // Pass the base64 encoded JSON state
+    authUrl.searchParams.set("redirect_uri", redirectUri);
+    authUrl.searchParams.set("duration", "permanent");
+    const scopes = ["identity", "read", "submit", "edit", "history"]; // Ensure all necessary scopes are listed
+    authUrl.searchParams.set("scope", scopes.join(" "));
 
-    console.log(`🔗 Generated Reddit OAuth URL: ${authUrl.toString()}`)
-    console.log(`📍 Callback URL to configure in Reddit app: ${redirectUri}`)
+    console.log(`🔗 Generated Reddit OAuth URL: ${authUrl.toString()}`);
+    console.log(`🔐 CSRF token set in cookie (reddit_oauth_csrf). State param includes this + returnUrl.`);
+    console.log(`📍 Callback URL to configure in Reddit app: ${redirectUri}`);
 
     return {
       isSuccess: true,
       message: "Reddit authorization URL generated",
       data: { authUrl: authUrl.toString() }
-    }
+    };
   } catch (error) {
-    console.error("Error generating Reddit auth URL:", error)
+    console.error("Error generating Reddit auth URL:", error);
     return {
       isSuccess: false,
       message: `Failed to generate auth URL: ${error instanceof Error ? error.message : "Unknown error"}`
-    }
+    };
   }
 }
 
@@ -67,260 +79,21 @@ export async function exchangeRedditCodeForTokensAction(
   code: string,
   state: string
 ): Promise<ActionState<RedditOAuthTokens>> {
-  try {
-    if (!process.env.REDDIT_CLIENT_ID || !process.env.REDDIT_CLIENT_SECRET) {
-      return { isSuccess: false, message: "Reddit credentials not configured" }
-    }
-
-    // Verify state parameter
-    const cookieStore = await cookies()
-    const storedState = cookieStore.get("reddit_oauth_state")?.value
-
-    if (!storedState || storedState !== state) {
-      return { isSuccess: false, message: "Invalid state parameter" }
-    }
-
-    const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
-      ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
-      : "http://localhost:3000"
-
-    const redirectUri = `${baseUrl}/api/reddit/callback`
-
-    // Exchange code for tokens
-    const tokenResponse = await fetch(
-      "https://www.reddit.com/api/v1/access_token",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Basic ${Buffer.from(`${process.env.REDDIT_CLIENT_ID}:${process.env.REDDIT_CLIENT_SECRET}`).toString("base64")}`,
-          "Content-Type": "application/x-www-form-urlencoded",
-          "User-Agent":
-            process.env.REDDIT_USER_AGENT || "reddit-lead-gen:v1.0.0"
-        },
-        body: new URLSearchParams({
-          grant_type: "authorization_code",
-          code,
-          redirect_uri: redirectUri
-        })
-      }
-    )
-
-    if (!tokenResponse.ok) {
-      const errorText = await tokenResponse.text()
-      console.error("Token exchange failed:", errorText)
-      return {
-        isSuccess: false,
-        message: `Token exchange failed: ${tokenResponse.status}`
-      }
-    }
-
-    const tokens: RedditOAuthTokens = await tokenResponse.json()
-
-    // Clear the state cookie
-    cookieStore.delete("reddit_oauth_state")
-
-    // Store tokens securely (you might want to encrypt these)
-    cookieStore.set("reddit_access_token", tokens.access_token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: tokens.expires_in,
-      path: "/", // Added path
-      sameSite: "lax" // Added sameSite
-    })
-
-    if (tokens.refresh_token) {
-      console.log(
-        `🔑 [OAUTH] Storing refresh token: ${tokens.refresh_token.substring(0, 10)}...`
-      )
-      cookieStore.set("reddit_refresh_token", tokens.refresh_token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 365 * 24 * 60 * 60, // 1 year
-        path: "/", // Added path
-        sameSite: "lax" // Added sameSite
-      })
-    }
-
-    console.log(
-      "✅ Reddit OAuth tokens obtained successfully. Scope:",
-      tokens.scope
-    )
-
-    return {
-      isSuccess: true,
-      message: "Reddit authentication successful",
-      data: tokens
-    }
-  } catch (error) {
-    console.error("Error exchanging Reddit code for tokens:", error)
-    return {
-      isSuccess: false,
-      message: `Failed to exchange code: ${error instanceof Error ? error.message : "Unknown error"}`
-    }
-  }
+  console.warn("DEPRECATED: exchangeRedditCodeForTokensAction is called. Use organization-based flow via /api/reddit/callback.");
+  return { isSuccess: false, message: "This action is deprecated. Please use organization-specific authentication flow." };
 }
 
-export async function getRedditAccessTokenAction(): Promise<
-  ActionState<string>
-> {
-  try {
-    console.log(
-      "🔑 [OAUTH] Attempting to get Reddit access token from cookie..."
-    )
-    const cookieStore = await cookies()
-    const accessToken = cookieStore.get("reddit_access_token")?.value
-
-    if (!accessToken) {
-      console.warn("⚠️ [OAUTH] No Reddit access token found in cookies.")
-      return { isSuccess: false, message: "No Reddit access token found" }
-    }
-    console.log(
-      `✅ [OAUTH] Retrieved access token: ${accessToken.substring(0, 20)}...`
-    )
-
-    return {
-      isSuccess: true,
-      message: "Reddit access token retrieved",
-      data: accessToken
-    }
-  } catch (error) {
-    console.error("Error getting Reddit access token:", error)
-    return {
-      isSuccess: false,
-      message: `Failed to get access token: ${error instanceof Error ? error.message : "Unknown error"}`
-    }
-  }
+export async function getRedditAccessTokenAction(): Promise<ActionState<string>> {
+   console.warn("DEPRECATED: getRedditAccessTokenAction is called. Use getCurrentOrganizationTokens(orgId).");
+  return { isSuccess: false, message: "This action is deprecated." };
 }
 
-export async function refreshRedditTokenAction(): Promise<
-  ActionState<RedditOAuthTokens>
-> {
-  try {
-    console.log("🔄 [OAUTH] Attempting to refresh Reddit token...")
-    if (!process.env.REDDIT_CLIENT_ID || !process.env.REDDIT_CLIENT_SECRET) {
-      console.error(
-        "❌ [OAUTH] Reddit client ID or secret not configured for token refresh."
-      )
-      return { isSuccess: false, message: "Reddit credentials not configured" }
-    }
-
-    const cookieStore = await cookies()
-    const refreshToken = cookieStore.get("reddit_refresh_token")?.value
-
-    if (!refreshToken) {
-      console.warn(
-        "⚠️ [OAUTH] No refresh token found in cookies for token refresh."
-      )
-      return { isSuccess: false, message: "No refresh token available" }
-    }
-    console.log(
-      `🔄 [OAUTH] Using refresh token: ${refreshToken.substring(0, 10)}...`
-    )
-
-    const basicAuth = Buffer.from(
-      `${process.env.REDDIT_CLIENT_ID}:${process.env.REDDIT_CLIENT_SECRET}`
-    ).toString("base64")
-    const requestBody = new URLSearchParams({
-      grant_type: "refresh_token",
-      refresh_token: refreshToken
-    })
-
-    console.log(
-      `📬 [OAUTH] Refresh token request body: ${requestBody.toString()}`
-    )
-    console.log(
-      `📬 [OAUTH] Refresh token request auth header: Basic ${basicAuth.substring(0, 20)}...`
-    )
-
-    const tokenResponse = await fetch(
-      "https://www.reddit.com/api/v1/access_token",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Basic ${Buffer.from(`${process.env.REDDIT_CLIENT_ID}:${process.env.REDDIT_CLIENT_SECRET}`).toString("base64")}`,
-          "Content-Type": "application/x-www-form-urlencoded",
-          "User-Agent":
-            process.env.REDDIT_USER_AGENT || "reddit-lead-gen:v1.0.0"
-        },
-        body: new URLSearchParams({
-          grant_type: "refresh_token",
-          refresh_token: refreshToken
-        })
-      }
-    )
-
-    if (!tokenResponse.ok) {
-      const errorText = await tokenResponse.text()
-      console.error(
-        "❌ [OAUTH] Token refresh failed. Status:",
-        tokenResponse.status,
-        "Body:",
-        errorText
-      )
-      return {
-        isSuccess: false,
-        message: `Token refresh failed: ${tokenResponse.status}`
-      }
-    }
-
-    const tokens: RedditOAuthTokens = await tokenResponse.json()
-
-    // Update stored tokens
-    cookieStore.set("reddit_access_token", tokens.access_token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: tokens.expires_in,
-      path: "/", // Added path
-      sameSite: "lax" // Added sameSite
-    })
-
-    console.log(
-      "✅ Reddit tokens refreshed successfully. New access token expires in:",
-      tokens.expires_in,
-      "Scope:",
-      tokens.scope
-    )
-
-    return {
-      isSuccess: true,
-      message: "Reddit tokens refreshed",
-      data: tokens
-    }
-  } catch (error) {
-    console.error("Error refreshing Reddit tokens:", error)
-    return {
-      isSuccess: false,
-      message: `Failed to refresh tokens: ${error instanceof Error ? error.message : "Unknown error"}`
-    }
-  }
+export async function refreshRedditTokenAction(): Promise<ActionState<RedditOAuthTokens>> {
+  console.warn("DEPRECATED: refreshRedditTokenAction is called. Use getCurrentOrganizationTokens(orgId) which handles refresh.");
+  return { isSuccess: false, message: "This action is deprecated." };
 }
 
 export async function clearRedditTokensAction(): Promise<ActionState<void>> {
-  try {
-    console.log("🔧 [CLEAR-REDDIT-TOKENS] Clearing Reddit OAuth tokens...")
-
-    const cookieStore = await cookies()
-
-    // Clear all Reddit-related cookies
-    cookieStore.delete("reddit_access_token")
-    cookieStore.delete("reddit_refresh_token")
-    cookieStore.delete("reddit_oauth_state")
-
-    console.log("✅ [CLEAR-REDDIT-TOKENS] Reddit tokens cleared successfully")
-
-    return {
-      isSuccess: true,
-      message: "Reddit tokens cleared successfully",
-      data: undefined
-    }
-  } catch (error) {
-    console.error(
-      "❌ [CLEAR-REDDIT-TOKENS] Error clearing Reddit tokens:",
-      error
-    )
-    return {
-      isSuccess: false,
-      message: "Failed to clear Reddit tokens"
-    }
-  }
+  console.warn("DEPRECATED: clearRedditTokensAction is called. Use clearRedditTokensFromOrganizationAction(orgId).");
+  return { isSuccess: false, message: "This action is deprecated." };
 }

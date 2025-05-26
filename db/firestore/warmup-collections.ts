@@ -36,6 +36,7 @@ export interface WarmupAccountDocument {
   totalPostsMade?: number     // Total posts made during the warmup period
   totalCommentsMade?: number  // Total comments made during the warmup period
   status?: "active" | "paused" | "completed" | "error" // Overall status of the warmup account
+  error?: string; // NEW: To store error messages if status is 'error' or 'paused' due to an issue
   lastActivityAt?: Timestamp  // Timestamp of the last post or comment made
 
   createdAt: Timestamp
@@ -52,6 +53,7 @@ export interface SerializedWarmupAccountDocument
   warmupEndDate: string
   createdAt: string
   updatedAt: string
+  error?: string; // NEW
   lastActivityAt?: string
 }
 
@@ -213,6 +215,7 @@ export interface UpdateWarmupAccountData {
   totalPostsMade?: number    
   totalCommentsMade?: number 
   status?: "active" | "paused" | "completed" | "error"
+  error?: string; // NEW: Allow updating error message
   lastActivityAt?: Timestamp 
 
   updatedAt?: Timestamp // This is usually set by serverTimestamp() in the action

@@ -755,3 +755,65 @@ export async function getWarmupPostsByOrganizationIdAction(
     return { isSuccess: false, message: "Failed to get warm-up posts" }
   }
 }
+
+export async function getWarmupAccountsByStatusAction(
+  status: "active" | "paused" | "completed" | "error"
+): Promise<ActionState<WarmupAccountDocument[]>> {
+  try {
+    console.log(`🔍 [DB-WARMUP] Fetching warmup accounts with status: ${status}`);
+    const accountsQuery = query(
+      collection(db, WARMUP_COLLECTIONS.WARMUP_ACCOUNTS),
+      where("status", "==", status),
+      where("isActive", "==", true)
+    );
+    const snapshot = await getDocs(accountsQuery);
+    const accounts = snapshot.docs.map(doc => doc.data() as WarmupAccountDocument);
+    console.log(`✅ [DB-WARMUP] Found ${accounts.length} accounts with status ${status}`);
+    return { isSuccess: true, message: "Accounts retrieved", data: accounts };
+  } catch (error) {
+    console.error(`❌ [DB-WARMUP] Error fetching accounts by status ${status}:`, error);
+    return { isSuccess: false, message: "Failed to retrieve accounts by status" };
+  }
+}
+
+export async function getQueuedWarmupPostsByAccountIdAction(
+  warmupAccountId: string
+): Promise<ActionState<SerializedWarmupPostDocument[]>> {
+  try {
+    console.log(`🔍 [DB-WARMUP] Fetching queued posts for account: ${warmupAccountId}`);
+    const postsQuery = query(
+      collection(db, WARMUP_COLLECTIONS.WARMUP_POSTS),
+      where("warmupAccountId", "==", warmupAccountId),
+      where("status", "==", "queued"),
+      orderBy("scheduledFor", "asc")
+    );
+    const snapshot = await getDocs(postsQuery);
+    const posts = snapshot.docs.map(doc => serializeWarmupPost(doc.data() as WarmupPostDocument));
+    console.log(`✅ [DB-WARMUP] Found ${posts.length} queued posts for account ${warmupAccountId}`);
+    return { isSuccess: true, message: "Queued posts retrieved", data: posts };
+  } catch (error) {
+    console.error(`❌ [DB-WARMUP] Error fetching queued posts for account ${warmupAccountId}:`, error);
+    return { isSuccess: false, message: "Failed to retrieve queued posts" };
+  }
+}
+
+export async function getQueuedWarmupCommentsByWarmupPostIdAction(
+  warmupPostId: string
+): Promise<ActionState<SerializedWarmupCommentDocument[]>> {
+  try {
+    console.log(`🔍 [DB-WARMUP] Fetching queued comments for post: ${warmupPostId}`);
+    const commentsQuery = query(
+      collection(db, WARMUP_COLLECTIONS.WARMUP_COMMENTS),
+      where("warmupPostId", "==", warmupPostId),
+      where("status", "==", "queued"),
+      orderBy("scheduledFor", "asc")
+    );
+    const snapshot = await getDocs(commentsQuery);
+    const comments = snapshot.docs.map(doc => serializeWarmupComment(doc.data() as WarmupCommentDocument));
+    console.log(`✅ [DB-WARMUP] Found ${comments.length} queued comments for post ${warmupPostId}`);
+    return { isSuccess: true, message: "Queued comments retrieved", data: comments };
+  } catch (error) {
+    console.error(`❌ [DB-WARMUP] Error fetching queued comments for post ${warmupPostId}:`, error);
+    return { isSuccess: false, message: "Failed to retrieve queued comments" };
+  }
+}

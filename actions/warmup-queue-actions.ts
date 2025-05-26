@@ -8,13 +8,16 @@ Handles scheduling and processing of posts and comments.
 "use server"
 
 import { ActionState } from "@/types"
-import { Timestamp, doc, getDoc } from "firebase/firestore"
+import { Timestamp, doc, getDoc, collection, query, where, getDocs, limit, orderBy } from "firebase/firestore"
 import { db } from "@/db/db"
 import {
   WARMUP_COLLECTIONS,
   WarmupPostDocument,
   SubredditAnalysisDocument,
-  CreateWarmupPostData
+  CreateWarmupPostData,
+  CreateWarmupCommentData,
+  WarmupAccountDocument,
+  WarmupCommentDocument
 } from "@/db/firestore/warmup-collections"
 import {
   getWarmupAccountByOrganizationIdAction,
@@ -26,12 +29,18 @@ import {
   saveSubredditAnalysisAction,
   createWarmupPostAction,
   createWarmupCommentAction,
-  getWarmupCommentsByPostIdAction
+  getWarmupCommentsByPostIdAction,
+  updateWarmupAccountAction,
+  getWarmupAccountsByStatusAction,
+  getQueuedWarmupPostsByAccountIdAction,
+  getQueuedWarmupCommentsByWarmupPostIdAction,
+  updateWarmupCommentAction
 } from "@/actions/db/warmup-actions"
 import {
   getTopPostsFromSubredditAction,
   submitRedditPostAction,
-  getPostCommentsAction
+  getPostCommentsAction,
+  submitRedditCommentAction
 } from "@/actions/integrations/reddit/reddit-warmup-actions"
 import {
   analyzeSubredditStyleAction,
@@ -39,6 +48,7 @@ import {
   generateWarmupCommentsAction
 } from "@/actions/integrations/openai/warmup-content-generation-actions"
 import { getOrganizationByIdAction } from "@/actions/db/organizations-actions"
+import { getCurrentOrganizationTokens } from "@/actions/integrations/reddit/reddit-auth-helpers"
 
 export async function generateAndScheduleWarmupPostsAction(
   organizationId: string
@@ -101,15 +111,21 @@ export async function generateAndScheduleWarmupPostsAction(
 
       // Get or update subreddit analysis
       let analysisResult = await getSubredditAnalysisAction(subreddit)
-      let analysis: SubredditAnalysisDocument | null = analysisResult.data
+      let analysis: SubredditAnalysisDocument | null = null
+      if (analysisResult.isSuccess) {
+        analysis = analysisResult.data as (SubredditAnalysisDocument | null)
+      }
 
-      // If no analysis or it's older than 7 days, refresh it
-      if (
-        !analysis ||
-        (analysis.lastAnalyzedAt &&
-          Date.now() - new Date(analysis.lastAnalyzedAt).getTime() >
-            7 * 24 * 60 * 60 * 1000)
-      ) {
+      // Check if analysis needs refresh
+      let needsRefresh = !analysis
+      if (analysis && analysis.lastAnalyzedAt) {
+        const lastAnalyzedMillis = (analysis.lastAnalyzedAt as Timestamp).toMillis()
+        if ((Timestamp.now().toMillis() - lastAnalyzedMillis) > 7 * 24 * 60 * 60 * 1000) {
+          needsRefresh = true
+        }
+      }
+
+      if (needsRefresh) {
         console.log(`📊 [GENERATE-WARMUP-POSTS] Analyzing r/${subreddit}`)
 
         // Pass organizationId to getTopPostsFromSubredditAction
@@ -162,7 +178,7 @@ export async function generateAndScheduleWarmupPostsAction(
       // Ensure analysis is not null
       if (!analysis) {
         console.error(
-          `❌ [GENERATE-WARMUP-POSTS] No analysis available for r/${subreddit}`
+          `❌ [GENERATE-WARMUP-POSTS] No analysis available for r/${subreddit} after attempting refresh.`
         )
         continue
       }
@@ -221,30 +237,153 @@ export async function generateAndScheduleWarmupPostsAction(
 }
 
 export async function processWarmupPostQueueAction(): Promise<
-  ActionState<{ postsProcessed: number }>
+  ActionState<{ postsProcessed: number; commentsProcessed: number; errors: number }>
 > {
+  console.log("🔧 [PROCESS-WARMUP-QUEUE] Starting organization-aware queue processing");
+  let postsProcessed = 0;
+  let commentsProcessed = 0;
+  let errorCount = 0;
+  const now = Timestamp.now();
+
   try {
-    console.log("🔧 [PROCESS-WARMUP-QUEUE] Starting queue processing")
+    const accountsResult = await getWarmupAccountsByStatusAction("active");
+    if (!accountsResult.isSuccess || !accountsResult.data) {
+      console.error("❌ [PROCESS-WARMUP-QUEUE] Could not fetch active warmup accounts:", accountsResult.message);
+      return { isSuccess: false, message: "Could not fetch active warmup accounts" };
+    }
+    const activeWarmupAccounts = accountsResult.data;
+    console.log(`Found ${activeWarmupAccounts.length} active warmup accounts to process.`);
 
-    // This would typically be called by a cron job
-    // For now, we'll process posts that are scheduled for the past
-    const now = Timestamp.now()
-    let postsProcessed = 0
+    for (const account of activeWarmupAccounts) {
+      const organizationId = account.organizationId;
+      console.log(`Processing account ${account.id} for organization ${organizationId}`);
 
-    // Get all users with active warm-up accounts
-    // In a real implementation, you'd query for posts ready to be posted
-    // For this example, we'll keep it simple
+      const tokenCheck = await getCurrentOrganizationTokens(organizationId);
+      if (!tokenCheck.isSuccess || !tokenCheck.data.accessToken) {
+        console.warn(`Skipping account ${account.id}: Reddit not connected for organization ${organizationId}`);
+        await updateWarmupAccountAction(account.id, { status: "paused", error: "Reddit connection issue", lastActivityAt: Timestamp.now() });
+        errorCount++;
+        continue;
+      }
+      if (tokenCheck.data.username !== account.redditUsername) {
+          console.warn(`Reddit username mismatch for account ${account.id}. Expected ${account.redditUsername}, got ${tokenCheck.data.username}. Pausing.`);
+          await updateWarmupAccountAction(account.id, { status: "paused", error: "Reddit username mismatch" });
+          errorCount++;
+          continue;
+      }
+      
+      if (new Date(account.warmupEndDate).getTime() < now.toMillis()) {
+        console.log(`Warmup period ended for account ${account.id}. Setting to completed.`);
+        await updateWarmupAccountAction(account.id, { status: "completed", isActive: false });
+        continue;
+      }
 
-    console.log(`✅ [PROCESS-WARMUP-QUEUE] Processed ${postsProcessed} posts`)
+      const today = new Date().toISOString().split('T')[0];
+      const lastActivityDate = account.lastActivityAt ? new Date(account.lastActivityAt).toISOString().split('T')[0] : null;
+      let postsToday = account.postsToday || 0;
+      let commentsToday = account.commentsToday || 0;
+      if (lastActivityDate !== today) {
+        postsToday = 0;
+        commentsToday = 0;
+      }
 
+      // 1. Process Posts
+      let postsAttemptedThisCycle = 0;
+      if (postsToday < (account.dailyPostLimit || 3)) {
+        const queuedPostsResult = await getQueuedWarmupPostsByAccountIdAction(account.id);
+        if (queuedPostsResult.isSuccess && queuedPostsResult.data) {
+          const duePosts = queuedPostsResult.data.filter(p => p.scheduledFor && new Date(p.scheduledFor).getTime() <= now.toMillis());
+          
+          for (const post of duePosts) {
+            if (postsToday >= (account.dailyPostLimit || 3) || postsAttemptedThisCycle >= (account.dailyPostLimit || 3) ) break;
+            postsAttemptedThisCycle++;
+
+            const rateLimitResult = await checkWarmupRateLimitAction(organizationId, post.subreddit);
+            if (rateLimitResult.isSuccess && rateLimitResult.data?.canPost) {
+              console.log(`Attempting to post: ${post.title} to r/${post.subreddit} for org ${organizationId}`);
+              const submitResult = await submitRedditPostAction(organizationId, post.subreddit, post.title, post.content);
+              if (submitResult.isSuccess && submitResult.data) {
+                await updateWarmupPostAction(post.id, {
+                  status: "posted", redditPostId: submitResult.data.id,
+                  redditPostUrl: submitResult.data.url, postedAt: Timestamp.now()
+                });
+                await updateWarmupRateLimitAction(organizationId, post.subreddit);
+                postsToday++; postsProcessed++;
+              } else {
+                await updateWarmupPostAction(post.id, { status: "failed", error: submitResult.message });
+                errorCount++; console.error(`Failed to post ${post.id}: ${submitResult.message}`);
+              }
+            } else {
+              console.log(`Rate limited for r/${post.subreddit}, skipping post ${post.id}. Next attempt: ${rateLimitResult.data?.nextPostTime}`);
+            }
+          }
+        }
+      }
+      
+      // 2. Process Comments
+      let commentsAttemptedThisCycle = 0;
+      const dailyCommentLimit = account.dailyCommentLimit ? Math.max(1, Math.floor(account.dailyPostLimit / 2)) : 2; // Example: half of post limit, min 1
+      if (commentsToday < dailyCommentLimit) {
+        const recentPostsQuery = query(
+            collection(db, WARMUP_COLLECTIONS.WARMUP_POSTS),
+            where("warmupAccountId", "==", account.id),
+            where("status", "==", "posted"),
+            orderBy("postedAt", "desc"),
+            limit(5) 
+        );
+        const recentPostsSnapshot = await getDocs(recentPostsQuery);
+        for (const postDoc of recentPostsSnapshot.docs) {
+            if (commentsToday >= dailyCommentLimit || commentsAttemptedThisCycle >= dailyCommentLimit) break;
+            const warmupPost = postDoc.data() as WarmupPostDocument;
+            if (!warmupPost.redditPostId) continue; // Can only comment on posts that have a Reddit ID
+
+            const queuedCommentsResult = await getQueuedWarmupCommentsByWarmupPostIdAction(warmupPost.id);
+            if (queuedCommentsResult.isSuccess && queuedCommentsResult.data) {
+                const dueComments = queuedCommentsResult.data.filter(c => c.scheduledFor && new Date(c.scheduledFor).getTime() <= now.toMillis());
+                for (const comment of dueComments) {
+                    if (commentsToday >= dailyCommentLimit || commentsAttemptedThisCycle >= dailyCommentLimit) break;
+                    commentsAttemptedThisCycle++;
+                    
+                    const parentToReplyTo = comment.redditParentCommentId || warmupPost.redditPostId; // Reply to comment or post
+                    if (parentToReplyTo) { 
+                        console.log(`Attempting to comment on ${parentToReplyTo} for org ${organizationId}`);
+                        const submitCommentResult = await submitRedditCommentAction(organizationId, parentToReplyTo, comment.content);
+                        if (submitCommentResult.isSuccess && submitCommentResult.data) {
+                            await updateWarmupCommentAction(comment.id, { status: "posted", redditCommentId: submitCommentResult.data.id, postedAt: Timestamp.now() });
+                            commentsToday++; commentsProcessed++;
+                        } else {
+                            await updateWarmupCommentAction(comment.id, { status: "failed", error: submitCommentResult.message });
+                            errorCount++; console.error(`Failed to submit comment ${comment.id}: ${submitCommentResult.message}`);
+                        }
+                    } else {
+                        console.warn(`Skipping comment ${comment.id} - missing redditParentCommentId and no fallback to post ID implicitly.`);
+                         await updateWarmupCommentAction(comment.id, { status: "failed", error: "Missing parent ID for reply." });
+                         errorCount++;
+                    }
+                }
+            }
+        }
+      }
+
+      await updateWarmupAccountAction(account.id, {
+        postsToday: postsToday, commentsToday: commentsToday, lastActivityAt: Timestamp.now(),
+        totalPostsMade: (account.totalPostsMade || 0) + (postsToday - (account.postsToday || 0) ), 
+        totalCommentsMade: (account.totalCommentsMade || 0) + (commentsToday - (account.commentsToday || 0) )
+      });
+    }
+
+    console.log(`✅ [PROCESS-WARMUP-QUEUE] Finished. Posts: ${postsProcessed}, Comments: ${commentsProcessed}, Errors: ${errorCount}`);
     return {
       isSuccess: true,
-      message: `Processed ${postsProcessed} posts`,
-      data: { postsProcessed }
-    }
+      message: `Queue processed. Posts: ${postsProcessed}, Comments: ${commentsProcessed}, Errors: ${errorCount}`,
+      data: { postsProcessed, commentsProcessed, errors: errorCount },
+    };
   } catch (error) {
-    console.error("❌ [PROCESS-WARMUP-QUEUE] Error:", error)
-    return { isSuccess: false, message: "Failed to process queue" }
+    console.error("❌ [PROCESS-WARMUP-QUEUE] Error:", error);
+    return { 
+        isSuccess: false, 
+        message: `Failed to process queue: ${error instanceof Error ? error.message : "Unknown error"}`,
+    };
   }
 }
 
@@ -320,14 +459,15 @@ export async function generateCommentsForWarmupPostAction(
         new Date(Date.now() + commentDelay)
       )
 
-      await createWarmupCommentAction({
-        userId: warmupPost.userId, // User who owns the main warmup account
-        organizationId, // Pass the organizationId
+      const commentData: CreateWarmupCommentData = {
+        userId: warmupPost.userId,
+        organizationId,
         warmupPostId,
         content: reply.reply,
         scheduledFor,
-        // redditParentCommentId: reply.commentId, // If generateWarmupCommentsAction returns parent ID
-      })
+        redditParentCommentId: reply.commentId,
+      }
+      await createWarmupCommentAction(commentData)
 
       // Add random delay between 3-4 minutes
       commentDelay += minDelay + Math.random() * (maxDelay - minDelay)

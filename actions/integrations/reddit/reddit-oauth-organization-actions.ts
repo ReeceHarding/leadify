@@ -237,39 +237,32 @@ export async function clearRedditTokensFromOrganizationAction(
 
 export async function exchangeRedditCodeForTokensOrganizationAction(
   code: string,
-  state: string,
+  stateFromReddit: string,
   organizationId: string
 ): Promise<ActionState<RedditOAuthTokens>> {
   try {
     console.log(
-      "🔧 [EXCHANGE-REDDIT-CODE-ORG] Exchanging Reddit code for tokens..."
-    )
+      "🔧 [EXCHANGE-REDDIT-CODE-ORG] Exchanging Reddit code for tokens for org:",
+      organizationId
+    );
 
     if (!process.env.REDDIT_CLIENT_ID || !process.env.REDDIT_CLIENT_SECRET) {
-      return { isSuccess: false, message: "Reddit credentials not configured" }
-    }
-
-    // Verify state parameter
-    const cookieStore = await cookies()
-    const storedState = cookieStore.get("reddit_oauth_state")?.value
-
-    if (!storedState || storedState !== state) {
-      return { isSuccess: false, message: "Invalid state parameter" }
+      return { isSuccess: false, message: "Reddit credentials not configured" };
     }
 
     const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
       ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
-      : "http://localhost:3000"
+      : "http://localhost:3000";
+    const redirectUri = `${baseUrl}/api/reddit/callback`;
 
-    const redirectUri = `${baseUrl}/api/reddit/callback`
-
-    // Exchange code for tokens
     const tokenResponse = await fetch(
       "https://www.reddit.com/api/v1/access_token",
       {
         method: "POST",
         headers: {
-          Authorization: `Basic ${Buffer.from(`${process.env.REDDIT_CLIENT_ID}:${process.env.REDDIT_CLIENT_SECRET}`).toString("base64")}`,
+          Authorization: `Basic ${Buffer.from(
+            `${process.env.REDDIT_CLIENT_ID}:${process.env.REDDIT_CLIENT_SECRET}`
+          ).toString("base64")}`,
           "Content-Type": "application/x-www-form-urlencoded",
           "User-Agent":
             process.env.REDDIT_USER_AGENT || "reddit-lead-gen:v1.0.0"
@@ -280,18 +273,18 @@ export async function exchangeRedditCodeForTokensOrganizationAction(
           redirect_uri: redirectUri
         })
       }
-    )
+    );
 
     if (!tokenResponse.ok) {
-      const errorText = await tokenResponse.text()
-      console.error("Token exchange failed:", errorText)
+      const errorText = await tokenResponse.text();
+      console.error("❌ [EXCHANGE-REDDIT-CODE-ORG] Token exchange failed:", errorText, "Status:", tokenResponse.status);
       return {
         isSuccess: false,
-        message: `Token exchange failed: ${tokenResponse.status}`
-      }
+        message: `Token exchange failed: ${tokenResponse.status} - ${errorText}`
+      };
     }
 
-    const tokens: RedditOAuthTokens = await tokenResponse.json()
+    const tokens: RedditOAuthTokens = await tokenResponse.json();
 
     // Get Reddit username
     const userResponse = await fetch("https://oauth.reddit.com/api/v1/me", {
@@ -299,37 +292,35 @@ export async function exchangeRedditCodeForTokensOrganizationAction(
         Authorization: `Bearer ${tokens.access_token}`,
         "User-Agent": process.env.REDDIT_USER_AGENT || "reddit-lead-gen:v1.0.0"
       }
-    })
+    });
 
-    let username = ""
+    let username = "";
     if (userResponse.ok) {
-      const userData = await userResponse.json()
-      username = userData.name
+      const userData = await userResponse.json();
+      username = userData.name;
+    } else {
+      console.warn("⚠️ [EXCHANGE-REDDIT-CODE-ORG] Could not fetch Reddit username after token exchange.");
+      // Proceed without username if it fails, but log it.
     }
 
-    // Save tokens to organization
-    await saveRedditTokensToOrganizationAction(organizationId, tokens, username)
-
-    // Clear the state cookie
-    cookieStore.delete("reddit_oauth_state")
-
+    await saveRedditTokensToOrganizationAction(organizationId, tokens, username);
+    
     console.log(
-      "✅ [EXCHANGE-REDDIT-CODE-ORG] Reddit OAuth tokens obtained and saved"
-    )
-
+      "✅ [EXCHANGE-REDDIT-CODE-ORG] Reddit OAuth tokens obtained and saved to organization"
+    );
     return {
       isSuccess: true,
-      message: "Reddit authentication successful",
+      message: "Reddit authentication successful and tokens saved to organization",
       data: tokens
-    }
+    };
   } catch (error) {
     console.error(
       "❌ [EXCHANGE-REDDIT-CODE-ORG] Error exchanging Reddit code:",
       error
-    )
+    );
     return {
       isSuccess: false,
-      message: `Failed to exchange code: ${error instanceof Error ? error.message : "Unknown error"}`
-    }
+      message: `Failed to exchange code for organization: ${error instanceof Error ? error.message : "Unknown error"}`
+    };
   }
 } 

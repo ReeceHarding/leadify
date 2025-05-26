@@ -1,7 +1,7 @@
 /*
 Migration script to move Reddit tokens and business data from profiles to organizations.
-
-Run with: npx tsx scripts/migrate-to-organizations.ts
+Run with: GOOGLE_APPLICATION_CREDENTIALS="./serviceAccountKey.json" npx tsx scripts/migrate-to-organizations.ts
+(Replace serviceAccountKey.json with your actual key file name/path)
 
 This script will:
 1. Create organizations for users with Reddit tokens in their profile
@@ -11,202 +11,188 @@ This script will:
 5. Clean up profile documents
 */
 
-import { db } from "@/db/db"
-import {
-  collection,
-  getDocs,
-  doc,
-  updateDoc,
-  setDoc,
-  serverTimestamp,
-  writeBatch,
-  query,
-  where
-} from "firebase/firestore"
-import { COLLECTIONS } from "@/db/firestore/collections"
-import { LEAD_COLLECTIONS } from "@/db/firestore/lead-generation-collections"
-import { ORGANIZATION_COLLECTIONS } from "@/db/firestore/organizations-collections"
+import * as admin from "firebase-admin";
+// IMPORTANT: Make sure your service account key JSON file is in the specified path
+// or set the GOOGLE_APPLICATION_CREDENTIALS environment variable.
+// For local development, you might place the key in the root and gitignore it.
+const serviceAccount = require("../serviceAccountKey.json"); // ADJUST PATH AS NEEDED
+
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
+}
+
+const db = admin.firestore();
+const serverTimestamp = admin.firestore.FieldValue.serverTimestamp; // Admin SDK server timestamp
+
+// Import collection name constants (assuming they don't use client SDK specific features)
+import { COLLECTIONS } from "@/db/firestore/collections";
+import { LEAD_COLLECTIONS } from "@/db/firestore/lead-generation-collections";
+import { ORGANIZATION_COLLECTIONS } from "@/db/firestore/organizations-collections";
 
 async function migrateToOrganizations() {
-  console.log("🚀 Starting migration to organizations...")
+  console.log("🚀 Starting migration to organizations using Firebase Admin SDK...");
   
   try {
-    // Step 1: Get all profiles with Reddit tokens
-    console.log("\n📋 Step 1: Fetching profiles with Reddit tokens...")
-    const profilesRef = collection(db, COLLECTIONS.PROFILES)
-    const profilesSnapshot = await getDocs(profilesRef)
+    console.log("\n📋 Step 1: Fetching profiles...");
+    const profilesRef = db.collection(COLLECTIONS.PROFILES);
+    const profilesSnapshot = await profilesRef.get();
     
-    let migratedCount = 0
-    let errorCount = 0
+    let migratedCount = 0;
+    let errorCount = 0;
     
+    if (profilesSnapshot.empty) {
+        console.log("No profiles found to migrate.");
+        return;
+    }
+
     for (const profileDoc of profilesSnapshot.docs) {
-      const profile = profileDoc.data()
-      const userId = profileDoc.id
+      const profile = profileDoc.data();
+      const userId = profileDoc.id;
       
-      // Check if profile has Reddit tokens or business data
-      if (profile.redditAccessToken || profile.website || profile.keywords?.length > 0) {
-        console.log(`\n👤 Processing user: ${userId}`)
-        console.log(`  - Name: ${profile.name || 'Unknown'}`)
-        console.log(`  - Reddit username: ${profile.redditUsername || 'None'}`)
-        console.log(`  - Website: ${profile.website || 'None'}`)
-        console.log(`  - Keywords: ${profile.keywords?.length || 0}`)
+      if (!profile) {
+        console.warn(`Skipping profileDoc with id ${userId} as data is undefined.`);
+        continue;
+      }
+      
+      // Check if profile has data to migrate
+      if (profile.redditAccessToken || profile.website || (profile.keywords && profile.keywords.length > 0) || profile.businessDescription) {
+        console.log(`\n👤 Processing user: ${userId}`);
+        console.log(`  - Name from profile: ${profile.name || 'Unknown'}`);
+        console.log(`  - Reddit username from profile: ${profile.redditUsername || 'None'}`);
+        console.log(`  - Website from profile: ${profile.website || 'None'}`);
+        console.log(`  - Keywords count from profile: ${profile.keywords?.length || 0}`);
         
         try {
-          // Step 2: Check if user already has organizations
-          const orgsQuery = query(
-            collection(db, ORGANIZATION_COLLECTIONS.ORGANIZATIONS),
-            where("ownerId", "==", userId)
-          )
-          const orgsSnapshot = await getDocs(orgsQuery)
+          const batch = db.batch();
+
+          const orgsQuery = db.collection(ORGANIZATION_COLLECTIONS.ORGANIZATIONS).where("ownerId", "==", userId);
+          const orgsSnapshot = await orgsQuery.get();
           
-          let organizationId: string
-          
+          let organizationId: string;
+          let organizationRef: FirebaseFirestore.DocumentReference;
+
           if (orgsSnapshot.empty) {
-            // Create new organization
-            console.log("  ✨ Creating new organization...")
-            const orgRef = doc(collection(db, ORGANIZATION_COLLECTIONS.ORGANIZATIONS))
-            organizationId = orgRef.id
+            console.log("  ✨ Creating new organization...");
+            organizationRef = db.collection(ORGANIZATION_COLLECTIONS.ORGANIZATIONS).doc();
+            organizationId = organizationRef.id;
             
-            await setDoc(orgRef, {
+            batch.set(organizationRef, {
               id: organizationId,
-              name: profile.name || "My Organization",
+              name: profile.name || `${userId}\'s Organization`, // Use profile name or a default
               ownerId: userId,
-              website: profile.website,
-              businessDescription: profile.businessDescription,
+              website: profile.website || null,
+              businessDescription: profile.businessDescription || null,
               plan: "free",
-              // Move Reddit tokens
-              redditAccessToken: profile.redditAccessToken,
-              redditRefreshToken: profile.redditRefreshToken,
-              redditTokenExpiresAt: profile.redditTokenExpiresAt,
-              redditUsername: profile.redditUsername,
+              redditAccessToken: profile.redditAccessToken || null,
+              redditRefreshToken: profile.redditRefreshToken || null,
+              redditTokenExpiresAt: profile.redditTokenExpiresAt || null, // This is already a Timestamp or null
+              redditUsername: profile.redditUsername || null,
+              isActive: true,
               createdAt: serverTimestamp(),
               updatedAt: serverTimestamp()
-            })
+            });
             
-            // Create organization member entry
-            const memberRef = doc(collection(db, ORGANIZATION_COLLECTIONS.ORGANIZATION_MEMBERS))
-            await setDoc(memberRef, {
+            const memberRef = db.collection(ORGANIZATION_COLLECTIONS.ORGANIZATION_MEMBERS).doc();
+            batch.set(memberRef, {
               id: memberRef.id,
               organizationId,
               userId,
               role: "owner",
-              joinedAt: serverTimestamp()
-            })
-            
-            console.log(`  ✅ Created organization: ${organizationId}`)
-          } else {
-            // Update existing organization with Reddit tokens
-            organizationId = orgsSnapshot.docs[0].id
-            console.log(`  📝 Updating existing organization: ${organizationId}`)
-            
-            await updateDoc(doc(db, ORGANIZATION_COLLECTIONS.ORGANIZATIONS, organizationId), {
-              redditAccessToken: profile.redditAccessToken || orgsSnapshot.docs[0].data().redditAccessToken,
-              redditRefreshToken: profile.redditRefreshToken || orgsSnapshot.docs[0].data().redditRefreshToken,
-              redditTokenExpiresAt: profile.redditTokenExpiresAt || orgsSnapshot.docs[0].data().redditTokenExpiresAt,
-              redditUsername: profile.redditUsername || orgsSnapshot.docs[0].data().redditUsername,
-              website: profile.website || orgsSnapshot.docs[0].data().website,
+              joinedAt: serverTimestamp(),
               updatedAt: serverTimestamp()
-            })
+            });
+            console.log(`  ✅ Organization ${organizationId} and membership queued for creation.`);
+          } else {
+            organizationRef = orgsSnapshot.docs[0].ref;
+            organizationId = orgsSnapshot.docs[0].id;
+            const existingOrgData = orgsSnapshot.docs[0].data();
+            console.log(`  📝 Updating existing organization: ${organizationId}`);
+            
+            batch.update(organizationRef, {
+              // Only update if profile has new data, otherwise keep existing org data
+              name: profile.name || existingOrgData.name,
+              website: profile.website || existingOrgData.website || null,
+              businessDescription: profile.businessDescription || existingOrgData.businessDescription || null,
+              redditAccessToken: profile.redditAccessToken || existingOrgData.redditAccessToken || null,
+              redditRefreshToken: profile.redditRefreshToken || existingOrgData.redditRefreshToken || null,
+              redditTokenExpiresAt: profile.redditTokenExpiresAt || existingOrgData.redditTokenExpiresAt || null,
+              redditUsername: profile.redditUsername || existingOrgData.redditUsername || null,
+              updatedAt: serverTimestamp()
+            });
+            console.log(`  ✅ Organization ${organizationId} queued for update.`);
           }
           
-          // Step 3: Update campaigns to ensure they have organizationId
-          console.log("  📊 Updating campaigns...")
-          const campaignsQuery = query(
-            collection(db, LEAD_COLLECTIONS.CAMPAIGNS),
-            where("userId", "==", userId)
-          )
-          const campaignsSnapshot = await getDocs(campaignsQuery)
+          console.log("  📊 Updating user's campaigns with organizationId...");
+          const campaignsQuery = db.collection(LEAD_COLLECTIONS.CAMPAIGNS).where("userId", "==", userId);
+          const campaignsSnapshot = await campaignsQuery.get();
           
           for (const campaignDoc of campaignsSnapshot.docs) {
-            const campaign = campaignDoc.data()
-            if (!campaign.organizationId) {
-              await updateDoc(doc(db, LEAD_COLLECTIONS.CAMPAIGNS, campaignDoc.id), {
+            if (!campaignDoc.data().organizationId) {
+              batch.update(campaignDoc.ref, {
                 organizationId,
+                // Remove legacy fields from campaign if they exist, as they are now on organization
+                website: admin.firestore.FieldValue.delete(),
+                businessDescription: admin.firestore.FieldValue.delete(),
                 updatedAt: serverTimestamp()
-              })
-              console.log(`    - Updated campaign: ${campaignDoc.id}`)
+              });
+              console.log(`    - Campaign ${campaignDoc.id} queued for organizationId update & cleanup.`);
             }
           }
           
-          // Step 4: Update generated comments with organizationId
-          console.log("  💬 Updating generated comments...")
-          let commentCount = 0
-          
-          for (const campaignDoc of campaignsSnapshot.docs) {
-            const commentsQuery = query(
-              collection(db, LEAD_COLLECTIONS.GENERATED_COMMENTS),
-              where("campaignId", "==", campaignDoc.id)
-            )
-            const commentsSnapshot = await getDocs(commentsQuery)
-            
-            const batch = writeBatch(db)
-            let batchCount = 0
-            
-            for (const commentDoc of commentsSnapshot.docs) {
-              if (!commentDoc.data().organizationId) {
-                batch.update(doc(db, LEAD_COLLECTIONS.GENERATED_COMMENTS, commentDoc.id), {
-                  organizationId,
-                  updatedAt: serverTimestamp()
-                })
-                batchCount++
-                
-                // Firestore batch limit is 500
-                if (batchCount === 500) {
-                  await batch.commit()
-                  batchCount = 0
-                }
-              }
+          console.log("  💬 Updating user's generated comments with organizationId...");
+          const userCommentsQuery = db.collection(LEAD_COLLECTIONS.GENERATED_COMMENTS).where("campaignId", "in", campaignsSnapshot.docs.map(d => d.id));
+          const userCommentsSnapshot = await userCommentsQuery.get();
+
+          for (const commentDoc of userCommentsSnapshot.docs) {
+            if (!commentDoc.data().organizationId) {
+               batch.update(commentDoc.ref, { organizationId, updatedAt: serverTimestamp() });
             }
-            
-            if (batchCount > 0) {
-              await batch.commit()
-            }
-            
-            commentCount += commentsSnapshot.size
           }
-          console.log(`    - Updated ${commentCount} comments`)
+          console.log(`    - Queued updates for ${userCommentsSnapshot.size} comments.`);
           
-          // Step 5: Clean up profile document
-          console.log("  🧹 Cleaning up profile...")
-          await updateDoc(doc(db, COLLECTIONS.PROFILES, userId), {
-            // Remove deprecated fields
-            redditAccessToken: null,
-            redditRefreshToken: null,
-            redditTokenExpiresAt: null,
-            redditUsername: null,
-            website: null,
-            keywords: null,
-            businessDescription: null,
+          console.log("  🧹 Cleaning up profile document...");
+          batch.update(profileDoc.ref, {
+            redditAccessToken: admin.firestore.FieldValue.delete(),
+            redditRefreshToken: admin.firestore.FieldValue.delete(),
+            redditTokenExpiresAt: admin.firestore.FieldValue.delete(),
+            redditUsername: admin.firestore.FieldValue.delete(),
+            website: admin.firestore.FieldValue.delete(),
+            keywords: admin.firestore.FieldValue.delete(),
+            businessDescription: admin.firestore.FieldValue.delete(),
             updatedAt: serverTimestamp()
-          })
+          });
           
-          console.log(`  ✅ Migration complete for user: ${userId}`)
-          migratedCount++
+          await batch.commit();
+          console.log(`  ✅ Migration batch committed for user: ${userId}`);
+          migratedCount++;
           
         } catch (error) {
-          console.error(`  ❌ Error migrating user ${userId}:`, error)
-          errorCount++
+          console.error(`  ❌ Error migrating user ${userId}:`, error);
+          errorCount++;
         }
+      } else {
+        console.log(`  Skipping user ${userId} - no relevant data found in profile for migration.`);
       }
     }
     
-    console.log("\n🎉 Migration completed!")
-    console.log(`✅ Successfully migrated: ${migratedCount} users`)
-    console.log(`❌ Errors: ${errorCount} users`)
+    console.log("\n🎉 Migration to organizations completed!");
+    console.log(`✅ Successfully processed: ${migratedCount} users with relevant data`);
+    console.log(`❌ Errors during migration for: ${errorCount} users`);
     
   } catch (error) {
-    console.error("❌ Migration failed:", error)
-    process.exit(1)
+    console.error("❌ Overall migration failed:", error);
+    process.exit(1);
   }
 }
 
-// Run the migration
 migrateToOrganizations()
   .then(() => {
-    console.log("\n✨ Migration script finished")
-    process.exit(0)
+    console.log("\n✨ Migration script finished successfully.");
+    process.exit(0);
   })
   .catch((error) => {
-    console.error("\n❌ Migration script failed:", error)
-    process.exit(1)
-  }) 
+    console.error("\n❌ Migration script encountered an unhandled error:", error);
+    process.exit(1);
+  }); 
