@@ -16,22 +16,24 @@ import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
 import { Loader2, Plus, Settings, Play, Pause } from "lucide-react"
 import {
-  getWarmupAccountByUserIdAction,
+  getWarmupAccountByOrganizationIdAction,
   createWarmupAccountAction,
   updateWarmupAccountAction
 } from "@/actions/db/warmup-actions"
 import { getRedditUserInfoAction } from "@/actions/integrations/reddit/reddit-warmup-actions"
 import { generateRedditAuthUrlAction } from "@/actions/integrations/reddit/reddit-oauth-actions"
 import { SerializedWarmupAccountDocument } from "@/db/firestore/warmup-collections"
+import { useOrganization } from "@/components/utilities/organization-provider"
 import SubredditSelector from "./subreddit-selector"
 import WarmupPostsList from "./warmup-posts-list"
 import WarmupSettings from "./warmup-settings"
 
 interface WarmupDashboardProps {
   userId: string
+  organizationId: string
 }
 
-export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
+export default function WarmupDashboard({ userId, organizationId }: WarmupDashboardProps) {
   const [warmupAccount, setWarmupAccount] =
     useState<SerializedWarmupAccountDocument | null>(null)
   const [redditUsername, setRedditUsername] = useState<string | null>(null)
@@ -39,16 +41,17 @@ export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
   const [isConnecting, setIsConnecting] = useState(false)
   const [isSettingUp, setIsSettingUp] = useState(false)
   const { toast } = useToast()
+  const { activeOrganization } = useOrganization()
 
   useEffect(() => {
     loadWarmupAccount()
     checkRedditConnection()
-  }, [userId])
+  }, [organizationId])
 
   const loadWarmupAccount = async () => {
     try {
-      console.log("🔍 [WARMUP-DASHBOARD] Loading warm-up account")
-      const result = await getWarmupAccountByUserIdAction(userId)
+      console.log("🔍 [WARMUP-DASHBOARD] Loading warm-up account for organization")
+      const result = await getWarmupAccountByOrganizationIdAction(organizationId)
       if (result.isSuccess && result.data) {
         setWarmupAccount(result.data)
       }
@@ -70,9 +73,9 @@ export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
   const checkRedditConnection = async () => {
     try {
       console.log("🔍 [WARMUP-DASHBOARD] Checking Reddit connection")
-      const result = await getRedditUserInfoAction()
-      if (result.isSuccess && result.data) {
-        setRedditUsername(result.data.name)
+      // Check organization's Reddit connection
+      if (activeOrganization?.redditUsername) {
+        setRedditUsername(activeOrganization.redditUsername)
       }
     } catch (error) {
       console.error(
@@ -87,6 +90,9 @@ export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
       setIsConnecting(true)
       console.log("🔗 [WARMUP-DASHBOARD] Connecting Reddit account")
 
+      // Store organization ID for the callback
+      sessionStorage.setItem("pendingRedditOrgId", organizationId)
+      
       const result = await generateRedditAuthUrlAction()
       if (result.isSuccess && result.data) {
         window.location.href = result.data.authUrl
@@ -125,6 +131,7 @@ export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
 
       const result = await createWarmupAccountAction({
         userId,
+        organizationId,
         redditUsername,
         targetSubreddits: [], // Start with empty, user will add them
         postingMode: "manual",
@@ -205,9 +212,9 @@ export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Connect Your Reddit Account</CardTitle>
+          <CardTitle>Connect Your Organization's Reddit Account</CardTitle>
           <CardDescription>
-            To start the warm-up process, you need to connect your Reddit
+            To start the warm-up process, you need to connect your organization's Reddit
             account.
           </CardDescription>
         </CardHeader>
@@ -310,13 +317,18 @@ export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
           <TabsContent value="subreddits" className="space-y-4">
             <SubredditSelector
               userId={userId}
+              organizationId={organizationId}
               warmupAccount={warmupAccount}
               onUpdate={loadWarmupAccount}
             />
           </TabsContent>
 
           <TabsContent value="posts" className="space-y-4">
-            <WarmupPostsList userId={userId} warmupAccount={warmupAccount} />
+            <WarmupPostsList 
+              userId={userId} 
+              organizationId={organizationId}
+              warmupAccount={warmupAccount} 
+            />
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-4">

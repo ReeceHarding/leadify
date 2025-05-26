@@ -1,6 +1,7 @@
 /*
 <ai_context>
 Server actions for managing Reddit warm-up accounts, posts, and comments.
+Updated to include organizationId for organization-specific warmup campaigns.
 </ai_context>
 */
 
@@ -655,5 +656,81 @@ export async function updateWarmupCommentAction(
   } catch (error) {
     console.error("❌ [UPDATE-WARMUP-COMMENT] Error:", error)
     return { isSuccess: false, message: "Failed to update warm-up comment" }
+  }
+}
+
+export async function getWarmupAccountByOrganizationIdAction(
+  organizationId: string
+): Promise<ActionState<SerializedWarmupAccountDocument | null>> {
+  try {
+    console.log(
+      "🔍 [GET-WARMUP-ACCOUNT] Fetching warm-up account for organization:",
+      organizationId
+    )
+
+    const accountQuery = query(
+      collection(db, WARMUP_COLLECTIONS.WARMUP_ACCOUNTS),
+      where("organizationId", "==", organizationId)
+    )
+    const querySnapshot = await getDocs(accountQuery)
+
+    if (querySnapshot.empty) {
+      console.log("ℹ️ [GET-WARMUP-ACCOUNT] No warm-up account found")
+      return {
+        isSuccess: true,
+        message: "No warm-up account found",
+        data: null
+      }
+    }
+
+    const account = querySnapshot.docs[0].data()
+    console.log("✅ [GET-WARMUP-ACCOUNT] Warm-up account found")
+
+    return {
+      isSuccess: true,
+      message: "Warm-up account retrieved successfully",
+      data: serializeWarmupAccount(account)
+    }
+  } catch (error) {
+    console.error("❌ [GET-WARMUP-ACCOUNT] Error:", error)
+    return { isSuccess: false, message: "Failed to get warm-up account" }
+  }
+}
+
+export async function getWarmupPostsByOrganizationIdAction(
+  organizationId: string
+): Promise<ActionState<SerializedWarmupPostDocument[]>> {
+  try {
+    console.log(
+      "🔍 [GET-WARMUP-POSTS] Fetching warm-up posts for organization:",
+      organizationId
+    )
+
+    // Simplified query to avoid composite index requirement
+    const postsQuery = query(
+      collection(db, WARMUP_COLLECTIONS.WARMUP_POSTS),
+      where("organizationId", "==", organizationId)
+    )
+    const querySnapshot = await getDocs(postsQuery)
+
+    // Sort in memory after fetching
+    const posts = querySnapshot.docs
+      .map(doc => serializeWarmupPost(doc.data()))
+      .sort((a, b) => {
+        const dateA = new Date(a.createdAt).getTime()
+        const dateB = new Date(b.createdAt).getTime()
+        return dateB - dateA // desc order
+      })
+
+    console.log(`✅ [GET-WARMUP-POSTS] Found ${posts.length} warm-up posts`)
+
+    return {
+      isSuccess: true,
+      message: "Warm-up posts retrieved successfully",
+      data: posts
+    }
+  } catch (error) {
+    console.error("❌ [GET-WARMUP-POSTS] Error:", error)
+    return { isSuccess: false, message: "Failed to get warm-up posts" }
   }
 }

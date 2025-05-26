@@ -3,7 +3,7 @@
 import { Suspense } from "react"
 import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
-import WarmupDashboard from "./_components/warmup-dashboard"
+import WarmupWrapper from "./_components/warmup-wrapper"
 import WarmupDashboardSkeleton from "./_components/warmup-dashboard-skeleton"
 
 export default async function WarmupPage() {
@@ -18,18 +18,14 @@ export default async function WarmupPage() {
       <div className="mb-8">
         <h1 className="mb-2 text-3xl font-bold">Reddit Account Warm-up</h1>
         <p className="text-muted-foreground">
-          Build karma and authority in your target subreddits before launching
+          Build karma and authority in your organization's target subreddits before launching
           your lead generation campaigns.
         </p>
       </div>
 
       <Suspense fallback={<WarmupDashboardSkeleton />}>
-        <WarmupDashboardFetcher userId={userId} />
+        <WarmupWrapper userId={userId} />
       </Suspense>
     </div>
   )
-}
-
-async function WarmupDashboardFetcher({ userId }: { userId: string }) {
-  return <WarmupDashboard userId={userId} />
 }
