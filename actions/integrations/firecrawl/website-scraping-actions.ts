@@ -44,7 +44,7 @@ export async function scrapeWebsiteAction(
     const response = await fetch(`${FIRECRAWL_BASE_URL}/scrape`, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${FIRECRAWL_API_KEY}`,
+        Authorization: `Bearer ${FIRECRAWL_API_KEY}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
@@ -127,7 +127,7 @@ export async function getWebsiteSitemapAction(
     const sitemapResponse = await fetch(`${FIRECRAWL_BASE_URL}/map`, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${FIRECRAWL_API_KEY}`,
+        Authorization: `Bearer ${FIRECRAWL_API_KEY}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
@@ -137,7 +137,10 @@ export async function getWebsiteSitemapAction(
       })
     })
 
-    console.log("🔥 [WEBSITE-SCRAPING] Sitemap response status:", sitemapResponse.status)
+    console.log(
+      "🔥 [WEBSITE-SCRAPING] Sitemap response status:",
+      sitemapResponse.status
+    )
 
     if (!sitemapResponse.ok) {
       const errorText = await sitemapResponse.text()
@@ -149,7 +152,10 @@ export async function getWebsiteSitemapAction(
     }
 
     const sitemapData = await sitemapResponse.json()
-    console.log("🔥 [WEBSITE-SCRAPING] Sitemap data keys:", Object.keys(sitemapData))
+    console.log(
+      "🔥 [WEBSITE-SCRAPING] Sitemap data keys:",
+      Object.keys(sitemapData)
+    )
 
     if (!sitemapData.success || !sitemapData.links) {
       console.error("🔥 [WEBSITE-SCRAPING] No sitemap data")
@@ -217,7 +223,7 @@ export async function scrapeMultiplePagesAction(
       const batch = limitedUrls.slice(i, i + batchSize)
       console.log("🔥 [WEBSITE-SCRAPING] Processing batch:", i / batchSize + 1)
 
-      const batchPromises = batch.map(async (url) => {
+      const batchPromises = batch.map(async url => {
         try {
           const result = await scrapeWebsiteAction(url)
           if (result.isSuccess && result.data) {
@@ -227,13 +233,17 @@ export async function scrapeMultiplePagesAction(
             return null
           }
         } catch (error) {
-          errors.push(`${url}: ${error instanceof Error ? error.message : "Unknown error"}`)
+          errors.push(
+            `${url}: ${error instanceof Error ? error.message : "Unknown error"}`
+          )
           return null
         }
       })
 
       const batchResults = await Promise.all(batchPromises)
-      const validResults = batchResults.filter((result): result is ScrapedPage => result !== null)
+      const validResults = batchResults.filter(
+        (result): result is ScrapedPage => result !== null
+      )
       scrapedPages.push(...validResults)
 
       // Add delay between batches to respect rate limits
@@ -242,7 +252,10 @@ export async function scrapeMultiplePagesAction(
       }
     }
 
-    console.log("🔥 [WEBSITE-SCRAPING] Successfully scraped pages:", scrapedPages.length)
+    console.log(
+      "🔥 [WEBSITE-SCRAPING] Successfully scraped pages:",
+      scrapedPages.length
+    )
     console.log("🔥 [WEBSITE-SCRAPING] Errors:", errors.length)
 
     let message = `Successfully scraped ${scrapedPages.length} pages`
@@ -268,18 +281,18 @@ function extractTitleFromUrl(url: string): string {
   try {
     const urlObj = new URL(url)
     const pathname = urlObj.pathname
-    const segments = pathname.split('/').filter(segment => segment.length > 0)
-    
+    const segments = pathname.split("/").filter(segment => segment.length > 0)
+
     if (segments.length === 0) {
       return "Home"
     }
-    
+
     const lastSegment = segments[segments.length - 1]
     return lastSegment
-      .replace(/[-_]/g, ' ')
+      .replace(/[-_]/g, " ")
       .replace(/\b\w/g, l => l.toUpperCase())
-      .replace(/\.(html|php|aspx?)$/i, '')
+      .replace(/\.(html|php|aspx?)$/i, "")
   } catch {
     return "Page"
   }
-} 
+}

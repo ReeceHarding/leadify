@@ -100,15 +100,18 @@ export default function WebsiteStep({
         </div>
         <h1 className="text-3xl font-bold text-white">Connect Your Website</h1>
         <p className="text-base leading-relaxed text-gray-400">
-          Add your business website so our AI can learn about your products, services, and unique value proposition.
+          Add your business website so our AI can learn about your products,
+          services, and unique value proposition.
         </p>
-
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Website Input */}
         <div className="space-y-3">
-          <Label htmlFor="website" className="text-sm font-medium text-gray-300">
+          <Label
+            htmlFor="website"
+            className="text-sm font-medium text-gray-300"
+          >
             What's your business website?
           </Label>
           <div className="relative">
@@ -123,11 +126,10 @@ export default function WebsiteStep({
             <Globe className="absolute left-4 top-1/2 size-5 -translate-y-1/2 text-gray-500" />
           </div>
           <p className="text-xs text-gray-500">
-            Our AI will study your website to understand your services, target market, and brand voice
+            Our AI will study your website to understand your services, target
+            market, and brand voice
           </p>
         </div>
-
-
 
         {/* Buttons */}
         <div className="flex flex-col space-y-3">

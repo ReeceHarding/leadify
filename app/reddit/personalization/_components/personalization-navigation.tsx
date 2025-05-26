@@ -17,7 +17,7 @@ export default function PersonalizationNavigation() {
     },
     {
       name: "Knowledge Base",
-      href: "/reddit/knowledge-base", 
+      href: "/reddit/knowledge-base",
       icon: Database,
       description: "Build your knowledge base with content and data"
     }
@@ -28,16 +28,19 @@ export default function PersonalizationNavigation() {
       {/* Header Section */}
       <div className="mb-6 rounded-lg border bg-white p-6 shadow-sm dark:bg-gray-900">
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Personalization</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Personalization
+          </h1>
           <p className="text-gray-600 dark:text-gray-300">
-            Customize your writing style and knowledge base to create more authentic and effective Reddit comments.
+            Customize your writing style and knowledge base to create more
+            authentic and effective Reddit comments.
           </p>
         </div>
       </div>
 
       {/* Navigation Cards */}
       <div className="grid gap-6 md:grid-cols-2">
-        {tabs.map((tab) => {
+        {tabs.map(tab => {
           const Icon = tab.icon
           return (
             <Link key={tab.href} href={tab.href}>
@@ -65,4 +68,4 @@ export default function PersonalizationNavigation() {
       </div>
     </div>
   )
-} 
+}

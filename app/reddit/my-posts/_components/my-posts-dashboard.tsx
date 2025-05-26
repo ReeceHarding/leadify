@@ -146,7 +146,7 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
               : post
           )
         )
-        
+
         // Show user-friendly error message
         if (result.message.includes("authentication")) {
           toast.error("Reddit authentication required to view replies")
@@ -234,8 +234,8 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
 
     try {
       // Ensure parent ID has proper Reddit format (t1_ prefix for comments)
-      const parentId = parentCommentId.startsWith("t1_") 
-        ? parentCommentId 
+      const parentId = parentCommentId.startsWith("t1_")
+        ? parentCommentId
         : `t1_${parentCommentId}`
 
       console.log(`📤 [MY-POSTS] Posting reply to comment: ${parentId}`)
@@ -246,11 +246,13 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
       })
 
       if (result.isSuccess) {
-        console.log(`✅ [MY-POSTS] Reply posted successfully: ${result.data.link}`)
+        console.log(
+          `✅ [MY-POSTS] Reply posted successfully: ${result.data.link}`
+        )
         toast.success("Reply posted successfully!")
         setEditingReply(null)
         setReplyText("")
-        
+
         // Refresh replies to show the new comment
         const post = posts.find(p => p.id === postId)
         if (post?.postedCommentUrl) {
@@ -258,7 +260,7 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
         }
       } else {
         console.error("❌ [MY-POSTS] Failed to post reply:", result.message)
-        
+
         // Show user-friendly error messages
         if (result.message.includes("authentication")) {
           toast.error("Reddit authentication required to post replies")
@@ -398,7 +400,9 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
                       <User className="size-3" />
                       <span>Original Post by u/{post.postAuthor}</span>
                     </div>
-                    <p className="text-sm text-blue-800 dark:text-blue-200">{post.postContentSnippet}</p>
+                    <p className="text-sm text-blue-800 dark:text-blue-200">
+                      {post.postContentSnippet}
+                    </p>
                     <div className="mt-2 text-xs text-blue-600 dark:text-blue-400">
                       This is what you replied to
                     </div>
@@ -411,7 +415,9 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
                       Your Comment
                     </h4>
                     <div className="rounded-lg border-2 border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
-                      <p className="text-sm text-green-800 dark:text-green-200">{selectedComment}</p>
+                      <p className="text-sm text-green-800 dark:text-green-200">
+                        {selectedComment}
+                      </p>
                     </div>
                   </div>
 
@@ -432,20 +438,27 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
                     ) : post.redditReplies && post.redditReplies.length > 0 ? (
                       <div className="space-y-3">
                         {post.redditReplies.map(reply => (
-                          <div key={reply.id} className="rounded-lg border border-orange-200 bg-orange-50 p-4 dark:border-orange-800 dark:bg-orange-900/20">
+                          <div
+                            key={reply.id}
+                            className="rounded-lg border border-orange-200 bg-orange-50 p-4 dark:border-orange-800 dark:bg-orange-900/20"
+                          >
                             <div className="mb-2 flex items-center justify-between">
                               <div className="flex items-center gap-2 text-sm font-medium text-orange-700 dark:text-orange-300">
                                 <User className="size-3" />
                                 <span>u/{reply.author} replied</span>
                                 <span>•</span>
-                                <span className="text-orange-600 dark:text-orange-400">{formatTimeAgo(reply.created_utc)}</span>
+                                <span className="text-orange-600 dark:text-orange-400">
+                                  {formatTimeAgo(reply.created_utc)}
+                                </span>
                               </div>
                               <div className="flex items-center gap-1 text-sm text-orange-600 dark:text-orange-400">
                                 <ArrowUp className="size-3" />
                                 <span>{reply.score}</span>
                               </div>
                             </div>
-                            <p className="mb-3 text-sm text-orange-800 dark:text-orange-200">{reply.body}</p>
+                            <p className="mb-3 text-sm text-orange-800 dark:text-orange-200">
+                              {reply.body}
+                            </p>
 
                             {/* Reply Actions */}
                             <div className="flex items-center gap-2">
@@ -555,8 +568,13 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
                     ) : (
                       <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-center dark:border-gray-700 dark:bg-gray-800/50">
                         <MessageSquare className="mx-auto mb-2 size-8 text-gray-400" />
-                        <p className="text-muted-foreground text-sm font-medium">No replies yet</p>
-                        <p className="text-muted-foreground text-xs">Your comment is live on Reddit. Check back later for responses!</p>
+                        <p className="text-muted-foreground text-sm font-medium">
+                          No replies yet
+                        </p>
+                        <p className="text-muted-foreground text-xs">
+                          Your comment is live on Reddit. Check back later for
+                          responses!
+                        </p>
                       </div>
                     )}
                   </div>

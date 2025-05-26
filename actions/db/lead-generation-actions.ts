@@ -16,11 +16,11 @@ import {
   GeneratedCommentDocument,
   CreateGeneratedCommentData
 } from "@/db/firestore/lead-generation-collections"
-import { 
-  ActionState, 
+import {
+  ActionState,
   SerializedSearchResultDocument,
   SerializedRedditThreadDocument,
-  SerializedGeneratedCommentDocument 
+  SerializedGeneratedCommentDocument
 } from "@/types"
 import {
   doc,
@@ -123,7 +123,9 @@ function serializeGeneratedCommentDocument(
     postScore: comment.postScore || undefined, // Handle optional
     keyword: comment.keyword || undefined, // Handle optional
     postedCommentUrl: comment.postedCommentUrl || undefined, // Handle optional
-    postCreatedAt: comment.postCreatedAt ? serializeTimestampToISOBoilerplate(comment.postCreatedAt) : undefined
+    postCreatedAt: comment.postCreatedAt
+      ? serializeTimestampToISOBoilerplate(comment.postCreatedAt)
+      : undefined
   }
 }
 

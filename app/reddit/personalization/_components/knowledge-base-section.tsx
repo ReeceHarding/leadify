@@ -1,7 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -27,7 +33,9 @@ export default function KnowledgeBaseSection({
   userProfile
 }: KnowledgeBaseSectionProps) {
   const [isLoading, setIsLoading] = useState(false)
-  const [customInformation, setCustomInformation] = useState(knowledgeBase?.customInformation || "")
+  const [customInformation, setCustomInformation] = useState(
+    knowledgeBase?.customInformation || ""
+  )
   const [showScrapeDialog, setShowScrapeDialog] = useState(false)
   const { toast } = useToast()
 
@@ -36,11 +44,13 @@ export default function KnowledgeBaseSection({
     try {
       if (knowledgeBase) {
         // Update existing knowledge base
-        const { updateKnowledgeBaseAction } = await import("@/actions/db/personalization-actions")
+        const { updateKnowledgeBaseAction } = await import(
+          "@/actions/db/personalization-actions"
+        )
         const result = await updateKnowledgeBaseAction(knowledgeBase.id, {
           customInformation
         })
-        
+
         if (result.isSuccess) {
           setKnowledgeBase(result.data)
           toast({
@@ -56,13 +66,15 @@ export default function KnowledgeBaseSection({
         }
       } else {
         // Create new knowledge base
-        const { createKnowledgeBaseAction } = await import("@/actions/db/personalization-actions")
+        const { createKnowledgeBaseAction } = await import(
+          "@/actions/db/personalization-actions"
+        )
         const result = await createKnowledgeBaseAction({
           userId,
           customInformation,
           websiteUrl: userProfile?.website
         })
-        
+
         if (result.isSuccess) {
           setKnowledgeBase(result.data)
           toast({
@@ -97,7 +109,8 @@ export default function KnowledgeBaseSection({
             Knowledge Base
           </CardTitle>
           <CardDescription>
-            Add information about your business and products to help generate more accurate and informative comments.
+            Add information about your business and products to help generate
+            more accurate and informative comments.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -122,25 +135,31 @@ export default function KnowledgeBaseSection({
             </div>
             {userProfile?.website && (
               <p className="text-sm text-gray-600">
-                We know about your website from your profile. You can scrape specific pages to add to your knowledge base.
+                We know about your website from your profile. You can scrape
+                specific pages to add to your knowledge base.
               </p>
             )}
           </div>
 
           {/* Scraped Pages */}
-          {knowledgeBase?.scrapedPages && knowledgeBase.scrapedPages.length > 0 && (
-            <div className="space-y-2">
-              <Label>Scraped Pages</Label>
-              <div className="flex flex-wrap gap-2">
-                {knowledgeBase.scrapedPages.map((page, index) => (
-                  <Badge key={index} variant="secondary" className="flex items-center gap-1">
-                    {page}
-                    <X className="size-3 cursor-pointer" />
-                  </Badge>
-                ))}
+          {knowledgeBase?.scrapedPages &&
+            knowledgeBase.scrapedPages.length > 0 && (
+              <div className="space-y-2">
+                <Label>Scraped Pages</Label>
+                <div className="flex flex-wrap gap-2">
+                  {knowledgeBase.scrapedPages.map((page, index) => (
+                    <Badge
+                      key={index}
+                      variant="secondary"
+                      className="flex items-center gap-1"
+                    >
+                      {page}
+                      <X className="size-3 cursor-pointer" />
+                    </Badge>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           {/* Custom Information */}
           <div className="space-y-2">
@@ -149,12 +168,13 @@ export default function KnowledgeBaseSection({
               id="custom-info"
               placeholder="Add any additional information about your business, products, or services that should be included when generating comments..."
               value={customInformation}
-              onChange={(e) => setCustomInformation(e.target.value)}
+              onChange={e => setCustomInformation(e.target.value)}
               rows={6}
               className="resize-none"
             />
             <p className="text-sm text-gray-600">
-              This information will be used to provide factual details when generating comments.
+              This information will be used to provide factual details when
+              generating comments.
             </p>
           </div>
 
@@ -170,10 +190,7 @@ export default function KnowledgeBaseSection({
 
           {/* Actions */}
           <div className="flex gap-2">
-            <Button
-              onClick={handleSaveCustomInformation}
-              disabled={isLoading}
-            >
+            <Button onClick={handleSaveCustomInformation} disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 size-4 animate-spin" />}
               Save Information
             </Button>
@@ -191,4 +208,4 @@ export default function KnowledgeBaseSection({
       />
     </>
   )
-} 
+}

@@ -48,7 +48,7 @@ function serializeTimestamp(timestamp: any): string {
   if (timestamp instanceof Timestamp) {
     return timestamp.toDate().toISOString()
   }
-  if (timestamp && typeof timestamp === 'object' && 'seconds' in timestamp) {
+  if (timestamp && typeof timestamp === "object" && "seconds" in timestamp) {
     return new Date(timestamp.seconds * 1000).toISOString()
   }
   return timestamp
@@ -67,7 +67,9 @@ function serializeWarmupAccount(account: any): SerializedWarmupAccountDocument {
 function serializeWarmupPost(post: any): SerializedWarmupPostDocument {
   return {
     ...post,
-    scheduledFor: post.scheduledFor ? serializeTimestamp(post.scheduledFor) : null,
+    scheduledFor: post.scheduledFor
+      ? serializeTimestamp(post.scheduledFor)
+      : null,
     postedAt: post.postedAt ? serializeTimestamp(post.postedAt) : undefined,
     createdAt: serializeTimestamp(post.createdAt),
     updatedAt: serializeTimestamp(post.updatedAt)
@@ -77,14 +79,20 @@ function serializeWarmupPost(post: any): SerializedWarmupPostDocument {
 function serializeWarmupComment(comment: any): SerializedWarmupCommentDocument {
   return {
     ...comment,
-    scheduledFor: comment.scheduledFor ? serializeTimestamp(comment.scheduledFor) : null,
-    postedAt: comment.postedAt ? serializeTimestamp(comment.postedAt) : undefined,
+    scheduledFor: comment.scheduledFor
+      ? serializeTimestamp(comment.scheduledFor)
+      : null,
+    postedAt: comment.postedAt
+      ? serializeTimestamp(comment.postedAt)
+      : undefined,
     createdAt: serializeTimestamp(comment.createdAt),
     updatedAt: serializeTimestamp(comment.updatedAt)
   }
 }
 
-function serializeSubredditAnalysis(analysis: any): SerializedSubredditAnalysisDocument {
+function serializeSubredditAnalysis(
+  analysis: any
+): SerializedSubredditAnalysisDocument {
   return {
     ...analysis,
     lastAnalyzedAt: serializeTimestamp(analysis.lastAnalyzedAt),
@@ -108,26 +116,31 @@ export async function createWarmupAccountAction(
   data: CreateWarmupAccountData
 ): Promise<ActionState<SerializedWarmupAccountDocument>> {
   try {
-    console.log("🔧 [CREATE-WARMUP-ACCOUNT] Creating warm-up account for user:", data.userId)
-    
+    console.log(
+      "🔧 [CREATE-WARMUP-ACCOUNT] Creating warm-up account for user:",
+      data.userId
+    )
+
     // Check if user already has a warm-up account
     const existingQuery = query(
       collection(db, WARMUP_COLLECTIONS.WARMUP_ACCOUNTS),
       where("userId", "==", data.userId)
     )
     const existingDocs = await getDocs(existingQuery)
-    
+
     if (!existingDocs.empty) {
-      console.log("⚠️ [CREATE-WARMUP-ACCOUNT] User already has a warm-up account")
+      console.log(
+        "⚠️ [CREATE-WARMUP-ACCOUNT] User already has a warm-up account"
+      )
       return {
         isSuccess: false,
         message: "User already has a warm-up account"
       }
     }
-    
+
     const accountRef = doc(collection(db, WARMUP_COLLECTIONS.WARMUP_ACCOUNTS))
     const now = Timestamp.now()
-    
+
     const accountData = {
       id: accountRef.id,
       userId: data.userId,
@@ -136,17 +149,21 @@ export async function createWarmupAccountAction(
       postingMode: data.postingMode || "manual",
       isActive: true,
       warmupStartDate: now,
-      warmupEndDate: Timestamp.fromDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)), // 7 days from now
+      warmupEndDate: Timestamp.fromDate(
+        new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+      ), // 7 days from now
       dailyPostLimit: data.dailyPostLimit || 3,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     }
 
     await setDoc(accountRef, accountData)
-    
+
     const createdDoc = await getDoc(accountRef)
-    console.log("✅ [CREATE-WARMUP-ACCOUNT] Warm-up account created successfully")
-    
+    console.log(
+      "✅ [CREATE-WARMUP-ACCOUNT] Warm-up account created successfully"
+    )
+
     return {
       isSuccess: true,
       message: "Warm-up account created successfully",
@@ -162,14 +179,17 @@ export async function getWarmupAccountByUserIdAction(
   userId: string
 ): Promise<ActionState<SerializedWarmupAccountDocument | null>> {
   try {
-    console.log("🔍 [GET-WARMUP-ACCOUNT] Fetching warm-up account for user:", userId)
-    
+    console.log(
+      "🔍 [GET-WARMUP-ACCOUNT] Fetching warm-up account for user:",
+      userId
+    )
+
     const accountQuery = query(
       collection(db, WARMUP_COLLECTIONS.WARMUP_ACCOUNTS),
       where("userId", "==", userId)
     )
     const querySnapshot = await getDocs(accountQuery)
-    
+
     if (querySnapshot.empty) {
       console.log("ℹ️ [GET-WARMUP-ACCOUNT] No warm-up account found")
       return {
@@ -178,10 +198,10 @@ export async function getWarmupAccountByUserIdAction(
         data: null
       }
     }
-    
+
     const account = querySnapshot.docs[0].data()
     console.log("✅ [GET-WARMUP-ACCOUNT] Warm-up account found")
-    
+
     return {
       isSuccess: true,
       message: "Warm-up account retrieved successfully",
@@ -198,20 +218,25 @@ export async function updateWarmupAccountAction(
   data: UpdateWarmupAccountData
 ): Promise<ActionState<SerializedWarmupAccountDocument>> {
   try {
-    console.log("🔧 [UPDATE-WARMUP-ACCOUNT] Updating warm-up account:", accountId)
-    
+    console.log(
+      "🔧 [UPDATE-WARMUP-ACCOUNT] Updating warm-up account:",
+      accountId
+    )
+
     const accountRef = doc(db, WARMUP_COLLECTIONS.WARMUP_ACCOUNTS, accountId)
-    
+
     const updateData = {
       ...data,
       updatedAt: serverTimestamp()
     }
 
     await updateDoc(accountRef, updateData)
-    
+
     const updatedDoc = await getDoc(accountRef)
-    console.log("✅ [UPDATE-WARMUP-ACCOUNT] Warm-up account updated successfully")
-    
+    console.log(
+      "✅ [UPDATE-WARMUP-ACCOUNT] Warm-up account updated successfully"
+    )
+
     return {
       isSuccess: true,
       message: "Warm-up account updated successfully",
@@ -229,10 +254,13 @@ export async function createWarmupPostAction(
   data: CreateWarmupPostData
 ): Promise<ActionState<SerializedWarmupPostDocument>> {
   try {
-    console.log("🔧 [CREATE-WARMUP-POST] Creating warm-up post for subreddit:", data.subreddit)
-    
+    console.log(
+      "🔧 [CREATE-WARMUP-POST] Creating warm-up post for subreddit:",
+      data.subreddit
+    )
+
     const postRef = doc(collection(db, WARMUP_COLLECTIONS.WARMUP_POSTS))
-    
+
     const postData = {
       id: postRef.id,
       userId: data.userId,
@@ -247,10 +275,10 @@ export async function createWarmupPostAction(
     }
 
     await setDoc(postRef, postData)
-    
+
     const createdDoc = await getDoc(postRef)
     console.log("✅ [CREATE-WARMUP-POST] Warm-up post created successfully")
-    
+
     return {
       isSuccess: true,
       message: "Warm-up post created successfully",
@@ -266,15 +294,18 @@ export async function getWarmupPostsByUserIdAction(
   userId: string
 ): Promise<ActionState<SerializedWarmupPostDocument[]>> {
   try {
-    console.log("🔍 [GET-WARMUP-POSTS] Fetching warm-up posts for user:", userId)
-    
+    console.log(
+      "🔍 [GET-WARMUP-POSTS] Fetching warm-up posts for user:",
+      userId
+    )
+
     // Simplified query to avoid composite index requirement
     const postsQuery = query(
       collection(db, WARMUP_COLLECTIONS.WARMUP_POSTS),
       where("userId", "==", userId)
     )
     const querySnapshot = await getDocs(postsQuery)
-    
+
     // Sort in memory after fetching
     const posts = querySnapshot.docs
       .map(doc => serializeWarmupPost(doc.data()))
@@ -283,9 +314,9 @@ export async function getWarmupPostsByUserIdAction(
         const dateB = new Date(b.createdAt).getTime()
         return dateB - dateA // desc order
       })
-    
+
     console.log(`✅ [GET-WARMUP-POSTS] Found ${posts.length} warm-up posts`)
-    
+
     return {
       isSuccess: true,
       message: "Warm-up posts retrieved successfully",
@@ -303,19 +334,19 @@ export async function updateWarmupPostAction(
 ): Promise<ActionState<SerializedWarmupPostDocument>> {
   try {
     console.log("🔧 [UPDATE-WARMUP-POST] Updating warm-up post:", postId)
-    
+
     const postRef = doc(db, WARMUP_COLLECTIONS.WARMUP_POSTS, postId)
-    
+
     const updateData = {
       ...data,
       updatedAt: serverTimestamp()
     }
 
     await updateDoc(postRef, updateData)
-    
+
     const updatedDoc = await getDoc(postRef)
     console.log("✅ [UPDATE-WARMUP-POST] Warm-up post updated successfully")
-    
+
     return {
       isSuccess: true,
       message: "Warm-up post updated successfully",
@@ -334,10 +365,14 @@ export async function getSubredditAnalysisAction(
 ): Promise<ActionState<SerializedSubredditAnalysisDocument | null>> {
   try {
     console.log("🔍 [GET-SUBREDDIT-ANALYSIS] Fetching analysis for:", subreddit)
-    
-    const analysisRef = doc(db, WARMUP_COLLECTIONS.SUBREDDIT_ANALYSIS, subreddit)
+
+    const analysisRef = doc(
+      db,
+      WARMUP_COLLECTIONS.SUBREDDIT_ANALYSIS,
+      subreddit
+    )
     const analysisDoc = await getDoc(analysisRef)
-    
+
     if (!analysisDoc.exists()) {
       console.log("ℹ️ [GET-SUBREDDIT-ANALYSIS] No analysis found")
       return {
@@ -346,10 +381,10 @@ export async function getSubredditAnalysisAction(
         data: null
       }
     }
-    
+
     const analysis = analysisDoc.data()
     console.log("✅ [GET-SUBREDDIT-ANALYSIS] Analysis found")
-    
+
     return {
       isSuccess: true,
       message: "Subreddit analysis retrieved successfully",
@@ -369,9 +404,13 @@ export async function saveSubredditAnalysisAction(
 ): Promise<ActionState<SerializedSubredditAnalysisDocument>> {
   try {
     console.log("🔧 [SAVE-SUBREDDIT-ANALYSIS] Saving analysis for:", subreddit)
-    
-    const analysisRef = doc(db, WARMUP_COLLECTIONS.SUBREDDIT_ANALYSIS, subreddit)
-    
+
+    const analysisRef = doc(
+      db,
+      WARMUP_COLLECTIONS.SUBREDDIT_ANALYSIS,
+      subreddit
+    )
+
     const analysisData = {
       id: subreddit,
       subreddit,
@@ -384,10 +423,10 @@ export async function saveSubredditAnalysisAction(
     }
 
     await setDoc(analysisRef, analysisData, { merge: true })
-    
+
     const savedDoc = await getDoc(analysisRef)
     console.log("✅ [SAVE-SUBREDDIT-ANALYSIS] Analysis saved successfully")
-    
+
     return {
       isSuccess: true,
       message: "Subreddit analysis saved successfully",
@@ -406,12 +445,20 @@ export async function checkWarmupRateLimitAction(
   subreddit: string
 ): Promise<ActionState<{ canPost: boolean; nextPostTime?: Date }>> {
   try {
-    console.log("🔍 [CHECK-RATE-LIMIT] Checking rate limit for:", userId, subreddit)
-    
+    console.log(
+      "🔍 [CHECK-RATE-LIMIT] Checking rate limit for:",
+      userId,
+      subreddit
+    )
+
     const rateLimitId = `${userId}_${subreddit}`
-    const rateLimitRef = doc(db, WARMUP_COLLECTIONS.WARMUP_RATE_LIMITS, rateLimitId)
+    const rateLimitRef = doc(
+      db,
+      WARMUP_COLLECTIONS.WARMUP_RATE_LIMITS,
+      rateLimitId
+    )
     const rateLimitDoc = await getDoc(rateLimitRef)
-    
+
     if (!rateLimitDoc.exists()) {
       console.log("✅ [CHECK-RATE-LIMIT] No rate limit found, can post")
       return {
@@ -420,22 +467,25 @@ export async function checkWarmupRateLimitAction(
         data: { canPost: true }
       }
     }
-    
+
     const rateLimit = rateLimitDoc.data() as WarmupRateLimitDocument
     const lastPostTime = rateLimit.lastPostTime.toDate()
     const timeSinceLastPost = Date.now() - lastPostTime.getTime()
     const threeDaysInMs = 3 * 24 * 60 * 60 * 1000
-    
+
     if (timeSinceLastPost < threeDaysInMs) {
       const nextPostTime = new Date(lastPostTime.getTime() + threeDaysInMs)
-      console.log("⚠️ [CHECK-RATE-LIMIT] Rate limit active, next post:", nextPostTime)
+      console.log(
+        "⚠️ [CHECK-RATE-LIMIT] Rate limit active, next post:",
+        nextPostTime
+      )
       return {
         isSuccess: true,
         message: "Rate limit active",
         data: { canPost: false, nextPostTime }
       }
     }
-    
+
     console.log("✅ [CHECK-RATE-LIMIT] Can post")
     return {
       isSuccess: true,
@@ -453,11 +503,19 @@ export async function updateWarmupRateLimitAction(
   subreddit: string
 ): Promise<ActionState<void>> {
   try {
-    console.log("🔧 [UPDATE-RATE-LIMIT] Updating rate limit for:", userId, subreddit)
-    
+    console.log(
+      "🔧 [UPDATE-RATE-LIMIT] Updating rate limit for:",
+      userId,
+      subreddit
+    )
+
     const rateLimitId = `${userId}_${subreddit}`
-    const rateLimitRef = doc(db, WARMUP_COLLECTIONS.WARMUP_RATE_LIMITS, rateLimitId)
-    
+    const rateLimitRef = doc(
+      db,
+      WARMUP_COLLECTIONS.WARMUP_RATE_LIMITS,
+      rateLimitId
+    )
+
     const rateLimitData = {
       id: rateLimitId,
       userId,
@@ -469,9 +527,9 @@ export async function updateWarmupRateLimitAction(
     }
 
     await setDoc(rateLimitRef, rateLimitData, { merge: true })
-    
+
     console.log("✅ [UPDATE-RATE-LIMIT] Rate limit updated successfully")
-    
+
     return {
       isSuccess: true,
       message: "Rate limit updated successfully",
@@ -489,10 +547,13 @@ export async function createWarmupCommentAction(
   data: CreateWarmupCommentData
 ): Promise<ActionState<SerializedWarmupCommentDocument>> {
   try {
-    console.log("🔧 [CREATE-WARMUP-COMMENT] Creating warm-up comment for post:", data.warmupPostId)
-    
+    console.log(
+      "🔧 [CREATE-WARMUP-COMMENT] Creating warm-up comment for post:",
+      data.warmupPostId
+    )
+
     const commentRef = doc(collection(db, WARMUP_COLLECTIONS.WARMUP_COMMENTS))
-    
+
     const commentData = {
       id: commentRef.id,
       userId: data.userId,
@@ -507,10 +568,12 @@ export async function createWarmupCommentAction(
     }
 
     await setDoc(commentRef, commentData)
-    
+
     const createdDoc = await getDoc(commentRef)
-    console.log("✅ [CREATE-WARMUP-COMMENT] Warm-up comment created successfully")
-    
+    console.log(
+      "✅ [CREATE-WARMUP-COMMENT] Warm-up comment created successfully"
+    )
+
     return {
       isSuccess: true,
       message: "Warm-up comment created successfully",
@@ -526,15 +589,18 @@ export async function getWarmupCommentsByPostIdAction(
   warmupPostId: string
 ): Promise<ActionState<SerializedWarmupCommentDocument[]>> {
   try {
-    console.log("🔍 [GET-WARMUP-COMMENTS] Fetching comments for post:", warmupPostId)
-    
+    console.log(
+      "🔍 [GET-WARMUP-COMMENTS] Fetching comments for post:",
+      warmupPostId
+    )
+
     // Simplified query to avoid composite index requirement
     const commentsQuery = query(
       collection(db, WARMUP_COLLECTIONS.WARMUP_COMMENTS),
       where("warmupPostId", "==", warmupPostId)
     )
     const querySnapshot = await getDocs(commentsQuery)
-    
+
     // Sort in memory after fetching
     const comments = querySnapshot.docs
       .map(doc => serializeWarmupComment(doc.data()))
@@ -543,9 +609,9 @@ export async function getWarmupCommentsByPostIdAction(
         const dateB = new Date(b.createdAt).getTime()
         return dateA - dateB // asc order
       })
-    
+
     console.log(`✅ [GET-WARMUP-COMMENTS] Found ${comments.length} comments`)
-    
+
     return {
       isSuccess: true,
       message: "Warm-up comments retrieved successfully",
@@ -562,20 +628,25 @@ export async function updateWarmupCommentAction(
   data: UpdateWarmupCommentData
 ): Promise<ActionState<SerializedWarmupCommentDocument>> {
   try {
-    console.log("🔧 [UPDATE-WARMUP-COMMENT] Updating warm-up comment:", commentId)
-    
+    console.log(
+      "🔧 [UPDATE-WARMUP-COMMENT] Updating warm-up comment:",
+      commentId
+    )
+
     const commentRef = doc(db, WARMUP_COLLECTIONS.WARMUP_COMMENTS, commentId)
-    
+
     const updateData = {
       ...data,
       updatedAt: serverTimestamp()
     }
 
     await updateDoc(commentRef, updateData)
-    
+
     const updatedDoc = await getDoc(commentRef)
-    console.log("✅ [UPDATE-WARMUP-COMMENT] Warm-up comment updated successfully")
-    
+    console.log(
+      "✅ [UPDATE-WARMUP-COMMENT] Warm-up comment updated successfully"
+    )
+
     return {
       isSuccess: true,
       message: "Warm-up comment updated successfully",
@@ -585,4 +656,4 @@ export async function updateWarmupCommentAction(
     console.error("❌ [UPDATE-WARMUP-COMMENT] Error:", error)
     return { isSuccess: false, message: "Failed to update warm-up comment" }
   }
-} 
+}

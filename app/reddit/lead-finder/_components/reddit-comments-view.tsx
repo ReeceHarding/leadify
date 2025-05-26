@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { 
-  ThumbsUp, 
+import {
+  ThumbsUp,
   ThumbsDown,
   MessageSquare,
   Share,
@@ -55,7 +55,9 @@ export default function RedditCommentsView({
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [requiresAuth, setRequiresAuth] = useState(false)
-  const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set())
+  const [expandedComments, setExpandedComments] = useState<Set<string>>(
+    new Set()
+  )
   const router = useRouter()
 
   useEffect(() => {
@@ -65,38 +67,46 @@ export default function RedditCommentsView({
   const fetchComments = async () => {
     setLoading(true)
     setError(null)
-    
+
     try {
-      console.log(`🔍 [REDDIT-COMMENTS-VIEW] Fetching comments for ${postId} in r/${subreddit}`)
-      
+      console.log(
+        `🔍 [REDDIT-COMMENTS-VIEW] Fetching comments for ${postId} in r/${subreddit}`
+      )
+
       const response = await fetch(
         `/api/reddit/comments?threadId=${postId}&subreddit=${subreddit}&sort=best&limit=100`
       )
 
       if (!response.ok) {
         const errorData = await response.json()
-        
+
         if (response.status === 403 && errorData.requiresAuth) {
-          console.log("🔐 [REDDIT-COMMENTS-VIEW] Reddit authentication required")
+          console.log(
+            "🔐 [REDDIT-COMMENTS-VIEW] Reddit authentication required"
+          )
           setRequiresAuth(true)
           setError("Reddit authentication required to view comments")
           return
         }
-        
+
         if (response.status === 429) {
-          setError("Reddit API rate limit exceeded. Please try again in a few minutes.")
+          setError(
+            "Reddit API rate limit exceeded. Please try again in a few minutes."
+          )
           return
         }
-        
+
         throw new Error(errorData.error || "Failed to fetch comments")
       }
 
       const data = await response.json()
-      console.log(`✅ [REDDIT-COMMENTS-VIEW] Fetched ${data.comments.length} comments`)
+      console.log(
+        `✅ [REDDIT-COMMENTS-VIEW] Fetched ${data.comments.length} comments`
+      )
 
       // Transform Reddit API comments to our format and insert generated comment
       const transformedComments = transformComments(data.comments)
-      
+
       // Insert the generated comment at a strategic position (after first 2 comments)
       const generatedCommentObj: RedditComment = {
         id: "generated",
@@ -131,13 +141,17 @@ export default function RedditCommentsView({
   const formatTimestamp = (timestamp: number): string => {
     const now = Date.now() / 1000
     const diff = now - timestamp
-    
+
     if (diff < 60) return "Just now"
-    if (diff < 3600) return `${Math.floor(diff / 60)} minute${Math.floor(diff / 60) > 1 ? 's' : ''} ago`
-    if (diff < 86400) return `${Math.floor(diff / 3600)} hour${Math.floor(diff / 3600) > 1 ? 's' : ''} ago`
-    if (diff < 2592000) return `${Math.floor(diff / 86400)} day${Math.floor(diff / 86400) > 1 ? 's' : ''} ago`
-    if (diff < 31536000) return `${Math.floor(diff / 2592000)} month${Math.floor(diff / 2592000) > 1 ? 's' : ''} ago`
-    return `${Math.floor(diff / 31536000)} year${Math.floor(diff / 31536000) > 1 ? 's' : ''} ago`
+    if (diff < 3600)
+      return `${Math.floor(diff / 60)} minute${Math.floor(diff / 60) > 1 ? "s" : ""} ago`
+    if (diff < 86400)
+      return `${Math.floor(diff / 3600)} hour${Math.floor(diff / 3600) > 1 ? "s" : ""} ago`
+    if (diff < 2592000)
+      return `${Math.floor(diff / 86400)} day${Math.floor(diff / 86400) > 1 ? "s" : ""} ago`
+    if (diff < 31536000)
+      return `${Math.floor(diff / 2592000)} month${Math.floor(diff / 2592000) > 1 ? "s" : ""} ago`
+    return `${Math.floor(diff / 31536000)} year${Math.floor(diff / 31536000) > 1 ? "s" : ""} ago`
   }
 
   const toggleCommentExpansion = (commentId: string) => {
@@ -165,8 +179,10 @@ export default function RedditCommentsView({
         key={comment.id}
         className={cn(
           "relative",
-          isNested && "ml-4 border-l-2 border-gray-200 pl-4 dark:border-gray-700",
-          comment.isGenerated && "rounded-lg bg-blue-50/50 ring-2 ring-blue-500 ring-offset-2 dark:bg-blue-950/20"
+          isNested &&
+            "ml-4 border-l-2 border-gray-200 pl-4 dark:border-gray-700",
+          comment.isGenerated &&
+            "rounded-lg bg-blue-50/50 ring-2 ring-blue-500 ring-offset-2 dark:bg-blue-950/20"
         )}
       >
         {comment.isGenerated && (
@@ -180,36 +196,49 @@ export default function RedditCommentsView({
         <div className={cn("py-3", comment.isGenerated && "px-4")}>
           <div className="flex items-start gap-3">
             <Avatar className="size-8 shrink-0">
-              <AvatarFallback className={cn(
-                "text-xs text-white",
-                comment.isGenerated 
-                  ? "bg-gradient-to-br from-blue-500 to-purple-600"
-                  : "bg-gradient-to-br from-orange-500 to-red-600"
-              )}>
+              <AvatarFallback
+                className={cn(
+                  "text-xs text-white",
+                  comment.isGenerated
+                    ? "bg-gradient-to-br from-blue-500 to-purple-600"
+                    : "bg-gradient-to-br from-orange-500 to-red-600"
+                )}
+              >
                 {comment.author.substring(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
 
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
-                <span className={cn(
-                  "text-sm font-medium",
-                  comment.isGenerated && "text-blue-600 dark:text-blue-400"
-                )}>
+                <span
+                  className={cn(
+                    "text-sm font-medium",
+                    comment.isGenerated && "text-blue-600 dark:text-blue-400"
+                  )}
+                >
                   u/{comment.author}
                 </span>
                 {comment.is_submitter && (
-                  <Badge variant="outline" className="border-blue-300 bg-blue-100 text-xs text-blue-700">
+                  <Badge
+                    variant="outline"
+                    className="border-blue-300 bg-blue-100 text-xs text-blue-700"
+                  >
                     OP
                   </Badge>
                 )}
                 {comment.distinguished === "moderator" && (
-                  <Badge variant="outline" className="border-green-300 bg-green-100 text-xs text-green-700">
+                  <Badge
+                    variant="outline"
+                    className="border-green-300 bg-green-100 text-xs text-green-700"
+                  >
                     MOD
                   </Badge>
                 )}
                 {comment.stickied && (
-                  <Badge variant="outline" className="border-purple-300 bg-purple-100 text-xs text-purple-700">
+                  <Badge
+                    variant="outline"
+                    className="border-purple-300 bg-purple-100 text-xs text-purple-700"
+                  >
                     PINNED
                   </Badge>
                 )}
@@ -222,7 +251,9 @@ export default function RedditCommentsView({
                     <span className="text-muted-foreground text-xs">•</span>
                     <div className="flex items-center gap-1">
                       <Award className="size-3 text-yellow-500" />
-                      <span className="text-xs text-yellow-600">{comment.awards}</span>
+                      <span className="text-xs text-yellow-600">
+                        {comment.awards}
+                      </span>
                     </div>
                   </>
                 )}
@@ -258,7 +289,8 @@ export default function RedditCommentsView({
                   onClick={() => toggleCommentExpansion(comment.id)}
                   className="mt-2 text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                 >
-                  {isExpanded ? "Hide" : "Show"} {comment.replies!.length} {comment.replies!.length === 1 ? "reply" : "replies"}
+                  {isExpanded ? "Hide" : "Show"} {comment.replies!.length}{" "}
+                  {comment.replies!.length === 1 ? "reply" : "replies"}
                 </button>
               )}
             </div>
@@ -300,9 +332,7 @@ export default function RedditCommentsView({
       <div className="p-4">
         <Alert variant={requiresAuth ? "default" : "destructive"}>
           <AlertCircle className="size-4" />
-          <AlertDescription>
-            {error}
-          </AlertDescription>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
         <div className="mt-4 flex gap-2">
           {requiresAuth && (
@@ -324,8 +354,9 @@ export default function RedditCommentsView({
       <div className="p-4">
         <div className="mb-4 rounded-lg bg-amber-50 p-3 text-sm dark:bg-amber-950/30">
           <p className="text-amber-700 dark:text-amber-300">
-            <strong>Preview Mode:</strong> This shows how your comment will appear in the Reddit thread. 
-            The actual position may vary based on upvotes and timing.
+            <strong>Preview Mode:</strong> This shows how your comment will
+            appear in the Reddit thread. The actual position may vary based on
+            upvotes and timing.
           </p>
         </div>
 
@@ -345,4 +376,4 @@ export default function RedditCommentsView({
       </div>
     </ScrollArea>
   )
-} 
+}

@@ -1,18 +1,18 @@
-"use client";
+"use client"
 
-import React from "react";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Target, RefreshCw, Send } from "lucide-react";
-import { WorkflowProgress } from "./types"; // Import from dashboard types
+import React from "react"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button"
+import { Target, RefreshCw, Send } from "lucide-react"
+import { WorkflowProgress } from "./types" // Import from dashboard types
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+  TooltipTrigger
+} from "@/components/ui/tooltip"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent } from "@/components/ui/card"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,8 +20,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
-import { toast } from "sonner";
+} from "@/components/ui/dropdown-menu"
+import { toast } from "sonner"
 import {
   MessageSquare,
   TrendingUp,
@@ -33,18 +33,18 @@ import {
   Sparkles,
   ChevronDown,
   Edit2
-} from "lucide-react";
+} from "lucide-react"
 
 interface DashboardHeaderProps {
-  campaignName?: string;
-  campaignId: string | null;
-  totalLeads: number;
-  queuedLeads: number;
-  postedLeads: number;
-  onCreateCampaign: () => void;
-  onRunWorkflow: () => void;
-  isWorkflowRunning: boolean;
-  onMassPost?: () => void;
+  campaignName?: string
+  campaignId: string | null
+  totalLeads: number
+  queuedLeads: number
+  postedLeads: number
+  onCreateCampaign: () => void
+  onRunWorkflow: () => void
+  isWorkflowRunning: boolean
+  onMassPost?: () => void
 }
 
 export default function DashboardHeader({
@@ -80,7 +80,11 @@ export default function DashboardHeader({
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Campaign Actions</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => toast.info("Campaign editing coming soon!")}>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        toast.info("Campaign editing coming soon!")
+                      }
+                    >
                       <Edit2 className="mr-2 size-4" />
                       Edit Campaign
                     </DropdownMenuItem>
@@ -99,11 +103,7 @@ export default function DashboardHeader({
         </div>
         <div className="flex gap-2">
           {onMassPost && totalLeads > 0 && (
-            <Button
-              onClick={onMassPost}
-              variant="outline"
-              className="gap-2"
-            >
+            <Button onClick={onMassPost} variant="outline" className="gap-2">
               <Send className="size-4" />
               Mass Post
             </Button>
@@ -158,5 +158,5 @@ export default function DashboardHeader({
         </Card>
       </div>
     </div>
-  );
-} 
+  )
+}

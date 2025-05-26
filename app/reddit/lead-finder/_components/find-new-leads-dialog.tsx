@@ -83,9 +83,10 @@ export default function FindNewLeadsDialog({
       }
 
       // Generate keywords excluding current ones
-      const refinement = currentKeywords.length > 0 
-        ? `Do not suggest these existing keywords: ${currentKeywords.join(", ")}`
-        : ""
+      const refinement =
+        currentKeywords.length > 0
+          ? `Do not suggest these existing keywords: ${currentKeywords.join(", ")}`
+          : ""
 
       const keywordsResult = await generateKeywordsAction({
         website: profileResult.data.website || "",
@@ -191,7 +192,10 @@ export default function FindNewLeadsDialog({
       )
 
       if (result.isSuccess) {
-        const totalPosts = Object.values(keywordLimits).reduce((a, b) => a + b, 0)
+        const totalPosts = Object.values(keywordLimits).reduce(
+          (a, b) => a + b,
+          0
+        )
         toast.success(`Finding up to ${totalPosts} new leads!`, {
           description: "New leads will appear as they're discovered"
         })
@@ -239,7 +243,8 @@ export default function FindNewLeadsDialog({
               Find New Leads
             </DialogTitle>
             <DialogDescription>
-              Select keywords to search for new Reddit discussions. Your existing leads will be preserved.
+              Select keywords to search for new Reddit discussions. Your
+              existing leads will be preserved.
             </DialogDescription>
           </DialogHeader>
 
@@ -249,7 +254,8 @@ export default function FindNewLeadsDialog({
               <Alert>
                 <Info className="size-4" />
                 <AlertDescription>
-                  <strong>Current keywords:</strong> {currentKeywords.join(", ")}
+                  <strong>Current keywords:</strong>{" "}
+                  {currentKeywords.join(", ")}
                   <br />
                   <span className="text-muted-foreground mt-1 text-xs">
                     New leads will be added to your existing collection
@@ -264,7 +270,10 @@ export default function FindNewLeadsDialog({
                 <Hash className="size-4" />
                 Posts per keyword
               </Label>
-              <Select value={postsPerKeyword} onValueChange={setPostsPerKeyword}>
+              <Select
+                value={postsPerKeyword}
+                onValueChange={setPostsPerKeyword}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -302,7 +311,7 @@ export default function FindNewLeadsDialog({
                 <Textarea
                   placeholder="e.g., Focus on keywords related to vacation planning, exclude business travel..."
                   value={aiRefinement}
-                  onChange={(e) => setAiRefinement(e.target.value)}
+                  onChange={e => setAiRefinement(e.target.value)}
                   className="min-h-[80px]"
                   disabled={isGeneratingKeywords}
                 />
@@ -318,10 +327,14 @@ export default function FindNewLeadsDialog({
               ) : suggestedKeywords.length > 0 ? (
                 <div className="space-y-2">
                   <div className="flex flex-wrap gap-2">
-                    {suggestedKeywords.map((keyword) => (
+                    {suggestedKeywords.map(keyword => (
                       <Badge
                         key={keyword}
-                        variant={selectedKeywords.includes(keyword) ? "default" : "outline"}
+                        variant={
+                          selectedKeywords.includes(keyword)
+                            ? "default"
+                            : "outline"
+                        }
                         className="cursor-pointer transition-colors"
                         onClick={() => toggleKeyword(keyword)}
                       >
@@ -350,8 +363,8 @@ export default function FindNewLeadsDialog({
                 <Input
                   placeholder="e.g., budget travel tips"
                   value={customKeyword}
-                  onChange={(e) => setCustomKeyword(e.target.value)}
-                  onKeyPress={(e) => {
+                  onChange={e => setCustomKeyword(e.target.value)}
+                  onKeyPress={e => {
                     if (e.key === "Enter") {
                       e.preventDefault()
                       addCustomKeyword()
@@ -374,9 +387,12 @@ export default function FindNewLeadsDialog({
             {selectedKeywords.length > 0 && (
               <Alert>
                 <AlertCircle className="size-4" />
-                              <AlertDescription>
-                <strong>Ready to score threads:</strong> {selectedKeywords.length} keywords × {postsPerKeyword} posts = up to {selectedKeywords.length * parseInt(postsPerKeyword)} threads
-              </AlertDescription>
+                <AlertDescription>
+                  <strong>Ready to score threads:</strong>{" "}
+                  {selectedKeywords.length} keywords × {postsPerKeyword} posts =
+                  up to {selectedKeywords.length * parseInt(postsPerKeyword)}{" "}
+                  threads
+                </AlertDescription>
               </Alert>
             )}
           </div>
@@ -405,8 +421,10 @@ export default function FindNewLeadsDialog({
                 </>
               ) : (
                 <>
-                                  <Search className="size-4" />
-                Score {selectedKeywords.length * parseInt(postsPerKeyword)} Threads
+                  <Search className="size-4" />
+                  Score {selectedKeywords.length *
+                    parseInt(postsPerKeyword)}{" "}
+                  Threads
                 </>
               )}
             </Button>
@@ -423,4 +441,4 @@ export default function FindNewLeadsDialog({
       />
     </>
   )
-} 
+}

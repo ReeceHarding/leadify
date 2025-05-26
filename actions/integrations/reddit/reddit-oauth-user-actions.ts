@@ -8,7 +8,10 @@ Contains server actions for Reddit OAuth2 authentication flow with user-specific
 
 import { ActionState, RedditOAuthTokens } from "@/types"
 import { auth } from "@clerk/nextjs/server"
-import { updateProfileAction, getProfileByUserIdAction } from "@/actions/db/profiles-actions"
+import {
+  updateProfileAction,
+  getProfileByUserIdAction
+} from "@/actions/db/profiles-actions"
 import { Timestamp } from "firebase/firestore"
 import { cookies } from "next/headers"
 
@@ -17,8 +20,10 @@ export async function saveRedditTokensToProfileAction(
   username: string
 ): Promise<ActionState<void>> {
   try {
-    console.log("🔧 [SAVE-REDDIT-TOKENS] Saving Reddit tokens to user profile...")
-    
+    console.log(
+      "🔧 [SAVE-REDDIT-TOKENS] Saving Reddit tokens to user profile..."
+    )
+
     const { userId } = await auth()
     if (!userId) {
       return { isSuccess: false, message: "User not authenticated" }
@@ -40,7 +45,9 @@ export async function saveRedditTokensToProfileAction(
       return updateResult
     }
 
-    console.log("✅ [SAVE-REDDIT-TOKENS] Reddit tokens saved to profile successfully")
+    console.log(
+      "✅ [SAVE-REDDIT-TOKENS] Reddit tokens saved to profile successfully"
+    )
 
     return {
       isSuccess: true,
@@ -65,8 +72,10 @@ export async function getRedditTokensFromProfileAction(): Promise<
   }>
 > {
   try {
-    console.log("🔧 [GET-REDDIT-TOKENS] Getting Reddit tokens from user profile...")
-    
+    console.log(
+      "🔧 [GET-REDDIT-TOKENS] Getting Reddit tokens from user profile..."
+    )
+
     const { userId } = await auth()
     if (!userId) {
       return { isSuccess: false, message: "User not authenticated" }
@@ -80,7 +89,10 @@ export async function getRedditTokensFromProfileAction(): Promise<
     const profile = profileResult.data
 
     if (!profile.redditAccessToken) {
-      return { isSuccess: false, message: "No Reddit access token found in profile" }
+      return {
+        isSuccess: false,
+        message: "No Reddit access token found in profile"
+      }
     }
 
     console.log("✅ [GET-REDDIT-TOKENS] Reddit tokens retrieved from profile")
@@ -91,8 +103,9 @@ export async function getRedditTokensFromProfileAction(): Promise<
       data: {
         accessToken: profile.redditAccessToken,
         refreshToken: profile.redditRefreshToken,
-        expiresAt: profile.redditTokenExpiresAt ? 
-          new Date(profile.redditTokenExpiresAt) : undefined,
+        expiresAt: profile.redditTokenExpiresAt
+          ? new Date(profile.redditTokenExpiresAt)
+          : undefined,
         username: profile.redditUsername
       }
     }
@@ -110,7 +123,7 @@ export async function refreshRedditTokenFromProfileAction(): Promise<
 > {
   try {
     console.log("🔧 [REFRESH-REDDIT-TOKEN] Refreshing Reddit token...")
-    
+
     if (!process.env.REDDIT_CLIENT_ID || !process.env.REDDIT_CLIENT_SECRET) {
       return { isSuccess: false, message: "Reddit credentials not configured" }
     }
@@ -127,7 +140,8 @@ export async function refreshRedditTokenFromProfileAction(): Promise<
         headers: {
           Authorization: `Basic ${Buffer.from(`${process.env.REDDIT_CLIENT_ID}:${process.env.REDDIT_CLIENT_SECRET}`).toString("base64")}`,
           "Content-Type": "application/x-www-form-urlencoded",
-          "User-Agent": process.env.REDDIT_USER_AGENT || "reddit-lead-gen:v1.0.0"
+          "User-Agent":
+            process.env.REDDIT_USER_AGENT || "reddit-lead-gen:v1.0.0"
         },
         body: new URLSearchParams({
           grant_type: "refresh_token",
@@ -148,9 +162,14 @@ export async function refreshRedditTokenFromProfileAction(): Promise<
     const tokens: RedditOAuthTokens = await tokenResponse.json()
 
     // Save updated tokens to profile
-    await saveRedditTokensToProfileAction(tokens, tokensResult.data.username || "")
+    await saveRedditTokensToProfileAction(
+      tokens,
+      tokensResult.data.username || ""
+    )
 
-    console.log("✅ [REFRESH-REDDIT-TOKEN] Reddit tokens refreshed successfully")
+    console.log(
+      "✅ [REFRESH-REDDIT-TOKEN] Reddit tokens refreshed successfully"
+    )
 
     return {
       isSuccess: true,
@@ -158,7 +177,10 @@ export async function refreshRedditTokenFromProfileAction(): Promise<
       data: tokens
     }
   } catch (error) {
-    console.error("❌ [REFRESH-REDDIT-TOKEN] Error refreshing Reddit tokens:", error)
+    console.error(
+      "❌ [REFRESH-REDDIT-TOKEN] Error refreshing Reddit tokens:",
+      error
+    )
     return {
       isSuccess: false,
       message: `Failed to refresh tokens: ${error instanceof Error ? error.message : "Unknown error"}`
@@ -166,10 +188,14 @@ export async function refreshRedditTokenFromProfileAction(): Promise<
   }
 }
 
-export async function clearRedditTokensFromProfileAction(): Promise<ActionState<void>> {
+export async function clearRedditTokensFromProfileAction(): Promise<
+  ActionState<void>
+> {
   try {
-    console.log("🔧 [CLEAR-REDDIT-TOKENS] Clearing Reddit tokens from profile...")
-    
+    console.log(
+      "🔧 [CLEAR-REDDIT-TOKENS] Clearing Reddit tokens from profile..."
+    )
+
     const { userId } = await auth()
     if (!userId) {
       return { isSuccess: false, message: "User not authenticated" }
@@ -194,7 +220,10 @@ export async function clearRedditTokensFromProfileAction(): Promise<ActionState<
       data: undefined
     }
   } catch (error) {
-    console.error("❌ [CLEAR-REDDIT-TOKENS] Error clearing Reddit tokens:", error)
+    console.error(
+      "❌ [CLEAR-REDDIT-TOKENS] Error clearing Reddit tokens:",
+      error
+    )
     return {
       isSuccess: false,
       message: "Failed to clear Reddit tokens"
@@ -207,8 +236,10 @@ export async function exchangeRedditCodeForTokensUserAction(
   state: string
 ): Promise<ActionState<RedditOAuthTokens>> {
   try {
-    console.log("🔧 [EXCHANGE-REDDIT-CODE] Exchanging Reddit code for tokens...")
-    
+    console.log(
+      "🔧 [EXCHANGE-REDDIT-CODE] Exchanging Reddit code for tokens..."
+    )
+
     if (!process.env.REDDIT_CLIENT_ID || !process.env.REDDIT_CLIENT_SECRET) {
       return { isSuccess: false, message: "Reddit credentials not configured" }
     }
@@ -235,7 +266,8 @@ export async function exchangeRedditCodeForTokensUserAction(
         headers: {
           Authorization: `Basic ${Buffer.from(`${process.env.REDDIT_CLIENT_ID}:${process.env.REDDIT_CLIENT_SECRET}`).toString("base64")}`,
           "Content-Type": "application/x-www-form-urlencoded",
-          "User-Agent": process.env.REDDIT_USER_AGENT || "reddit-lead-gen:v1.0.0"
+          "User-Agent":
+            process.env.REDDIT_USER_AGENT || "reddit-lead-gen:v1.0.0"
         },
         body: new URLSearchParams({
           grant_type: "authorization_code",
@@ -276,7 +308,9 @@ export async function exchangeRedditCodeForTokensUserAction(
     // Clear the state cookie
     cookieStore.delete("reddit_oauth_state")
 
-    console.log("✅ [EXCHANGE-REDDIT-CODE] Reddit OAuth tokens obtained and saved")
+    console.log(
+      "✅ [EXCHANGE-REDDIT-CODE] Reddit OAuth tokens obtained and saved"
+    )
 
     return {
       isSuccess: true,
@@ -284,10 +318,13 @@ export async function exchangeRedditCodeForTokensUserAction(
       data: tokens
     }
   } catch (error) {
-    console.error("❌ [EXCHANGE-REDDIT-CODE] Error exchanging Reddit code:", error)
+    console.error(
+      "❌ [EXCHANGE-REDDIT-CODE] Error exchanging Reddit code:",
+      error
+    )
     return {
       isSuccess: false,
       message: `Failed to exchange code: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
-} 
+}

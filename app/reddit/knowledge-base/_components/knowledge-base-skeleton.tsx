@@ -59,7 +59,10 @@ export default function KnowledgeBaseSkeleton() {
               </div>
               <div className="space-y-2">
                 {[...Array(2)].map((_, index) => (
-                  <div key={index} className="rounded-lg bg-purple-50 p-3 dark:bg-purple-900/30">
+                  <div
+                    key={index}
+                    className="rounded-lg bg-purple-50 p-3 dark:bg-purple-900/30"
+                  >
                     <Skeleton className="mb-1 h-4 w-full" />
                     <Skeleton className="h-3 w-4/5" />
                   </div>
@@ -127,4 +130,4 @@ export default function KnowledgeBaseSkeleton() {
       </div>
     </div>
   )
-} 
+}

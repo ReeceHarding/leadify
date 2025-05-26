@@ -7,11 +7,7 @@ Coordinates Firecrawl, Google Search, Reddit API, and OpenAI integrations.
 
 "use server"
 
-import { 
-  ActionState, 
-  WorkflowStepResult, 
-  WorkflowProgress 
-} from "@/types"
+import { ActionState, WorkflowStepResult, WorkflowProgress } from "@/types"
 import {
   updateCampaignAction,
   getCampaignByIdAction
@@ -39,8 +35,8 @@ import {
 import { removeUndefinedValues } from "@/lib/firebase-utils"
 import { createGeneratedCommentAction } from "@/actions/db/lead-generation-actions"
 import { scoreThreadAndGenerateThreeTierCommentsAction } from "@/actions/integrations/openai/openai-actions"
-import { 
-  createLeadGenerationProgressAction, 
+import {
+  createLeadGenerationProgressAction,
   updateLeadGenerationProgressAction
 } from "@/actions/db/lead-generation-progress-actions"
 import { LEAD_GENERATION_STAGES } from "@/types"
@@ -52,7 +48,7 @@ export async function runFullLeadGenerationWorkflowAction(
   campaignId: string
 ): Promise<ActionState<WorkflowProgress>> {
   // Call the new function with no keyword limits (will process all keywords)
-  return runLeadGenerationWorkflowWithLimitsAction(campaignId, {});
+  return runLeadGenerationWorkflowWithLimitsAction(campaignId, {})
 }
 
 export async function runLeadGenerationWorkflowWithLimitsAction(
@@ -103,19 +99,22 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
     await updateCampaignAction(campaignId, { status: "running" })
 
     // Determine which keywords to process
-    const keywordsToProcess = Object.keys(keywordLimits).length > 0 
-      ? campaign.keywords.filter(k => keywordLimits[k] && keywordLimits[k] > 0)
-      : campaign.keywords;
+    const keywordsToProcess =
+      Object.keys(keywordLimits).length > 0
+        ? campaign.keywords.filter(
+            k => keywordLimits[k] && keywordLimits[k] > 0
+          )
+        : campaign.keywords
 
     progress.results.push({
       step: "Load Campaign",
       success: true,
       message: `Campaign "${campaign.name}" loaded successfully`,
-      data: { 
-        campaignName: campaign.name, 
+      data: {
+        campaignName: campaign.name,
         allKeywords: campaign.keywords,
         keywordsToProcess,
-        keywordLimits 
+        keywordLimits
       }
     })
     progress.completedSteps++
@@ -143,7 +142,9 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
     progress.currentStep = "Preparing business content"
     console.log(`🔥 Step 2: Preparing business content`)
     console.log(`🔥 Campaign has website: ${!!campaign.website}`)
-    console.log(`🔥 Campaign has businessDescription: ${!!campaign.businessDescription}`)
+    console.log(
+      `🔥 Campaign has businessDescription: ${!!campaign.businessDescription}`
+    )
 
     let websiteContent = campaign.websiteContent
     let skipScraping = false
@@ -151,7 +152,7 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
     // Check if campaign has a website
     if (campaign.website) {
       console.log(`🔥 Campaign has website: ${campaign.website}`)
-      
+
       // Update progress for scraping
       await updateLeadGenerationProgressAction(campaignId, {
         stageUpdate: {
@@ -161,7 +162,7 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
         currentStage: "Scraping Website",
         totalProgress: 20
       })
-      
+
       await updateLeadGenerationProgressAction(campaignId, {
         stageUpdate: {
           stageName: "Scraping Website",
@@ -169,7 +170,7 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
           message: `Analyzing ${campaign.website}`
         }
       })
-      
+
       // Check if we already have recent website content (less than 24 hours old)
       if (websiteContent && campaign.updatedAt) {
         // Handle serialized updatedAt as ISO string
@@ -266,12 +267,12 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
       // Use business description as content if no website
       console.log(`🔥 No website provided, using business description`)
       websiteContent = campaign.businessDescription
-      
+
       // Save business description as websiteContent for consistency
       await updateCampaignAction(campaignId, {
         websiteContent: websiteContent
       })
-      
+
       progress.results.push({
         step: "Prepare Business Content",
         success: true,
@@ -305,7 +306,10 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
         error: "No website or business description available"
       })
       progress.error = "No website or business description available"
-      return { isSuccess: false, message: "No website or business description available" }
+      return {
+        isSuccess: false,
+        message: "No website or business description available"
+      }
     }
 
     progress.completedSteps++
@@ -327,21 +331,23 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
     )
 
     // Search with limits per keyword
-    const searchPromises = keywordsToProcess.map(async (keyword) => {
-      const limit = keywordLimits[keyword] || 10; // Default to 10 if no limit specified
-      console.log(`🔍 Searching for keyword "${keyword}" with limit: ${limit}`);
-      
-      const { searchRedditThreadsAction } = await import("@/actions/integrations/google/google-search-actions");
-      return searchRedditThreadsAction(keyword, limit);
-    });
+    const searchPromises = keywordsToProcess.map(async keyword => {
+      const limit = keywordLimits[keyword] || 10 // Default to 10 if no limit specified
+      console.log(`🔍 Searching for keyword "${keyword}" with limit: ${limit}`)
 
-    const searchResults = await Promise.all(searchPromises);
-    
+      const { searchRedditThreadsAction } = await import(
+        "@/actions/integrations/google/google-search-actions"
+      )
+      return searchRedditThreadsAction(keyword, limit)
+    })
+
+    const searchResults = await Promise.all(searchPromises)
+
     // Combine all search results
-    const allSearchResults: any[] = [];
+    const allSearchResults: any[] = []
     searchResults.forEach((result: any, index: number) => {
       if (result.isSuccess) {
-        const keyword = keywordsToProcess[index];
+        const keyword = keywordsToProcess[index]
         result.data.forEach((searchResult: any) => {
           allSearchResults.push({
             campaignId,
@@ -351,10 +357,10 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
             title: searchResult.title,
             snippet: searchResult.snippet,
             position: searchResult.position
-          });
-        });
+          })
+        })
       }
-    });
+    })
 
     // Batch save search results
     const batch = writeBatch(db)
@@ -431,11 +437,16 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
     // Process threads one by one
     for (const threadToFetch of threadsToFetch) {
       try {
-        console.log(`\n🔍 [WORKFLOW] Processing thread ${threadsProcessed + 1}/${threadsToFetch.length}`)
-        console.log(`🔍 [WORKFLOW] Thread ID: ${threadToFetch.threadId}, Subreddit: ${threadToFetch.subreddit || 'unknown'}, Keyword: ${threadToFetch.keyword}`)
-        
+        console.log(
+          `\n🔍 [WORKFLOW] Processing thread ${threadsProcessed + 1}/${threadsToFetch.length}`
+        )
+        console.log(
+          `🔍 [WORKFLOW] Thread ID: ${threadToFetch.threadId}, Subreddit: ${threadToFetch.subreddit || "unknown"}, Keyword: ${threadToFetch.keyword}`
+        )
+
         // Update progress for retrieving
-        const retrievalProgress = 45 + (threadsProcessed / threadsToFetch.length) * 10
+        const retrievalProgress =
+          45 + (threadsProcessed / threadsToFetch.length) * 10
         await updateLeadGenerationProgressAction(campaignId, {
           stageUpdate: {
             stageName: "Retrieving Threads",
@@ -445,18 +456,27 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
           },
           totalProgress: Math.round(retrievalProgress)
         })
-        
+
         // Fetch individual thread
-        const { fetchRedditThreadAction } = await import("@/actions/integrations/reddit/reddit-actions")
-        const fetchResult = await fetchRedditThreadAction(threadToFetch.threadId, threadToFetch.subreddit)
-        
+        const { fetchRedditThreadAction } = await import(
+          "@/actions/integrations/reddit/reddit-actions"
+        )
+        const fetchResult = await fetchRedditThreadAction(
+          threadToFetch.threadId,
+          threadToFetch.subreddit
+        )
+
         if (!fetchResult.isSuccess) {
-          console.error(`❌ [WORKFLOW] Failed to fetch thread ${threadToFetch.threadId}: ${fetchResult.message}`)
+          console.error(
+            `❌ [WORKFLOW] Failed to fetch thread ${threadToFetch.threadId}: ${fetchResult.message}`
+          )
           continue
         }
 
         const apiThread = fetchResult.data
-        console.log(`✅ [WORKFLOW] Fetched thread: "${apiThread.title}" by u/${apiThread.author}, Score: ${apiThread.score}`)
+        console.log(
+          `✅ [WORKFLOW] Fetched thread: "${apiThread.title}" by u/${apiThread.author}, Score: ${apiThread.score}`
+        )
 
         // Update to analyzing stage when we start scoring
         if (threadsProcessed === 0) {
@@ -467,7 +487,7 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
             },
             currentStage: "Analyzing Relevance"
           })
-          
+
           await updateLeadGenerationProgressAction(campaignId, {
             stageUpdate: {
               stageName: "Analyzing Relevance",
@@ -478,22 +498,33 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
         }
 
         // Fetch comments from the thread to analyze tone
-        console.log(`💬 [WORKFLOW] Fetching comments from thread for tone analysis...`)
-        const { fetchRedditCommentsAction } = await import("@/actions/integrations/reddit/reddit-actions")
+        console.log(
+          `💬 [WORKFLOW] Fetching comments from thread for tone analysis...`
+        )
+        const { fetchRedditCommentsAction } = await import(
+          "@/actions/integrations/reddit/reddit-actions"
+        )
         const commentsResult = await fetchRedditCommentsAction(
           threadToFetch.threadId,
           threadToFetch.subreddit || apiThread.subreddit,
           "best",
           10 // Get top 10 comments for tone analysis
         )
-        
+
         let existingComments: string[] = []
         if (commentsResult.isSuccess && commentsResult.data.length > 0) {
           existingComments = commentsResult.data
-            .filter(comment => comment.body && comment.body !== "[deleted]" && comment.body !== "[removed]")
+            .filter(
+              comment =>
+                comment.body &&
+                comment.body !== "[deleted]" &&
+                comment.body !== "[removed]"
+            )
             .map(comment => comment.body)
             .slice(0, 10) // Take up to 10 comments
-          console.log(`✅ [WORKFLOW] Fetched ${existingComments.length} comments for tone analysis`)
+          console.log(
+            `✅ [WORKFLOW] Fetched ${existingComments.length} comments for tone analysis`
+          )
         } else {
           console.log(`⚠️ [WORKFLOW] No comments fetched for tone analysis`)
         }
@@ -516,13 +547,16 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp()
         }
-        
-        console.log(`💾 [WORKFLOW] Saving thread to Firestore with ID: ${threadRef.id}`)
+
+        console.log(
+          `💾 [WORKFLOW] Saving thread to Firestore with ID: ${threadRef.id}`
+        )
         await setDoc(threadRef, removeUndefinedValues(threadDocData))
         console.log(`✅ [WORKFLOW] Thread saved to Firestore`)
 
         // Update progress for analyzing
-        const analyzingProgress = 55 + (threadsProcessed / threadsToFetch.length) * 15
+        const analyzingProgress =
+          55 + (threadsProcessed / threadsToFetch.length) * 15
         await updateLeadGenerationProgressAction(campaignId, {
           stageUpdate: {
             stageName: "Analyzing Relevance",
@@ -534,8 +568,10 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
         })
 
         // Immediately score and generate comment with tone analysis
-        console.log(`🤖 [WORKFLOW] Starting AI scoring for thread: "${apiThread.title}"`)
-        
+        console.log(
+          `🤖 [WORKFLOW] Starting AI scoring for thread: "${apiThread.title}"`
+        )
+
         // Update to generating comments stage when appropriate
         if (threadsProcessed === Math.floor(threadsToFetch.length * 0.5)) {
           await updateLeadGenerationProgressAction(campaignId, {
@@ -545,7 +581,7 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
             },
             currentStage: "Generating Comments"
           })
-          
+
           await updateLeadGenerationProgressAction(campaignId, {
             stageUpdate: {
               stageName: "Generating Comments",
@@ -555,23 +591,28 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
           })
         }
 
-        const { scoreThreadAndGeneratePersonalizedCommentsAction } = await import("@/actions/integrations/openai/openai-actions")
-        const scoringResult = await scoreThreadAndGeneratePersonalizedCommentsAction(
-          apiThread.title,
-          apiThread.content,
-          apiThread.subreddit,
-          campaign.userId, // Pass userId for personalization
-          websiteContent, // Pass campaign website content (scraped or description)
-          existingComments // Pass existing comments for tone matching
-        )
+        const { scoreThreadAndGeneratePersonalizedCommentsAction } =
+          await import("@/actions/integrations/openai/openai-actions")
+        const scoringResult =
+          await scoreThreadAndGeneratePersonalizedCommentsAction(
+            apiThread.title,
+            apiThread.content,
+            apiThread.subreddit,
+            campaign.userId, // Pass userId for personalization
+            websiteContent, // Pass campaign website content (scraped or description)
+            existingComments // Pass existing comments for tone matching
+          )
 
         if (scoringResult.isSuccess) {
           const scoringData = scoringResult.data
-          console.log(`✅ [WORKFLOW] AI Scoring complete - Score: ${scoringData.score}/100`)
+          console.log(
+            `✅ [WORKFLOW] AI Scoring complete - Score: ${scoringData.score}/100`
+          )
           console.log(`📝 [WORKFLOW] Reasoning: ${scoringData.reasoning}`)
-          
+
           // Update progress for generating
-          const generatingProgress = 70 + (threadsProcessed / threadsToFetch.length) * 20
+          const generatingProgress =
+            70 + (threadsProcessed / threadsToFetch.length) * 20
           await updateLeadGenerationProgressAction(campaignId, {
             stageUpdate: {
               stageName: "Generating Comments",
@@ -581,10 +622,14 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
             },
             totalProgress: Math.round(generatingProgress)
           })
-          
+
           // Prepare comment data with keyword tracking
-          const postCreatedAtValue = apiThread.created ? Timestamp.fromDate(new Date(apiThread.created * 1000)) : undefined
-          console.log(`💾 [WORKFLOW] Extracted post creation timestamp: ${apiThread.created}, Firestore Timestamp: ${postCreatedAtValue?.toDate()?.toISOString() || 'undefined'}`)
+          const postCreatedAtValue = apiThread.created
+            ? Timestamp.fromDate(new Date(apiThread.created * 1000))
+            : undefined
+          console.log(
+            `💾 [WORKFLOW] Extracted post creation timestamp: ${apiThread.created}, Firestore Timestamp: ${postCreatedAtValue?.toDate()?.toISOString() || "undefined"}`
+          )
 
           const commentPayload: CreateGeneratedCommentData = {
             campaignId,
@@ -606,35 +651,48 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
           }
 
           console.log(`💾 [WORKFLOW] Saving generated comment to Firestore...`)
-          console.log(`💾 [WORKFLOW] With keyword: ${threadToFetch.keyword}, score: ${apiThread.score}`)
-          const saveCommentResult = await createGeneratedCommentAction(commentPayload)
-          
+          console.log(
+            `💾 [WORKFLOW] With keyword: ${threadToFetch.keyword}, score: ${apiThread.score}`
+          )
+          const saveCommentResult =
+            await createGeneratedCommentAction(commentPayload)
+
           if (saveCommentResult.isSuccess) {
             commentsGeneratedCount++
             totalScoreSum += scoringData.score
-            console.log(`✅ [WORKFLOW] Comment saved successfully for thread: "${apiThread.title}"`)
-            console.log(`✅ [WORKFLOW] Total comments generated so far: ${commentsGeneratedCount}`)
-            
+            console.log(
+              `✅ [WORKFLOW] Comment saved successfully for thread: "${apiThread.title}"`
+            )
+            console.log(
+              `✅ [WORKFLOW] Total comments generated so far: ${commentsGeneratedCount}`
+            )
+
             // Update campaign progress
             await updateCampaignAction(campaignId, {
               totalThreadsAnalyzed: threadsProcessed + 1,
               totalCommentsGenerated: commentsGeneratedCount
             })
           } else {
-            console.error(`❌ [WORKFLOW] Failed to save comment: ${saveCommentResult.message}`)
+            console.error(
+              `❌ [WORKFLOW] Failed to save comment: ${saveCommentResult.message}`
+            )
           }
         } else {
-          console.error(`❌ [WORKFLOW] Failed to score thread: ${scoringResult.message}`)
+          console.error(
+            `❌ [WORKFLOW] Failed to score thread: ${scoringResult.message}`
+          )
         }
 
         threadsProcessed++
         progress.currentStep = `Processing threads (${threadsProcessed}/${threadsToFetch.length})`
-        
+
         // Add a small delay to avoid rate limits
         await new Promise(resolve => setTimeout(resolve, 1000))
-        
       } catch (error) {
-        console.error(`❌ [WORKFLOW] Error processing thread ${threadToFetch.threadId}:`, error)
+        console.error(
+          `❌ [WORKFLOW] Error processing thread ${threadToFetch.threadId}:`,
+          error
+        )
       }
     }
 
@@ -671,7 +729,10 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
       message: `Generated ${commentsGeneratedCount} comments individually`,
       data: {
         commentsGenerated: commentsGeneratedCount,
-        averageScore: commentsGeneratedCount > 0 ? totalScoreSum / commentsGeneratedCount : 0
+        averageScore:
+          commentsGeneratedCount > 0
+            ? totalScoreSum / commentsGeneratedCount
+            : 0
       }
     })
     progress.completedSteps++
@@ -689,7 +750,10 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
         totalSearchResults: allSearchResults.length,
         totalThreadsAnalyzed: threadsProcessed,
         totalCommentsGenerated: commentsGeneratedCount,
-        keywordLimits: Object.keys(keywordLimits).length > 0 ? keywordLimits : "All keywords processed"
+        keywordLimits:
+          Object.keys(keywordLimits).length > 0
+            ? keywordLimits
+            : "All keywords processed"
       }
     })
 
@@ -706,7 +770,10 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
         totalThreadsFound: allSearchResults.length,
         totalThreadsAnalyzed: threadsProcessed,
         totalCommentsGenerated: commentsGeneratedCount,
-        averageRelevanceScore: commentsGeneratedCount > 0 ? Math.round(totalScoreSum / commentsGeneratedCount) : 0
+        averageRelevanceScore:
+          commentsGeneratedCount > 0
+            ? Math.round(totalScoreSum / commentsGeneratedCount)
+            : 0
       }
     })
 

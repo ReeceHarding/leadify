@@ -1,17 +1,40 @@
 "use client"
 
 import { useState, useCallback, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList
+} from "@/components/ui/command"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from "@/components/ui/popover"
 import { useToast } from "@/components/ui/use-toast"
 import { Loader2, X, Plus, Sparkles, Search } from "lucide-react"
-import { searchSubredditsAction, getRedditUserInfoAction } from "@/actions/integrations/reddit/reddit-warmup-actions"
+import {
+  searchSubredditsAction,
+  getRedditUserInfoAction
+} from "@/actions/integrations/reddit/reddit-warmup-actions"
 import { recommendSubredditsAction } from "@/actions/integrations/openai/warmup-content-generation-actions"
-import { createWarmupAccountAction, updateWarmupAccountAction } from "@/actions/db/warmup-actions"
+import {
+  createWarmupAccountAction,
+  updateWarmupAccountAction
+} from "@/actions/db/warmup-actions"
 import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
 import { SerializedWarmupAccountDocument } from "@/db/firestore/warmup-collections"
 import { debounce } from "lodash"
@@ -28,7 +51,11 @@ interface SubredditSuggestion {
   description?: string
 }
 
-export default function SubredditSelector({ userId, warmupAccount, onUpdate }: SubredditSelectorProps) {
+export default function SubredditSelector({
+  userId,
+  warmupAccount,
+  onUpdate
+}: SubredditSelectorProps) {
   const [selectedSubreddits, setSelectedSubreddits] = useState<string[]>(
     warmupAccount?.targetSubreddits || []
   )
@@ -52,7 +79,7 @@ export default function SubredditSelector({ userId, warmupAccount, onUpdate }: S
       try {
         console.log("🔍 [SUBREDDIT-SELECTOR] Searching for:", query)
         const result = await searchSubredditsAction(query)
-        
+
         if (result.isSuccess && result.data) {
           setSuggestions(
             result.data.map(sub => ({
@@ -91,7 +118,7 @@ export default function SubredditSelector({ userId, warmupAccount, onUpdate }: S
     try {
       setIsGenerating(true)
       console.log("🤖 [SUBREDDIT-SELECTOR] Generating recommendations")
-      
+
       // Get user profile for keywords
       const profileResult = await getProfileByUserIdAction(userId)
       if (!profileResult.isSuccess || !profileResult.data) {
@@ -105,25 +132,28 @@ export default function SubredditSelector({ userId, warmupAccount, onUpdate }: S
 
       const keywords = profileResult.data.keywords || []
       const website = profileResult.data.website || ""
-      
+
       const result = await recommendSubredditsAction(keywords, website)
-      
+
       if (result.isSuccess && result.data) {
         // Show recommendations in a dialog or add them directly
         const newSubreddits = result.data
           .filter(rec => !selectedSubreddits.includes(rec.subreddit))
           .map(rec => rec.subreddit)
           .slice(0, 5) // Add top 5
-        
+
         setSelectedSubreddits([...selectedSubreddits, ...newSubreddits])
-        
+
         toast({
           title: "Recommendations Added",
           description: `Added ${newSubreddits.length} recommended subreddits`
         })
       }
     } catch (error) {
-      console.error("❌ [SUBREDDIT-SELECTOR] Error generating recommendations:", error)
+      console.error(
+        "❌ [SUBREDDIT-SELECTOR] Error generating recommendations:",
+        error
+      )
       toast({
         title: "Error",
         description: "Failed to generate recommendations",
@@ -138,13 +168,13 @@ export default function SubredditSelector({ userId, warmupAccount, onUpdate }: S
     try {
       setIsSaving(true)
       console.log("💾 [SUBREDDIT-SELECTOR] Saving subreddits")
-      
+
       if (warmupAccount) {
         // Update existing account
         const result = await updateWarmupAccountAction(warmupAccount.id, {
           targetSubreddits: selectedSubreddits
         })
-        
+
         if (result.isSuccess) {
           toast({
             title: "Success",
@@ -169,7 +199,7 @@ export default function SubredditSelector({ userId, warmupAccount, onUpdate }: S
           redditUsername: userResult.data.name,
           targetSubreddits: selectedSubreddits
         })
-        
+
         if (result.isSuccess) {
           toast({
             title: "Success",
@@ -229,7 +259,7 @@ export default function SubredditSelector({ userId, warmupAccount, onUpdate }: S
                     <CommandEmpty>No subreddits found.</CommandEmpty>
                   ) : (
                     <CommandGroup>
-                      {suggestions.map((sub) => (
+                      {suggestions.map(sub => (
                         <CommandItem
                           key={sub.name}
                           onSelect={() => handleAddSubreddit(sub.name)}
@@ -267,12 +297,16 @@ export default function SubredditSelector({ userId, warmupAccount, onUpdate }: S
 
         {/* Selected Subreddits */}
         <div className="space-y-2">
-          <p className="text-sm font-medium">Selected Subreddits ({selectedSubreddits.length})</p>
+          <p className="text-sm font-medium">
+            Selected Subreddits ({selectedSubreddits.length})
+          </p>
           <div className="flex flex-wrap gap-2">
             {selectedSubreddits.length === 0 ? (
-              <p className="text-muted-foreground text-sm">No subreddits selected</p>
+              <p className="text-muted-foreground text-sm">
+                No subreddits selected
+              </p>
             ) : (
-              selectedSubreddits.map((subreddit) => (
+              selectedSubreddits.map(subreddit => (
                 <Badge key={subreddit} variant="secondary" className="pr-1">
                   r/{subreddit}
                   <Button
@@ -310,4 +344,4 @@ export default function SubredditSelector({ userId, warmupAccount, onUpdate }: S
       </CardContent>
     </Card>
   )
-} 
+}

@@ -6,7 +6,7 @@ import PersonalizationNavigation from "./_components/personalization-navigation"
 
 export default async function PersonalizationPage() {
   const { userId } = await auth()
-  
+
   if (!userId) {
     redirect("/login")
   }
@@ -16,4 +16,4 @@ export default async function PersonalizationPage() {
       <PersonalizationNavigation />
     </div>
   )
-} 
+}

@@ -228,13 +228,15 @@ const initialState: DashboardState = {
 // Add date filter helper function
 const filterByDate = (lead: LeadResult, dateFilter: string): boolean => {
   if (dateFilter === "all") return true
-  
+
   const postDate = lead.postCreatedAt ? new Date(lead.postCreatedAt) : null
   if (!postDate) return true // If no date, include it
-  
+
   const now = new Date()
-  const daysDiff = Math.floor((now.getTime() - postDate.getTime()) / (1000 * 60 * 60 * 24))
-  
+  const daysDiff = Math.floor(
+    (now.getTime() - postDate.getTime()) / (1000 * 60 * 60 * 24)
+  )
+
   switch (dateFilter) {
     case "today":
       return daysDiff === 0
@@ -252,7 +254,7 @@ const filterByDate = (lead: LeadResult, dateFilter: string): boolean => {
 // Add text search helper function
 const matchesSearchQuery = (lead: LeadResult, query: string): boolean => {
   if (!query.trim()) return true
-  
+
   const lowerQuery = query.toLowerCase()
   const searchableFields = [
     lead.postTitle,
@@ -262,8 +264,10 @@ const matchesSearchQuery = (lead: LeadResult, query: string): boolean => {
     lead.microComment,
     lead.mediumComment,
     lead.verboseComment
-  ].filter(Boolean).map(field => field!.toLowerCase())
-  
+  ]
+    .filter(Boolean)
+    .map(field => field!.toLowerCase())
+
   return searchableFields.some(field => field.includes(lowerQuery))
 }
 
@@ -272,7 +276,9 @@ export default function LeadFinderDashboard() {
   const [state, setState] = useState<DashboardState>(initialState)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [findNewLeadsOpen, setFindNewLeadsOpen] = useState(false)
-  const [currentCampaignKeywords, setCurrentCampaignKeywords] = useState<string[]>([])
+  const [currentCampaignKeywords, setCurrentCampaignKeywords] = useState<
+    string[]
+  >([])
   const newLeadIds = useRef(new Set<string>())
   const searchParams = useSearchParams()
 
@@ -563,13 +569,17 @@ export default function LeadFinderDashboard() {
           addDebugLog("Campaign selected", { campaignId: latestCampaign.id })
 
           // Fetch full campaign details to get the name
-          const campaignDetailsResult = await getCampaignByIdAction(latestCampaign.id)
+          const campaignDetailsResult = await getCampaignByIdAction(
+            latestCampaign.id
+          )
           if (campaignDetailsResult.isSuccess && campaignDetailsResult.data) {
-            setState(prev => ({ 
-              ...prev, 
-              campaignName: campaignDetailsResult.data.name || null 
+            setState(prev => ({
+              ...prev,
+              campaignName: campaignDetailsResult.data.name || null
             }))
-            setCurrentCampaignKeywords(campaignDetailsResult.data.keywords || [])
+            setCurrentCampaignKeywords(
+              campaignDetailsResult.data.keywords || []
+            )
           }
         } else {
           addDebugLog("No campaigns found for user")
@@ -766,12 +776,12 @@ export default function LeadFinderDashboard() {
           setState(prev => ({
             ...prev,
             leads: prev.leads.map(l =>
-              l.id === lead.id 
-                ? { 
-                    ...l, 
+              l.id === lead.id
+                ? {
+                    ...l,
                     status: "posted",
                     postedCommentUrl: result.data.link
-                  } 
+                  }
                 : l
             ),
             postingLeadId: null
@@ -902,12 +912,12 @@ export default function LeadFinderDashboard() {
         setState(prev => ({
           ...prev,
           leads: prev.leads.map(l =>
-            l.id === lead.id 
-              ? { 
-                  ...l, 
+            l.id === lead.id
+              ? {
+                  ...l,
                   status: "posted",
                   postedCommentUrl: result.data.link
-                } 
+                }
               : l
           ),
           postingLeadId: null
@@ -1113,7 +1123,9 @@ export default function LeadFinderDashboard() {
       }))
 
       // Dynamic import to avoid importing server action in client component
-      const { queuePostsForAsyncProcessing } = await import("@/actions/integrations/reddit/reddit-posting-queue")
+      const { queuePostsForAsyncProcessing } = await import(
+        "@/actions/integrations/reddit/reddit-posting-queue"
+      )
       const result = await queuePostsForAsyncProcessing(user.id, posts)
 
       if (result.isSuccess) {
@@ -1141,7 +1153,9 @@ export default function LeadFinderDashboard() {
 
     try {
       // Dynamic import to avoid importing server action in client component
-      const { getPostingQueueStatus } = await import("@/actions/integrations/reddit/reddit-posting-queue")
+      const { getPostingQueueStatus } = await import(
+        "@/actions/integrations/reddit/reddit-posting-queue"
+      )
       const result = await getPostingQueueStatus(user.id)
 
       if (result.isSuccess) {
@@ -1237,7 +1251,9 @@ export default function LeadFinderDashboard() {
     let filtered = [...state.leads]
 
     // Apply text search filter
-    filtered = filtered.filter(lead => matchesSearchQuery(lead, state.searchQuery))
+    filtered = filtered.filter(lead =>
+      matchesSearchQuery(lead, state.searchQuery)
+    )
 
     // Apply keyword filter
     if (state.selectedKeyword) {
@@ -1246,7 +1262,9 @@ export default function LeadFinderDashboard() {
 
     // Apply score filter
     if (state.filterScore > 0) {
-      filtered = filtered.filter(lead => lead.relevanceScore >= state.filterScore)
+      filtered = filtered.filter(
+        lead => lead.relevanceScore >= state.filterScore
+      )
     }
 
     // Apply date filter
@@ -1267,15 +1285,27 @@ export default function LeadFinderDashboard() {
         break
       case "time":
         filtered.sort((a, b) => {
-          const dateA = a.postCreatedAt ? new Date(a.postCreatedAt).getTime() : 0
-          const dateB = b.postCreatedAt ? new Date(b.postCreatedAt).getTime() : 0
+          const dateA = a.postCreatedAt
+            ? new Date(a.postCreatedAt).getTime()
+            : 0
+          const dateB = b.postCreatedAt
+            ? new Date(b.postCreatedAt).getTime()
+            : 0
           return dateB - dateA
         })
         break
     }
 
     return filtered
-  }, [state.leads, state.searchQuery, state.selectedKeyword, state.filterScore, state.dateFilter, state.activeTab, state.sortBy])
+  }, [
+    state.leads,
+    state.searchQuery,
+    state.selectedKeyword,
+    state.filterScore,
+    state.dateFilter,
+    state.activeTab,
+    state.sortBy
+  ])
 
   // Render loading state
   if (state.isLoading) {
@@ -1412,20 +1442,24 @@ export default function LeadFinderDashboard() {
               <Input
                 placeholder="Search by title, body, username..."
                 value={state.searchQuery}
-                onChange={(e) => setState(prev => ({ ...prev, searchQuery: e.target.value }))}
+                onChange={e =>
+                  setState(prev => ({ ...prev, searchQuery: e.target.value }))
+                }
                 className="h-9 grow"
               />
             </div>
-            
+
             {/* Keyword Filter */}
             <div className="flex items-center gap-2">
               <Hash className="size-4 shrink-0 text-gray-500 dark:text-gray-400" />
               <Select
                 value={state.selectedKeyword || "all"}
-                onValueChange={(value) => setState(prev => ({ 
-                  ...prev, 
-                  selectedKeyword: value === "all" ? null : value 
-                }))}
+                onValueChange={value =>
+                  setState(prev => ({
+                    ...prev,
+                    selectedKeyword: value === "all" ? null : value
+                  }))
+                }
               >
                 <SelectTrigger className="h-9 w-[200px]">
                   <SelectValue placeholder="All Keywords" />
@@ -1446,7 +1480,9 @@ export default function LeadFinderDashboard() {
               <Calendar className="size-4 shrink-0 text-gray-500 dark:text-gray-400" />
               <Select
                 value={state.dateFilter}
-                onValueChange={(value: any) => setState(prev => ({ ...prev, dateFilter: value }))}
+                onValueChange={(value: any) =>
+                  setState(prev => ({ ...prev, dateFilter: value }))
+                }
               >
                 <SelectTrigger className="h-9 w-[140px]">
                   <SelectValue />
@@ -1466,7 +1502,9 @@ export default function LeadFinderDashboard() {
               <TrendingUp className="size-4 shrink-0 text-gray-500 dark:text-gray-400" />
               <Select
                 value={state.filterScore.toString()}
-                onValueChange={(value) => setState(prev => ({ ...prev, filterScore: parseInt(value) }))}
+                onValueChange={value =>
+                  setState(prev => ({ ...prev, filterScore: parseInt(value) }))
+                }
               >
                 <SelectTrigger className="h-9 w-[160px]">
                   <SelectValue />
@@ -1487,7 +1525,9 @@ export default function LeadFinderDashboard() {
               <ArrowUpDown className="size-4 shrink-0 text-gray-500 dark:text-gray-400" />
               <Select
                 value={state.sortBy}
-                onValueChange={(value: any) => setState(prev => ({ ...prev, sortBy: value }))}
+                onValueChange={(value: any) =>
+                  setState(prev => ({ ...prev, sortBy: value }))
+                }
               >
                 <SelectTrigger className="h-9 w-[130px]">
                   <SelectValue />
@@ -1609,45 +1649,55 @@ export default function LeadFinderDashboard() {
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
         onSuccess={async () => {
-          addDebugLog(
-            "New campaign created, refreshing campaigns list..."
-          )
+          addDebugLog("New campaign created, refreshing campaigns list...")
           setCreateDialogOpen(false)
-          
+
           // Refresh the campaigns list to get the new campaign
           if (user?.id) {
             try {
               const campaignsResult = await getCampaignsByUserIdAction(user.id)
-              
-              if (campaignsResult.isSuccess && campaignsResult.data.length > 0) {
+
+              if (
+                campaignsResult.isSuccess &&
+                campaignsResult.data.length > 0
+              ) {
                 // Get the latest campaign (most recently created)
                 const latestCampaign = campaignsResult.data.sort((a, b) => {
-                  const dateA = typeof a.createdAt === "string"
-                    ? new Date(a.createdAt)
-                    : (a.createdAt as Timestamp)?.toDate()
-                  const dateB = typeof b.createdAt === "string"
-                    ? new Date(b.createdAt)
-                    : (b.createdAt as Timestamp)?.toDate()
+                  const dateA =
+                    typeof a.createdAt === "string"
+                      ? new Date(a.createdAt)
+                      : (a.createdAt as Timestamp)?.toDate()
+                  const dateB =
+                    typeof b.createdAt === "string"
+                      ? new Date(b.createdAt)
+                      : (b.createdAt as Timestamp)?.toDate()
                   return (dateB?.getTime() || 0) - (dateA?.getTime() || 0)
                 })[0]
-                
+
                 addDebugLog("Selected new campaign", {
                   campaignId: latestCampaign.id,
                   status: latestCampaign.status
                 })
-                
+
                 // Update state with the new campaign
-                setState(prev => ({ 
-                  ...prev, 
+                setState(prev => ({
+                  ...prev,
                   campaignId: latestCampaign.id,
                   campaignName: latestCampaign.name || null,
                   workflowRunning: true // Workflow is running in the background
                 }))
-                
+
                 // Update keywords
-                const campaignDetailsResult = await getCampaignByIdAction(latestCampaign.id)
-                if (campaignDetailsResult.isSuccess && campaignDetailsResult.data) {
-                  setCurrentCampaignKeywords(campaignDetailsResult.data.keywords || [])
+                const campaignDetailsResult = await getCampaignByIdAction(
+                  latestCampaign.id
+                )
+                if (
+                  campaignDetailsResult.isSuccess &&
+                  campaignDetailsResult.data
+                ) {
+                  setCurrentCampaignKeywords(
+                    campaignDetailsResult.data.keywords || []
+                  )
                 }
               }
             } catch (error) {
@@ -1680,7 +1730,7 @@ export default function LeadFinderDashboard() {
 
       <MassPostDialog
         open={state.showMassPostDialog}
-        onOpenChange={(open) => updateState({ showMassPostDialog: open })}
+        onOpenChange={open => updateState({ showMassPostDialog: open })}
         leads={state.leads}
         userId={user?.id || ""}
       />

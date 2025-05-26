@@ -1,23 +1,23 @@
-"use client";
+"use client"
 
-import React from "react";
+import React from "react"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Sparkles, Loader2, RefreshCw } from "lucide-react";
+} from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Sparkles, Loader2, RefreshCw } from "lucide-react"
 
 interface ToneCustomizerProps {
-  toneInstruction: string;
-  onToneInstructionChange: (value: string) => void;
-  onRegenerateAll: () => void;
-  isRegeneratingAll: boolean;
-  disabled: boolean; // Overall disable state (e.g., no leads)
+  toneInstruction: string
+  onToneInstructionChange: (value: string) => void
+  onRegenerateAll: () => void
+  isRegeneratingAll: boolean
+  disabled: boolean // Overall disable state (e.g., no leads)
 }
 
 export default function ToneCustomizer({
@@ -35,7 +35,8 @@ export default function ToneCustomizer({
           Regenerate Comments
         </CardTitle>
         <CardDescription className="text-sm">
-          Rewrite all comments below with your own style - you can ask AI to make them more helpful, emphasize your product, change the tone, etc.
+          Rewrite all comments below with your own style - you can ask AI to
+          make them more helpful, emphasize your product, change the tone, etc.
         </CardDescription>
       </CardHeader>
       <CardContent className="p-4">
@@ -46,7 +47,7 @@ export default function ToneCustomizer({
             onChange={e => onToneInstructionChange(e.target.value)}
             onKeyDown={e => {
               if (e.key === "Enter" && toneInstruction.trim()) {
-                onRegenerateAll();
+                onRegenerateAll()
               }
             }}
             className="grow rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-900 dark:focus:border-blue-400"
@@ -67,5 +68,5 @@ export default function ToneCustomizer({
         </div>
       </CardContent>
     </Card>
-  );
-} 
+  )
+}

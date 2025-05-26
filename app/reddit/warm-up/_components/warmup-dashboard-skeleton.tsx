@@ -40,7 +40,7 @@ export default function WarmupDashboardSkeleton() {
           <Skeleton className="h-10" />
           <Skeleton className="h-10" />
         </div>
-        
+
         <Card>
           <CardHeader>
             <Skeleton className="h-6 w-48" />
@@ -56,4 +56,4 @@ export default function WarmupDashboardSkeleton() {
       </div>
     </div>
   )
-} 
+}

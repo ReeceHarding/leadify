@@ -9,7 +9,7 @@ import VoiceSettingsSkeleton from "./_components/voice-settings-skeleton"
 
 export default async function VoiceSettingsPage() {
   const { userId } = await auth()
-  
+
   if (!userId) {
     redirect("/login")
   }
@@ -32,4 +32,4 @@ async function VoiceSettingsFetcher({ userId }: { userId: string }) {
       initialVoiceSettings={voiceSettingsResult.data || null}
     />
   )
-} 
+}

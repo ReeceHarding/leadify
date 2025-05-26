@@ -84,14 +84,14 @@ export default function CustomizeKeywordsDialog({
         const newKeywords = result.data.keywords.filter(
           (keyword: string) => !currentKeywords.includes(keyword)
         )
-        
+
         // Ensure we have the requested count
         const finalKeywords = newKeywords.slice(0, parseInt(keywordCount))
-        
+
         onKeywordsGenerated(finalKeywords)
         toast.success(`Generated ${finalKeywords.length} new keywords!`)
         onOpenChange(false)
-        
+
         // Reset form
         setRefinementInstructions("")
       } else {
@@ -140,7 +140,7 @@ export default function CustomizeKeywordsDialog({
 • Include seasonal activities like surfing
 • Focus on family-friendly resorts"
               value={refinementInstructions}
-              onChange={(e) => setRefinementInstructions(e.target.value)}
+              onChange={e => setRefinementInstructions(e.target.value)}
               className="min-h-[120px]"
               disabled={isGenerating}
             />
@@ -199,4 +199,4 @@ export default function CustomizeKeywordsDialog({
       </DialogContent>
     </Dialog>
   )
-} 
+}

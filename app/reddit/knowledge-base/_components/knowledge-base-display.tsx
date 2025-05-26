@@ -1,6 +1,12 @@
 "use client"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Globe, FileText, Link, Brain } from "lucide-react"
 import { SerializedKnowledgeBaseDocument } from "@/actions/db/personalization-actions"
@@ -15,10 +21,11 @@ export default function KnowledgeBaseDisplay({
   knowledgeBase,
   userProfile
 }: KnowledgeBaseDisplayProps) {
-  const hasAnyData = knowledgeBase?.customInformation || 
-                     knowledgeBase?.summary || 
-                     (knowledgeBase?.scrapedPages && knowledgeBase.scrapedPages.length > 0) ||
-                     userProfile?.website
+  const hasAnyData =
+    knowledgeBase?.customInformation ||
+    knowledgeBase?.summary ||
+    (knowledgeBase?.scrapedPages && knowledgeBase.scrapedPages.length > 0) ||
+    userProfile?.website
 
   return (
     <Card className="bg-white shadow-sm dark:bg-gray-900">
@@ -35,9 +42,13 @@ export default function KnowledgeBaseDisplay({
         {!hasAnyData ? (
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <Brain className="mb-4 size-12 text-gray-300" />
-            <h3 className="mb-2 text-lg font-medium text-gray-900">No Knowledge Base Yet</h3>
+            <h3 className="mb-2 text-lg font-medium text-gray-900">
+              No Knowledge Base Yet
+            </h3>
             <p className="max-w-sm text-sm text-gray-600">
-              Start building your knowledge base by adding website information, scraping pages, or providing additional details about your business.
+              Start building your knowledge base by adding website information,
+              scraping pages, or providing additional details about your
+              business.
             </p>
           </div>
         ) : (
@@ -47,10 +58,14 @@ export default function KnowledgeBaseDisplay({
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Globe className="size-4 text-blue-600 dark:text-blue-400" />
-                  <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">Connected Website</h4>
+                  <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    Connected Website
+                  </h4>
                 </div>
                 <div className="rounded-lg bg-blue-50 p-3 dark:bg-blue-900/30">
-                  <p className="text-sm font-medium text-blue-900 dark:text-blue-100">{userProfile.website}</p>
+                  <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                    {userProfile.website}
+                  </p>
                   <p className="mt-1 text-xs text-blue-700 dark:text-blue-300">
                     Primary website from your profile
                   </p>
@@ -59,36 +74,48 @@ export default function KnowledgeBaseDisplay({
             )}
 
             {/* Scraped Pages */}
-            {knowledgeBase?.scrapedPages && knowledgeBase.scrapedPages.length > 0 && (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Link className="size-4 text-green-600 dark:text-green-400" />
-                  <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">Scraped Pages</h4>
-                  <Badge variant="secondary" className="text-xs">
-                    {knowledgeBase.scrapedPages.length} pages
-                  </Badge>
-                </div>
+            {knowledgeBase?.scrapedPages &&
+              knowledgeBase.scrapedPages.length > 0 && (
                 <div className="space-y-2">
-                  {knowledgeBase.scrapedPages.slice(0, 5).map((page, index) => (
-                    <div key={index} className="rounded-lg bg-green-50 p-2 dark:bg-green-900/30">
-                      <p className="truncate text-xs font-medium text-green-900 dark:text-green-100">{page}</p>
-                    </div>
-                  ))}
-                  {knowledgeBase.scrapedPages.length > 5 && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      +{knowledgeBase.scrapedPages.length - 5} more pages
-                    </p>
-                  )}
+                  <div className="flex items-center gap-2">
+                    <Link className="size-4 text-green-600 dark:text-green-400" />
+                    <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      Scraped Pages
+                    </h4>
+                    <Badge variant="secondary" className="text-xs">
+                      {knowledgeBase.scrapedPages.length} pages
+                    </Badge>
+                  </div>
+                  <div className="space-y-2">
+                    {knowledgeBase.scrapedPages
+                      .slice(0, 5)
+                      .map((page, index) => (
+                        <div
+                          key={index}
+                          className="rounded-lg bg-green-50 p-2 dark:bg-green-900/30"
+                        >
+                          <p className="truncate text-xs font-medium text-green-900 dark:text-green-100">
+                            {page}
+                          </p>
+                        </div>
+                      ))}
+                    {knowledgeBase.scrapedPages.length > 5 && (
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        +{knowledgeBase.scrapedPages.length - 5} more pages
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
             {/* Custom Information */}
             {knowledgeBase?.customInformation && (
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <FileText className="size-4 text-purple-600 dark:text-purple-400" />
-                  <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">Additional Information</h4>
+                  <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    Additional Information
+                  </h4>
                 </div>
                 <div className="rounded-lg bg-purple-50 p-3 dark:bg-purple-900/30">
                   <p className="whitespace-pre-wrap text-sm text-purple-900 dark:text-purple-100">
@@ -103,7 +130,9 @@ export default function KnowledgeBaseDisplay({
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Brain className="size-4 text-orange-600 dark:text-orange-400" />
-                  <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">AI Summary</h4>
+                  <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    AI Summary
+                  </h4>
                 </div>
                 <div className="rounded-lg bg-orange-50 p-3 dark:bg-orange-900/30">
                   <p className="text-sm text-orange-900 dark:text-orange-100">
@@ -116,7 +145,9 @@ export default function KnowledgeBaseDisplay({
             {/* Key Facts */}
             {knowledgeBase?.keyFacts && knowledgeBase.keyFacts.length > 0 && (
               <div className="space-y-2">
-                <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">Key Facts</h4>
+                <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  Key Facts
+                </h4>
                 <div className="flex flex-wrap gap-2">
                   {knowledgeBase.keyFacts.map((fact, index) => (
                     <Badge key={index} variant="outline" className="text-xs">
@@ -131,7 +162,8 @@ export default function KnowledgeBaseDisplay({
             {knowledgeBase && (
               <div className="border-t pt-4 dark:border-gray-700">
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Last updated: {new Date(knowledgeBase.updatedAt).toLocaleDateString()}
+                  Last updated:{" "}
+                  {new Date(knowledgeBase.updatedAt).toLocaleDateString()}
                 </p>
               </div>
             )}
@@ -140,4 +172,4 @@ export default function KnowledgeBaseDisplay({
       </CardContent>
     </Card>
   )
-} 
+}

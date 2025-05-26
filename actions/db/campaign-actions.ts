@@ -56,21 +56,26 @@ export async function createCampaignAction(
   console.log("📋📋📋 [CREATE-CAMPAIGN] Timestamp:", new Date().toISOString())
   console.log("📋📋📋 [CREATE-CAMPAIGN] Input data:", {
     userId: data.userId,
+    organizationId: data.organizationId,
     name: data.name,
     website: data.website,
     keywordCount: data.keywords?.length || 0,
     keywords: data.keywords,
     businessDescription: data.businessDescription?.substring(0, 100) + "..."
   })
-  
+
   try {
     console.log("📋📋📋 [CREATE-CAMPAIGN] Creating new campaign document...")
     const campaignRef = doc(collection(db, LEAD_COLLECTIONS.CAMPAIGNS))
-    console.log("📋📋📋 [CREATE-CAMPAIGN] Generated campaign ID:", campaignRef.id)
-    
+    console.log(
+      "📋📋📋 [CREATE-CAMPAIGN] Generated campaign ID:",
+      campaignRef.id
+    )
+
     const campaignData = {
       id: campaignRef.id,
       userId: data.userId,
+      organizationId: data.organizationId,
       name: data.name,
       keywords: data.keywords || [],
       website: data.website || "",
@@ -96,12 +101,17 @@ export async function createCampaignAction(
 
     console.log("📋📋📋 [CREATE-CAMPAIGN] Writing to Firestore...")
     await setDoc(campaignRef, removeUndefinedValues(campaignData))
-    console.log("📋📋📋 [CREATE-CAMPAIGN] ✅ Campaign written to Firestore successfully")
-    
+    console.log(
+      "📋📋📋 [CREATE-CAMPAIGN] ✅ Campaign written to Firestore successfully"
+    )
+
     console.log("📋📋📋 [CREATE-CAMPAIGN] Fetching created document...")
     const createdDoc = await getDoc(campaignRef)
-    console.log("📋📋📋 [CREATE-CAMPAIGN] Document exists:", createdDoc.exists())
-    
+    console.log(
+      "📋📋📋 [CREATE-CAMPAIGN] Document exists:",
+      createdDoc.exists()
+    )
+
     const createdData = createdDoc.data() as CampaignDocument
     console.log("📋📋📋 [CREATE-CAMPAIGN] Created campaign data:", {
       id: createdData.id,
@@ -109,10 +119,12 @@ export async function createCampaignAction(
       keywordCount: createdData.keywords?.length || 0,
       status: createdData.status
     })
-    
+
     console.log("📋📋📋 [CREATE-CAMPAIGN] ✅ Campaign created successfully")
-    console.log("📋📋📋 [CREATE-CAMPAIGN] ========== ACTION END (SUCCESS) ==========")
-    
+    console.log(
+      "📋📋📋 [CREATE-CAMPAIGN] ========== ACTION END (SUCCESS) =========="
+    )
+
     const serializedCampaign = serializeCampaignDocument(createdData)
     return {
       isSuccess: true,
@@ -123,10 +135,18 @@ export async function createCampaignAction(
     console.log("📋📋📋 [CREATE-CAMPAIGN] ❌ Error creating campaign")
     console.log("📋📋📋 [CREATE-CAMPAIGN] Error type:", typeof error)
     console.log("📋📋📋 [CREATE-CAMPAIGN] Error:", error)
-    console.log("📋📋📋 [CREATE-CAMPAIGN] Error message:", error instanceof Error ? error.message : "Unknown error")
-    console.log("📋📋📋 [CREATE-CAMPAIGN] Error stack:", error instanceof Error ? error.stack : "No stack trace")
-    console.log("📋📋📋 [CREATE-CAMPAIGN] ========== ACTION END (ERROR) ==========")
-    
+    console.log(
+      "📋📋📋 [CREATE-CAMPAIGN] Error message:",
+      error instanceof Error ? error.message : "Unknown error"
+    )
+    console.log(
+      "📋📋📋 [CREATE-CAMPAIGN] Error stack:",
+      error instanceof Error ? error.stack : "No stack trace"
+    )
+    console.log(
+      "📋📋📋 [CREATE-CAMPAIGN] ========== ACTION END (ERROR) =========="
+    )
+
     return { isSuccess: false, message: "Failed to create campaign" }
   }
 }
@@ -134,20 +154,31 @@ export async function createCampaignAction(
 export async function getCampaignsByUserIdAction(
   userId: string
 ): Promise<ActionState<SerializedCampaignDocument[]>> {
-  console.log("📋📋📋 [GET-CAMPAIGNS-BY-USER] ========== ACTION START ==========")
-  console.log("📋📋📋 [GET-CAMPAIGNS-BY-USER] Timestamp:", new Date().toISOString())
+  console.log(
+    "📋📋📋 [GET-CAMPAIGNS-BY-USER] ========== ACTION START =========="
+  )
+  console.log(
+    "📋📋📋 [GET-CAMPAIGNS-BY-USER] Timestamp:",
+    new Date().toISOString()
+  )
   console.log("📋📋📋 [GET-CAMPAIGNS-BY-USER] User ID:", userId)
-  
+
   try {
     console.log("📋📋📋 [GET-CAMPAIGNS-BY-USER] Creating query...")
     const campaignsRef = collection(db, LEAD_COLLECTIONS.CAMPAIGNS)
     const q = query(campaignsRef, where("userId", "==", userId))
-    
+
     console.log("📋📋📋 [GET-CAMPAIGNS-BY-USER] Executing query...")
     const querySnapshot = await getDocs(q)
-    console.log("📋📋📋 [GET-CAMPAIGNS-BY-USER] Query returned documents:", querySnapshot.size)
-    console.log("📋📋📋 [GET-CAMPAIGNS-BY-USER] Query empty:", querySnapshot.empty)
-    
+    console.log(
+      "📋📋📋 [GET-CAMPAIGNS-BY-USER] Query returned documents:",
+      querySnapshot.size
+    )
+    console.log(
+      "📋📋📋 [GET-CAMPAIGNS-BY-USER] Query empty:",
+      querySnapshot.empty
+    )
+
     const campaigns = querySnapshot.docs.map((doc, index) => {
       const data = doc.data() as CampaignDocument
       console.log(`📋📋📋 [GET-CAMPAIGNS-BY-USER] Campaign ${index + 1}:`, {
@@ -159,12 +190,22 @@ export async function getCampaignsByUserIdAction(
       })
       return serializeCampaignDocument(data)
     })
-    
-    console.log("📋📋📋 [GET-CAMPAIGNS-BY-USER] Total campaigns found:", campaigns.length)
-    console.log("📋📋📋 [GET-CAMPAIGNS-BY-USER] Campaign IDs:", campaigns.map(c => c.id))
-    console.log("📋📋📋 [GET-CAMPAIGNS-BY-USER] ✅ Campaigns retrieved successfully")
-    console.log("📋📋📋 [GET-CAMPAIGNS-BY-USER] ========== ACTION END (SUCCESS) ==========")
-    
+
+    console.log(
+      "📋📋📋 [GET-CAMPAIGNS-BY-USER] Total campaigns found:",
+      campaigns.length
+    )
+    console.log(
+      "📋📋📋 [GET-CAMPAIGNS-BY-USER] Campaign IDs:",
+      campaigns.map(c => c.id)
+    )
+    console.log(
+      "📋📋📋 [GET-CAMPAIGNS-BY-USER] ✅ Campaigns retrieved successfully"
+    )
+    console.log(
+      "📋📋📋 [GET-CAMPAIGNS-BY-USER] ========== ACTION END (SUCCESS) =========="
+    )
+
     return {
       isSuccess: true,
       message: "Campaigns retrieved successfully",
@@ -174,10 +215,18 @@ export async function getCampaignsByUserIdAction(
     console.log("📋📋📋 [GET-CAMPAIGNS-BY-USER] ❌ Error getting campaigns")
     console.log("📋📋📋 [GET-CAMPAIGNS-BY-USER] Error type:", typeof error)
     console.log("📋📋📋 [GET-CAMPAIGNS-BY-USER] Error:", error)
-    console.log("📋📋📋 [GET-CAMPAIGNS-BY-USER] Error message:", error instanceof Error ? error.message : "Unknown error")
-    console.log("📋📋📋 [GET-CAMPAIGNS-BY-USER] Error stack:", error instanceof Error ? error.stack : "No stack trace")
-    console.log("📋📋📋 [GET-CAMPAIGNS-BY-USER] ========== ACTION END (ERROR) ==========")
-    
+    console.log(
+      "📋📋📋 [GET-CAMPAIGNS-BY-USER] Error message:",
+      error instanceof Error ? error.message : "Unknown error"
+    )
+    console.log(
+      "📋📋📋 [GET-CAMPAIGNS-BY-USER] Error stack:",
+      error instanceof Error ? error.stack : "No stack trace"
+    )
+    console.log(
+      "📋📋📋 [GET-CAMPAIGNS-BY-USER] ========== ACTION END (ERROR) =========="
+    )
+
     return { isSuccess: false, message: "Failed to get campaigns" }
   }
 }
@@ -186,20 +235,30 @@ export async function getCampaignByIdAction(
   campaignId: string
 ): Promise<ActionState<SerializedCampaignDocument>> {
   console.log("📋📋📋 [GET-CAMPAIGN-BY-ID] ========== ACTION START ==========")
-  console.log("📋📋📋 [GET-CAMPAIGN-BY-ID] Timestamp:", new Date().toISOString())
+  console.log(
+    "📋📋📋 [GET-CAMPAIGN-BY-ID] Timestamp:",
+    new Date().toISOString()
+  )
   console.log("📋📋📋 [GET-CAMPAIGN-BY-ID] Campaign ID:", campaignId)
-  
+
   try {
     console.log("📋📋📋 [GET-CAMPAIGN-BY-ID] Creating document reference...")
     const campaignRef = doc(db, LEAD_COLLECTIONS.CAMPAIGNS, campaignId)
-    console.log("📋📋📋 [GET-CAMPAIGN-BY-ID] Fetching document from Firestore...")
-    
+    console.log(
+      "📋📋📋 [GET-CAMPAIGN-BY-ID] Fetching document from Firestore..."
+    )
+
     const campaignDoc = await getDoc(campaignRef)
-    console.log("📋📋📋 [GET-CAMPAIGN-BY-ID] Document exists:", campaignDoc.exists())
-    
+    console.log(
+      "📋📋📋 [GET-CAMPAIGN-BY-ID] Document exists:",
+      campaignDoc.exists()
+    )
+
     if (!campaignDoc.exists()) {
       console.log("📋📋📋 [GET-CAMPAIGN-BY-ID] ⚠️ Campaign not found")
-      console.log("📋📋📋 [GET-CAMPAIGN-BY-ID] ========== ACTION END (NOT FOUND) ==========")
+      console.log(
+        "📋📋📋 [GET-CAMPAIGN-BY-ID] ========== ACTION END (NOT FOUND) =========="
+      )
       return { isSuccess: false, message: "Campaign not found" }
     }
 
@@ -218,10 +277,14 @@ export async function getCampaignByIdAction(
       hasWebsiteContent: !!campaignData.websiteContent,
       websiteContentLength: campaignData.websiteContent?.length || 0
     })
-    
-    console.log("📋📋📋 [GET-CAMPAIGN-BY-ID] ✅ Campaign retrieved successfully")
-    console.log("📋📋📋 [GET-CAMPAIGN-BY-ID] ========== ACTION END (SUCCESS) ==========")
-    
+
+    console.log(
+      "📋📋📋 [GET-CAMPAIGN-BY-ID] ✅ Campaign retrieved successfully"
+    )
+    console.log(
+      "📋📋📋 [GET-CAMPAIGN-BY-ID] ========== ACTION END (SUCCESS) =========="
+    )
+
     const serializedCampaign = serializeCampaignDocument(campaignData)
     return {
       isSuccess: true,
@@ -232,10 +295,18 @@ export async function getCampaignByIdAction(
     console.log("📋📋📋 [GET-CAMPAIGN-BY-ID] ❌ Error getting campaign")
     console.log("📋📋📋 [GET-CAMPAIGN-BY-ID] Error type:", typeof error)
     console.log("📋📋📋 [GET-CAMPAIGN-BY-ID] Error:", error)
-    console.log("📋📋📋 [GET-CAMPAIGN-BY-ID] Error message:", error instanceof Error ? error.message : "Unknown error")
-    console.log("📋📋📋 [GET-CAMPAIGN-BY-ID] Error stack:", error instanceof Error ? error.stack : "No stack trace")
-    console.log("📋📋📋 [GET-CAMPAIGN-BY-ID] ========== ACTION END (ERROR) ==========")
-    
+    console.log(
+      "📋📋📋 [GET-CAMPAIGN-BY-ID] Error message:",
+      error instanceof Error ? error.message : "Unknown error"
+    )
+    console.log(
+      "📋📋📋 [GET-CAMPAIGN-BY-ID] Error stack:",
+      error instanceof Error ? error.stack : "No stack trace"
+    )
+    console.log(
+      "📋📋📋 [GET-CAMPAIGN-BY-ID] ========== ACTION END (ERROR) =========="
+    )
+
     return { isSuccess: false, message: "Failed to get campaign" }
   }
 }
@@ -260,27 +331,33 @@ export async function updateCampaignAction(
     totalThreadsAnalyzed: data.totalThreadsAnalyzed,
     totalCommentsGenerated: data.totalCommentsGenerated
   })
-  
+
   try {
     console.log("📋📋📋 [UPDATE-CAMPAIGN] Creating document reference...")
     const campaignRef = doc(db, LEAD_COLLECTIONS.CAMPAIGNS, campaignId)
-    
+
     console.log("📋📋📋 [UPDATE-CAMPAIGN] Preparing update data...")
     const updateData = {
       ...data,
       updatedAt: serverTimestamp()
     }
-    
-    console.log("📋📋📋 [UPDATE-CAMPAIGN] Cleaned update data keys:", Object.keys(removeUndefinedValues(updateData)))
+
+    console.log(
+      "📋📋📋 [UPDATE-CAMPAIGN] Cleaned update data keys:",
+      Object.keys(removeUndefinedValues(updateData))
+    )
     console.log("📋📋📋 [UPDATE-CAMPAIGN] Updating document in Firestore...")
-    
+
     await updateDoc(campaignRef, removeUndefinedValues(updateData))
     console.log("📋📋📋 [UPDATE-CAMPAIGN] ✅ Document updated successfully")
-    
+
     console.log("📋📋📋 [UPDATE-CAMPAIGN] Fetching updated document...")
     const updatedDoc = await getDoc(campaignRef)
-    console.log("📋📋📋 [UPDATE-CAMPAIGN] Updated document exists:", updatedDoc.exists())
-    
+    console.log(
+      "📋📋📋 [UPDATE-CAMPAIGN] Updated document exists:",
+      updatedDoc.exists()
+    )
+
     const updatedData = updatedDoc.data() as CampaignDocument
     console.log("📋📋📋 [UPDATE-CAMPAIGN] Updated campaign data:", {
       id: updatedData.id,
@@ -291,10 +368,12 @@ export async function updateCampaignAction(
       totalThreadsAnalyzed: updatedData.totalThreadsAnalyzed,
       totalCommentsGenerated: updatedData.totalCommentsGenerated
     })
-    
+
     console.log("📋📋📋 [UPDATE-CAMPAIGN] ✅ Campaign updated successfully")
-    console.log("📋📋📋 [UPDATE-CAMPAIGN] ========== ACTION END (SUCCESS) ==========")
-    
+    console.log(
+      "📋📋📋 [UPDATE-CAMPAIGN] ========== ACTION END (SUCCESS) =========="
+    )
+
     const serializedCampaign = serializeCampaignDocument(updatedData)
     return {
       isSuccess: true,
@@ -305,10 +384,18 @@ export async function updateCampaignAction(
     console.log("📋📋📋 [UPDATE-CAMPAIGN] ❌ Error updating campaign")
     console.log("📋📋📋 [UPDATE-CAMPAIGN] Error type:", typeof error)
     console.log("📋📋📋 [UPDATE-CAMPAIGN] Error:", error)
-    console.log("📋📋📋 [UPDATE-CAMPAIGN] Error message:", error instanceof Error ? error.message : "Unknown error")
-    console.log("📋📋📋 [UPDATE-CAMPAIGN] Error stack:", error instanceof Error ? error.stack : "No stack trace")
-    console.log("📋📋📋 [UPDATE-CAMPAIGN] ========== ACTION END (ERROR) ==========")
-    
+    console.log(
+      "📋📋📋 [UPDATE-CAMPAIGN] Error message:",
+      error instanceof Error ? error.message : "Unknown error"
+    )
+    console.log(
+      "📋📋📋 [UPDATE-CAMPAIGN] Error stack:",
+      error instanceof Error ? error.stack : "No stack trace"
+    )
+    console.log(
+      "📋📋📋 [UPDATE-CAMPAIGN] ========== ACTION END (ERROR) =========="
+    )
+
     return { isSuccess: false, message: "Failed to update campaign" }
   }
 }
@@ -319,17 +406,19 @@ export async function deleteCampaignAction(
   console.log("📋📋📋 [DELETE-CAMPAIGN] ========== ACTION START ==========")
   console.log("📋📋📋 [DELETE-CAMPAIGN] Timestamp:", new Date().toISOString())
   console.log("📋📋📋 [DELETE-CAMPAIGN] Campaign ID:", campaignId)
-  
+
   try {
     console.log("📋📋📋 [DELETE-CAMPAIGN] Creating document reference...")
     const campaignRef = doc(db, LEAD_COLLECTIONS.CAMPAIGNS, campaignId)
-    
+
     console.log("📋📋📋 [DELETE-CAMPAIGN] Deleting document from Firestore...")
     await deleteDoc(campaignRef)
-    
+
     console.log("📋📋📋 [DELETE-CAMPAIGN] ✅ Campaign deleted successfully")
-    console.log("📋📋📋 [DELETE-CAMPAIGN] ========== ACTION END (SUCCESS) ==========")
-    
+    console.log(
+      "📋📋📋 [DELETE-CAMPAIGN] ========== ACTION END (SUCCESS) =========="
+    )
+
     return {
       isSuccess: true,
       message: "Campaign deleted successfully",
@@ -339,10 +428,18 @@ export async function deleteCampaignAction(
     console.log("📋📋📋 [DELETE-CAMPAIGN] ❌ Error deleting campaign")
     console.log("📋📋📋 [DELETE-CAMPAIGN] Error type:", typeof error)
     console.log("📋📋📋 [DELETE-CAMPAIGN] Error:", error)
-    console.log("📋📋📋 [DELETE-CAMPAIGN] Error message:", error instanceof Error ? error.message : "Unknown error")
-    console.log("📋📋📋 [DELETE-CAMPAIGN] Error stack:", error instanceof Error ? error.stack : "No stack trace")
-    console.log("📋📋📋 [DELETE-CAMPAIGN] ========== ACTION END (ERROR) ==========")
-    
+    console.log(
+      "📋📋📋 [DELETE-CAMPAIGN] Error message:",
+      error instanceof Error ? error.message : "Unknown error"
+    )
+    console.log(
+      "📋📋📋 [DELETE-CAMPAIGN] Error stack:",
+      error instanceof Error ? error.stack : "No stack trace"
+    )
+    console.log(
+      "📋📋📋 [DELETE-CAMPAIGN] ========== ACTION END (ERROR) =========="
+    )
+
     return { isSuccess: false, message: "Failed to delete campaign" }
   }
 }

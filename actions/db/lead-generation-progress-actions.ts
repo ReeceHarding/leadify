@@ -1,15 +1,25 @@
 "use server"
 
 import { db } from "@/db/db"
-import { ActionState, LeadGenerationProgress, LEAD_GENERATION_STAGES } from "@/types"
-import { doc, setDoc, getDoc, serverTimestamp, Timestamp } from "firebase/firestore"
+import {
+  ActionState,
+  LeadGenerationProgress,
+  LEAD_GENERATION_STAGES
+} from "@/types"
+import {
+  doc,
+  setDoc,
+  getDoc,
+  serverTimestamp,
+  Timestamp
+} from "firebase/firestore"
 
 export async function createLeadGenerationProgressAction(
   campaignId: string
 ): Promise<ActionState<LeadGenerationProgress>> {
   try {
     const progressRef = doc(db, "lead_generation_progress", campaignId)
-    
+
     const progressData: LeadGenerationProgress = {
       campaignId,
       status: "pending",
@@ -57,7 +67,7 @@ export async function updateLeadGenerationProgressAction(
   try {
     const progressRef = doc(db, "lead_generation_progress", campaignId)
     const progressDoc = await getDoc(progressRef)
-    
+
     if (!progressDoc.exists()) {
       return {
         isSuccess: false,
@@ -83,7 +93,7 @@ export async function updateLeadGenerationProgressAction(
       const stageIndex = currentData.stages.findIndex(
         s => s.name === updates.stageUpdate!.stageName
       )
-      
+
       if (stageIndex !== -1) {
         const updatedStages = [...currentData.stages]
         updatedStages[stageIndex] = {
@@ -93,7 +103,10 @@ export async function updateLeadGenerationProgressAction(
           progress: updates.stageUpdate.progress
         }
 
-        if (updates.stageUpdate.status === "in_progress" && !updatedStages[stageIndex].startedAt) {
+        if (
+          updates.stageUpdate.status === "in_progress" &&
+          !updatedStages[stageIndex].startedAt
+        ) {
           updatedStages[stageIndex].startedAt = serverTimestamp() as Timestamp
         }
 
@@ -139,7 +152,7 @@ export async function getLeadGenerationProgressAction(
   try {
     const progressRef = doc(db, "lead_generation_progress", campaignId)
     const progressDoc = await getDoc(progressRef)
-    
+
     if (!progressDoc.exists()) {
       return {
         isSuccess: true,
@@ -160,4 +173,4 @@ export async function getLeadGenerationProgressAction(
       message: "Failed to get progress"
     }
   }
-} 
+}

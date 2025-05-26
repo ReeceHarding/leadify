@@ -3,9 +3,9 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Progress } from "@/components/ui/progress"
-import { 
-  Loader2, 
-  CheckCircle2, 
+import {
+  Loader2,
+  CheckCircle2,
   AlertCircle,
   RefreshCw,
   Sparkles,
@@ -26,16 +26,18 @@ interface LoadingStateProps {
   className?: string
 }
 
-export function LoadingProgress({ 
-  title = "Loading...", 
-  description, 
+export function LoadingProgress({
+  title = "Loading...",
+  description,
   progress,
   currentStep,
   totalSteps,
-  className 
+  className
 }: LoadingStateProps) {
-  const calculatedProgress = progress || (currentStep && totalSteps ? (currentStep / totalSteps) * 100 : 0)
-  
+  const calculatedProgress =
+    progress ||
+    (currentStep && totalSteps ? (currentStep / totalSteps) * 100 : 0)
+
   return (
     <Card className={cn("shadow-lg dark:border-gray-700", className)}>
       <CardHeader className="border-b p-4 dark:border-gray-700">
@@ -80,8 +82,8 @@ export function EnhancedLeadSkeleton() {
   return (
     <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
       {[...Array(6)].map((_, index) => (
-        <Card 
-          key={index} 
+        <Card
+          key={index}
           className="flex flex-col rounded-xl border bg-white shadow-lg transition-all duration-300 dark:border-gray-700 dark:bg-gray-800"
         >
           <CardHeader className="pb-4">
@@ -105,7 +107,7 @@ export function EnhancedLeadSkeleton() {
               <Skeleton className="h-5 w-full rounded-md" />
               <Skeleton className="h-4 w-full rounded-md" />
               <Skeleton className="h-4 w-3/4 rounded-md" />
-              
+
               {/* Meta info skeleton */}
               <div className="flex items-center gap-4 pt-1">
                 <div className="flex items-center gap-1.5">
@@ -139,7 +141,7 @@ export function EnhancedLeadSkeleton() {
                   <Skeleton className="h-8 w-24 rounded-md" />
                 </div>
               </div>
-              
+
               {/* Comment content skeleton with animation */}
               <div className="space-y-2">
                 <Skeleton className="h-4 w-full animate-pulse rounded-md" />
@@ -147,7 +149,7 @@ export function EnhancedLeadSkeleton() {
                 <Skeleton className="h-4 w-4/5 animate-pulse rounded-md [animation-delay:200ms]" />
                 <Skeleton className="h-4 w-3/4 animate-pulse rounded-md [animation-delay:300ms]" />
               </div>
-              
+
               <div className="flex items-center justify-between pt-1">
                 <Skeleton className="h-4 w-24 rounded-md" />
                 <Skeleton className="size-7 rounded-md" />
@@ -163,7 +165,7 @@ export function EnhancedLeadSkeleton() {
 interface StepIndicatorProps {
   steps: Array<{
     name: string
-    status: 'completed' | 'current' | 'pending'
+    status: "completed" | "current" | "pending"
     icon?: React.ReactNode
   }>
   className?: string
@@ -177,30 +179,37 @@ export function StepIndicator({ steps, className }: StepIndicatorProps) {
           key={index}
           className={cn(
             "flex items-center gap-3 rounded-lg p-3 transition-all",
-            step.status === 'current' && "bg-blue-50 dark:bg-blue-900/20",
-            step.status === 'completed' && "opacity-70"
+            step.status === "current" && "bg-blue-50 dark:bg-blue-900/20",
+            step.status === "completed" && "opacity-70"
           )}
         >
-          <div className={cn(
-            "flex size-8 items-center justify-center rounded-full",
-            step.status === 'completed' && "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400",
-            step.status === 'current' && "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
-            step.status === 'pending' && "bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-600"
-          )}>
-            {step.status === 'completed' ? (
+          <div
+            className={cn(
+              "flex size-8 items-center justify-center rounded-full",
+              step.status === "completed" &&
+                "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400",
+              step.status === "current" &&
+                "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
+              step.status === "pending" &&
+                "bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-600"
+            )}
+          >
+            {step.status === "completed" ? (
               <CheckCircle2 className="size-5" />
-            ) : step.status === 'current' ? (
+            ) : step.status === "current" ? (
               <Loader2 className="size-5 animate-spin" />
             ) : (
               step.icon || <div className="size-2 rounded-full bg-current" />
             )}
           </div>
-          <span className={cn(
-            "text-sm font-medium",
-            step.status === 'current' && "text-blue-700 dark:text-blue-300",
-            step.status === 'completed' && "text-gray-600 dark:text-gray-400",
-            step.status === 'pending' && "text-gray-400 dark:text-gray-600"
-          )}>
+          <span
+            className={cn(
+              "text-sm font-medium",
+              step.status === "current" && "text-blue-700 dark:text-blue-300",
+              step.status === "completed" && "text-gray-600 dark:text-gray-400",
+              step.status === "pending" && "text-gray-400 dark:text-gray-600"
+            )}
+          >
             {step.name}
           </span>
         </div>
@@ -216,35 +225,55 @@ interface GenerationProgressProps {
   foundLeads: number
 }
 
-export function GenerationProgress({ 
-  currentStep, 
-  completedSteps, 
+export function GenerationProgress({
+  currentStep,
+  completedSteps,
   totalSteps,
-  foundLeads 
+  foundLeads
 }: GenerationProgressProps) {
   const steps: Array<{
     name: string
-    status: 'completed' | 'current' | 'pending'
+    status: "completed" | "current" | "pending"
     icon?: React.ReactNode
   }> = [
-    { 
-      name: "Fetching Keywords", 
-      status: completedSteps >= 1 ? 'completed' : completedSteps === 0 ? 'current' : 'pending',
+    {
+      name: "Fetching Keywords",
+      status:
+        completedSteps >= 1
+          ? "completed"
+          : completedSteps === 0
+            ? "current"
+            : "pending",
       icon: <Hash className="size-4" />
     },
-    { 
-      name: "Searching Reddit", 
-      status: completedSteps >= 2 ? 'completed' : completedSteps === 1 ? 'current' : 'pending',
+    {
+      name: "Searching Reddit",
+      status:
+        completedSteps >= 2
+          ? "completed"
+          : completedSteps === 1
+            ? "current"
+            : "pending",
       icon: <MessageSquare className="size-4" />
     },
-    { 
-      name: "Scoring Relevance", 
-      status: completedSteps >= 3 ? 'completed' : completedSteps === 2 ? 'current' : 'pending',
+    {
+      name: "Scoring Relevance",
+      status:
+        completedSteps >= 3
+          ? "completed"
+          : completedSteps === 2
+            ? "current"
+            : "pending",
       icon: <TrendingUp className="size-4" />
     },
-    { 
-      name: "Generating Comments", 
-      status: completedSteps >= 4 ? 'completed' : completedSteps === 3 ? 'current' : 'pending',
+    {
+      name: "Generating Comments",
+      status:
+        completedSteps >= 4
+          ? "completed"
+          : completedSteps === 3
+            ? "current"
+            : "pending",
       icon: <Sparkles className="size-4" />
     }
   ]
@@ -275,7 +304,7 @@ export function GenerationProgress({
               className="h-3 w-full [&>div]:bg-gradient-to-r [&>div]:from-blue-400 [&>div]:to-blue-600 dark:[&>div]:from-blue-500 dark:[&>div]:to-blue-700"
             />
           </div>
-          
+
           <StepIndicator steps={steps} />
         </div>
       </CardContent>
@@ -288,9 +317,17 @@ interface InlineLoadingProps {
   className?: string
 }
 
-export function InlineLoading({ text = "Loading...", className }: InlineLoadingProps) {
+export function InlineLoading({
+  text = "Loading...",
+  className
+}: InlineLoadingProps) {
   return (
-    <div className={cn("flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400", className)}>
+    <div
+      className={cn(
+        "flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400",
+        className
+      )}
+    >
       <Loader2 className="size-4 animate-spin" />
       <span>{text}</span>
     </div>
@@ -305,17 +342,22 @@ interface ProcessingIndicatorProps {
   className?: string
 }
 
-export function ProcessingIndicator({ 
-  title, 
-  description, 
-  current, 
+export function ProcessingIndicator({
+  title,
+  description,
+  current,
   total,
-  className 
+  className
 }: ProcessingIndicatorProps) {
   const percentage = Math.round((current / total) * 100)
-  
+
   return (
-    <div className={cn("rounded-lg border bg-blue-50 p-4 dark:border-blue-700 dark:bg-blue-900/20", className)}>
+    <div
+      className={cn(
+        "rounded-lg border bg-blue-50 p-4 dark:border-blue-700 dark:bg-blue-900/20",
+        className
+      )}
+    >
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -342,4 +384,4 @@ export function ProcessingIndicator({
       </div>
     </div>
   )
-} 
+}

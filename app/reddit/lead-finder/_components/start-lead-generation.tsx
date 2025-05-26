@@ -12,9 +12,12 @@ interface Props {
 
 export default function StartLeadGeneration({ campaignId }: Props) {
   console.log("🚀🚀🚀 [START-LEAD-GEN] ========== COMPONENT MOUNT ==========")
-  console.log("🚀🚀🚀 [START-LEAD-GEN] Component mounted with campaignId:", campaignId)
+  console.log(
+    "🚀🚀🚀 [START-LEAD-GEN] Component mounted with campaignId:",
+    campaignId
+  )
   console.log("🚀🚀🚀 [START-LEAD-GEN] Timestamp:", new Date().toISOString())
-  
+
   const [isLoading, setIsLoading] = useState(false)
   console.log("🚀🚀🚀 [START-LEAD-GEN] Initial state - isLoading:", isLoading)
 
@@ -24,17 +27,21 @@ export default function StartLeadGeneration({ campaignId }: Props) {
     console.log("🚀🚀🚀 [START-LEAD-GEN] Campaign ID:", campaignId)
     console.log("🚀🚀🚀 [START-LEAD-GEN] Current loading state:", isLoading)
     console.log("🚀🚀🚀 [START-LEAD-GEN] Timestamp:", new Date().toISOString())
-    
+
     setIsLoading(true)
     console.log("🚀🚀🚀 [START-LEAD-GEN] Loading state set to true")
-    
+
     try {
-      console.log("🚀🚀🚀 [START-LEAD-GEN] 🎯 Starting lead generation workflow...")
-      console.log("🚀🚀🚀 [START-LEAD-GEN] Calling runFullLeadGenerationWorkflowAction")
+      console.log(
+        "🚀🚀🚀 [START-LEAD-GEN] 🎯 Starting lead generation workflow..."
+      )
+      console.log(
+        "🚀🚀🚀 [START-LEAD-GEN] Calling runFullLeadGenerationWorkflowAction"
+      )
       console.log("🚀🚀🚀 [START-LEAD-GEN] Parameters:", { campaignId })
-      
+
       const result = await runFullLeadGenerationWorkflowAction(campaignId)
-      
+
       console.log("🚀🚀🚀 [START-LEAD-GEN] Workflow action completed")
       console.log("🚀🚀🚀 [START-LEAD-GEN] Result:", {
         isSuccess: result.isSuccess,
@@ -42,7 +49,7 @@ export default function StartLeadGeneration({ campaignId }: Props) {
         hasData: !!result.data,
         dataKeys: result.data ? Object.keys(result.data) : []
       })
-      
+
       if (result.data) {
         console.log("🚀🚀🚀 [START-LEAD-GEN] Workflow data:", {
           currentStep: result.data.currentStep,
@@ -52,7 +59,7 @@ export default function StartLeadGeneration({ campaignId }: Props) {
           error: result.data.error,
           resultsCount: result.data.results?.length || 0
         })
-        
+
         if (result.data.results) {
           console.log("🚀🚀🚀 [START-LEAD-GEN] Workflow results:")
           result.data.results.forEach((r, i) => {
@@ -65,7 +72,7 @@ export default function StartLeadGeneration({ campaignId }: Props) {
           })
         }
       }
-      
+
       if (result.isSuccess) {
         console.log("🚀🚀🚀 [START-LEAD-GEN] ✅ Workflow succeeded!")
         console.log("🚀🚀🚀 [START-LEAD-GEN] Showing success toast")
@@ -84,18 +91,28 @@ export default function StartLeadGeneration({ campaignId }: Props) {
       console.log("🚀🚀🚀 [START-LEAD-GEN] ❌ Exception caught!")
       console.log("🚀🚀🚀 [START-LEAD-GEN] Error type:", typeof error)
       console.log("🚀🚀🚀 [START-LEAD-GEN] Error:", error)
-      console.log("🚀🚀🚀 [START-LEAD-GEN] Error message:", error instanceof Error ? error.message : "Unknown error")
-      console.log("🚀🚀🚀 [START-LEAD-GEN] Error stack:", error instanceof Error ? error.stack : "No stack trace")
+      console.log(
+        "🚀🚀🚀 [START-LEAD-GEN] Error message:",
+        error instanceof Error ? error.message : "Unknown error"
+      )
+      console.log(
+        "🚀🚀🚀 [START-LEAD-GEN] Error stack:",
+        error instanceof Error ? error.stack : "No stack trace"
+      )
       console.log("🚀🚀🚀 [START-LEAD-GEN] Showing error toast")
-      
+
       toast.error("Failed to start lead generation", {
         description: error instanceof Error ? error.message : "Unknown error"
       })
     } finally {
-      console.log("🚀🚀🚀 [START-LEAD-GEN] Finally block - resetting loading state")
+      console.log(
+        "🚀🚀🚀 [START-LEAD-GEN] Finally block - resetting loading state"
+      )
       setIsLoading(false)
       console.log("🚀🚀🚀 [START-LEAD-GEN] Loading state set to false")
-      console.log("🚀🚀🚀 [START-LEAD-GEN] ========== BUTTON HANDLER COMPLETE ==========")
+      console.log(
+        "🚀🚀🚀 [START-LEAD-GEN] ========== BUTTON HANDLER COMPLETE =========="
+      )
     }
   }
 
@@ -124,4 +141,4 @@ export default function StartLeadGeneration({ campaignId }: Props) {
       )}
     </Button>
   )
-} 
+}

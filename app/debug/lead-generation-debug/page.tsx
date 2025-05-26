@@ -9,4 +9,4 @@ export default async function LeadGenerationDebugPage() {
       <LeadGenerationDebugger />
     </div>
   )
-} 
+}

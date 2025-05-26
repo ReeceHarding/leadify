@@ -9,7 +9,12 @@ Contains server actions for OpenAI API interactions including comment generation
 import { generateObject, generateText } from "ai"
 import { openai } from "@ai-sdk/openai"
 import { z } from "zod"
-import { ActionState, ThreeTierCommentResult, ReplyGenerationResult, InformationCombiningResult } from "@/types"
+import {
+  ActionState,
+  ThreeTierCommentResult,
+  ReplyGenerationResult,
+  InformationCombiningResult
+} from "@/types"
 import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
 import { scrapeWebsiteAction } from "@/actions/integrations/firecrawl/website-scraping-actions"
 import OpenAI from "openai"
@@ -323,27 +328,38 @@ export async function regenerateCommentsWithToneAction(
     // Try to fetch existing comments if we have a post URL
     let existingComments: string[] = []
     if (postUrl) {
-      console.log("🎨 [TONE-REGENERATE] Fetching existing comments from post...")
-      
+      console.log(
+        "🎨 [TONE-REGENERATE] Fetching existing comments from post..."
+      )
+
       // Extract thread ID from URL
       const threadIdMatch = postUrl.match(/\/comments\/([a-zA-Z0-9]+)/)
       if (threadIdMatch) {
         const threadId = threadIdMatch[1]
-        const { fetchRedditCommentsAction } = await import("@/actions/integrations/reddit/reddit-actions")
-        
+        const { fetchRedditCommentsAction } = await import(
+          "@/actions/integrations/reddit/reddit-actions"
+        )
+
         const commentsResult = await fetchRedditCommentsAction(
           threadId,
           subreddit,
           "best",
           10
         )
-        
+
         if (commentsResult.isSuccess && commentsResult.data.length > 0) {
           existingComments = commentsResult.data
-            .filter(comment => comment.body && comment.body !== "[deleted]" && comment.body !== "[removed]")
+            .filter(
+              comment =>
+                comment.body &&
+                comment.body !== "[deleted]" &&
+                comment.body !== "[removed]"
+            )
             .map(comment => comment.body)
             .slice(0, 10)
-          console.log(`✅ [TONE-REGENERATE] Fetched ${existingComments.length} comments for tone analysis`)
+          console.log(
+            `✅ [TONE-REGENERATE] Fetched ${existingComments.length} comments for tone analysis`
+          )
         }
       }
     }
@@ -351,11 +367,13 @@ export async function regenerateCommentsWithToneAction(
     // Analyze existing comments for tone if available
     let toneAnalysis = ""
     if (existingComments.length > 0) {
-      console.log("🔍 [TONE-REGENERATE] Analyzing existing comments for tone...")
-      
+      console.log(
+        "🔍 [TONE-REGENERATE] Analyzing existing comments for tone..."
+      )
+
       const tonePrompt = `Analyze these Reddit comments and describe the tone, style, and language patterns:
 
-${existingComments.join('\n\n---\n\n')}
+${existingComments.join("\n\n---\n\n")}
 
 Provide a brief analysis of:
 1. Overall tone (casual, formal, humorous, etc.)
@@ -396,7 +414,7 @@ CRITICAL RULES:
 Thread Content: ${threadContent}
 Subreddit: r/${subreddit}
 
-${existingComments.length > 0 ? `\nExample comments from this thread:\n${existingComments.slice(0, 3).join('\n---\n')}` : ''}
+${existingComments.length > 0 ? `\nExample comments from this thread:\n${existingComments.slice(0, 3).join("\n---\n")}` : ""}
 
 Generate three comments following the tone instruction:
 1. Micro (1-2 sentences, super casual)
@@ -427,7 +445,9 @@ Return as JSON:
     }
 
     const parsed = JSON.parse(jsonMatch[0])
-    console.log("✅ [TONE-REGENERATE] Successfully regenerated comments with custom tone")
+    console.log(
+      "✅ [TONE-REGENERATE] Successfully regenerated comments with custom tone"
+    )
 
     return {
       isSuccess: true,
@@ -540,11 +560,16 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
   }>
 > {
   try {
-    console.log("🤖 [OPENAI-PERSONALIZED] Starting personalized scoring and comment generation")
+    console.log(
+      "🤖 [OPENAI-PERSONALIZED] Starting personalized scoring and comment generation"
+    )
     console.log("🤖 [OPENAI-PERSONALIZED] Thread title:", threadTitle)
     console.log("🤖 [OPENAI-PERSONALIZED] Subreddit:", subreddit)
     console.log("🤖 [OPENAI-PERSONALIZED] User ID:", userId)
-    console.log("🤖 [OPENAI-PERSONALIZED] Existing comments provided:", existingComments?.length || 0)
+    console.log(
+      "🤖 [OPENAI-PERSONALIZED] Existing comments provided:",
+      existingComments?.length || 0
+    )
 
     // Get user profile for personalization
     const profileResult = await getProfileByUserIdAction(userId)
@@ -557,30 +582,50 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
     const userWebsiteUrl = profile.website || ""
     const businessName = profile.name || "our solution"
 
-    console.log("🤖 [OPENAI-PERSONALIZED] Business name from profile:", businessName)
-    console.log("🤖 [OPENAI-PERSONALIZED] User website from profile:", userWebsiteUrl)
-    console.log("🤖 [OPENAI-PERSONALIZED] Campaign website content provided:", !!campaignWebsiteContent)
+    console.log(
+      "🤖 [OPENAI-PERSONALIZED] Business name from profile:",
+      businessName
+    )
+    console.log(
+      "🤖 [OPENAI-PERSONALIZED] User website from profile:",
+      userWebsiteUrl
+    )
+    console.log(
+      "🤖 [OPENAI-PERSONALIZED] Campaign website content provided:",
+      !!campaignWebsiteContent
+    )
 
     // Prioritize campaign-specific content, then user's profile website
     let primaryBusinessContent = campaignWebsiteContent || ""
     let contentSource = campaignWebsiteContent ? "campaign" : "profile_fallback"
 
     if (!primaryBusinessContent && userWebsiteUrl) {
-      console.log("🌐 [OPENAI-PERSONALIZED] No campaign content, scraping user's profile website:", userWebsiteUrl)
+      console.log(
+        "🌐 [OPENAI-PERSONALIZED] No campaign content, scraping user's profile website:",
+        userWebsiteUrl
+      )
       const scrapeResult = await scrapeWebsiteAction(userWebsiteUrl)
       if (scrapeResult.isSuccess) {
         primaryBusinessContent = scrapeResult.data.content
         contentSource = "profile_scraped"
-        console.log("✅ [OPENAI-PERSONALIZED] User's profile website scraped successfully")
+        console.log(
+          "✅ [OPENAI-PERSONALIZED] User's profile website scraped successfully"
+        )
       } else {
-        console.warn("⚠️ [OPENAI-PERSONALIZED] Failed to scrape user's profile website")
+        console.warn(
+          "⚠️ [OPENAI-PERSONALIZED] Failed to scrape user's profile website"
+        )
       }
     } else if (primaryBusinessContent) {
-      console.log(`✅ [OPENAI-PERSONALIZED] Using provided campaign content (source: ${contentSource})`)
+      console.log(
+        `✅ [OPENAI-PERSONALIZED] Using provided campaign content (source: ${contentSource})`
+      )
     }
 
     if (!primaryBusinessContent) {
-      console.warn("⚠️ [OPENAI-PERSONALIZED] No business content available for AI. Using generic approach.")
+      console.warn(
+        "⚠️ [OPENAI-PERSONALIZED] No business content available for AI. Using generic approach."
+      )
       // Potentially, we could have a very generic prompt here or return an error/low score.
       // For now, we'll proceed, and the AI will have less context.
     }
@@ -588,11 +633,13 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
     // Analyze existing comments for tone and style
     let toneAnalysis = ""
     if (existingComments && existingComments.length > 0) {
-      console.log("🔍 [OPENAI-PERSONALIZED] Analyzing existing comments for tone...")
-      
+      console.log(
+        "🔍 [OPENAI-PERSONALIZED] Analyzing existing comments for tone..."
+      )
+
       const tonePrompt = `Analyze these Reddit comments and describe the tone, style, and language patterns:
 
-${existingComments.slice(0, 10).join('\n\n---\n\n')}
+${existingComments.slice(0, 10).join("\n\n---\n\n")}
 
 Provide a brief analysis of:
 1. Overall tone (casual, formal, humorous, etc.)
@@ -609,7 +656,10 @@ Provide a brief analysis of:
       })
 
       toneAnalysis = toneResult.text
-      console.log("✅ [OPENAI-PERSONALIZED] Tone analysis complete:", toneAnalysis)
+      console.log(
+        "✅ [OPENAI-PERSONALIZED] Tone analysis complete:",
+        toneAnalysis
+      )
     }
 
     const systemPrompt = `You are a Reddit comment analyzer and generator. Your job is to:
@@ -634,7 +684,7 @@ CRITICAL RULES FOR COMMENTS:
 Thread Content: ${threadContent}
 Subreddit: r/${subreddit}
 
-${existingComments && existingComments.length > 0 ? `\nExample comments from this thread:\n${existingComments.slice(0, 5).join('\n---\n')}` : ''}
+${existingComments && existingComments.length > 0 ? `\nExample comments from this thread:\n${existingComments.slice(0, 5).join("\n---\n")}` : ""}
 
 Score this thread (0-100) for relevance to ${businessName} and generate three comments:
 1. Micro (1-2 sentences, super casual)
@@ -740,7 +790,10 @@ IMPORTANT: Return only the combined information text, no additional commentary o
     })
 
     console.log("✅ [INFO-COMBINE] Information combined successfully")
-    console.log("✅ [INFO-COMBINE] Combined length:", object.combinedInformation.length)
+    console.log(
+      "✅ [INFO-COMBINE] Combined length:",
+      object.combinedInformation.length
+    )
 
     return {
       isSuccess: true,

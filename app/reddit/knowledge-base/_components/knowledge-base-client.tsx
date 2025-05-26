@@ -17,16 +17,20 @@ export default function KnowledgeBaseClient({
   initialKnowledgeBase,
   userProfile
 }: KnowledgeBaseClientProps) {
-  const [knowledgeBase, setKnowledgeBase] = useState<SerializedKnowledgeBaseDocument | null>(initialKnowledgeBase)
+  const [knowledgeBase, setKnowledgeBase] =
+    useState<SerializedKnowledgeBaseDocument | null>(initialKnowledgeBase)
 
   return (
     <div className="flex size-full flex-col">
       {/* Header Section */}
       <div className="mb-6 rounded-lg border bg-white p-6 shadow-sm dark:bg-gray-900">
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Knowledge Base</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Knowledge Base
+          </h1>
           <p className="text-gray-600 dark:text-gray-300">
-            Build your knowledge base with website content, scraped data, and additional information to create more informed Reddit comments.
+            Build your knowledge base with website content, scraped data, and
+            additional information to create more informed Reddit comments.
           </p>
         </div>
       </div>
@@ -49,4 +53,4 @@ export default function KnowledgeBaseClient({
       </div>
     </div>
   )
-} 
+}

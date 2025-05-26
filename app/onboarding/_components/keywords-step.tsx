@@ -181,9 +181,9 @@ export default function KeywordsStep({
           Generate Your Keywords
         </h1>
         <p className="text-base leading-relaxed text-gray-400">
-          Our AI will analyze your website and create targeted Reddit search terms to find prospects who need exactly what you offer.
+          Our AI will analyze your website and create targeted Reddit search
+          terms to find prospects who need exactly what you offer.
         </p>
-
       </div>
 
       {!hasGenerated && (
@@ -192,7 +192,8 @@ export default function KeywordsStep({
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-white">
                 <Lightbulb className="size-5 text-blue-500" />
-                In 1-2 sentences, describe what kind of customers you're looking for
+                In 1-2 sentences, describe what kind of customers you're looking
+                for
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">

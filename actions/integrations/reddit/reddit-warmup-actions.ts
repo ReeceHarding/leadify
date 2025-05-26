@@ -44,7 +44,7 @@ export async function searchSubredditsAction(
 ): Promise<ActionState<RedditSubreddit[]>> {
   try {
     console.log("🔍 [SEARCH-SUBREDDITS] Searching for:", query)
-    
+
     const tokenResult = await getRedditAccessTokenAction()
     if (!tokenResult.isSuccess || !tokenResult.data) {
       return { isSuccess: false, message: "No Reddit access token available" }
@@ -66,10 +66,12 @@ export async function searchSubredditsAction(
     }
 
     const data = await response.json()
-    const subreddits = data.data.children.map((child: any) => child.data as RedditSubreddit)
-    
+    const subreddits = data.data.children.map(
+      (child: any) => child.data as RedditSubreddit
+    )
+
     console.log(`✅ [SEARCH-SUBREDDITS] Found ${subreddits.length} subreddits`)
-    
+
     return {
       isSuccess: true,
       message: "Subreddits found",
@@ -88,7 +90,7 @@ export async function getTopPostsFromSubredditAction(
 ): Promise<ActionState<RedditPost[]>> {
   try {
     console.log(`🔍 [GET-TOP-POSTS] Fetching top posts from r/${subreddit}`)
-    
+
     const tokenResult = await getRedditAccessTokenAction()
     if (!tokenResult.isSuccess || !tokenResult.data) {
       return { isSuccess: false, message: "No Reddit access token available" }
@@ -110,10 +112,12 @@ export async function getTopPostsFromSubredditAction(
     }
 
     const data = await response.json()
-    const posts = data.data.children.map((child: any) => child.data as RedditPost)
-    
+    const posts = data.data.children.map(
+      (child: any) => child.data as RedditPost
+    )
+
     console.log(`✅ [GET-TOP-POSTS] Found ${posts.length} top posts`)
-    
+
     return {
       isSuccess: true,
       message: "Top posts retrieved",
@@ -125,34 +129,33 @@ export async function getTopPostsFromSubredditAction(
   }
 }
 
-export async function getRedditUserInfoAction(): Promise<ActionState<RedditUser>> {
+export async function getRedditUserInfoAction(): Promise<
+  ActionState<RedditUser>
+> {
   try {
     console.log("🔍 [GET-USER-INFO] Fetching Reddit user info")
-    
+
     const tokenResult = await getRedditAccessTokenAction()
     if (!tokenResult.isSuccess || !tokenResult.data) {
       return { isSuccess: false, message: "No Reddit access token available" }
     }
 
-    const response = await fetch(
-      "https://oauth.reddit.com/api/v1/me",
-      {
-        headers: {
-          Authorization: `Bearer ${tokenResult.data}`,
-          "User-Agent": process.env.REDDIT_USER_AGENT || "reddit-warmup:v1.0.0"
-        }
+    const response = await fetch("https://oauth.reddit.com/api/v1/me", {
+      headers: {
+        Authorization: `Bearer ${tokenResult.data}`,
+        "User-Agent": process.env.REDDIT_USER_AGENT || "reddit-warmup:v1.0.0"
       }
-    )
+    })
 
     if (!response.ok) {
       console.error("❌ [GET-USER-INFO] Reddit API error:", response.status)
       return { isSuccess: false, message: "Failed to fetch user info" }
     }
 
-    const userInfo = await response.json() as RedditUser
-    
+    const userInfo = (await response.json()) as RedditUser
+
     console.log(`✅ [GET-USER-INFO] User info retrieved: ${userInfo.name}`)
-    
+
     return {
       isSuccess: true,
       message: "User info retrieved",
@@ -169,8 +172,10 @@ export async function getPostCommentsAction(
   postId: string
 ): Promise<ActionState<any[]>> {
   try {
-    console.log(`🔍 [GET-POST-COMMENTS] Fetching comments for post ${postId} in r/${subreddit}`)
-    
+    console.log(
+      `🔍 [GET-POST-COMMENTS] Fetching comments for post ${postId} in r/${subreddit}`
+    )
+
     const tokenResult = await getRedditAccessTokenAction()
     if (!tokenResult.isSuccess || !tokenResult.data) {
       return { isSuccess: false, message: "No Reddit access token available" }
@@ -194,9 +199,9 @@ export async function getPostCommentsAction(
     const data = await response.json()
     // Reddit returns an array where [0] is the post and [1] is the comments
     const comments = data[1]?.data?.children || []
-    
+
     console.log(`✅ [GET-POST-COMMENTS] Found ${comments.length} comments`)
-    
+
     return {
       isSuccess: true,
       message: "Comments retrieved",
@@ -215,7 +220,7 @@ export async function submitRedditPostAction(
 ): Promise<ActionState<{ id: string; url: string }>> {
   try {
     console.log(`🔧 [SUBMIT-POST] Submitting post to r/${subreddit}`)
-    
+
     const tokenResult = await getRedditAccessTokenAction()
     if (!tokenResult.isSuccess || !tokenResult.data) {
       return { isSuccess: false, message: "No Reddit access token available" }
@@ -229,18 +234,15 @@ export async function submitRedditPostAction(
       text: text
     })
 
-    const response = await fetch(
-      "https://oauth.reddit.com/api/submit",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${tokenResult.data}`,
-          "User-Agent": process.env.REDDIT_USER_AGENT || "reddit-warmup:v1.0.0",
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: formData
-      }
-    )
+    const response = await fetch("https://oauth.reddit.com/api/submit", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${tokenResult.data}`,
+        "User-Agent": process.env.REDDIT_USER_AGENT || "reddit-warmup:v1.0.0",
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: formData
+    })
 
     if (!response.ok) {
       console.error("❌ [SUBMIT-POST] Reddit API error:", response.status)
@@ -248,12 +250,12 @@ export async function submitRedditPostAction(
     }
 
     const data = await response.json()
-    
+
     if (data.json?.errors?.length > 0) {
       console.error("❌ [SUBMIT-POST] Reddit API errors:", data.json.errors)
-      return { 
-        isSuccess: false, 
-        message: data.json.errors[0]?.[1] || "Failed to submit post" 
+      return {
+        isSuccess: false,
+        message: data.json.errors[0]?.[1] || "Failed to submit post"
       }
     }
 
@@ -263,7 +265,7 @@ export async function submitRedditPostAction(
     }
 
     console.log(`✅ [SUBMIT-POST] Post submitted successfully: ${postData.url}`)
-    
+
     return {
       isSuccess: true,
       message: "Post submitted successfully",
@@ -284,7 +286,7 @@ export async function submitRedditCommentAction(
 ): Promise<ActionState<{ id: string }>> {
   try {
     console.log(`🔧 [SUBMIT-COMMENT] Submitting comment to ${parentFullname}`)
-    
+
     const tokenResult = await getRedditAccessTokenAction()
     if (!tokenResult.isSuccess || !tokenResult.data) {
       return { isSuccess: false, message: "No Reddit access token available" }
@@ -296,18 +298,15 @@ export async function submitRedditCommentAction(
       text: text
     })
 
-    const response = await fetch(
-      "https://oauth.reddit.com/api/comment",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${tokenResult.data}`,
-          "User-Agent": process.env.REDDIT_USER_AGENT || "reddit-warmup:v1.0.0",
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: formData
-      }
-    )
+    const response = await fetch("https://oauth.reddit.com/api/comment", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${tokenResult.data}`,
+        "User-Agent": process.env.REDDIT_USER_AGENT || "reddit-warmup:v1.0.0",
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: formData
+    })
 
     if (!response.ok) {
       console.error("❌ [SUBMIT-COMMENT] Reddit API error:", response.status)
@@ -315,12 +314,12 @@ export async function submitRedditCommentAction(
     }
 
     const data = await response.json()
-    
+
     if (data.json?.errors?.length > 0) {
       console.error("❌ [SUBMIT-COMMENT] Reddit API errors:", data.json.errors)
-      return { 
-        isSuccess: false, 
-        message: data.json.errors[0]?.[1] || "Failed to submit comment" 
+      return {
+        isSuccess: false,
+        message: data.json.errors[0]?.[1] || "Failed to submit comment"
       }
     }
 
@@ -329,8 +328,10 @@ export async function submitRedditCommentAction(
       return { isSuccess: false, message: "No comment data returned" }
     }
 
-    console.log(`✅ [SUBMIT-COMMENT] Comment submitted successfully: ${commentData.id}`)
-    
+    console.log(
+      `✅ [SUBMIT-COMMENT] Comment submitted successfully: ${commentData.id}`
+    )
+
     return {
       isSuccess: true,
       message: "Comment submitted successfully",
@@ -342,4 +343,4 @@ export async function submitRedditCommentAction(
     console.error("❌ [SUBMIT-COMMENT] Error:", error)
     return { isSuccess: false, message: "Failed to submit comment" }
   }
-} 
+}

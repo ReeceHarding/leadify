@@ -1,11 +1,23 @@
 "use client"
 
 import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select"
 import { useToast } from "@/components/ui/use-toast"
 import { Loader2, Save } from "lucide-react"
 import { updateWarmupAccountAction } from "@/actions/db/warmup-actions"
@@ -16,9 +28,16 @@ interface WarmupSettingsProps {
   onUpdate: () => void
 }
 
-export default function WarmupSettings({ warmupAccount, onUpdate }: WarmupSettingsProps) {
-  const [postingMode, setPostingMode] = useState<"auto" | "manual">(warmupAccount.postingMode)
-  const [dailyPostLimit, setDailyPostLimit] = useState(warmupAccount.dailyPostLimit.toString())
+export default function WarmupSettings({
+  warmupAccount,
+  onUpdate
+}: WarmupSettingsProps) {
+  const [postingMode, setPostingMode] = useState<"auto" | "manual">(
+    warmupAccount.postingMode
+  )
+  const [dailyPostLimit, setDailyPostLimit] = useState(
+    warmupAccount.dailyPostLimit.toString()
+  )
   const [isSaving, setIsSaving] = useState(false)
   const { toast } = useToast()
 
@@ -26,12 +45,12 @@ export default function WarmupSettings({ warmupAccount, onUpdate }: WarmupSettin
     try {
       setIsSaving(true)
       console.log("💾 [WARMUP-SETTINGS] Saving settings")
-      
+
       const result = await updateWarmupAccountAction(warmupAccount.id, {
         postingMode,
         dailyPostLimit: parseInt(dailyPostLimit)
       })
-      
+
       if (result.isSuccess) {
         toast({
           title: "Success",
@@ -57,7 +76,7 @@ export default function WarmupSettings({ warmupAccount, onUpdate }: WarmupSettin
     }
   }
 
-  const hasChanges = 
+  const hasChanges =
     postingMode !== warmupAccount.postingMode ||
     parseInt(dailyPostLimit) !== warmupAccount.dailyPostLimit
 
@@ -73,14 +92,18 @@ export default function WarmupSettings({ warmupAccount, onUpdate }: WarmupSettin
         {/* Posting Mode */}
         <div className="space-y-3">
           <Label>Posting Mode</Label>
-          <RadioGroup value={postingMode} onValueChange={(value) => setPostingMode(value as "auto" | "manual")}>
+          <RadioGroup
+            value={postingMode}
+            onValueChange={value => setPostingMode(value as "auto" | "manual")}
+          >
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="auto" id="auto" />
               <Label htmlFor="auto" className="cursor-pointer font-normal">
                 <div>
                   <div className="font-medium">Automatic Posting</div>
                   <div className="text-muted-foreground text-sm">
-                    Posts will be automatically submitted to Reddit when scheduled
+                    Posts will be automatically submitted to Reddit when
+                    scheduled
                   </div>
                 </div>
               </Label>
@@ -122,10 +145,16 @@ export default function WarmupSettings({ warmupAccount, onUpdate }: WarmupSettin
         <div className="bg-muted space-y-2 rounded-lg p-4">
           <h4 className="font-medium">Warm-up Period</h4>
           <div className="space-y-1 text-sm">
-            <p>Started: {new Date(warmupAccount.warmupStartDate).toLocaleDateString()}</p>
-            <p>Ends: {new Date(warmupAccount.warmupEndDate).toLocaleDateString()}</p>
+            <p>
+              Started:{" "}
+              {new Date(warmupAccount.warmupStartDate).toLocaleDateString()}
+            </p>
+            <p>
+              Ends: {new Date(warmupAccount.warmupEndDate).toLocaleDateString()}
+            </p>
             <p className="text-muted-foreground">
-              The warm-up period lasts for 7 days to establish your account's credibility
+              The warm-up period lasts for 7 days to establish your account's
+              credibility
             </p>
           </div>
         </div>
@@ -161,4 +190,4 @@ export default function WarmupSettings({ warmupAccount, onUpdate }: WarmupSettin
       </CardContent>
     </Card>
   )
-} 
+}

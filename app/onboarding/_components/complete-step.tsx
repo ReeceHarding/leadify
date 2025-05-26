@@ -81,11 +81,13 @@ export default function CompleteStep({
         <h1 className="text-3xl font-bold text-white">You're All Set!</h1>
 
         <p className="mx-auto max-w-md text-base leading-relaxed text-gray-400">
-          Your Reddit lead generation system is ready. Let's create your first campaign and start finding customers who need exactly what you offer.
+          Your Reddit lead generation system is ready. Let's create your first
+          campaign and start finding customers who need exactly what you offer.
         </p>
         <div className="mx-auto max-w-md rounded-lg border border-green-600/20 bg-green-600/5 p-3">
           <p className="text-sm text-green-200">
-            ✨ <strong>What's next:</strong> We'll search Reddit for active discussions matching your keywords and help you engage authentically
+            ✨ <strong>What's next:</strong> We'll search Reddit for active
+            discussions matching your keywords and help you engage authentically
           </p>
         </div>
       </div>

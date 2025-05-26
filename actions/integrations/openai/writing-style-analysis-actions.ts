@@ -27,7 +27,9 @@ export async function analyzeTwitterWritingStyleAction(
   tweets: TwitterTweet[],
   twitterHandle: string
 ): Promise<ActionState<WritingStyleAnalysis>> {
-  console.log("🔥 [WRITING-STYLE-ANALYSIS] Starting analyzeTwitterWritingStyleAction")
+  console.log(
+    "🔥 [WRITING-STYLE-ANALYSIS] Starting analyzeTwitterWritingStyleAction"
+  )
   console.log("🔥 [WRITING-STYLE-ANALYSIS] Twitter handle:", twitterHandle)
   console.log("🔥 [WRITING-STYLE-ANALYSIS] Tweets count:", tweets.length)
 
@@ -50,14 +52,25 @@ export async function analyzeTwitterWritingStyleAction(
 
     // Prepare tweet texts for analysis
     const tweetTexts = tweets.map(tweet => tweet.text).join("\n\n")
-    console.log("🔥 [WRITING-STYLE-ANALYSIS] Total text length:", tweetTexts.length)
+    console.log(
+      "🔥 [WRITING-STYLE-ANALYSIS] Total text length:",
+      tweetTexts.length
+    )
 
     // Calculate basic metrics
-    const averageTweetLength = tweets.reduce((sum, tweet) => sum + tweet.text.length, 0) / tweets.length
-    const emojiUsage = tweets.some(tweet => /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]/u.test(tweet.text))
-    const hashtagUsage = tweets.some(tweet => tweet.text.includes('#'))
+    const averageTweetLength =
+      tweets.reduce((sum, tweet) => sum + tweet.text.length, 0) / tweets.length
+    const emojiUsage = tweets.some(tweet =>
+      /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]/u.test(
+        tweet.text
+      )
+    )
+    const hashtagUsage = tweets.some(tweet => tweet.text.includes("#"))
 
-    console.log("🔥 [WRITING-STYLE-ANALYSIS] Average tweet length:", averageTweetLength)
+    console.log(
+      "🔥 [WRITING-STYLE-ANALYSIS] Average tweet length:",
+      averageTweetLength
+    )
     console.log("🔥 [WRITING-STYLE-ANALYSIS] Emoji usage:", emojiUsage)
     console.log("🔥 [WRITING-STYLE-ANALYSIS] Hashtag usage:", hashtagUsage)
 
@@ -89,7 +102,7 @@ Respond in JSON format:
     const response = await fetch(`${OPENAI_BASE_URL}/chat/completions`, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${OPENAI_API_KEY}`,
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
@@ -97,7 +110,8 @@ Respond in JSON format:
         messages: [
           {
             role: "system",
-            content: "You are an expert writing style analyst. Focus only on writing style characteristics, not content topics."
+            content:
+              "You are an expert writing style analyst. Focus only on writing style characteristics, not content topics."
           },
           {
             role: "user",
@@ -134,7 +148,10 @@ Respond in JSON format:
     try {
       analysisResult = JSON.parse(analysisContent)
     } catch (parseError) {
-      console.error("🔥 [WRITING-STYLE-ANALYSIS] Failed to parse OpenAI response:", parseError)
+      console.error(
+        "🔥 [WRITING-STYLE-ANALYSIS] Failed to parse OpenAI response:",
+        parseError
+      )
       return {
         isSuccess: false,
         message: "Failed to parse analysis result"
@@ -144,7 +161,11 @@ Respond in JSON format:
     console.log("🔥 [WRITING-STYLE-ANALYSIS] Analysis completed successfully")
 
     // Generate writing style prompt
-    const generatedPrompt = await generateWritingStylePrompt(analysisResult, emojiUsage, hashtagUsage)
+    const generatedPrompt = await generateWritingStylePrompt(
+      analysisResult,
+      emojiUsage,
+      hashtagUsage
+    )
 
     const result: WritingStyleAnalysis = {
       writingStyleAnalysis: analysisResult.writingStyleAnalysis,
@@ -163,7 +184,10 @@ Respond in JSON format:
       data: result
     }
   } catch (error) {
-    console.error("🔥 [WRITING-STYLE-ANALYSIS] Error analyzing writing style:", error)
+    console.error(
+      "🔥 [WRITING-STYLE-ANALYSIS] Error analyzing writing style:",
+      error
+    )
     return {
       isSuccess: false,
       message: `Failed to analyze writing style: ${error instanceof Error ? error.message : "Unknown error"}`
@@ -183,7 +207,7 @@ Based on this writing style analysis, create a concise prompt that can be used t
 
 ANALYSIS:
 - Writing Style: ${analysis.writingStyleAnalysis}
-- Common Phrases: ${analysis.commonPhrases?.join(', ') || 'None identified'}
+- Common Phrases: ${analysis.commonPhrases?.join(", ") || "None identified"}
 - Tone: ${analysis.toneAnalysis}
 - Vocabulary Level: ${analysis.vocabularyLevel}
 - Uses Emojis: ${emojiUsage}
@@ -204,7 +228,7 @@ Keep it concise but comprehensive. Start with "Write in the following style:"
     const response = await fetch(`${OPENAI_BASE_URL}/chat/completions`, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${OPENAI_API_KEY}`,
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
@@ -212,7 +236,8 @@ Keep it concise but comprehensive. Start with "Write in the following style:"
         messages: [
           {
             role: "system",
-            content: "You are an expert at creating writing style prompts. Focus only on style, not content."
+            content:
+              "You are an expert at creating writing style prompts. Focus only on style, not content."
           },
           {
             role: "user",
@@ -230,9 +255,13 @@ Keep it concise but comprehensive. Start with "Write in the following style:"
     }
 
     const data = await response.json()
-    const generatedPrompt = data.choices[0]?.message?.content || "Write in a natural, conversational style that matches the user's typical communication patterns."
+    const generatedPrompt =
+      data.choices[0]?.message?.content ||
+      "Write in a natural, conversational style that matches the user's typical communication patterns."
 
-    console.log("🔥 [WRITING-STYLE-ANALYSIS] Writing style prompt generated successfully")
+    console.log(
+      "🔥 [WRITING-STYLE-ANALYSIS] Writing style prompt generated successfully"
+    )
     return generatedPrompt
   } catch (error) {
     console.error("🔥 [WRITING-STYLE-ANALYSIS] Error generating prompt:", error)
@@ -246,7 +275,9 @@ export async function generatePersonalizedPromptAction(
   personaType?: string,
   customPersona?: string
 ): Promise<ActionState<string>> {
-  console.log("🔥 [PERSONALIZED-PROMPT] Starting generatePersonalizedPromptAction")
+  console.log(
+    "🔥 [PERSONALIZED-PROMPT] Starting generatePersonalizedPromptAction"
+  )
   console.log("🔥 [PERSONALIZED-PROMPT] Persona type:", personaType)
 
   try {
@@ -285,7 +316,7 @@ The prompt should be comprehensive but concise, ready to be used directly for co
     const response = await fetch(`${OPENAI_BASE_URL}/chat/completions`, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${OPENAI_API_KEY}`,
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
@@ -293,7 +324,8 @@ The prompt should be comprehensive but concise, ready to be used directly for co
         messages: [
           {
             role: "system",
-            content: "You are an expert at creating personalized prompts for content generation."
+            content:
+              "You are an expert at creating personalized prompts for content generation."
           },
           {
             role: "user",
@@ -325,7 +357,9 @@ The prompt should be comprehensive but concise, ready to be used directly for co
       }
     }
 
-    console.log("🔥 [PERSONALIZED-PROMPT] Personalized prompt generated successfully")
+    console.log(
+      "🔥 [PERSONALIZED-PROMPT] Personalized prompt generated successfully"
+    )
 
     return {
       isSuccess: true,
@@ -333,10 +367,13 @@ The prompt should be comprehensive but concise, ready to be used directly for co
       data: generatedPrompt
     }
   } catch (error) {
-    console.error("🔥 [PERSONALIZED-PROMPT] Error generating personalized prompt:", error)
+    console.error(
+      "🔥 [PERSONALIZED-PROMPT] Error generating personalized prompt:",
+      error
+    )
     return {
       isSuccess: false,
       message: `Failed to generate personalized prompt: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
-} 
+}

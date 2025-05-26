@@ -29,16 +29,23 @@ export async function generateKeywordsAction({
   try {
     console.log("🔍 [KEYWORDS] Generating keywords")
     console.log("🔍 [KEYWORDS] Website:", website || "None")
-    console.log("🔍 [KEYWORDS] Business Description:", businessDescription ? "Provided" : "None")
+    console.log(
+      "🔍 [KEYWORDS] Business Description:",
+      businessDescription ? "Provided" : "None"
+    )
     console.log("🔍 [KEYWORDS] Refinement:", refinement)
 
     // Extract keyword count from refinement if specified
-    const keywordCountMatch = refinement.match(/Generate (?:exactly )?(\d+) (?:diverse )?keywords/i)
-    const requestedCount = keywordCountMatch ? parseInt(keywordCountMatch[1]) : 10
+    const keywordCountMatch = refinement.match(
+      /Generate (?:exactly )?(\d+) (?:diverse )?keywords/i
+    )
+    const requestedCount = keywordCountMatch
+      ? parseInt(keywordCountMatch[1])
+      : 10
 
-    const businessInfo = businessDescription 
+    const businessInfo = businessDescription
       ? `Business Description: ${businessDescription}`
-      : website 
+      : website
         ? `Website: ${website}`
         : "No business information provided"
 
@@ -61,7 +68,8 @@ Make sure to generate exactly ${requestedCount} keywords.`
 
     const result = await generateText({
       model: openai("o3-mini"),
-      system: "You are a Reddit keyword generation expert. Return only valid JSON arrays.",
+      system:
+        "You are a Reddit keyword generation expert. Return only valid JSON arrays.",
       prompt: prompt,
       temperature: 0.7,
       maxTokens: 1000
@@ -100,7 +108,8 @@ Make sure to generate exactly ${requestedCount} keywords.`
     console.error("🔍 [KEYWORDS] Error:", error)
     return {
       isSuccess: false,
-      message: error instanceof Error ? error.message : "Failed to generate keywords"
+      message:
+        error instanceof Error ? error.message : "Failed to generate keywords"
     }
   }
 }
@@ -170,16 +179,11 @@ function extractKeywordsFromText(text: string): string[] {
 
   // If no keywords found, return empty array
   if (keywords.length === 0) {
-    console.log(
-      "🔍 [KEYWORDS-ACTION] No keywords found in the provided text"
-    )
+    console.log("🔍 [KEYWORDS-ACTION] No keywords found in the provided text")
     return []
   }
 
   const finalKeywords = keywords.slice(0, 10) // Limit to 10 keywords
-  console.log(
-    "🔍 [KEYWORDS-ACTION] Final keywords:",
-    finalKeywords
-  )
+  console.log("🔍 [KEYWORDS-ACTION] Final keywords:", finalKeywords)
   return finalKeywords
 }

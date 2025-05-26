@@ -1,12 +1,12 @@
- "use client";
+"use client"
 
-import React from "react";
-import { Button } from "@/components/ui/button";
+import React from "react"
+import { Button } from "@/components/ui/button"
 
 interface PaginationControlsProps {
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
+  currentPage: number
+  totalPages: number
+  onPageChange: (page: number) => void
 }
 
 export default function PaginationControls({
@@ -15,55 +15,62 @@ export default function PaginationControls({
   onPageChange
 }: PaginationControlsProps) {
   if (totalPages <= 1) {
-    return null; // Don't render if only one page or no pages
+    return null // Don't render if only one page or no pages
   }
 
   // Logic to determine which page numbers to display (e.g., with ellipsis)
   const getPageNumbers = () => {
-    const pageNumbers = [];
-    const maxPagesToShow = 5; // Example: Show up to 5 page numbers including ellipsis
-    const halfPagesToShow = Math.floor(maxPagesToShow / 2);
+    const pageNumbers = []
+    const maxPagesToShow = 5 // Example: Show up to 5 page numbers including ellipsis
+    const halfPagesToShow = Math.floor(maxPagesToShow / 2)
 
     if (totalPages <= maxPagesToShow) {
       for (let i = 1; i <= totalPages; i++) {
-        pageNumbers.push(i);
+        pageNumbers.push(i)
       }
     } else {
       // Always show first page
-      pageNumbers.push(1);
+      pageNumbers.push(1)
       if (currentPage > halfPagesToShow + 1) {
-        pageNumbers.push("..."); // Ellipsis before current page block
+        pageNumbers.push("...") // Ellipsis before current page block
       }
 
-      let startPage = Math.max(2, currentPage - halfPagesToShow + (currentPage < totalPages - halfPagesToShow ? 0 : 1));
-      let endPage = Math.min(totalPages - 1, currentPage + halfPagesToShow - (currentPage > halfPagesToShow ? 0 : 1));
-      
+      let startPage = Math.max(
+        2,
+        currentPage -
+          halfPagesToShow +
+          (currentPage < totalPages - halfPagesToShow ? 0 : 1)
+      )
+      let endPage = Math.min(
+        totalPages - 1,
+        currentPage + halfPagesToShow - (currentPage > halfPagesToShow ? 0 : 1)
+      )
+
       // Adjust if near the beginning
       if (currentPage <= halfPagesToShow) {
-        endPage = Math.min(totalPages -1, maxPagesToShow - 2); // -2 for first and last page
-        startPage = 2;
+        endPage = Math.min(totalPages - 1, maxPagesToShow - 2) // -2 for first and last page
+        startPage = 2
       }
       // Adjust if near the end
-      else if (currentPage >= totalPages - halfPagesToShow +1) {
-        startPage = Math.max(2, totalPages - maxPagesToShow + 3); // +3 to account for first, last, and one ellipsis
-        endPage = totalPages -1;
+      else if (currentPage >= totalPages - halfPagesToShow + 1) {
+        startPage = Math.max(2, totalPages - maxPagesToShow + 3) // +3 to account for first, last, and one ellipsis
+        endPage = totalPages - 1
       }
 
-
       for (let i = startPage; i <= endPage; i++) {
-        pageNumbers.push(i);
+        pageNumbers.push(i)
       }
 
       if (currentPage < totalPages - halfPagesToShow) {
-        pageNumbers.push("..."); // Ellipsis after current page block
+        pageNumbers.push("...") // Ellipsis after current page block
       }
       // Always show last page
-      pageNumbers.push(totalPages);
+      pageNumbers.push(totalPages)
     }
-    return pageNumbers;
-  };
+    return pageNumbers
+  }
 
-  const pageDisplay = getPageNumbers();
+  const pageDisplay = getPageNumbers()
 
   return (
     <div className="mt-8 flex items-center justify-center space-x-2 pb-4">
@@ -112,5 +119,5 @@ export default function PaginationControls({
         Next
       </Button>
     </div>
-  );
-} 
+  )
+}

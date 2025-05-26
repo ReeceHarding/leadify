@@ -11,10 +11,10 @@ interface CommentEditorProps {
   onCancel: () => void
 }
 
-export default function CommentEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel 
+export default function CommentEditor({
+  initialValue,
+  onSave,
+  onCancel
 }: CommentEditorProps) {
   const [value, setValue] = useState(initialValue)
 
@@ -22,27 +22,20 @@ export default function CommentEditor({
     <div className="space-y-2">
       <Textarea
         value={value}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={e => setValue(e.target.value)}
         className="min-h-[100px] resize-none"
         autoFocus
       />
       <div className="flex justify-end gap-2">
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={onCancel}
-        >
+        <Button size="sm" variant="ghost" onClick={onCancel}>
           <X className="mr-1 size-3" />
           Cancel
         </Button>
-        <Button
-          size="sm"
-          onClick={() => onSave(value)}
-        >
+        <Button size="sm" onClick={() => onSave(value)}>
           <Check className="mr-1 size-3" />
           Save
         </Button>
       </div>
     </div>
   )
-} 
+}

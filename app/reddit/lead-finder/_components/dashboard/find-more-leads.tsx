@@ -1,19 +1,19 @@
-"use client";
+"use client"
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+} from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import {
   Dialog,
   DialogContent,
@@ -22,25 +22,25 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  TooltipTrigger
+} from "@/components/ui/tooltip"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { 
-  Search, 
-  Plus, 
-  Sparkles, 
-  TrendingUp, 
+  SelectValue
+} from "@/components/ui/select"
+import {
+  Search,
+  Plus,
+  Sparkles,
+  TrendingUp,
   Loader2,
   Info,
   BarChart3,
@@ -53,35 +53,38 @@ import {
   AlertCircle,
   XCircle,
   Target
-} from "lucide-react";
-import { toast } from "sonner";
-import { getProfileByUserIdAction, updateProfileAction } from "@/actions/db/profiles-actions";
-import { getGeneratedCommentsByCampaignAction } from "@/actions/db/lead-generation-actions";
-import { runLeadGenerationWorkflowWithLimitsAction } from "@/actions/lead-generation/workflow-actions";
-import { generateKeywordsAction } from "@/actions/lead-generation/keywords-actions";
-import { cn } from "@/lib/utils";
+} from "lucide-react"
+import { toast } from "sonner"
+import {
+  getProfileByUserIdAction,
+  updateProfileAction
+} from "@/actions/db/profiles-actions"
+import { getGeneratedCommentsByCampaignAction } from "@/actions/db/lead-generation-actions"
+import { runLeadGenerationWorkflowWithLimitsAction } from "@/actions/lead-generation/workflow-actions"
+import { generateKeywordsAction } from "@/actions/lead-generation/keywords-actions"
+import { cn } from "@/lib/utils"
 
 interface KeywordStats {
-  keyword: string;
-  totalPosts: number;
-  highQualityPosts: number; // 70+ score
-  averageScore: number;
+  keyword: string
+  totalPosts: number
+  highQualityPosts: number // 70+ score
+  averageScore: number
   topPerformer: {
-    title: string;
-    score: number;
-  } | null;
+    title: string
+    score: number
+  } | null
   lowestPerformer: {
-    title: string;
-    score: number;
-  } | null;
-  recentPostsCount: number; // posts in last 24h
+    title: string
+    score: number
+  } | null
+  recentPostsCount: number // posts in last 24h
 }
 
 interface FindMoreLeadsProps {
-  userId: string;
-  campaignId: string | null;
-  onFindingLeads?: () => void;
-  disabled?: boolean;
+  userId: string
+  campaignId: string | null
+  onFindingLeads?: () => void
+  disabled?: boolean
 }
 
 export default function FindMoreLeads({
@@ -90,92 +93,136 @@ export default function FindMoreLeads({
   onFindingLeads,
   disabled
 }: FindMoreLeadsProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [keywords, setKeywords] = useState<string[]>([]);
-  const [keywordStats, setKeywordStats] = useState<KeywordStats[]>([]);
-  const [newKeywords, setNewKeywords] = useState("");
-  const [isGeneratingKeywords, setIsGeneratingKeywords] = useState(false);
-  const [isFindingLeads, setIsFindingLeads] = useState(false);
-  const [threadsPerKeyword, setThreadsPerKeyword] = useState<Record<string, number>>({});
-  const [aiRefinementInput, setAiRefinementInput] = useState("");
-  const [selectedKeywords, setSelectedKeywords] = useState<Record<string, number>>({});
-  const [aiDescription, setAiDescription] = useState("");
-  const [generatedKeywords, setGeneratedKeywords] = useState("");
-  const [manualKeywords, setManualKeywords] = useState("");
-  const [showManualEntry, setShowManualEntry] = useState(false);
+  const [isOpen, setIsOpen] = useState(false)
+  const [keywords, setKeywords] = useState<string[]>([])
+  const [keywordStats, setKeywordStats] = useState<KeywordStats[]>([])
+  const [newKeywords, setNewKeywords] = useState("")
+  const [isGeneratingKeywords, setIsGeneratingKeywords] = useState(false)
+  const [isFindingLeads, setIsFindingLeads] = useState(false)
+  const [threadsPerKeyword, setThreadsPerKeyword] = useState<
+    Record<string, number>
+  >({})
+  const [aiRefinementInput, setAiRefinementInput] = useState("")
+  const [selectedKeywords, setSelectedKeywords] = useState<
+    Record<string, number>
+  >({})
+  const [aiDescription, setAiDescription] = useState("")
+  const [generatedKeywords, setGeneratedKeywords] = useState("")
+  const [manualKeywords, setManualKeywords] = useState("")
+  const [showManualEntry, setShowManualEntry] = useState(false)
 
   // Load existing keywords and calculate stats
   useEffect(() => {
     const loadKeywordsAndStats = async () => {
-      if (!userId || !campaignId) return;
+      if (!userId || !campaignId) return
 
       try {
         // Get campaign for keywords
-        const { getCampaignByIdAction } = await import("@/actions/db/campaign-actions");
-        const campaignResult = await getCampaignByIdAction(campaignId);
+        const { getCampaignByIdAction } = await import(
+          "@/actions/db/campaign-actions"
+        )
+        const campaignResult = await getCampaignByIdAction(campaignId)
         if (campaignResult.isSuccess && campaignResult.data) {
-          const campaignKeywords = campaignResult.data.keywords || [];
-          setKeywords(campaignKeywords);
-          
+          const campaignKeywords = campaignResult.data.keywords || []
+          setKeywords(campaignKeywords)
+
           // Calculate stats for each keyword
-          const leadsResult = await getGeneratedCommentsByCampaignAction(campaignId);
+          const leadsResult =
+            await getGeneratedCommentsByCampaignAction(campaignId)
           if (leadsResult.isSuccess && leadsResult.data) {
-            const stats: KeywordStats[] = campaignKeywords.map((keyword: string) => {
-              const keywordLeads = leadsResult.data.filter(lead => lead.keyword === keyword);
-              const highQualityLeads = keywordLeads.filter(lead => lead.relevanceScore >= 70);
-              const avgScore = keywordLeads.length > 0 
-                ? keywordLeads.reduce((sum, lead) => sum + lead.relevanceScore, 0) / keywordLeads.length
-                : 0;
+            const stats: KeywordStats[] = campaignKeywords.map(
+              (keyword: string) => {
+                const keywordLeads = leadsResult.data.filter(
+                  lead => lead.keyword === keyword
+                )
+                const highQualityLeads = keywordLeads.filter(
+                  lead => lead.relevanceScore >= 70
+                )
+                const avgScore =
+                  keywordLeads.length > 0
+                    ? keywordLeads.reduce(
+                        (sum, lead) => sum + lead.relevanceScore,
+                        0
+                      ) / keywordLeads.length
+                    : 0
 
-              // Find top and lowest performers
-              const sortedByScore = [...keywordLeads].sort((a, b) => b.relevanceScore - a.relevanceScore);
-              const topPerformer = sortedByScore[0] || null;
-              const lowestPerformer = sortedByScore[sortedByScore.length - 1] || null;
+                // Find top and lowest performers
+                const sortedByScore = [...keywordLeads].sort(
+                  (a, b) => b.relevanceScore - a.relevanceScore
+                )
+                const topPerformer = sortedByScore[0] || null
+                const lowestPerformer =
+                  sortedByScore[sortedByScore.length - 1] || null
 
-              // Count recent posts (for demo, we'll just estimate)
-              const recentPostsCount = Math.floor(keywordLeads.length * 0.3);
+                // Count recent posts (for demo, we'll just estimate)
+                const recentPostsCount = Math.floor(keywordLeads.length * 0.3)
 
-              return {
-                keyword,
-                totalPosts: keywordLeads.length,
-                highQualityPosts: highQualityLeads.length,
-                averageScore: Math.round(avgScore),
-                topPerformer: topPerformer ? {
-                  title: topPerformer.postTitle,
-                  score: topPerformer.relevanceScore
-                } : null,
-                lowestPerformer: lowestPerformer ? {
-                  title: lowestPerformer.postTitle,
-                  score: lowestPerformer.relevanceScore
-                } : null,
-                recentPostsCount
-              };
-            });
-            setKeywordStats(stats);
+                return {
+                  keyword,
+                  totalPosts: keywordLeads.length,
+                  highQualityPosts: highQualityLeads.length,
+                  averageScore: Math.round(avgScore),
+                  topPerformer: topPerformer
+                    ? {
+                        title: topPerformer.postTitle,
+                        score: topPerformer.relevanceScore
+                      }
+                    : null,
+                  lowestPerformer: lowestPerformer
+                    ? {
+                        title: lowestPerformer.postTitle,
+                        score: lowestPerformer.relevanceScore
+                      }
+                    : null,
+                  recentPostsCount
+                }
+              }
+            )
+            setKeywordStats(stats)
           }
         }
       } catch (error) {
-        console.error("Error loading keywords:", error);
+        console.error("Error loading keywords:", error)
       }
-    };
+    }
 
-    loadKeywordsAndStats();
-  }, [userId, campaignId]);
+    loadKeywordsAndStats()
+  }, [userId, campaignId])
 
   // Calculate recommendations based on performance
   const getRecommendation = (stats: KeywordStats) => {
-    const ratio = stats.highQualityPosts / stats.totalPosts;
-    
+    const ratio = stats.highQualityPosts / stats.totalPosts
+
     if (ratio >= 0.9) {
-      return { posts: 50, color: "text-green-600", icon: CheckCircle2, text: "Excellent performance! Score 50 more threads" };
+      return {
+        posts: 50,
+        color: "text-green-600",
+        icon: CheckCircle2,
+        text: "Excellent performance! Score 50 more threads"
+      }
     } else if (ratio >= 0.8) {
-      return { posts: 25, color: "text-green-600", icon: CheckCircle2, text: "Great performance! Score 25 more threads" };
+      return {
+        posts: 25,
+        color: "text-green-600",
+        icon: CheckCircle2,
+        text: "Great performance! Score 25 more threads"
+      }
     } else if (ratio >= 0.7) {
-      return { posts: 10, color: "text-amber-600", icon: AlertCircle, text: "Good performance. Score 10 more threads" };
+      return {
+        posts: 10,
+        color: "text-amber-600",
+        icon: AlertCircle,
+        text: "Good performance. Score 10 more threads"
+      }
     } else {
-      return { posts: 0, color: "text-red-600", icon: XCircle, text: "Low performance. Consider stopping this keyword" };
+      return {
+        posts: 0,
+        color: "text-red-600",
+        icon: XCircle,
+        text: "Low performance. Consider stopping this keyword"
+      }
     }
-  };
+  }
 
   // Get keywords with recommendations
   const recommendedKeywords = keywordStats
@@ -183,148 +230,152 @@ export default function FindMoreLeads({
       ...stats,
       recommendation: getRecommendation(stats)
     }))
-    .filter(k => k.recommendation.posts > 0);
+    .filter(k => k.recommendation.posts > 0)
 
   // Auto-select recommended keywords
   useEffect(() => {
     if (isOpen && Object.keys(selectedKeywords).length === 0) {
-      const initial: Record<string, number> = {};
+      const initial: Record<string, number> = {}
       recommendedKeywords.forEach(k => {
-        initial[k.keyword] = k.recommendation.posts;
-      });
-      setSelectedKeywords(initial);
+        initial[k.keyword] = k.recommendation.posts
+      })
+      setSelectedKeywords(initial)
     }
-  }, [isOpen]);
+  }, [isOpen])
 
   const handleGenerateKeywords = async () => {
     if (!aiDescription.trim()) {
-      toast.error("Please describe what kind of customers you're looking for");
-      return;
+      toast.error("Please describe what kind of customers you're looking for")
+      return
     }
 
-    setIsGeneratingKeywords(true);
+    setIsGeneratingKeywords(true)
     try {
       // Get profile for website
-      const profileResult = await getProfileByUserIdAction(userId);
+      const profileResult = await getProfileByUserIdAction(userId)
       if (!profileResult.isSuccess || !profileResult.data) {
-        throw new Error("Failed to load profile");
+        throw new Error("Failed to load profile")
       }
 
       // Generate keywords with custom refinement
-      const refinement = `${aiDescription}. Generate keywords for finding these specific types of customers.`;
-      
+      const refinement = `${aiDescription}. Generate keywords for finding these specific types of customers.`
+
       const keywordsResult = await generateKeywordsAction({
         website: profileResult.data.website || "",
         refinement: refinement
-      });
+      })
 
       if (keywordsResult.isSuccess) {
-        setGeneratedKeywords(keywordsResult.data.keywords.join("\n"));
-        toast.success("Keywords generated! Edit as needed.");
+        setGeneratedKeywords(keywordsResult.data.keywords.join("\n"))
+        toast.success("Keywords generated! Edit as needed.")
       } else {
-        throw new Error("Failed to generate keywords");
+        throw new Error("Failed to generate keywords")
       }
     } catch (error) {
-      console.error("Error generating keywords:", error);
-      toast.error("Failed to generate keywords");
+      console.error("Error generating keywords:", error)
+      toast.error("Failed to generate keywords")
     } finally {
-      setIsGeneratingKeywords(false);
+      setIsGeneratingKeywords(false)
     }
-  };
+  }
 
   const handleFindLeads = async () => {
-    const keywordLimits: Record<string, number> = { ...selectedKeywords };
-    
+    const keywordLimits: Record<string, number> = { ...selectedKeywords }
+
     // Add manual keywords if provided
     const manualKeywordsList = manualKeywords
       .split("\n")
       .map(k => k.trim())
-      .filter(k => k.length > 0);
-    
+      .filter(k => k.length > 0)
+
     // Add generated keywords if provided
     const generatedKeywordsList = generatedKeywords
       .split("\n")
       .map(k => k.trim())
-      .filter(k => k.length > 0);
-    
+      .filter(k => k.length > 0)
+
     // Add new keywords with default 10 posts each
-    [...manualKeywordsList, ...generatedKeywordsList].forEach(keyword => {
+    ;[...manualKeywordsList, ...generatedKeywordsList].forEach(keyword => {
       if (!keywordLimits[keyword]) {
-        keywordLimits[keyword] = 10;
+        keywordLimits[keyword] = 10
       }
-    });
+    })
 
     if (Object.keys(keywordLimits).length === 0) {
-      toast.error("Please select keywords or add new ones");
-      return;
+      toast.error("Please select keywords or add new ones")
+      return
     }
 
     if (!campaignId) {
-      toast.error("Please select a campaign first");
-      return;
+      toast.error("Please select a campaign first")
+      return
     }
 
-    setIsFindingLeads(true);
-    onFindingLeads?.();
+    setIsFindingLeads(true)
+    onFindingLeads?.()
 
     try {
-      console.log("🔍 Finding leads with limits:", keywordLimits);
+      console.log("🔍 Finding leads with limits:", keywordLimits)
 
       const result = await runLeadGenerationWorkflowWithLimitsAction(
         campaignId,
         keywordLimits
-      );
+      )
 
       if (result.isSuccess) {
-        const totalPosts = Object.values(keywordLimits).reduce((a, b) => a + b, 0);
+        const totalPosts = Object.values(keywordLimits).reduce(
+          (a, b) => a + b,
+          0
+        )
         toast.success(`Scoring ${totalPosts} threads!`, {
           description: "New leads will appear as they're discovered"
-        });
-        setIsOpen(false);
-        setNewKeywords("");
-        setThreadsPerKeyword({});
-        setAiRefinementInput("");
-        setSelectedKeywords({});
-        setGeneratedKeywords("");
-        setManualKeywords("");
-        
+        })
+        setIsOpen(false)
+        setNewKeywords("")
+        setThreadsPerKeyword({})
+        setAiRefinementInput("")
+        setSelectedKeywords({})
+        setGeneratedKeywords("")
+        setManualKeywords("")
+
         // Reload the keyword stats after a delay
         setTimeout(() => {
-          window.location.reload();
-        }, 3000);
+          window.location.reload()
+        }, 3000)
       } else {
-        throw new Error(result.message);
+        throw new Error(result.message)
       }
     } catch (error) {
-      console.error("Error finding leads:", error);
-      toast.error("Failed to start lead generation");
+      console.error("Error finding leads:", error)
+      toast.error("Failed to start lead generation")
     } finally {
-      setIsFindingLeads(false);
+      setIsFindingLeads(false)
     }
-  };
+  }
 
   const handleThreadCountChange = (keyword: string, value: string) => {
     if (value === "0") {
-      const newThreadsPerKeyword = { ...threadsPerKeyword };
-      delete newThreadsPerKeyword[keyword];
-      setThreadsPerKeyword(newThreadsPerKeyword);
+      const newThreadsPerKeyword = { ...threadsPerKeyword }
+      delete newThreadsPerKeyword[keyword]
+      setThreadsPerKeyword(newThreadsPerKeyword)
     } else {
       setThreadsPerKeyword({
         ...threadsPerKeyword,
         [keyword]: parseInt(value)
-      });
+      })
     }
-  };
+  }
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return "text-green-600";
-    if (score >= 60) return "text-amber-600";
-    return "text-gray-600";
-  };
+    if (score >= 80) return "text-green-600"
+    if (score >= 60) return "text-amber-600"
+    return "text-gray-600"
+  }
 
-  const totalThreadsToScore = Object.values(selectedKeywords).reduce((a, b) => a + b, 0) +
-    (manualKeywords.split("\n").filter(k => k.trim()).length * 10) +
-    (generatedKeywords.split("\n").filter(k => k.trim()).length * 10);
+  const totalThreadsToScore =
+    Object.values(selectedKeywords).reduce((a, b) => a + b, 0) +
+    manualKeywords.split("\n").filter(k => k.trim()).length * 10 +
+    generatedKeywords.split("\n").filter(k => k.trim()).length * 10
 
   return (
     <Card className="overflow-hidden border shadow-sm">
@@ -353,7 +404,8 @@ export default function FindMoreLeads({
               <DialogHeader>
                 <DialogTitle>Keyword Performance & Management</DialogTitle>
                 <DialogDescription>
-                  View performance metrics and add new keywords to find more leads
+                  View performance metrics and add new keywords to find more
+                  leads
                 </DialogDescription>
               </DialogHeader>
 
@@ -368,21 +420,31 @@ export default function FindMoreLeads({
                     <Alert>
                       <CheckCircle2 className="size-4" />
                       <AlertDescription>
-                        Based on performance, we recommend scoring more threads for these high-performing keywords:
+                        Based on performance, we recommend scoring more threads
+                        for these high-performing keywords:
                       </AlertDescription>
                     </Alert>
                     <div className="space-y-2">
-                      {recommendedKeywords.map(({ keyword, recommendation }) => (
-                        <div key={keyword} className="flex items-center justify-between rounded-lg border p-3">
-                          <div className="flex items-center gap-2">
-                            <recommendation.icon className={`size-4 ${recommendation.color}`} />
-                            <span className="text-sm font-medium">{keyword}</span>
+                      {recommendedKeywords.map(
+                        ({ keyword, recommendation }) => (
+                          <div
+                            key={keyword}
+                            className="flex items-center justify-between rounded-lg border p-3"
+                          >
+                            <div className="flex items-center gap-2">
+                              <recommendation.icon
+                                className={`size-4 ${recommendation.color}`}
+                              />
+                              <span className="text-sm font-medium">
+                                {keyword}
+                              </span>
+                            </div>
+                            <Badge variant="secondary" className="gap-1">
+                              +{recommendation.posts} threads
+                            </Badge>
                           </div>
-                          <Badge variant="secondary" className="gap-1">
-                            +{recommendation.posts} threads
-                          </Badge>
-                        </div>
-                      ))}
+                        )
+                      )}
                     </div>
                   </div>
                 )}
@@ -391,8 +453,8 @@ export default function FindMoreLeads({
                 <div className="space-y-3">
                   <Label>Keyword Performance</Label>
                   <div className="space-y-3">
-                    {keywordStats.map((stats) => {
-                      const recommendation = getRecommendation(stats);
+                    {keywordStats.map(stats => {
+                      const recommendation = getRecommendation(stats)
                       return (
                         <div
                           key={stats.keyword}
@@ -402,7 +464,9 @@ export default function FindMoreLeads({
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
                                 <Hash className="size-4 text-gray-500" />
-                                <span className="font-medium">{stats.keyword}</span>
+                                <span className="font-medium">
+                                  {stats.keyword}
+                                </span>
                               </div>
                               <div className="flex items-center gap-2">
                                 <div className="flex flex-col items-end gap-1">
@@ -410,18 +474,22 @@ export default function FindMoreLeads({
                                     Find more posts
                                   </Label>
                                   <Select
-                                    value={selectedKeywords[stats.keyword]?.toString() || "0"}
-                                    onValueChange={(value) => {
-                                      const num = parseInt(value);
+                                    value={
+                                      selectedKeywords[
+                                        stats.keyword
+                                      ]?.toString() || "0"
+                                    }
+                                    onValueChange={value => {
+                                      const num = parseInt(value)
                                       if (num === 0) {
-                                        const updated = { ...selectedKeywords };
-                                        delete updated[stats.keyword];
-                                        setSelectedKeywords(updated);
+                                        const updated = { ...selectedKeywords }
+                                        delete updated[stats.keyword]
+                                        setSelectedKeywords(updated)
                                       } else {
                                         setSelectedKeywords({
                                           ...selectedKeywords,
                                           [stats.keyword]: num
-                                        });
+                                        })
                                       }
                                     }}
                                   >
@@ -443,7 +511,9 @@ export default function FindMoreLeads({
                             <div className="grid grid-cols-2 gap-3 text-xs md:grid-cols-4">
                               <div>
                                 <p className="text-gray-500">Total Posts</p>
-                                <p className="font-semibold">{stats.totalPosts}</p>
+                                <p className="font-semibold">
+                                  {stats.totalPosts}
+                                </p>
                               </div>
                               <div>
                                 <p className="text-gray-500">High Quality</p>
@@ -453,21 +523,32 @@ export default function FindMoreLeads({
                               </div>
                               <div>
                                 <p className="text-gray-500">Avg Score</p>
-                                <p className={cn("font-semibold", getScoreColor(stats.averageScore))}>
+                                <p
+                                  className={cn(
+                                    "font-semibold",
+                                    getScoreColor(stats.averageScore)
+                                  )}
+                                >
                                   {stats.averageScore}%
                                 </p>
                               </div>
                               <div>
                                 <p className="text-gray-500">Recent</p>
-                                <p className="font-semibold">{stats.recentPostsCount}</p>
+                                <p className="font-semibold">
+                                  {stats.recentPostsCount}
+                                </p>
                               </div>
                             </div>
 
                             {/* Recommendation Badge */}
                             <div className="border-t pt-2">
                               <div className="flex items-center gap-2">
-                                <recommendation.icon className={`size-4 ${recommendation.color}`} />
-                                <span className={`text-xs ${recommendation.color}`}>
+                                <recommendation.icon
+                                  className={`size-4 ${recommendation.color}`}
+                                />
+                                <span
+                                  className={`text-xs ${recommendation.color}`}
+                                >
                                   {recommendation.text}
                                 </span>
                               </div>
@@ -479,23 +560,27 @@ export default function FindMoreLeads({
                                   <div className="flex items-start gap-2">
                                     <TrendingUp className="mt-0.5 size-3 shrink-0 text-green-500" />
                                     <span className="break-words text-xs text-gray-600">
-                                      Top: "{stats.topPerformer.title}" ({stats.topPerformer.score}%)
+                                      Top: "{stats.topPerformer.title}" (
+                                      {stats.topPerformer.score}%)
                                     </span>
                                   </div>
                                 )}
-                                {stats.lowestPerformer && stats.lowestPerformer.score !== stats.topPerformer?.score && (
-                                  <div className="flex items-start gap-2">
-                                    <TrendingDown className="mt-0.5 size-3 shrink-0 text-red-500" />
-                                    <span className="break-words text-xs text-gray-600">
-                                      Low: "{stats.lowestPerformer.title}" ({stats.lowestPerformer.score}%)
-                                    </span>
-                                  </div>
-                                )}
+                                {stats.lowestPerformer &&
+                                  stats.lowestPerformer.score !==
+                                    stats.topPerformer?.score && (
+                                    <div className="flex items-start gap-2">
+                                      <TrendingDown className="mt-0.5 size-3 shrink-0 text-red-500" />
+                                      <span className="break-words text-xs text-gray-600">
+                                        Low: "{stats.lowestPerformer.title}" (
+                                        {stats.lowestPerformer.score}%)
+                                      </span>
+                                    </div>
+                                  )}
                               </div>
                             )}
                           </div>
                         </div>
-                      );
+                      )
                     })}
                   </div>
                 </div>
@@ -516,12 +601,13 @@ export default function FindMoreLeads({
                   {/* AI Generation Section */}
                   <div className="space-y-2">
                     <Label className="text-xs text-gray-500">
-                      Describe what kind of customers you're looking for (optional)
+                      Describe what kind of customers you're looking for
+                      (optional)
                     </Label>
                     <Textarea
                       placeholder="E.g., people looking for recommendations for large group event venues in the Dominican Republic like weddings and large family get togethers"
                       value={aiDescription}
-                      onChange={(e) => setAiDescription(e.target.value)}
+                      onChange={e => setAiDescription(e.target.value)}
                       className="min-h-[80px] text-sm"
                     />
                   </div>
@@ -552,11 +638,12 @@ export default function FindMoreLeads({
                     <Textarea
                       placeholder="Keywords will appear here after AI generation, or enter your own..."
                       value={generatedKeywords}
-                      onChange={(e) => setGeneratedKeywords(e.target.value)}
+                      onChange={e => setGeneratedKeywords(e.target.value)}
                       className="min-h-[100px]"
                     />
                     <p className="text-xs text-gray-500">
-                      Enter search phrases that your target audience might use when looking for solutions
+                      Enter search phrases that your target audience might use
+                      when looking for solutions
                     </p>
                   </div>
 
@@ -572,32 +659,35 @@ luxury beach resorts DR
 Dominican Republic vacation planning
 best time to visit DR beaches"
                         value={manualKeywords}
-                        onChange={(e) => setManualKeywords(e.target.value)}
+                        onChange={e => setManualKeywords(e.target.value)}
                         className="min-h-[100px] font-mono text-sm"
                       />
                       <p className="text-xs text-gray-500">
-                        Enter one keyword per line. Each keyword will score 10 threads.
+                        Enter one keyword per line. Each keyword will score 10
+                        threads.
                       </p>
                     </div>
                   )}
                 </div>
 
-                                 <Alert>
-                   <Info className="size-4" />
-                   <AlertDescription className="text-xs">
-                     Reddit API allows 100 requests per minute. We'll automatically pace requests to stay within limits.
-                   </AlertDescription>
-                 </Alert>
+                <Alert>
+                  <Info className="size-4" />
+                  <AlertDescription className="text-xs">
+                    Reddit API allows 100 requests per minute. We'll
+                    automatically pace requests to stay within limits.
+                  </AlertDescription>
+                </Alert>
 
-                 {/* Summary */}
-                 {totalThreadsToScore > 0 && (
-                   <Alert>
-                     <Search className="size-4" />
-                     <AlertDescription>
-                       <strong>Ready to score:</strong> {totalThreadsToScore} threads total
-                     </AlertDescription>
-                   </Alert>
-                 )}
+                {/* Summary */}
+                {totalThreadsToScore > 0 && (
+                  <Alert>
+                    <Search className="size-4" />
+                    <AlertDescription>
+                      <strong>Ready to score:</strong> {totalThreadsToScore}{" "}
+                      threads total
+                    </AlertDescription>
+                  </Alert>
+                )}
               </div>
 
               <DialogFooter className="mt-6">
@@ -639,18 +729,28 @@ best time to visit DR beaches"
             <div className="flex items-center gap-2">
               <TrendingUp className="size-4 text-green-500" />
               <span className="text-gray-600 dark:text-gray-400">
-                {keywordStats.reduce((sum, stat) => sum + stat.highQualityPosts, 0)} high-quality leads
+                {keywordStats.reduce(
+                  (sum, stat) => sum + stat.highQualityPosts,
+                  0
+                )}{" "}
+                high-quality leads
               </span>
             </div>
             <div className="flex items-center gap-2">
               <Star className="size-4 text-amber-500" />
               <span className="text-gray-600 dark:text-gray-400">
-                {Math.round(keywordStats.reduce((sum, stat) => sum + stat.averageScore, 0) / keywordStats.length)}% avg score
+                {Math.round(
+                  keywordStats.reduce(
+                    (sum, stat) => sum + stat.averageScore,
+                    0
+                  ) / keywordStats.length
+                )}
+                % avg score
               </span>
             </div>
           </div>
         </CardContent>
       )}
     </Card>
-  );
-} 
+  )
+}

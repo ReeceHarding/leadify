@@ -1,7 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -28,7 +34,9 @@ export default function AddToKnowledgeBase({
   const [isLoading, setIsLoading] = useState(false)
   const [isCombining, setIsCombining] = useState(false)
   const [newInformation, setNewInformation] = useState("")
-  const [editableOldInfo, setEditableOldInfo] = useState(knowledgeBase?.customInformation || "")
+  const [editableOldInfo, setEditableOldInfo] = useState(
+    knowledgeBase?.customInformation || ""
+  )
   const [showScrapeDialog, setShowScrapeDialog] = useState(false)
   const { toast } = useToast()
 
@@ -51,11 +59,13 @@ export default function AddToKnowledgeBase({
     try {
       if (knowledgeBase) {
         // Update existing knowledge base
-        const { updateKnowledgeBaseAction } = await import("@/actions/db/personalization-actions")
+        const { updateKnowledgeBaseAction } = await import(
+          "@/actions/db/personalization-actions"
+        )
         const result = await updateKnowledgeBaseAction(knowledgeBase.id, {
           customInformation: newInformation
         })
-        
+
         if (result.isSuccess) {
           setKnowledgeBase(result.data)
           setNewInformation("")
@@ -73,13 +83,15 @@ export default function AddToKnowledgeBase({
         }
       } else {
         // Create new knowledge base
-        const { createKnowledgeBaseAction } = await import("@/actions/db/personalization-actions")
+        const { createKnowledgeBaseAction } = await import(
+          "@/actions/db/personalization-actions"
+        )
         const result = await createKnowledgeBaseAction({
           userId,
           customInformation: newInformation,
           websiteUrl: userProfile?.website
         })
-        
+
         if (result.isSuccess) {
           setKnowledgeBase(result.data)
           setNewInformation("")
@@ -130,19 +142,26 @@ export default function AddToKnowledgeBase({
       console.log("🔥 [COMBINE-INFO] New info length:", newInformation.length)
 
       // Use LLM to combine information
-      const { combineInformationAction } = await import("@/actions/integrations/openai/openai-actions")
-      const combineResult = await combineInformationAction(editableOldInfo, newInformation)
-      
+      const { combineInformationAction } = await import(
+        "@/actions/integrations/openai/openai-actions"
+      )
+      const combineResult = await combineInformationAction(
+        editableOldInfo,
+        newInformation
+      )
+
       if (combineResult.isSuccess) {
         console.log("🔥 [COMBINE-INFO] LLM combination successful")
-        
+
         // Update knowledge base with combined information
         if (knowledgeBase) {
-          const { updateKnowledgeBaseAction } = await import("@/actions/db/personalization-actions")
+          const { updateKnowledgeBaseAction } = await import(
+            "@/actions/db/personalization-actions"
+          )
           const result = await updateKnowledgeBaseAction(knowledgeBase.id, {
             customInformation: combineResult.data.combinedInformation
           })
-          
+
           if (result.isSuccess) {
             setKnowledgeBase(result.data)
             setNewInformation("")
@@ -160,13 +179,15 @@ export default function AddToKnowledgeBase({
           }
         } else {
           // Create new knowledge base with combined info
-          const { createKnowledgeBaseAction } = await import("@/actions/db/personalization-actions")
+          const { createKnowledgeBaseAction } = await import(
+            "@/actions/db/personalization-actions"
+          )
           const result = await createKnowledgeBaseAction({
             userId,
             customInformation: combineResult.data.combinedInformation,
             websiteUrl: userProfile?.website
           })
-          
+
           if (result.isSuccess) {
             setKnowledgeBase(result.data)
             setNewInformation("")
@@ -206,11 +227,13 @@ export default function AddToKnowledgeBase({
     setIsLoading(true)
     try {
       if (knowledgeBase) {
-        const { updateKnowledgeBaseAction } = await import("@/actions/db/personalization-actions")
+        const { updateKnowledgeBaseAction } = await import(
+          "@/actions/db/personalization-actions"
+        )
         const result = await updateKnowledgeBaseAction(knowledgeBase.id, {
           customInformation: editableOldInfo
         })
-        
+
         if (result.isSuccess) {
           setKnowledgeBase(result.data)
           toast({
@@ -245,7 +268,8 @@ export default function AddToKnowledgeBase({
             Add to Knowledge Base
           </CardTitle>
           <CardDescription>
-            Expand your knowledge base with website scraping and additional information
+            Expand your knowledge base with website scraping and additional
+            information
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -270,7 +294,8 @@ export default function AddToKnowledgeBase({
             </div>
             {userProfile?.website ? (
               <p className="text-sm text-gray-600">
-                Scrape specific pages from your website to add detailed information to your knowledge base.
+                Scrape specific pages from your website to add detailed
+                information to your knowledge base.
               </p>
             ) : (
               <p className="text-sm text-gray-500">
@@ -287,7 +312,7 @@ export default function AddToKnowledgeBase({
                 id="edit-info"
                 placeholder="Edit your existing business information..."
                 value={editableOldInfo}
-                onChange={(e) => setEditableOldInfo(e.target.value)}
+                onChange={e => setEditableOldInfo(e.target.value)}
                 rows={6}
                 className="resize-none"
               />
@@ -296,15 +321,21 @@ export default function AddToKnowledgeBase({
                   variant="outline"
                   size="sm"
                   onClick={handleSaveEditedInfo}
-                  disabled={isLoading || editableOldInfo === knowledgeBase.customInformation}
+                  disabled={
+                    isLoading ||
+                    editableOldInfo === knowledgeBase.customInformation
+                  }
                 >
-                  {isLoading && <Loader2 className="mr-2 size-4 animate-spin" />}
+                  {isLoading && (
+                    <Loader2 className="mr-2 size-4 animate-spin" />
+                  )}
                   <FileText className="mr-2 size-4" />
                   Save Changes
                 </Button>
               </div>
               <p className="text-sm text-gray-600">
-                Edit and clean up your existing information. Remove irrelevant details and save.
+                Edit and clean up your existing information. Remove irrelevant
+                details and save.
               </p>
             </div>
           )}
@@ -316,12 +347,13 @@ export default function AddToKnowledgeBase({
               id="new-info"
               placeholder="Add any additional information about your business, products, or services..."
               value={newInformation}
-              onChange={(e) => setNewInformation(e.target.value)}
+              onChange={e => setNewInformation(e.target.value)}
               rows={6}
               className="resize-none"
             />
             <p className="text-sm text-gray-600">
-              Add new details about your business that should be included when generating comments.
+              Add new details about your business that should be included when
+              generating comments.
             </p>
           </div>
 
@@ -336,13 +368,15 @@ export default function AddToKnowledgeBase({
               <Replace className="mr-2 size-4" />
               Replace Old Info
             </Button>
-            
+
             {knowledgeBase?.customInformation && (
               <Button
                 onClick={handleCombineInformation}
                 disabled={isLoading || isCombining || !newInformation.trim()}
               >
-                {isCombining && <Loader2 className="mr-2 size-4 animate-spin" />}
+                {isCombining && (
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                )}
                 <Merge className="mr-2 size-4" />
                 {isCombining ? "Combining with AI..." : "Add to Old Info"}
               </Button>
@@ -352,10 +386,12 @@ export default function AddToKnowledgeBase({
           {knowledgeBase?.customInformation && (
             <div className="rounded-lg bg-blue-50 p-3">
               <p className="text-sm text-blue-900">
-                <strong>Replace:</strong> Completely replaces existing information with new information.
+                <strong>Replace:</strong> Completely replaces existing
+                information with new information.
               </p>
               <p className="mt-1 text-sm text-blue-900">
-                <strong>Add to Old:</strong> Uses AI to intelligently combine old and new information.
+                <strong>Add to Old:</strong> Uses AI to intelligently combine
+                old and new information.
               </p>
             </div>
           )}
@@ -372,4 +408,4 @@ export default function AddToKnowledgeBase({
       />
     </>
   )
-} 
+}

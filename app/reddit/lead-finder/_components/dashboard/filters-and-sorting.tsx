@@ -1,21 +1,27 @@
-"use client";
+"use client"
 
-import React from "react";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Filter, ArrowUpDown, TrendingUp } from "lucide-react";
+import React from "react"
+import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select"
+import { Badge } from "@/components/ui/badge"
+import { Filter, ArrowUpDown, TrendingUp } from "lucide-react"
 
 interface FiltersAndSortingProps {
-  filterKeyword: string;
-  onFilterKeywordChange: (value: string) => void;
-  filterScore: number;
-  onFilterScoreChange: (value: number) => void;
-  sortBy: "relevance" | "upvotes" | "time";
-  onSortByChange: (value: "relevance" | "upvotes" | "time") => void;
-  paginatedLeadsCount: number;
-  totalFilteredLeadsCount: number;
-  disabled: boolean; // Overall disable state (e.g., no leads)
+  filterKeyword: string
+  onFilterKeywordChange: (value: string) => void
+  filterScore: number
+  onFilterScoreChange: (value: number) => void
+  sortBy: "relevance" | "upvotes" | "time"
+  onSortByChange: (value: "relevance" | "upvotes" | "time") => void
+  paginatedLeadsCount: number
+  totalFilteredLeadsCount: number
+  disabled: boolean // Overall disable state (e.g., no leads)
 }
 
 export default function FiltersAndSorting({
@@ -31,11 +37,15 @@ export default function FiltersAndSorting({
 }: FiltersAndSortingProps) {
   const scoreOptions = [
     { value: "0", label: "All Scores", color: "bg-gray-100 text-gray-700" },
-    { value: "80", label: "80+ Excellent", color: "bg-green-100 text-green-700" },
+    {
+      value: "80",
+      label: "80+ Excellent",
+      color: "bg-green-100 text-green-700"
+    },
     { value: "70", label: "70+ Great", color: "bg-yellow-100 text-yellow-700" },
     { value: "60", label: "60+ Good", color: "bg-orange-100 text-orange-700" },
-    { value: "50", label: "50+ Fair", color: "bg-red-100 text-red-700" },
-  ];
+    { value: "50", label: "50+ Fair", color: "bg-red-100 text-red-700" }
+  ]
 
   return (
     <div className="bg-card rounded-lg border p-4 shadow-sm dark:border-gray-700">
@@ -52,25 +62,27 @@ export default function FiltersAndSorting({
               disabled={disabled}
             />
           </div>
-          
+
           <div className="flex items-center gap-2">
             <TrendingUp className="size-4 shrink-0 text-gray-500 dark:text-gray-400" />
-            <Select 
-              value={filterScore.toString()} 
-              onValueChange={(value) => onFilterScoreChange(Number(value))} 
+            <Select
+              value={filterScore.toString()}
+              onValueChange={value => onFilterScoreChange(Number(value))}
               disabled={disabled}
             >
               <SelectTrigger className="h-9 w-[160px] rounded-md border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-700">
                 <SelectValue placeholder="Score Filter">
-                  {scoreOptions.find(opt => opt.value === filterScore.toString())?.label || "All Scores"}
+                  {scoreOptions.find(
+                    opt => opt.value === filterScore.toString()
+                  )?.label || "All Scores"}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                {scoreOptions.map((option) => (
+                {scoreOptions.map(option => (
                   <SelectItem key={option.value} value={option.value}>
                     <div className="flex items-center gap-2">
-                      <Badge 
-                        variant="outline" 
+                      <Badge
+                        variant="outline"
                         className={`text-xs ${option.color} border-0`}
                       >
                         {option.label}
@@ -87,7 +99,11 @@ export default function FiltersAndSorting({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ArrowUpDown className="size-4 shrink-0 text-gray-500 dark:text-gray-400" />
-            <Select value={sortBy} onValueChange={onSortByChange as any} disabled={disabled}>
+            <Select
+              value={sortBy}
+              onValueChange={onSortByChange as any}
+              disabled={disabled}
+            >
               <SelectTrigger className="h-9 w-[130px] rounded-md border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-700">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
@@ -98,12 +114,12 @@ export default function FiltersAndSorting({
               </SelectContent>
             </Select>
           </div>
-          
+
           <div className="text-sm text-gray-500 dark:text-gray-400">
             Showing {paginatedLeadsCount} of {totalFilteredLeadsCount} leads
           </div>
         </div>
       </div>
     </div>
-  );
-} 
+  )
+}

@@ -343,7 +343,7 @@ export default function EditVoiceSettings({
                 id="twitter-handle"
                 placeholder="@username"
                 value={twitterHandle}
-                onChange={(e) => setTwitterHandle(e.target.value)}
+                onChange={e => setTwitterHandle(e.target.value)}
               />
               <Button
                 onClick={handleAnalyzeTwitter}

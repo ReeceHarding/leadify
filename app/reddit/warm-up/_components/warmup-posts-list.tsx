@@ -1,16 +1,40 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/components/ui/use-toast"
-import { Loader2, RefreshCw, Send, Clock, Edit3, Check, X, Rocket } from "lucide-react"
-import { getWarmupPostsByUserIdAction, updateWarmupPostAction } from "@/actions/db/warmup-actions"
-import { generateAndScheduleWarmupPostsAction, postWarmupImmediatelyAction } from "@/actions/warmup-queue-actions"
-import { SerializedWarmupAccountDocument, SerializedWarmupPostDocument } from "@/db/firestore/warmup-collections"
+import {
+  Loader2,
+  RefreshCw,
+  Send,
+  Clock,
+  Edit3,
+  Check,
+  X,
+  Rocket
+} from "lucide-react"
+import {
+  getWarmupPostsByUserIdAction,
+  updateWarmupPostAction
+} from "@/actions/db/warmup-actions"
+import {
+  generateAndScheduleWarmupPostsAction,
+  postWarmupImmediatelyAction
+} from "@/actions/warmup-queue-actions"
+import {
+  SerializedWarmupAccountDocument,
+  SerializedWarmupPostDocument
+} from "@/db/firestore/warmup-collections"
 import { debounce } from "lodash"
 
 interface WarmupPostsListProps {
@@ -18,12 +42,17 @@ interface WarmupPostsListProps {
   warmupAccount: SerializedWarmupAccountDocument
 }
 
-export default function WarmupPostsList({ userId, warmupAccount }: WarmupPostsListProps) {
+export default function WarmupPostsList({
+  userId,
+  warmupAccount
+}: WarmupPostsListProps) {
   const [posts, setPosts] = useState<SerializedWarmupPostDocument[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isGenerating, setIsGenerating] = useState(false)
   const [editingPost, setEditingPost] = useState<string | null>(null)
-  const [editedContent, setEditedContent] = useState<{ [key: string]: { title: string; content: string } }>({})
+  const [editedContent, setEditedContent] = useState<{
+    [key: string]: { title: string; content: string }
+  }>({})
   const [savingPost, setSavingPost] = useState<string | null>(null)
   const { toast } = useToast()
 
@@ -54,9 +83,9 @@ export default function WarmupPostsList({ userId, warmupAccount }: WarmupPostsLi
     try {
       setIsGenerating(true)
       console.log("🤖 [WARMUP-POSTS] Generating new posts")
-      
+
       const result = await generateAndScheduleWarmupPostsAction(userId)
-      
+
       if (result.isSuccess) {
         toast({
           title: "Success",
@@ -88,17 +117,17 @@ export default function WarmupPostsList({ userId, warmupAccount }: WarmupPostsLi
       try {
         setSavingPost(postId)
         console.log("💾 [WARMUP-POSTS] Auto-saving post:", postId)
-        
+
         const result = await updateWarmupPostAction(postId, {
           title,
           content
         })
-        
+
         if (result.isSuccess) {
           // Update local state
-          setPosts(posts.map(p => 
-            p.id === postId ? { ...p, title, content } : p
-          ))
+          setPosts(
+            posts.map(p => (p.id === postId ? { ...p, title, content } : p))
+          )
           console.log("✅ [WARMUP-POSTS] Post auto-saved")
         }
       } catch (error) {
@@ -118,15 +147,19 @@ export default function WarmupPostsList({ userId, warmupAccount }: WarmupPostsLi
     })
   }
 
-  const handleContentChange = (postId: string, field: "title" | "content", value: string) => {
+  const handleContentChange = (
+    postId: string,
+    field: "title" | "content",
+    value: string
+  ) => {
     const current = editedContent[postId] || { title: "", content: "" }
     const updated = { ...current, [field]: value }
-    
+
     setEditedContent({
       ...editedContent,
       [postId]: updated
     })
-    
+
     // Trigger auto-save
     debouncedSave(postId, updated.title, updated.content)
   }
@@ -134,11 +167,11 @@ export default function WarmupPostsList({ userId, warmupAccount }: WarmupPostsLi
   const handleQueuePost = async (postId: string) => {
     try {
       console.log("📤 [WARMUP-POSTS] Queueing post:", postId)
-      
+
       const result = await updateWarmupPostAction(postId, {
         status: "queued"
       })
-      
+
       if (result.isSuccess) {
         toast({
           title: "Success",
@@ -159,16 +192,16 @@ export default function WarmupPostsList({ userId, warmupAccount }: WarmupPostsLi
   const handlePostImmediately = async (postId: string) => {
     try {
       console.log("🚀 [WARMUP-POSTS] Posting immediately:", postId)
-      
+
       const result = await postWarmupImmediatelyAction(postId)
-      
+
       if (result.isSuccess && result.data?.url) {
         toast({
           title: "Success!",
           description: "Post submitted to Reddit successfully"
         })
         // Open the Reddit post in a new tab
-        window.open(result.data.url, '_blank')
+        window.open(result.data.url, "_blank")
         await loadPosts()
       } else {
         toast({
@@ -194,7 +227,11 @@ export default function WarmupPostsList({ userId, warmupAccount }: WarmupPostsLi
       case "queued":
         return <Badge variant="default">Queued</Badge>
       case "posted":
-        return <Badge variant="default" className="bg-green-500">Posted</Badge>
+        return (
+          <Badge variant="default" className="bg-green-500">
+            Posted
+          </Badge>
+        )
       case "failed":
         return <Badge variant="destructive">Failed</Badge>
       default:
@@ -217,13 +254,12 @@ export default function WarmupPostsList({ userId, warmupAccount }: WarmupPostsLi
         <div>
           <h3 className="text-lg font-semibold">Generated Posts</h3>
           <p className="text-muted-foreground text-sm">
-            {warmupAccount.postingMode === "auto" ? "Auto-posting enabled" : "Manual verification required"}
+            {warmupAccount.postingMode === "auto"
+              ? "Auto-posting enabled"
+              : "Manual verification required"}
           </p>
         </div>
-        <Button
-          onClick={handleGeneratePosts}
-          disabled={isGenerating}
-        >
+        <Button onClick={handleGeneratePosts} disabled={isGenerating}>
           {isGenerating ? (
             <>
               <Loader2 className="mr-2 size-4 animate-spin" />
@@ -250,7 +286,7 @@ export default function WarmupPostsList({ userId, warmupAccount }: WarmupPostsLi
         </Card>
       ) : (
         <div className="space-y-4">
-          {posts.map((post) => (
+          {posts.map(post => (
             <Card key={post.id}>
               <CardHeader>
                 <div className="flex items-start justify-between">
@@ -268,7 +304,9 @@ export default function WarmupPostsList({ userId, warmupAccount }: WarmupPostsLi
                     {editingPost === post.id ? (
                       <Input
                         value={editedContent[post.id]?.title || post.title}
-                        onChange={(e) => handleContentChange(post.id, "title", e.target.value)}
+                        onChange={e =>
+                          handleContentChange(post.id, "title", e.target.value)
+                        }
                         className="mb-2 text-lg font-semibold"
                       />
                     ) : (
@@ -278,7 +316,11 @@ export default function WarmupPostsList({ userId, warmupAccount }: WarmupPostsLi
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => editingPost === post.id ? setEditingPost(null) : handleEditPost(post)}
+                    onClick={() =>
+                      editingPost === post.id
+                        ? setEditingPost(null)
+                        : handleEditPost(post)
+                    }
                   >
                     {editingPost === post.id ? (
                       <Check className="size-4" />
@@ -292,7 +334,9 @@ export default function WarmupPostsList({ userId, warmupAccount }: WarmupPostsLi
                 {editingPost === post.id ? (
                   <Textarea
                     value={editedContent[post.id]?.content || post.content}
-                    onChange={(e) => handleContentChange(post.id, "content", e.target.value)}
+                    onChange={e =>
+                      handleContentChange(post.id, "content", e.target.value)
+                    }
                     className="min-h-[150px]"
                   />
                 ) : (
@@ -300,17 +344,18 @@ export default function WarmupPostsList({ userId, warmupAccount }: WarmupPostsLi
                     <p className="whitespace-pre-wrap">{post.content}</p>
                   </div>
                 )}
-                
+
                 <div className="flex items-center justify-between border-t pt-4">
                   <div className="text-muted-foreground text-sm">
                     {post.scheduledFor && (
                       <div className="flex items-center gap-1">
                         <Clock className="size-3" />
-                        Scheduled: {new Date(post.scheduledFor).toLocaleString()}
+                        Scheduled:{" "}
+                        {new Date(post.scheduledFor).toLocaleString()}
                       </div>
                     )}
                   </div>
-                  
+
                   {post.status === "draft" && (
                     <div className="flex gap-2">
                       <Button
@@ -338,4 +383,4 @@ export default function WarmupPostsList({ userId, warmupAccount }: WarmupPostsLi
       )}
     </div>
   )
-} 
+}

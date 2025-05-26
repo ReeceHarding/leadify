@@ -26,6 +26,7 @@ export type CampaignStatus =
 export interface CampaignDocument {
   id: string
   userId: string
+  organizationId: string
   name: string
   website: string
   businessDescription?: string // Custom business description when no website
@@ -42,6 +43,7 @@ export interface CampaignDocument {
 // Create campaign data
 export interface CreateCampaignData {
   userId: string
+  organizationId: string
   name: string
   website?: string
   businessDescription?: string

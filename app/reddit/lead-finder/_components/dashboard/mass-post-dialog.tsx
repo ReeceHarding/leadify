@@ -66,29 +66,39 @@ export default function MassPostDialog({
     try {
       // Get leads above threshold that aren't already posted
       const qualifiedLeads = leads.filter(
-        lead => lead.relevanceScore >= scoreThreshold && lead.status !== "posted"
+        lead =>
+          lead.relevanceScore >= scoreThreshold && lead.status !== "posted"
       )
 
       // Get posting history for all subreddits
-      const subreddits = [...new Set(qualifiedLeads.map(lead => lead.subreddit))]
-      const historyResult = await getSubredditPostingHistoryAction(userId, subreddits)
-      
+      const subreddits = [
+        ...new Set(qualifiedLeads.map(lead => lead.subreddit))
+      ]
+      const historyResult = await getSubredditPostingHistoryAction(
+        userId,
+        subreddits
+      )
+
       const now = new Date()
       const limits: SubredditLimit[] = []
       const eligible: any[] = []
 
       // Check each subreddit's posting limit
       for (const subreddit of subreddits) {
-        const history = historyResult.isSuccess 
-          ? historyResult.data.find((h: SubredditPostingHistory) => h.subreddit === subreddit)
+        const history = historyResult.isSuccess
+          ? historyResult.data.find(
+              (h: SubredditPostingHistory) => h.subreddit === subreddit
+            )
           : null
 
-        const lastPostedAt = history?.lastPostedAt 
+        const lastPostedAt = history?.lastPostedAt
           ? new Date(history.lastPostedAt)
           : null
 
         const canPostAt = lastPostedAt
-          ? new Date(lastPostedAt.getTime() + HOURS_BETWEEN_POSTS * 60 * 60 * 1000)
+          ? new Date(
+              lastPostedAt.getTime() + HOURS_BETWEEN_POSTS * 60 * 60 * 1000
+            )
           : now
 
         const canPostNow = canPostAt <= now
@@ -107,7 +117,9 @@ export default function MassPostDialog({
           )
           // Only take the highest scoring lead from each subreddit
           if (subredditLeads.length > 0) {
-            const bestLead = subredditLeads.sort((a, b) => b.relevanceScore - a.relevanceScore)[0]
+            const bestLead = subredditLeads.sort(
+              (a, b) => b.relevanceScore - a.relevanceScore
+            )[0]
             eligible.push(bestLead)
           }
         }
@@ -167,7 +179,7 @@ export default function MassPostDialog({
     const diff = date.getTime() - now.getTime()
     const hours = Math.floor(diff / (1000 * 60 * 60))
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-    
+
     if (hours > 0) {
       return `${hours}h ${minutes}m`
     }
@@ -183,7 +195,8 @@ export default function MassPostDialog({
             Mass Queue Posts
           </DialogTitle>
           <DialogDescription>
-            Queue multiple posts at once based on relevance score, respecting subreddit posting limits.
+            Queue multiple posts at once based on relevance score, respecting
+            subreddit posting limits.
           </DialogDescription>
         </DialogHeader>
 
@@ -192,7 +205,9 @@ export default function MassPostDialog({
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label>Minimum Relevance Score</Label>
-              <span className="text-2xl font-bold text-blue-600">{scoreThreshold}</span>
+              <span className="text-2xl font-bold text-blue-600">
+                {scoreThreshold}
+              </span>
             </div>
             <Slider
               value={[scoreThreshold]}
@@ -211,7 +226,9 @@ export default function MassPostDialog({
           {isAnalyzing ? (
             <div className="py-8 text-center">
               <div className="mx-auto mb-4 size-8 animate-spin rounded-full border-b-2 border-blue-600" />
-              <p className="text-muted-foreground text-sm">Analyzing posting limits...</p>
+              <p className="text-muted-foreground text-sm">
+                Analyzing posting limits...
+              </p>
             </div>
           ) : (
             <>
@@ -219,9 +236,19 @@ export default function MassPostDialog({
               <Alert>
                 <Info className="size-4" />
                 <AlertDescription>
-                  <strong>{eligibleLeads.length} posts</strong> can be queued from{" "}
-                  <strong>{leads.filter(l => l.relevanceScore >= scoreThreshold && l.status !== "posted").length} qualified posts</strong>
-                  {" "}(score ≥ {scoreThreshold})
+                  <strong>{eligibleLeads.length} posts</strong> can be queued
+                  from{" "}
+                  <strong>
+                    {
+                      leads.filter(
+                        l =>
+                          l.relevanceScore >= scoreThreshold &&
+                          l.status !== "posted"
+                      ).length
+                    }{" "}
+                    qualified posts
+                  </strong>{" "}
+                  (score ≥ {scoreThreshold})
                 </AlertDescription>
               </Alert>
 
@@ -236,10 +263,16 @@ export default function MassPostDialog({
                         className="bg-card flex items-center justify-between rounded-lg border p-3"
                       >
                         <div className="flex items-center gap-3">
-                          <div className={`size-2 rounded-full ${
-                            limit.canPostNow ? "bg-green-500" : "bg-yellow-500"
-                          }`} />
-                          <span className="font-medium">r/{limit.subreddit}</span>
+                          <div
+                            className={`size-2 rounded-full ${
+                              limit.canPostNow
+                                ? "bg-green-500"
+                                : "bg-yellow-500"
+                            }`}
+                          />
+                          <span className="font-medium">
+                            r/{limit.subreddit}
+                          </span>
                         </div>
                         <div className="flex items-center gap-2">
                           {limit.canPostNow ? (
@@ -248,7 +281,10 @@ export default function MassPostDialog({
                               Ready to post
                             </Badge>
                           ) : (
-                            <Badge variant="outline" className="gap-1 text-yellow-600">
+                            <Badge
+                              variant="outline"
+                              className="gap-1 text-yellow-600"
+                            >
                               <Clock className="size-3" />
                               Wait {formatTimeUntil(limit.canPostAt)}
                             </Badge>
@@ -266,11 +302,18 @@ export default function MassPostDialog({
                   <Label>Posts to Queue ({eligibleLeads.length})</Label>
                   <div className="max-h-32 space-y-2 overflow-y-auto">
                     {eligibleLeads.slice(0, 5).map(lead => (
-                      <div key={lead.id} className="flex items-center justify-between text-sm">
-                        <span className="flex-1 truncate">{lead.postTitle}</span>
+                      <div
+                        key={lead.id}
+                        className="flex items-center justify-between text-sm"
+                      >
+                        <span className="flex-1 truncate">
+                          {lead.postTitle}
+                        </span>
                         <div className="ml-2 flex items-center gap-2">
                           <Badge variant="secondary">r/{lead.subreddit}</Badge>
-                          <Badge variant="outline">{lead.relevanceScore}%</Badge>
+                          <Badge variant="outline">
+                            {lead.relevanceScore}%
+                          </Badge>
                         </div>
                       </div>
                     ))}
@@ -287,8 +330,9 @@ export default function MassPostDialog({
               <Alert>
                 <AlertCircle className="size-4" />
                 <AlertDescription className="text-xs">
-                  Posts are limited to one per subreddit every 4 hours to avoid spam detection.
-                  Only the highest scoring post from each subreddit will be queued.
+                  Posts are limited to one per subreddit every 4 hours to avoid
+                  spam detection. Only the highest scoring post from each
+                  subreddit will be queued.
                 </AlertDescription>
               </Alert>
             </>
@@ -315,4 +359,4 @@ export default function MassPostDialog({
       </DialogContent>
     </Dialog>
   )
-} 
+}

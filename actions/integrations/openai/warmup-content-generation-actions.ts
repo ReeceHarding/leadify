@@ -30,8 +30,10 @@ export async function recommendSubredditsAction(
   productDescription: string
 ): Promise<ActionState<SubredditRecommendation[]>> {
   try {
-    console.log("🤖 [RECOMMEND-SUBREDDITS] Generating subreddit recommendations")
-    
+    console.log(
+      "🤖 [RECOMMEND-SUBREDDITS] Generating subreddit recommendations"
+    )
+
     const prompt = `Based on these keywords: ${userKeywords.join(", ")} and this product/service description: "${productDescription}"
     
     Recommend 5-10 subreddits where the user can naturally build karma and establish themselves as a helpful community member.
@@ -59,7 +61,8 @@ export async function recommendSubredditsAction(
       messages: [
         {
           role: "system",
-          content: "You are a Reddit marketing expert who helps users find relevant subreddits to build authority in."
+          content:
+            "You are a Reddit marketing expert who helps users find relevant subreddits to build authority in."
         },
         {
           role: "user",
@@ -78,9 +81,11 @@ export async function recommendSubredditsAction(
 
     const result = JSON.parse(content)
     const recommendations = result.recommendations || result.subreddits || []
-    
-    console.log(`✅ [RECOMMEND-SUBREDDITS] Generated ${recommendations.length} recommendations`)
-    
+
+    console.log(
+      `✅ [RECOMMEND-SUBREDDITS] Generated ${recommendations.length} recommendations`
+    )
+
     return {
       isSuccess: true,
       message: "Subreddit recommendations generated",
@@ -97,10 +102,13 @@ export async function analyzeSubredditStyleAction(
 ): Promise<ActionState<{ writingStyle: string; commonTopics: string[] }>> {
   try {
     console.log("🤖 [ANALYZE-STYLE] Analyzing subreddit writing style")
-    
-    const postsText = topPosts.map(post => 
-      `Title: ${post.title}\nContent: ${post.selftext || post.content || ""}\nUpvotes: ${post.score || post.upvotes}`
-    ).join("\n\n---\n\n")
+
+    const postsText = topPosts
+      .map(
+        post =>
+          `Title: ${post.title}\nContent: ${post.selftext || post.content || ""}\nUpvotes: ${post.score || post.upvotes}`
+      )
+      .join("\n\n---\n\n")
 
     const prompt = `Analyze these top posts from a subreddit and extract VERY SPECIFIC writing patterns:
     
@@ -132,7 +140,8 @@ export async function analyzeSubredditStyleAction(
       messages: [
         {
           role: "system",
-          content: "You are an expert at analyzing Reddit content patterns and capturing exact writing styles down to the smallest details."
+          content:
+            "You are an expert at analyzing Reddit content patterns and capturing exact writing styles down to the smallest details."
         },
         {
           role: "user",
@@ -150,9 +159,9 @@ export async function analyzeSubredditStyleAction(
     }
 
     const analysis = JSON.parse(content)
-    
+
     console.log("✅ [ANALYZE-STYLE] Style analysis completed")
-    
+
     return {
       isSuccess: true,
       message: "Style analysis completed",
@@ -175,7 +184,7 @@ export async function generateWarmupPostAction(
 ): Promise<ActionState<GeneratedPost>> {
   try {
     console.log(`🤖 [GENERATE-POST] Generating warm-up post for r/${subreddit}`)
-    
+
     const prompt = `You need to write a Reddit post that could have been written by any of the top posters in r/${subreddit}.
 
     EXACT WRITING STYLE TO COPY:
@@ -229,9 +238,9 @@ export async function generateWarmupPostAction(
     }
 
     const post = JSON.parse(content)
-    
+
     console.log("✅ [GENERATE-POST] Post generated successfully")
-    
+
     return {
       isSuccess: true,
       message: "Post generated successfully",
@@ -252,9 +261,11 @@ export async function generateWarmupCommentsAction(
 ): Promise<ActionState<{ commentId: string; reply: string }[]>> {
   try {
     console.log("🤖 [GENERATE-COMMENTS] Generating comment replies")
-    
+
     const commentsToReply = comments
-      .filter(comment => comment.data && !comment.data.author.includes("[deleted]"))
+      .filter(
+        comment => comment.data && !comment.data.author.includes("[deleted]")
+      )
       .slice(0, 5) // Limit to 5 comments max
 
     if (commentsToReply.length === 0) {
@@ -268,9 +279,9 @@ export async function generateWarmupCommentsAction(
     const prompt = `Generate short, helpful replies to these Reddit comments. Context: ${postContext}
     
     Comments to reply to:
-    ${commentsToReply.map((comment, i) => 
-      `${i + 1}. "${comment.data.body}"`
-    ).join("\n")}
+    ${commentsToReply
+      .map((comment, i) => `${i + 1}. "${comment.data.body}"`)
+      .join("\n")}
     
     Generate replies that are:
     - Very short (max 10 words, preferably 3-7 words)
@@ -293,7 +304,8 @@ export async function generateWarmupCommentsAction(
       messages: [
         {
           role: "system",
-          content: "You are a helpful Reddit user who writes very short, friendly replies in plain text to build karma. You NEVER use hyphens or dashes in your replies."
+          content:
+            "You are a helpful Reddit user who writes very short, friendly replies in plain text to build karma. You NEVER use hyphens or dashes in your replies."
         },
         {
           role: "user",
@@ -310,13 +322,17 @@ export async function generateWarmupCommentsAction(
     }
 
     const result = JSON.parse(content)
-    const replies = (result.replies || []).map((reply: any) => ({
-      commentId: commentsToReply[reply.commentIndex - 1]?.data?.id || "",
-      reply: reply.reply
-    })).filter((r: any) => r.commentId)
-    
-    console.log(`✅ [GENERATE-COMMENTS] Generated ${replies.length} comment replies`)
-    
+    const replies = (result.replies || [])
+      .map((reply: any) => ({
+        commentId: commentsToReply[reply.commentIndex - 1]?.data?.id || "",
+        reply: reply.reply
+      }))
+      .filter((r: any) => r.commentId)
+
+    console.log(
+      `✅ [GENERATE-COMMENTS] Generated ${replies.length} comment replies`
+    )
+
     return {
       isSuccess: true,
       message: "Comment replies generated",
@@ -326,4 +342,4 @@ export async function generateWarmupCommentsAction(
     console.error("❌ [GENERATE-COMMENTS] Error:", error)
     return { isSuccess: false, message: "Failed to generate replies" }
   }
-} 
+}

@@ -81,7 +81,8 @@ export default function ProfileStep({
         </div>
         <h1 className="text-3xl font-bold text-white">Set Up Your Profile</h1>
         <p className="text-base leading-relaxed text-gray-400">
-          First, let's create your professional profile. This helps us personalize your Reddit lead generation experience.
+          First, let's create your professional profile. This helps us
+          personalize your Reddit lead generation experience.
         </p>
       </div>
 
@@ -116,7 +117,8 @@ export default function ProfileStep({
             </Button>
           </div>
           <p className="max-w-xs text-sm text-gray-400">
-            <strong>Optional:</strong> Click the camera icon to upload your photo. This helps build trust when engaging with prospects.
+            <strong>Optional:</strong> Click the camera icon to upload your
+            photo. This helps build trust when engaging with prospects.
           </p>
           <input
             ref={fileInputRef}

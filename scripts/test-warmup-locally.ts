@@ -27,11 +27,11 @@ function log(message: string, color: string = colors.reset) {
 async function callEndpoint(endpoint: string, name: string) {
   try {
     log(`🔧 Calling ${name}...`, colors.cyan)
-    
+
     const response = await fetch(`http://localhost:3000${endpoint}`, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${process.env.CRON_SECRET || "test-secret"}`,
+        Authorization: `Bearer ${process.env.CRON_SECRET || "test-secret"}`,
         "Content-Type": "application/json"
       }
     })
@@ -54,7 +54,10 @@ async function processWarmupQueue() {
 }
 
 async function checkWarmupComments() {
-  return callEndpoint("/api/queue/check-warmup-comments", "Check Warmup Comments")
+  return callEndpoint(
+    "/api/queue/check-warmup-comments",
+    "Check Warmup Comments"
+  )
 }
 
 async function runScheduler() {
@@ -62,14 +65,20 @@ async function runScheduler() {
   log("Press Ctrl+C to stop\n", colors.yellow)
 
   // Process warmup queue every 5 minutes
-  const warmupInterval = setInterval(async () => {
-    await processWarmupQueue()
-  }, 5 * 60 * 1000) // 5 minutes
+  const warmupInterval = setInterval(
+    async () => {
+      await processWarmupQueue()
+    },
+    5 * 60 * 1000
+  ) // 5 minutes
 
   // Check comments every 30 minutes
-  const commentInterval = setInterval(async () => {
-    await checkWarmupComments()
-  }, 30 * 60 * 1000) // 30 minutes
+  const commentInterval = setInterval(
+    async () => {
+      await checkWarmupComments()
+    },
+    30 * 60 * 1000
+  ) // 30 minutes
 
   // Run immediately on start
   await processWarmupQueue()
@@ -89,7 +98,7 @@ const isTestMode = process.argv.includes("--test")
 
 if (isTestMode) {
   log("🧪 Running in TEST MODE - Faster intervals", colors.yellow)
-  
+
   async function runTestMode() {
     // Run every 30 seconds for testing
     setInterval(async () => {
@@ -97,9 +106,12 @@ if (isTestMode) {
     }, 30 * 1000) // 30 seconds
 
     // Check comments every 2 minutes for testing
-    setInterval(async () => {
-      await checkWarmupComments()
-    }, 2 * 60 * 1000) // 2 minutes
+    setInterval(
+      async () => {
+        await checkWarmupComments()
+      },
+      2 * 60 * 1000
+    ) // 2 minutes
 
     // Run immediately
     await processWarmupQueue()
@@ -109,4 +121,4 @@ if (isTestMode) {
   runTestMode()
 } else {
   runScheduler()
-} 
+}

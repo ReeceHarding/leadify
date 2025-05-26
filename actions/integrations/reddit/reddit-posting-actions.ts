@@ -181,7 +181,10 @@ export async function postCommentAndUpdateStatusAction(
     })
 
     if (!postResult.isSuccess) {
-      console.error("📤 [REDDIT-POST] Failed to post comment:", postResult.message)
+      console.error(
+        "📤 [REDDIT-POST] Failed to post comment:",
+        postResult.message
+      )
       return postResult
     }
 
@@ -212,13 +215,21 @@ export async function postCommentAndUpdateStatusAction(
     if (subreddit && username) {
       const { auth } = await import("@clerk/nextjs/server")
       const { userId } = await auth()
-      
+
       if (userId) {
-        const historyResult = await updatePostingHistoryAction(userId, subreddit)
+        const historyResult = await updatePostingHistoryAction(
+          userId,
+          subreddit
+        )
         if (!historyResult.isSuccess) {
-          console.error("📤 [REDDIT-POST] Failed to update posting history:", historyResult.message)
+          console.error(
+            "📤 [REDDIT-POST] Failed to update posting history:",
+            historyResult.message
+          )
         } else {
-          console.log("📤 [REDDIT-POST] Posting history updated for r/" + subreddit)
+          console.log(
+            "📤 [REDDIT-POST] Posting history updated for r/" + subreddit
+          )
         }
       }
     }

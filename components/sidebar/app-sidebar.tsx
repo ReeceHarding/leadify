@@ -23,18 +23,6 @@ import { TeamSwitcher } from "./team-switcher"
 
 // Generalized data
 const data = {
-  user: {
-    name: "User",
-    email: "user@example.com",
-    avatar: "/avatars/user.jpg"
-  },
-  teams: [
-    {
-      name: "My Organization",
-      logo: Building2,
-      plan: "Pro"
-    }
-  ],
   navMain: [
     {
       title: "Dashboard",
@@ -67,7 +55,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <TeamSwitcher />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />

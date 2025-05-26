@@ -6,7 +6,7 @@ import {
   DialogContent,
   DialogDescription,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -16,14 +16,14 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
   Collapsible,
   CollapsibleContent,
-  CollapsibleTrigger,
+  CollapsibleTrigger
 } from "@/components/ui/collapsible"
-import { 
-  ThumbsUp, 
-  Clock, 
-  MessageSquare, 
-  User, 
-  Hash, 
+import {
+  ThumbsUp,
+  Clock,
+  MessageSquare,
+  User,
+  Hash,
   Loader2,
   ExternalLink,
   ChevronRight,
@@ -71,10 +71,10 @@ interface RedditComment {
   depth?: number
 }
 
-export default function PostDetailPopup({ 
-  open, 
-  onOpenChange, 
-  lead 
+export default function PostDetailPopup({
+  open,
+  onOpenChange,
+  lead
 }: PostDetailPopupProps) {
   const [fullContent, setFullContent] = useState<string>("")
   const [isLoading, setIsLoading] = useState(false)
@@ -93,20 +93,20 @@ export default function PostDetailPopup({
   const fetchFullContent = async () => {
     setIsLoading(true)
     setError(null)
-    
+
     try {
       const urlMatch = lead.postUrl.match(/\/comments\/([a-zA-Z0-9]+)/)
       const threadId = urlMatch ? urlMatch[1] : lead.originalData?.threadId
-      
+
       if (!threadId) {
         setFullContent(lead.postContentSnippet)
         return
       }
 
       console.log(`🔍 Fetching full content for thread: ${threadId}`)
-      
+
       const result = await fetchRedditThreadAction(threadId, lead.subreddit)
-      
+
       if (result.isSuccess) {
         setFullContent(result.data.content || result.data.title)
       } else {
@@ -124,7 +124,7 @@ export default function PostDetailPopup({
 
   const fetchComments = async () => {
     setLoadingComments(true)
-    
+
     // Simulate fetching comments - in production this would call a real API
     setTimeout(() => {
       const mockComments: RedditComment[] = [
@@ -161,7 +161,7 @@ export default function PostDetailPopup({
           created: "3 hours ago"
         }
       ]
-      
+
       setComments(mockComments)
       setLoadingComments(false)
     }, 1000)
@@ -191,7 +191,9 @@ export default function PostDetailPopup({
       key={comment.id}
       className={cn(
         "relative border-l-2 pl-4",
-        isGenerated ? "rounded-r-lg border-blue-500 bg-blue-50/50 py-3 pr-4 dark:bg-blue-950/20" : "border-gray-200 dark:border-gray-700",
+        isGenerated
+          ? "rounded-r-lg border-blue-500 bg-blue-50/50 py-3 pr-4 dark:bg-blue-950/20"
+          : "border-gray-200 dark:border-gray-700",
         comment.depth && `ml-${comment.depth * 6}`
       )}
     >
@@ -200,7 +202,7 @@ export default function PostDetailPopup({
           <div className="size-2 rounded-full bg-white" />
         </div>
       )}
-      
+
       <div className="space-y-2">
         <div className="flex items-center gap-2 text-sm">
           <Avatar className="size-6">
@@ -208,20 +210,28 @@ export default function PostDetailPopup({
               {comment.author.substring(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
-          <span className={cn("font-medium", isGenerated && "text-blue-600 dark:text-blue-400")}>
+          <span
+            className={cn(
+              "font-medium",
+              isGenerated && "text-blue-600 dark:text-blue-400"
+            )}
+          >
             u/{comment.author}
           </span>
           {isGenerated && (
-            <Badge variant="outline" className="border-blue-300 bg-blue-100 text-xs text-blue-700">
+            <Badge
+              variant="outline"
+              className="border-blue-300 bg-blue-100 text-xs text-blue-700"
+            >
               Your Comment
             </Badge>
           )}
           <span className="text-muted-foreground">•</span>
           <span className="text-muted-foreground">{comment.created}</span>
         </div>
-        
+
         <p className="whitespace-pre-wrap text-sm">{comment.body}</p>
-        
+
         <div className="text-muted-foreground flex items-center gap-4 text-xs">
           <button className="flex items-center gap-1 hover:text-orange-500">
             <ThumbsUp className="size-3" />
@@ -236,7 +246,7 @@ export default function PostDetailPopup({
           )}
         </div>
       </div>
-      
+
       {comment.replies && comment.replies.length > 0 && (
         <div className="mt-4 space-y-4">
           {comment.replies.map(reply => renderComment(reply))}
@@ -244,7 +254,7 @@ export default function PostDetailPopup({
       )}
     </div>
   )
-  
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] max-w-4xl">
@@ -277,7 +287,7 @@ export default function PostDetailPopup({
                   {lead.keyword}
                 </Badge>
               )}
-              <Badge 
+              <Badge
                 variant={lead.relevanceScore >= 70 ? "default" : "secondary"}
                 className="text-xs"
               >
@@ -286,7 +296,7 @@ export default function PostDetailPopup({
             </div>
           </DialogDescription>
         </DialogHeader>
-        
+
         <ScrollArea className="mt-4 max-h-[60vh]">
           <div className="space-y-4">
             {!showComments ? (
@@ -316,9 +326,12 @@ export default function PostDetailPopup({
                     </div>
                   )}
                 </div>
-                
+
                 {/* AI Analysis Section */}
-                <Collapsible open={isAnalysisOpen} onOpenChange={setIsAnalysisOpen}>
+                <Collapsible
+                  open={isAnalysisOpen}
+                  onOpenChange={setIsAnalysisOpen}
+                >
                   <CollapsibleTrigger asChild>
                     <Button
                       variant="ghost"
@@ -337,13 +350,14 @@ export default function PostDetailPopup({
                   </CollapsibleTrigger>
                   <CollapsibleContent className="mt-2">
                     <div className="rounded-md bg-gray-50 p-3 text-xs text-gray-600 dark:bg-gray-900/50 dark:text-gray-400">
-                      {lead.reasoning || "AI analysis for why this is a good match for your business."}
+                      {lead.reasoning ||
+                        "AI analysis for why this is a good match for your business."}
                     </div>
                   </CollapsibleContent>
                 </Collapsible>
-                
+
                 <Separator />
-                
+
                 <div className="flex items-center justify-between">
                   <Button
                     variant="outline"
@@ -354,12 +368,8 @@ export default function PostDetailPopup({
                     View Comments with Your Response
                     <ChevronRight className="size-4" />
                   </Button>
-                  
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    asChild
-                  >
+
+                  <Button variant="ghost" size="sm" asChild>
                     <a
                       href={lead.postUrl}
                       target="_blank"
@@ -387,20 +397,20 @@ export default function PostDetailPopup({
                     Back to Post
                   </Button>
                 </div>
-                
+
                 <div className="rounded-lg bg-blue-50 p-3 text-sm dark:bg-blue-950/30">
                   <p className="text-blue-700 dark:text-blue-300">
                     Preview showing how your comment will appear in the thread
                   </p>
                 </div>
-                
+
                 {loadingComments ? (
                   <div className="flex items-center justify-center py-8">
                     <Loader2 className="text-muted-foreground size-6 animate-spin" />
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {comments.map(comment => 
+                    {comments.map(comment =>
                       renderComment(comment, comment.id === "generated")
                     )}
                   </div>
@@ -412,4 +422,4 @@ export default function PostDetailPopup({
       </DialogContent>
     </Dialog>
   )
-} 
+}

@@ -12,8 +12,8 @@ interface AnimatedCopyButtonProps {
   size?: "default" | "sm" | "lg" | "icon"
 }
 
-export default function AnimatedCopyButton({ 
-  text, 
+export default function AnimatedCopyButton({
+  text,
   className,
   variant = "ghost",
   size = "icon"
@@ -37,7 +37,8 @@ export default function AnimatedCopyButton({
       onClick={handleCopy}
       className={cn(
         "transition-all duration-200",
-        copied && "bg-green-500/10 text-green-600 hover:bg-green-500/20 hover:text-green-700",
+        copied &&
+          "bg-green-500/10 text-green-600 hover:bg-green-500/20 hover:text-green-700",
         className
       )}
     >
@@ -48,4 +49,4 @@ export default function AnimatedCopyButton({
       )}
     </Button>
   )
-} 
+}

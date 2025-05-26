@@ -129,7 +129,9 @@ export async function exchangeRedditCodeForTokensAction(
     })
 
     if (tokens.refresh_token) {
-      console.log(`🔑 [OAUTH] Storing refresh token: ${tokens.refresh_token.substring(0,10)}...`)
+      console.log(
+        `🔑 [OAUTH] Storing refresh token: ${tokens.refresh_token.substring(0, 10)}...`
+      )
       cookieStore.set("reddit_refresh_token", tokens.refresh_token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -139,7 +141,10 @@ export async function exchangeRedditCodeForTokensAction(
       })
     }
 
-    console.log("✅ Reddit OAuth tokens obtained successfully. Scope:", tokens.scope)
+    console.log(
+      "✅ Reddit OAuth tokens obtained successfully. Scope:",
+      tokens.scope
+    )
 
     return {
       isSuccess: true,
@@ -159,7 +164,9 @@ export async function getRedditAccessTokenAction(): Promise<
   ActionState<string>
 > {
   try {
-    console.log("🔑 [OAUTH] Attempting to get Reddit access token from cookie...")
+    console.log(
+      "🔑 [OAUTH] Attempting to get Reddit access token from cookie..."
+    )
     const cookieStore = await cookies()
     const accessToken = cookieStore.get("reddit_access_token")?.value
 
@@ -167,7 +174,9 @@ export async function getRedditAccessTokenAction(): Promise<
       console.warn("⚠️ [OAUTH] No Reddit access token found in cookies.")
       return { isSuccess: false, message: "No Reddit access token found" }
     }
-    console.log(`✅ [OAUTH] Retrieved access token: ${accessToken.substring(0,20)}...`)
+    console.log(
+      `✅ [OAUTH] Retrieved access token: ${accessToken.substring(0, 20)}...`
+    )
 
     return {
       isSuccess: true,
@@ -189,7 +198,9 @@ export async function refreshRedditTokenAction(): Promise<
   try {
     console.log("🔄 [OAUTH] Attempting to refresh Reddit token...")
     if (!process.env.REDDIT_CLIENT_ID || !process.env.REDDIT_CLIENT_SECRET) {
-      console.error("❌ [OAUTH] Reddit client ID or secret not configured for token refresh.")
+      console.error(
+        "❌ [OAUTH] Reddit client ID or secret not configured for token refresh."
+      )
       return { isSuccess: false, message: "Reddit credentials not configured" }
     }
 
@@ -197,19 +208,29 @@ export async function refreshRedditTokenAction(): Promise<
     const refreshToken = cookieStore.get("reddit_refresh_token")?.value
 
     if (!refreshToken) {
-      console.warn("⚠️ [OAUTH] No refresh token found in cookies for token refresh.")
+      console.warn(
+        "⚠️ [OAUTH] No refresh token found in cookies for token refresh."
+      )
       return { isSuccess: false, message: "No refresh token available" }
     }
-    console.log(`🔄 [OAUTH] Using refresh token: ${refreshToken.substring(0,10)}...`)
+    console.log(
+      `🔄 [OAUTH] Using refresh token: ${refreshToken.substring(0, 10)}...`
+    )
 
-    const basicAuth = Buffer.from(`${process.env.REDDIT_CLIENT_ID}:${process.env.REDDIT_CLIENT_SECRET}`).toString("base64")
+    const basicAuth = Buffer.from(
+      `${process.env.REDDIT_CLIENT_ID}:${process.env.REDDIT_CLIENT_SECRET}`
+    ).toString("base64")
     const requestBody = new URLSearchParams({
       grant_type: "refresh_token",
       refresh_token: refreshToken
     })
 
-    console.log(`📬 [OAUTH] Refresh token request body: ${requestBody.toString()}`)
-    console.log(`📬 [OAUTH] Refresh token request auth header: Basic ${basicAuth.substring(0,20)}...`)
+    console.log(
+      `📬 [OAUTH] Refresh token request body: ${requestBody.toString()}`
+    )
+    console.log(
+      `📬 [OAUTH] Refresh token request auth header: Basic ${basicAuth.substring(0, 20)}...`
+    )
 
     const tokenResponse = await fetch(
       "https://www.reddit.com/api/v1/access_token",
@@ -230,7 +251,12 @@ export async function refreshRedditTokenAction(): Promise<
 
     if (!tokenResponse.ok) {
       const errorText = await tokenResponse.text()
-      console.error("❌ [OAUTH] Token refresh failed. Status:", tokenResponse.status, "Body:", errorText)
+      console.error(
+        "❌ [OAUTH] Token refresh failed. Status:",
+        tokenResponse.status,
+        "Body:",
+        errorText
+      )
       return {
         isSuccess: false,
         message: `Token refresh failed: ${tokenResponse.status}`
@@ -248,7 +274,12 @@ export async function refreshRedditTokenAction(): Promise<
       sameSite: "lax" // Added sameSite
     })
 
-    console.log("✅ Reddit tokens refreshed successfully. New access token expires in:", tokens.expires_in, "Scope:", tokens.scope)
+    console.log(
+      "✅ Reddit tokens refreshed successfully. New access token expires in:",
+      tokens.expires_in,
+      "Scope:",
+      tokens.scope
+    )
 
     return {
       isSuccess: true,

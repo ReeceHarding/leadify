@@ -1,7 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
@@ -9,7 +15,11 @@ import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
 import { Loader2, Plus, Settings, Play, Pause } from "lucide-react"
-import { getWarmupAccountByUserIdAction, createWarmupAccountAction, updateWarmupAccountAction } from "@/actions/db/warmup-actions"
+import {
+  getWarmupAccountByUserIdAction,
+  createWarmupAccountAction,
+  updateWarmupAccountAction
+} from "@/actions/db/warmup-actions"
 import { getRedditUserInfoAction } from "@/actions/integrations/reddit/reddit-warmup-actions"
 import { generateRedditAuthUrlAction } from "@/actions/integrations/reddit/reddit-oauth-actions"
 import { SerializedWarmupAccountDocument } from "@/db/firestore/warmup-collections"
@@ -22,7 +32,8 @@ interface WarmupDashboardProps {
 }
 
 export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
-  const [warmupAccount, setWarmupAccount] = useState<SerializedWarmupAccountDocument | null>(null)
+  const [warmupAccount, setWarmupAccount] =
+    useState<SerializedWarmupAccountDocument | null>(null)
   const [redditUsername, setRedditUsername] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isConnecting, setIsConnecting] = useState(false)
@@ -42,7 +53,10 @@ export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
         setWarmupAccount(result.data)
       }
     } catch (error) {
-      console.error("❌ [WARMUP-DASHBOARD] Error loading warm-up account:", error)
+      console.error(
+        "❌ [WARMUP-DASHBOARD] Error loading warm-up account:",
+        error
+      )
       toast({
         title: "Error",
         description: "Failed to load warm-up account",
@@ -61,7 +75,10 @@ export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
         setRedditUsername(result.data.name)
       }
     } catch (error) {
-      console.error("❌ [WARMUP-DASHBOARD] Error checking Reddit connection:", error)
+      console.error(
+        "❌ [WARMUP-DASHBOARD] Error checking Reddit connection:",
+        error
+      )
     }
   }
 
@@ -69,7 +86,7 @@ export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
     try {
       setIsConnecting(true)
       console.log("🔗 [WARMUP-DASHBOARD] Connecting Reddit account")
-      
+
       const result = await generateRedditAuthUrlAction()
       if (result.isSuccess && result.data) {
         window.location.href = result.data.authUrl
@@ -96,7 +113,7 @@ export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
     try {
       setIsSettingUp(true)
       console.log("🔧 [WARMUP-DASHBOARD] Setting up warm-up account")
-      
+
       if (!redditUsername) {
         toast({
           title: "Error",
@@ -118,7 +135,8 @@ export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
         setWarmupAccount(result.data)
         toast({
           title: "Success",
-          description: "Warm-up account created! Now add some subreddits to get started.",
+          description:
+            "Warm-up account created! Now add some subreddits to get started."
         })
       } else {
         toast({
@@ -143,8 +161,11 @@ export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
     if (!warmupAccount) return
 
     try {
-      console.log("🔧 [WARMUP-DASHBOARD] Toggling warm-up active state:", checked)
-      
+      console.log(
+        "🔧 [WARMUP-DASHBOARD] Toggling warm-up active state:",
+        checked
+      )
+
       const result = await updateWarmupAccountAction(warmupAccount.id, {
         isActive: checked
       })
@@ -186,12 +207,13 @@ export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
         <CardHeader>
           <CardTitle>Connect Your Reddit Account</CardTitle>
           <CardDescription>
-            To start the warm-up process, you need to connect your Reddit account.
+            To start the warm-up process, you need to connect your Reddit
+            account.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Button 
-            onClick={handleConnectReddit} 
+          <Button
+            onClick={handleConnectReddit}
             disabled={isConnecting}
             className="w-full sm:w-auto"
           >
@@ -220,9 +242,7 @@ export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Warm-up Status</CardTitle>
-              <CardDescription>
-                Connected as u/{redditUsername}
-              </CardDescription>
+              <CardDescription>Connected as u/{redditUsername}</CardDescription>
             </div>
             <Badge variant={warmupAccount?.isActive ? "default" : "secondary"}>
               {warmupAccount?.isActive ? "Active" : "Inactive"}
@@ -240,10 +260,16 @@ export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
                   onCheckedChange={handleToggleActive}
                 />
               </div>
-              
+
               <div className="text-muted-foreground text-sm">
-                <p>Started: {new Date(warmupAccount.warmupStartDate).toLocaleDateString()}</p>
-                <p>Ends: {new Date(warmupAccount.warmupEndDate).toLocaleDateString()}</p>
+                <p>
+                  Started:{" "}
+                  {new Date(warmupAccount.warmupStartDate).toLocaleDateString()}
+                </p>
+                <p>
+                  Ends:{" "}
+                  {new Date(warmupAccount.warmupEndDate).toLocaleDateString()}
+                </p>
                 <p>Daily post limit: {warmupAccount.dailyPostLimit} posts</p>
                 <p>Posting mode: {warmupAccount.postingMode}</p>
               </div>
@@ -251,7 +277,8 @@ export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
           ) : (
             <div className="py-8 text-center">
               <p className="text-muted-foreground mb-4">
-                No warm-up account found. Set up your warm-up configuration to get started.
+                No warm-up account found. Set up your warm-up configuration to
+                get started.
               </p>
               <Button onClick={handleSetupWarmup} disabled={isSettingUp}>
                 {isSettingUp ? (
@@ -289,10 +316,7 @@ export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
           </TabsContent>
 
           <TabsContent value="posts" className="space-y-4">
-            <WarmupPostsList
-              userId={userId}
-              warmupAccount={warmupAccount}
-            />
+            <WarmupPostsList userId={userId} warmupAccount={warmupAccount} />
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-4">
@@ -305,4 +329,4 @@ export default function WarmupDashboard({ userId }: WarmupDashboardProps) {
       )}
     </div>
   )
-} 
+}

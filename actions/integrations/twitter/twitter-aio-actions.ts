@@ -51,7 +51,8 @@ export async function fetchUserTweetsAction(
       console.error("🔥 [TWITTER-AIO] API key not found")
       return {
         isSuccess: false,
-        message: "Twitter AIO API key not configured. Please add TWITTER_AIO_API_KEY to your environment variables."
+        message:
+          "Twitter AIO API key not configured. Please add TWITTER_AIO_API_KEY to your environment variables."
       }
     }
 
@@ -64,7 +65,7 @@ export async function fetchUserTweetsAction(
       fromTheseAccounts: [cleanUsername],
       removeReplies: true // Only get original tweets, not replies
     }
-    
+
     const url = `${TWITTER_AIO_BASE_URL}/search`
     const params = new URLSearchParams({
       query: `from:${cleanUsername}`, // Basic query to get tweets from user
@@ -72,7 +73,7 @@ export async function fetchUserTweetsAction(
       category: "Latest", // Get latest tweets
       filters: JSON.stringify(filters)
     })
-    
+
     const fullUrl = `${url}?${params}`
     console.log("🔥 [TWITTER-AIO] Request URL:", fullUrl)
     console.log("🔥 [TWITTER-AIO] Filters:", JSON.stringify(filters, null, 2))
@@ -82,20 +83,30 @@ export async function fetchUserTweetsAction(
       headers: {
         "X-RapidAPI-Key": TWITTER_AIO_API_KEY,
         "X-RapidAPI-Host": "twitter-aio.p.rapidapi.com",
-        "Accept": "application/json"
+        Accept: "application/json"
       }
     })
 
     console.log("🔥 [TWITTER-AIO] Response status:", response.status)
-    console.log("🔥 [TWITTER-AIO] Response headers:", Object.fromEntries(response.headers.entries()))
+    console.log(
+      "🔥 [TWITTER-AIO] Response headers:",
+      Object.fromEntries(response.headers.entries())
+    )
 
     const responseText = await response.text()
     console.log("🔥 [TWITTER-AIO] Raw response length:", responseText.length)
-    console.log("🔥 [TWITTER-AIO] Raw response preview:", responseText.substring(0, 500))
+    console.log(
+      "🔥 [TWITTER-AIO] Raw response preview:",
+      responseText.substring(0, 500)
+    )
 
     if (!response.ok) {
-      console.error("🔥 [TWITTER-AIO] API error:", response.status, responseText)
-      
+      console.error(
+        "🔥 [TWITTER-AIO] API error:",
+        response.status,
+        responseText
+      )
+
       // Handle specific error cases
       if (response.status === 404) {
         return {
@@ -115,10 +126,11 @@ export async function fetchUserTweetsAction(
       } else if (response.status === 403) {
         return {
           isSuccess: false,
-          message: "Access forbidden. The API key may not have the required permissions."
+          message:
+            "Access forbidden. The API key may not have the required permissions."
         }
       }
-      
+
       return {
         isSuccess: false,
         message: `Twitter API error: ${response.status} - ${responseText}`
@@ -133,13 +145,20 @@ export async function fetchUserTweetsAction(
       console.error("🔥 [TWITTER-AIO] Failed to parse response:", parseError)
       return {
         isSuccess: false,
-        message: "Invalid response from Twitter API. The service may be experiencing issues."
+        message:
+          "Invalid response from Twitter API. The service may be experiencing issues."
       }
     }
 
     console.log("🔥 [TWITTER-AIO] Response data type:", typeof data)
-    console.log("🔥 [TWITTER-AIO] Response data keys:", data ? Object.keys(data) : 'null')
-    console.log("🔥 [TWITTER-AIO] Full response structure:", JSON.stringify(data, null, 2).substring(0, 1000))
+    console.log(
+      "🔥 [TWITTER-AIO] Response data keys:",
+      data ? Object.keys(data) : "null"
+    )
+    console.log(
+      "🔥 [TWITTER-AIO] Full response structure:",
+      JSON.stringify(data, null, 2).substring(0, 1000)
+    )
 
     // Check for API error in response
     if (data && data.error) {
@@ -151,17 +170,18 @@ export async function fetchUserTweetsAction(
     }
 
     // Check if response is empty object
-    if (data && typeof data === 'object' && Object.keys(data).length === 0) {
+    if (data && typeof data === "object" && Object.keys(data).length === 0) {
       console.error("🔥 [TWITTER-AIO] API returned empty object")
       return {
         isSuccess: false,
-        message: "The Twitter API service is currently not returning data. This appears to be an issue with the Twitter AIO service. Please try again later or contact support if the issue persists."
+        message:
+          "The Twitter API service is currently not returning data. This appears to be an issue with the Twitter AIO service. Please try again later or contact support if the issue persists."
       }
     }
 
     // Extract tweets from response
     let tweets: TwitterAIOTweet[] = []
-    
+
     if (data && data.tweets && Array.isArray(data.tweets)) {
       tweets = data.tweets
       console.log("🔥 [TWITTER-AIO] Found tweets in tweets array")
@@ -175,14 +195,16 @@ export async function fetchUserTweetsAction(
       console.error("🔥 [TWITTER-AIO] No tweets found in response structure")
       return {
         isSuccess: false,
-        message: "No tweets found. The user may have no public tweets or the account may be private."
+        message:
+          "No tweets found. The user may have no public tweets or the account may be private."
       }
     }
 
     if (tweets.length === 0) {
       return {
         isSuccess: false,
-        message: "No tweets found for this user. They may have no public tweets or the account may be private."
+        message:
+          "No tweets found for this user. They may have no public tweets or the account may be private."
       }
     }
 
@@ -201,15 +223,20 @@ export async function fetchUserTweetsAction(
       author: tweet.author || { username: cleanUsername, name: cleanUsername }
     }))
 
-    console.log("🔥 [TWITTER-AIO] Successfully fetched tweets:", normalizedTweets.length)
-    console.log("🔥 [TWITTER-AIO] Sample tweet:", normalizedTweets[0]?.text?.substring(0, 100))
+    console.log(
+      "🔥 [TWITTER-AIO] Successfully fetched tweets:",
+      normalizedTweets.length
+    )
+    console.log(
+      "🔥 [TWITTER-AIO] Sample tweet:",
+      normalizedTweets[0]?.text?.substring(0, 100)
+    )
 
     return {
       isSuccess: true,
       message: `Successfully fetched ${normalizedTweets.length} tweets`,
       data: normalizedTweets
     }
-
   } catch (error) {
     console.error("🔥 [TWITTER-AIO] Error fetching tweets:", error)
     return {
@@ -252,7 +279,7 @@ export async function searchTwitterAction(
       headers: {
         "X-RapidAPI-Key": TWITTER_AIO_API_KEY,
         "X-RapidAPI-Host": "twitter-aio.p.rapidapi.com",
-        "Accept": "application/json"
+        Accept: "application/json"
       }
     })
 
@@ -269,7 +296,7 @@ export async function searchTwitterAction(
 
     const responseText = await response.text()
     let data: TwitterAIOSearchResponse
-    
+
     try {
       data = JSON.parse(responseText)
     } catch (parseError) {
@@ -319,7 +346,10 @@ export async function searchTwitterAction(
       author: tweet.author || { username: "unknown", name: "Unknown User" }
     }))
 
-    console.log("🔥 [TWITTER-AIO] Successfully searched tweets:", normalizedTweets.length)
+    console.log(
+      "🔥 [TWITTER-AIO] Successfully searched tweets:",
+      normalizedTweets.length
+    )
 
     return {
       isSuccess: true,
@@ -333,4 +363,4 @@ export async function searchTwitterAction(
       message: `Failed to search tweets: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
-} 
+}

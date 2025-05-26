@@ -24,12 +24,16 @@ function checkEnvVar(name: string, required: boolean = true): boolean {
     console.log(`${colors.red}✗${colors.reset} ${name} is missing`)
     return false
   } else {
-    console.log(`${colors.yellow}⚠${colors.reset} ${name} is optional but not set`)
+    console.log(
+      `${colors.yellow}⚠${colors.reset} ${name} is optional but not set`
+    )
     return true
   }
 }
 
-console.log(`${colors.cyan}🔍 Verifying Reddit Warm-up System Setup${colors.reset}\n`)
+console.log(
+  `${colors.cyan}🔍 Verifying Reddit Warm-up System Setup${colors.reset}\n`
+)
 
 console.log("Checking required environment variables:")
 const requiredVars = [
@@ -53,15 +57,19 @@ console.log("\nChecking optional environment variables:")
 checkEnvVar("REDDIT_REDIRECT_URI", false)
 
 if (allGood) {
-  console.log(`\n${colors.green}✅ All required environment variables are set!${colors.reset}`)
+  console.log(
+    `\n${colors.green}✅ All required environment variables are set!${colors.reset}`
+  )
   console.log("\nNext steps:")
   console.log("1. Run 'npm run dev' in one terminal")
   console.log("2. Run 'npm run warmup:test' in another terminal")
   console.log("3. Go to http://localhost:3000/reddit/warm-up")
   console.log("4. Connect your Reddit account and add subreddits")
 } else {
-  console.log(`\n${colors.red}❌ Some required environment variables are missing!${colors.reset}`)
+  console.log(
+    `\n${colors.red}❌ Some required environment variables are missing!${colors.reset}`
+  )
   console.log("\nPlease set the missing variables in your .env.local file")
 }
 
-process.exit(allGood ? 0 : 1) 
+process.exit(allGood ? 0 : 1)

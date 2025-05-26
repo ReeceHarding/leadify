@@ -50,7 +50,11 @@ export async function searchRedditAction(
     })
 
     if (!response.ok) {
-      console.error("❌ [REDDIT-SEARCH] API error:", response.status, response.statusText)
+      console.error(
+        "❌ [REDDIT-SEARCH] API error:",
+        response.status,
+        response.statusText
+      )
       const errorText = await response.text()
       console.error("❌ [REDDIT-SEARCH] Error details:", errorText)
       return {
@@ -60,7 +64,11 @@ export async function searchRedditAction(
     }
 
     const data = await response.json()
-    console.log("✅ [REDDIT-SEARCH] Got response with", data.data.children.length, "posts")
+    console.log(
+      "✅ [REDDIT-SEARCH] Got response with",
+      data.data.children.length,
+      "posts"
+    )
 
     // Transform the posts
     const posts: RedditPost[] = data.data.children.map((child: any) => ({
@@ -97,7 +105,8 @@ export async function searchRedditAction(
     console.error("❌ [REDDIT-SEARCH] Error:", error)
     return {
       isSuccess: false,
-      message: error instanceof Error ? error.message : "Failed to search Reddit"
+      message:
+        error instanceof Error ? error.message : "Failed to search Reddit"
     }
   }
-} 
+}

@@ -6,7 +6,7 @@ import {
   DialogContent,
   DialogDescription,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -54,9 +54,11 @@ export default function WebsiteScrapeDialog({
   const loadSitemap = async () => {
     setIsLoadingSitemap(true)
     try {
-      const { getWebsiteSitemapAction } = await import("@/actions/integrations/firecrawl/website-scraping-actions")
+      const { getWebsiteSitemapAction } = await import(
+        "@/actions/integrations/firecrawl/website-scraping-actions"
+      )
       const result = await getWebsiteSitemapAction(websiteUrl)
-      
+
       if (result.isSuccess) {
         setSitemapPages(result.data)
         if (result.data.length > 10) {
@@ -117,13 +119,17 @@ export default function WebsiteScrapeDialog({
 
     setIsScraping(true)
     try {
-      const { scrapeMultiplePagesAction } = await import("@/actions/integrations/firecrawl/website-scraping-actions")
+      const { scrapeMultiplePagesAction } = await import(
+        "@/actions/integrations/firecrawl/website-scraping-actions"
+      )
       const scrapeResult = await scrapeMultiplePagesAction(selectedPages)
-      
+
       if (scrapeResult.isSuccess) {
         // Save scraped content to database
-        const { createScrapedContentAction } = await import("@/actions/db/personalization-actions")
-        
+        const { createScrapedContentAction } = await import(
+          "@/actions/db/personalization-actions"
+        )
+
         for (const page of scrapeResult.data) {
           await createScrapedContentAction({
             userId,
@@ -137,22 +143,32 @@ export default function WebsiteScrapeDialog({
 
         // Update knowledge base with scraped pages
         if (knowledgeBase) {
-          const { updateKnowledgeBaseAction } = await import("@/actions/db/personalization-actions")
-          const updateResult = await updateKnowledgeBaseAction(knowledgeBase.id, {
-            scrapedPages: [...(knowledgeBase.scrapedPages || []), ...selectedPages]
-          })
-          
+          const { updateKnowledgeBaseAction } = await import(
+            "@/actions/db/personalization-actions"
+          )
+          const updateResult = await updateKnowledgeBaseAction(
+            knowledgeBase.id,
+            {
+              scrapedPages: [
+                ...(knowledgeBase.scrapedPages || []),
+                ...selectedPages
+              ]
+            }
+          )
+
           if (updateResult.isSuccess) {
             setKnowledgeBase(updateResult.data)
           }
         } else {
-          const { createKnowledgeBaseAction } = await import("@/actions/db/personalization-actions")
+          const { createKnowledgeBaseAction } = await import(
+            "@/actions/db/personalization-actions"
+          )
           const createResult = await createKnowledgeBaseAction({
             userId,
             websiteUrl,
             scrapedPages: selectedPages
           })
-          
+
           if (createResult.isSuccess) {
             setKnowledgeBase(createResult.data)
           }
@@ -162,7 +178,7 @@ export default function WebsiteScrapeDialog({
           title: "Success",
           description: `Successfully scraped ${scrapeResult.data.length} pages`
         })
-        
+
         onOpenChange(false)
       } else {
         toast({
@@ -199,7 +215,9 @@ export default function WebsiteScrapeDialog({
           {isLoadingSitemap ? (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="mr-2 size-6 animate-spin text-gray-600 dark:text-gray-400" />
-              <span className="text-gray-600 dark:text-gray-400">Loading sitemap...</span>
+              <span className="text-gray-600 dark:text-gray-400">
+                Loading sitemap...
+              </span>
             </div>
           ) : (
             <>
@@ -207,7 +225,9 @@ export default function WebsiteScrapeDialog({
                 <div className="mb-4 flex items-center gap-2 rounded-lg border border-yellow-200 bg-yellow-50 p-3 dark:border-yellow-700 dark:bg-yellow-900/30">
                   <AlertTriangle className="size-4 text-yellow-600 dark:text-yellow-400" />
                   <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                    Large websites may take longer to scrape and could result in diluted results. Consider selecting only the most relevant pages.
+                    Large websites may take longer to scrape and could result in
+                    diluted results. Consider selecting only the most relevant
+                    pages.
                   </p>
                 </div>
               )}
@@ -216,41 +236,49 @@ export default function WebsiteScrapeDialog({
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   Found {sitemapPages.length} pages
                 </p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleSelectAll}
-                >
-                  {selectedPages.length === sitemapPages.length ? "Deselect All" : "Select All"}
+                <Button variant="outline" size="sm" onClick={handleSelectAll}>
+                  {selectedPages.length === sitemapPages.length
+                    ? "Deselect All"
+                    : "Select All"}
                 </Button>
               </div>
 
               <div className="flex flex-1 gap-4 overflow-hidden">
                 {/* Available Pages */}
                 <div className="flex-1 space-y-2 overflow-y-auto rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-                  <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Available Pages</h4>
-                  {sitemapPages.map((page) => {
+                  <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Available Pages
+                  </h4>
+                  {sitemapPages.map(page => {
                     const isSelected = selectedPages.includes(page.url)
                     return (
-                      <div 
-                        key={page.url} 
+                      <div
+                        key={page.url}
                         className={`flex cursor-pointer items-start gap-3 rounded p-2 transition-colors ${
-                          isSelected 
-                            ? 'border border-blue-200 bg-blue-50 shadow-sm dark:border-blue-700 dark:bg-blue-900/30' 
-                            : 'border border-transparent hover:bg-gray-50 dark:hover:bg-gray-700'
+                          isSelected
+                            ? "border border-blue-200 bg-blue-50 shadow-sm dark:border-blue-700 dark:bg-blue-900/30"
+                            : "border border-transparent hover:bg-gray-50 dark:hover:bg-gray-700"
                         }`}
                         onClick={() => handleRowClick(page.url)}
                       >
                         <Checkbox
                           checked={isSelected}
-                          onCheckedChange={(checked) => handlePageToggle(page.url, checked as boolean)}
-                          onClick={(e) => e.stopPropagation()}
+                          onCheckedChange={checked =>
+                            handlePageToggle(page.url, checked as boolean)
+                          }
+                          onClick={e => e.stopPropagation()}
                         />
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">{page.title}</p>
-                          <p className="truncate text-xs text-gray-500 dark:text-gray-400">{page.url}</p>
+                          <p className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">
+                            {page.title}
+                          </p>
+                          <p className="truncate text-xs text-gray-500 dark:text-gray-400">
+                            {page.url}
+                          </p>
                           {page.description && (
-                            <p className="mt-1 line-clamp-2 text-xs text-gray-600 dark:text-gray-300">{page.description}</p>
+                            <p className="mt-1 line-clamp-2 text-xs text-gray-600 dark:text-gray-300">
+                              {page.description}
+                            </p>
                           )}
                         </div>
                       </div>
@@ -265,13 +293,20 @@ export default function WebsiteScrapeDialog({
                       Selected Pages ({selectedPages.length})
                     </h4>
                     <div className="space-y-2">
-                      {selectedPages.map((url) => {
+                      {selectedPages.map(url => {
                         const page = sitemapPages.find(p => p.url === url)
                         return (
-                          <div key={url} className="flex items-start gap-2 rounded bg-blue-50 p-2 dark:bg-blue-900/30">
+                          <div
+                            key={url}
+                            className="flex items-start gap-2 rounded bg-blue-50 p-2 dark:bg-blue-900/30"
+                          >
                             <div className="min-w-0 flex-1">
-                              <p className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">{page?.title || 'Unknown'}</p>
-                              <p className="truncate text-xs text-gray-500 dark:text-gray-400">{url}</p>
+                              <p className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">
+                                {page?.title || "Unknown"}
+                              </p>
+                              <p className="truncate text-xs text-gray-500 dark:text-gray-400">
+                                {url}
+                              </p>
                             </div>
                             <Button
                               variant="ghost"
@@ -312,4 +347,4 @@ export default function WebsiteScrapeDialog({
       </DialogContent>
     </Dialog>
   )
-} 
+}

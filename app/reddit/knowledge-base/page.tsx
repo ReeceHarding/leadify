@@ -10,7 +10,7 @@ import KnowledgeBaseSkeleton from "./_components/knowledge-base-skeleton"
 
 export default async function KnowledgeBasePage() {
   const { userId } = await auth()
-  
+
   if (!userId) {
     redirect("/login")
   }
@@ -37,4 +37,4 @@ async function KnowledgeBaseFetcher({ userId }: { userId: string }) {
       userProfile={profileResult.data || null}
     />
   )
-} 
+}

@@ -1,62 +1,62 @@
-"use client";
+"use client"
 
-import React from "react";
-import { LeadResult, WorkflowProgress } from "./types";
-import LeadCard from "./lead-card";
-import ToneCustomizer from "./tone-customizer";
-import FiltersAndSorting from "./filters-and-sorting";
-import BatchPoster from "./batch-poster";
-import PaginationControls from "./pagination-controls";
+import React from "react"
+import { LeadResult, WorkflowProgress } from "./types"
+import LeadCard from "./lead-card"
+import ToneCustomizer from "./tone-customizer"
+import FiltersAndSorting from "./filters-and-sorting"
+import BatchPoster from "./batch-poster"
+import PaginationControls from "./pagination-controls"
 import {
   EnhancedLeadSkeleton,
   GenerationProgress
-} from "../enhanced-loading-states"; // Adjust path as these are one level up
-import {
-  EnhancedErrorState,
-  EmptyState
-} from "../enhanced-error-states"; // Adjust path
-import { MessageSquare } from "lucide-react";
+} from "../enhanced-loading-states" // Adjust path as these are one level up
+import { EnhancedErrorState, EmptyState } from "../enhanced-error-states" // Adjust path
+import { MessageSquare } from "lucide-react"
 
 interface LeadsDisplayProps {
-  workflowProgress: WorkflowProgress;
-  leads: LeadResult[];
-  filteredAndSortedLeads: LeadResult[];
-  paginatedLeads: LeadResult[];
-  newLeadIds: Set<string>;
-  activeTab: "all" | "queue";
-  campaignId: string | null;
+  workflowProgress: WorkflowProgress
+  leads: LeadResult[]
+  filteredAndSortedLeads: LeadResult[]
+  paginatedLeads: LeadResult[]
+  newLeadIds: Set<string>
+  activeTab: "all" | "queue"
+  campaignId: string | null
 
   // Props for child components
-  selectedLength: "micro" | "medium" | "verbose";
-  onEditComment: (leadId: string, newComment: string) => Promise<void>;
-  onPostComment: (lead: LeadResult) => Promise<void>;
-  onQueueComment: (lead: LeadResult) => Promise<void>;
-  onViewComments?: (lead: LeadResult) => void;
-  onRegenerateWithInstructions?: (leadId: string, instructions: string) => Promise<void>;
-  postingLeadId: string | null;
-  queuingLeadId: string | null;
-  
-  toneInstruction: string;
-  onToneInstructionChange: (value: string) => void;
-  onRegenerateAllTones: () => void;
-  isRegeneratingAllTones: boolean;
-  
-  filterKeyword: string;
-  onFilterKeywordChange: (value: string) => void;
-  filterScore: number;
-  onFilterScoreChange: (value: number) => void;
-  sortBy: "relevance" | "upvotes" | "time";
-  onSortByChange: (value: "relevance" | "upvotes" | "time") => void;
-  
-  approvedLeadsCount: number;
-  onBatchPostQueue: () => void;
-  isBatchPosting: boolean;
-  
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
+  selectedLength: "micro" | "medium" | "verbose"
+  onEditComment: (leadId: string, newComment: string) => Promise<void>
+  onPostComment: (lead: LeadResult) => Promise<void>
+  onQueueComment: (lead: LeadResult) => Promise<void>
+  onViewComments?: (lead: LeadResult) => void
+  onRegenerateWithInstructions?: (
+    leadId: string,
+    instructions: string
+  ) => Promise<void>
+  postingLeadId: string | null
+  queuingLeadId: string | null
 
-  onTriggerCreateCampaign: () => void; // For empty state action
+  toneInstruction: string
+  onToneInstructionChange: (value: string) => void
+  onRegenerateAllTones: () => void
+  isRegeneratingAllTones: boolean
+
+  filterKeyword: string
+  onFilterKeywordChange: (value: string) => void
+  filterScore: number
+  onFilterScoreChange: (value: number) => void
+  sortBy: "relevance" | "upvotes" | "time"
+  onSortByChange: (value: "relevance" | "upvotes" | "time") => void
+
+  approvedLeadsCount: number
+  onBatchPostQueue: () => void
+  isBatchPosting: boolean
+
+  currentPage: number
+  totalPages: number
+  onPageChange: (page: number) => void
+
+  onTriggerCreateCampaign: () => void // For empty state action
 }
 
 export default function LeadsDisplay({
@@ -93,8 +93,7 @@ export default function LeadsDisplay({
   onPageChange,
   onTriggerCreateCampaign
 }: LeadsDisplayProps) {
-
-  const renderLoadingSkeleton = () => <EnhancedLeadSkeleton />;
+  const renderLoadingSkeleton = () => <EnhancedLeadSkeleton />
 
   const renderWorkflowProgress = () => (
     <div className="space-y-6">
@@ -112,15 +111,22 @@ export default function LeadsDisplay({
         />
       )}
       {/* Show skeleton only if isLoading is true AND no error AND no leads yet from any source */}
-      {workflowProgress.isLoading && !workflowProgress.error && leads.length === 0 && renderLoadingSkeleton()}
+      {workflowProgress.isLoading &&
+        !workflowProgress.error &&
+        leads.length === 0 &&
+        renderLoadingSkeleton()}
     </div>
-  );
+  )
 
   // Main conditional rendering logic
-  if (workflowProgress.isLoading && leads.length === 0 && !workflowProgress.error) {
-    return renderWorkflowProgress();
+  if (
+    workflowProgress.isLoading &&
+    leads.length === 0 &&
+    !workflowProgress.error
+  ) {
+    return renderWorkflowProgress()
   }
-  
+
   if (workflowProgress.error && leads.length === 0) {
     // Prominent error display if loading finished with an error and no leads were ever loaded
     return (
@@ -128,7 +134,7 @@ export default function LeadsDisplay({
         error={workflowProgress.error}
         onRetry={() => window.location.reload()} // Or a more specific retry action
       />
-    );
+    )
   }
 
   return (
@@ -173,7 +179,8 @@ export default function LeadsDisplay({
         </div>
       ) : (
         // Show empty state only if not globally loading, no errors, but still no filtered leads
-        !workflowProgress.isLoading && !workflowProgress.error && (
+        !workflowProgress.isLoading &&
+        !workflowProgress.error && (
           <EmptyState
             title="No leads found"
             description={
@@ -189,14 +196,14 @@ export default function LeadsDisplay({
                     onClick: onTriggerCreateCampaign
                   }
                 : filterKeyword || filterScore > 0
-                ? {
-                    label: "Clear Filters",
-                    onClick: () => {
-                      onFilterKeywordChange("");
-                      onFilterScoreChange(0);
+                  ? {
+                      label: "Clear Filters",
+                      onClick: () => {
+                        onFilterKeywordChange("")
+                        onFilterScoreChange(0)
+                      }
                     }
-                  }
-                : undefined
+                  : undefined
             }
           />
         )
@@ -208,5 +215,5 @@ export default function LeadsDisplay({
         onPageChange={onPageChange}
       />
     </>
-  );
-} 
+  )
+}

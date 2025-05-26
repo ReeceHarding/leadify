@@ -17,9 +17,9 @@ export async function generateCampaignNameAction(
   console.log("🏷️ [CAMPAIGN-NAME] Generating campaign name with data:", data)
 
   try {
-    const businessInfo = data.businessDescription 
+    const businessInfo = data.businessDescription
       ? `Business Description: ${data.businessDescription}`
-      : data.website 
+      : data.website
         ? `Website: ${data.website}`
         : "No business information provided"
 
@@ -45,13 +45,13 @@ Return ONLY the campaign name, nothing else.`
     })
 
     const campaignName = result.text.trim()
-    
+
     // Fallback if AI returns empty or too long
     if (!campaignName || campaignName.split(" ").length > 5) {
-      const fallbackName = data.businessName 
+      const fallbackName = data.businessName
         ? `${data.businessName} Campaign`
         : `Campaign ${new Date().toLocaleDateString()}`
-      
+
       return {
         isSuccess: true,
         message: "Generated fallback campaign name",
@@ -68,16 +68,16 @@ Return ONLY the campaign name, nothing else.`
     }
   } catch (error) {
     console.error("🏷️ [CAMPAIGN-NAME] Error generating name:", error)
-    
+
     // Return a fallback name on error
-    const fallbackName = data.businessName 
+    const fallbackName = data.businessName
       ? `${data.businessName} Campaign`
       : `Campaign ${new Date().toLocaleDateString()}`
-    
+
     return {
       isSuccess: true,
       message: "Using fallback campaign name",
       data: fallbackName
     }
   }
-} 
+}

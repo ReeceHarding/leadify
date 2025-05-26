@@ -27,19 +27,19 @@ const isPublicApiRoute = createRouteMatcher([
 // Create a custom middleware that checks for public API routes first
 export default clerkMiddleware(async (auth, req) => {
   const pathname = req.nextUrl.pathname
-  
+
   console.log("🔥🔥🔥 [MIDDLEWARE] Request URL:", req.url)
   console.log("🔥🔥🔥 [MIDDLEWARE] Pathname:", pathname)
-  
+
   // Check for CRON_SECRET in authorization header for public API routes
   if (isPublicApiRoute(req)) {
     const authHeader = req.headers.get("authorization")
     const expectedAuth = `Bearer ${process.env.CRON_SECRET}`
-    
+
     console.log("🔥🔥🔥 [MIDDLEWARE] Public API route detected")
     console.log("🔥🔥🔥 [MIDDLEWARE] Auth header:", authHeader)
     console.log("🔥🔥🔥 [MIDDLEWARE] Expected auth:", expectedAuth)
-    
+
     if (authHeader === expectedAuth) {
       console.log("🔥🔥🔥 [MIDDLEWARE] CRON_SECRET valid - allowing request")
       return NextResponse.next()
@@ -48,18 +48,20 @@ export default clerkMiddleware(async (auth, req) => {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
   }
-  
+
   // Skip authentication for /reddit/lead-finder (testing purposes)
   if (pathname === "/reddit/lead-finder") {
-    console.log("🔥🔥🔥 [MIDDLEWARE] Skipping auth for /reddit/lead-finder (testing)")
+    console.log(
+      "🔥🔥🔥 [MIDDLEWARE] Skipping auth for /reddit/lead-finder (testing)"
+    )
     return NextResponse.next()
   }
-  
+
   // For all other routes, check authentication
   const { userId } = await auth()
   console.log("🔥🔥🔥 [MIDDLEWARE] Auth userId:", userId)
   console.log("🔥🔥🔥 [MIDDLEWARE] Is protected route:", isProtectedRoute(req))
-  
+
   if (isProtectedRoute(req) && !isPublicApiRoute(req)) {
     await auth.protect()
   }

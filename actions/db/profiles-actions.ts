@@ -76,9 +76,10 @@ function serializeProfileDocument(
         ? profile.updatedAt.toDate().toISOString()
         : new Date().toISOString(),
     // Handle Reddit token expiration timestamp
-    redditTokenExpiresAt: profile.redditTokenExpiresAt instanceof Timestamp
-      ? profile.redditTokenExpiresAt.toDate().toISOString()
-      : profile.redditTokenExpiresAt as any
+    redditTokenExpiresAt:
+      profile.redditTokenExpiresAt instanceof Timestamp
+        ? profile.redditTokenExpiresAt.toDate().toISOString()
+        : (profile.redditTokenExpiresAt as any)
   }
 
   console.log(
@@ -723,7 +724,9 @@ export async function resetAccountAction(
     const profileDoc = await getDoc(profileRef)
 
     if (!profileDoc.exists()) {
-      console.log("🔧 [RESET-ACCOUNT] No profile found, nothing to reset for profile itself.")
+      console.log(
+        "🔧 [RESET-ACCOUNT] No profile found, nothing to reset for profile itself."
+      )
       // Proceed to delete associated lead gen data even if profile doc is gone or was never fully created
     }
 
@@ -731,7 +734,9 @@ export async function resetAccountAction(
     await clearRedditTokensAction()
 
     // --- Start Deleting Lead Generation Data ---
-    console.log("🔧 [RESET-ACCOUNT] Deleting associated lead generation data...")
+    console.log(
+      "🔧 [RESET-ACCOUNT] Deleting associated lead generation data..."
+    )
     const batch = writeBatch(db)
 
     // 1. Get all campaign IDs for the user
@@ -758,7 +763,7 @@ export async function resetAccountAction(
 
       for (const collKey of collectionsToClean) {
         const collName = LEAD_COLLECTIONS[collKey]
-        // Firestore `where in` queries are limited to 30 items. 
+        // Firestore `where in` queries are limited to 30 items.
         // If a user could have more than 30 campaigns (unlikely for now, but for robustness):
         // We might need to batch campaignIds or do multiple queries.
         // For now, assuming <30 campaigns per user simplifies this.
@@ -769,12 +774,16 @@ export async function resetAccountAction(
           )
           const itemsSnapshot = await getDocs(itemsQuery)
           itemsSnapshot.forEach(doc => {
-            console.log(`🔧 [RESET-ACCOUNT] Marking ${collName} item for deletion: ${doc.id}`)
+            console.log(
+              `🔧 [RESET-ACCOUNT] Marking ${collName} item for deletion: ${doc.id}`
+            )
             batch.delete(doc.ref)
           })
         } else {
           // Handle more than 30 campaignIds by chunking if necessary in a real-world scenario
-          console.warn(`🔧 [RESET-ACCOUNT] User has ${campaignIds.length} campaigns. Deleting associated data for ${collName} in chunks might be needed if this exceeds Firestore limits for 'in' query or batch size.`)
+          console.warn(
+            `🔧 [RESET-ACCOUNT] User has ${campaignIds.length} campaigns. Deleting associated data for ${collName} in chunks might be needed if this exceeds Firestore limits for 'in' query or batch size.`
+          )
           for (const cId of campaignIds) {
             const itemsQuery = query(
               collection(db, collName),
@@ -782,37 +791,42 @@ export async function resetAccountAction(
             )
             const itemsSnapshot = await getDocs(itemsQuery)
             itemsSnapshot.forEach(doc => {
-              console.log(`🔧 [RESET-ACCOUNT] Marking ${collName} item for deletion: ${doc.id}`)
+              console.log(
+                `🔧 [RESET-ACCOUNT] Marking ${collName} item for deletion: ${doc.id}`
+              )
               batch.delete(doc.ref)
             })
           }
         }
       }
     }
-    
+
     await batch.commit()
-    console.log("🔧 [RESET-ACCOUNT] Associated lead generation data deletion committed.")
+    console.log(
+      "🔧 [RESET-ACCOUNT] Associated lead generation data deletion committed."
+    )
     // --- End Deleting Lead Generation Data ---
 
     // Reset profile document fields if it exists
     if (profileDoc.exists()) {
-        console.log("🔧 [RESET-ACCOUNT] Resetting profile document fields...")
-        await updateDoc(profileRef, {
-          onboardingCompleted: false,
-          name: deleteField(),
-          profilePictureUrl: deleteField(),
-          website: deleteField(),
-          keywords: deleteField(),
-          updatedAt: serverTimestamp()
-        })
-        console.log("🔧 [RESET-ACCOUNT] Profile document fields reset.")
+      console.log("🔧 [RESET-ACCOUNT] Resetting profile document fields...")
+      await updateDoc(profileRef, {
+        onboardingCompleted: false,
+        name: deleteField(),
+        profilePictureUrl: deleteField(),
+        website: deleteField(),
+        keywords: deleteField(),
+        updatedAt: serverTimestamp()
+      })
+      console.log("🔧 [RESET-ACCOUNT] Profile document fields reset.")
     } else {
-        // If profile doesn't exist, we might want to create a minimal one
-        // or ensure that the user is redirected to the start of onboarding.
-        // For now, just log it.
-        console.log("🔧 [RESET-ACCOUNT] Profile document did not exist, so only associated data was deleted.");
+      // If profile doesn't exist, we might want to create a minimal one
+      // or ensure that the user is redirected to the start of onboarding.
+      // For now, just log it.
+      console.log(
+        "🔧 [RESET-ACCOUNT] Profile document did not exist, so only associated data was deleted."
+      )
     }
-
 
     console.log(
       "✅ [RESET-ACCOUNT] Complete account reset successful for user:",

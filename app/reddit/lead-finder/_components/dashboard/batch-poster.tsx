@@ -1,20 +1,20 @@
-"use client";
+"use client"
 
-import React from "react";
+import React from "react"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { PlayCircle, Send, Loader2, Clock, AlertCircle } from "lucide-react";
+} from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { PlayCircle, Send, Loader2, Clock, AlertCircle } from "lucide-react"
 
 interface BatchPosterProps {
-  approvedLeadsCount: number;
-  onBatchPostQueue: () => void;
-  isBatchPosting: boolean;
+  approvedLeadsCount: number
+  onBatchPostQueue: () => void
+  isBatchPosting: boolean
 }
 
 export default function BatchPoster({
@@ -23,7 +23,7 @@ export default function BatchPoster({
   isBatchPosting
 }: BatchPosterProps) {
   if (approvedLeadsCount === 0) {
-    return null; // Don't render if no approved leads
+    return null // Don't render if no approved leads
   }
 
   return (
@@ -81,9 +81,7 @@ export default function BatchPoster({
                     Randomized delays between 5-7 minutes to avoid patterns
                   </li>
                   <li>Posts are queued and processed asynchronously</li>
-                  <li>
-                    You'll be notified when all posts are completed
-                  </li>
+                  <li>You'll be notified when all posts are completed</li>
                 </ul>
               </div>
             </div>
@@ -104,5 +102,5 @@ export default function BatchPoster({
         </div>
       </CardContent>
     </Card>
-  );
-} 
+  )
+}

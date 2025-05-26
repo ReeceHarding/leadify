@@ -21,8 +21,8 @@ import {
   CreateTwitterAnalysisData,
   TwitterTweet
 } from "@/db/firestore/personalization-collections"
-import { 
-  ActionState, 
+import {
+  ActionState,
   SerializedKnowledgeBaseDocument,
   SerializedVoiceSettingsDocument,
   SerializedScrapedContentDocument,
@@ -123,7 +123,9 @@ export async function createKnowledgeBaseAction(
 
     // Remove undefined values
     const cleanData = Object.fromEntries(
-      Object.entries(knowledgeBaseData).filter(([_, value]) => value !== undefined)
+      Object.entries(knowledgeBaseData).filter(
+        ([_, value]) => value !== undefined
+      )
     )
 
     await setDoc(knowledgeBaseRef, cleanData)
@@ -399,7 +401,9 @@ export async function createScrapedContentAction(
 
     // Remove undefined values
     const cleanData = Object.fromEntries(
-      Object.entries(scrapedContentData).filter(([_, value]) => value !== undefined)
+      Object.entries(scrapedContentData).filter(
+        ([_, value]) => value !== undefined
+      )
     )
 
     await setDoc(scrapedContentRef, cleanData)

@@ -80,15 +80,15 @@ export default function ConnectRedditStep({
         <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-blue-700">
           <span className="text-2xl font-bold text-white">4</span>
         </div>
-        <h1 className="text-3xl font-bold text-white">
-          Connect to Reddit
-        </h1>
+        <h1 className="text-3xl font-bold text-white">Connect to Reddit</h1>
         <p className="text-base leading-relaxed text-gray-400">
-          Link your Reddit account so we can post and comment on your behalf when you find promising leads.
+          Link your Reddit account so we can post and comment on your behalf
+          when you find promising leads.
         </p>
         <div className="mx-auto max-w-md rounded-lg border border-blue-600/20 bg-blue-600/5 p-3">
           <p className="text-sm text-blue-200">
-            ⏱️ <strong>Takes 30 seconds</strong> • Secure OAuth connection • We only access posting permissions
+            ⏱️ <strong>Takes 30 seconds</strong> • Secure OAuth connection • We
+            only access posting permissions
           </p>
         </div>
       </div>
@@ -128,7 +128,9 @@ export default function ConnectRedditStep({
       {connectionStatus === "idle" && (
         <div className="space-y-6">
           <div className="mx-auto max-w-md rounded-lg border border-amber-600/20 bg-amber-600/5 p-4">
-            <h3 className="mb-2 text-sm font-semibold text-amber-200">What we'll access:</h3>
+            <h3 className="mb-2 text-sm font-semibold text-amber-200">
+              What we'll access:
+            </h3>
             <ul className="space-y-1 text-xs text-amber-200">
               <li>• Post comments and replies on your behalf</li>
               <li>• Read your comment history to match your tone</li>

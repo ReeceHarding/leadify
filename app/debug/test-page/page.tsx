@@ -7,4 +7,4 @@ export default async function TestPage() {
       <p>If you see this, the debug route segment is working.</p>
     </div>
   )
-} 
+}
