@@ -1,6 +1,7 @@
 /*
 <ai_context>
-Contains server actions for Google Custom Search API integration to find Reddit threads.
+This file contains actions for interacting with the Google Custom Search API.
+Used to search for Reddit threads based on keywords.
 </ai_context>
 */
 
@@ -8,202 +9,228 @@ Contains server actions for Google Custom Search API integration to find Reddit 
 
 import { ActionState } from "@/types"
 
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY
+const GOOGLE_SEARCH_ENGINE_ID = process.env.GOOGLE_SEARCH_ENGINE_ID
+
 export interface GoogleSearchResult {
   title: string
   link: string
   snippet: string
-  displayLink: string
   position: number
-}
-
-export interface RedditSearchResult extends GoogleSearchResult {
   threadId?: string // Extracted Reddit thread ID
-  subreddit?: string // Extracted subreddit name
 }
 
 export async function searchRedditThreadsAction(
   keyword: string,
-  maxResults = 10
-): Promise<ActionState<RedditSearchResult[]>> {
-  try {
-    if (
-      !process.env.GOOGLE_SEARCH_API_KEY ||
-      !process.env.GOOGLE_SEARCH_ENGINE_ID
-    ) {
-      return {
-        isSuccess: false,
-        message: "Google Search API credentials not configured"
-      }
+  numResults: number = 10
+): Promise<ActionState<GoogleSearchResult[]>> {
+  console.log("🔍🔍🔍 [GOOGLE-SEARCH] ========== SEARCH START ==========")
+  console.log("🔍🔍🔍 [GOOGLE-SEARCH] Timestamp:", new Date().toISOString())
+  console.log("🔍🔍🔍 [GOOGLE-SEARCH] Keyword:", keyword)
+  console.log("🔍🔍🔍 [GOOGLE-SEARCH] Requested results:", numResults)
+  console.log("🔍🔍🔍 [GOOGLE-SEARCH] API Key exists:", !!GOOGLE_API_KEY)
+  console.log("🔍🔍🔍 [GOOGLE-SEARCH] Search Engine ID exists:", !!GOOGLE_SEARCH_ENGINE_ID)
+  
+  if (!GOOGLE_API_KEY || !GOOGLE_SEARCH_ENGINE_ID) {
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH] ❌ Missing API credentials")
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH] GOOGLE_API_KEY:", GOOGLE_API_KEY ? "Present" : "Missing")
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH] GOOGLE_SEARCH_ENGINE_ID:", GOOGLE_SEARCH_ENGINE_ID ? "Present" : "Missing")
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH] ========== SEARCH END (NO CREDENTIALS) ==========")
+    return {
+      isSuccess: false,
+      message: "Google Search API credentials not configured"
     }
+  }
 
-    // Use the keyword directly as provided
-    const searchQuery = `${keyword} site:reddit.com`;
-    console.log(`🔍 Searching Google with keyword: "${searchQuery}"`);
-
-    // Build Google Custom Search API URL
-    const apiUrl = new URL("https://www.googleapis.com/customsearch/v1")
-    apiUrl.searchParams.set("key", process.env.GOOGLE_SEARCH_API_KEY)
-    apiUrl.searchParams.set("cx", process.env.GOOGLE_SEARCH_ENGINE_ID)
-    apiUrl.searchParams.set("q", searchQuery)
-    apiUrl.searchParams.set("num", Math.min(maxResults, 10).toString()) // Max 10 per request
-    apiUrl.searchParams.set("start", "1")
-
-    const response = await fetch(apiUrl.toString())
-
+  try {
+    // Add site:reddit.com to search only Reddit
+    const searchQuery = `${keyword} site:reddit.com`
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH] Full search query:", searchQuery)
+    
+    const url = new URL("https://www.googleapis.com/customsearch/v1")
+    url.searchParams.append("key", GOOGLE_API_KEY)
+    url.searchParams.append("cx", GOOGLE_SEARCH_ENGINE_ID)
+    url.searchParams.append("q", searchQuery)
+    url.searchParams.append("num", numResults.toString())
+    
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH] API URL:", url.toString().replace(GOOGLE_API_KEY, "***API_KEY***"))
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH] Making API request...")
+    
+    const response = await fetch(url.toString())
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH] Response status:", response.status)
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH] Response OK:", response.ok)
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH] Response headers:", Object.fromEntries(response.headers.entries()))
+    
     if (!response.ok) {
       const errorText = await response.text()
-      console.error("Google Search API error:", response.status, errorText)
-      return {
-        isSuccess: false,
-        message: `Google Search API error: ${response.status} ${response.statusText}`
-      }
+      console.log("🔍🔍🔍 [GOOGLE-SEARCH] ❌ API request failed")
+      console.log("🔍🔍🔍 [GOOGLE-SEARCH] Error response:", errorText)
+      console.log("🔍🔍🔍 [GOOGLE-SEARCH] ========== SEARCH END (API ERROR) ==========")
+      throw new Error(`Google Search API error: ${response.status}`)
     }
 
     const data = await response.json()
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH] Response data received")
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH] Total results:", data.searchInformation?.totalResults)
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH] Search time:", data.searchInformation?.searchTime)
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH] Items returned:", data.items?.length || 0)
 
-    if (!data.items || !Array.isArray(data.items)) {
+    if (!data.items || data.items.length === 0) {
+      console.log("🔍🔍🔍 [GOOGLE-SEARCH] ⚠️ No results found")
+      console.log("🔍🔍🔍 [GOOGLE-SEARCH] ========== SEARCH END (NO RESULTS) ==========")
       return {
         isSuccess: true,
-        message: "No search results found",
+        message: "No results found",
         data: []
       }
     }
 
-    // Process and enhance results with Reddit-specific data
-    const results: RedditSearchResult[] = data.items.map(
-      (item: any, index: number) => {
-        const result: RedditSearchResult = {
-          title: item.title || "",
-          link: item.link || "",
-          snippet: item.snippet || "",
-          displayLink: item.displayLink || "",
-          position: index + 1
-        }
+    // Extract Reddit thread IDs from URLs
+    const results: GoogleSearchResult[] = data.items.map((item: any, index: number) => {
+      console.log(`🔍🔍🔍 [GOOGLE-SEARCH] Processing result ${index + 1}:`)
+      console.log(`🔍🔍🔍 [GOOGLE-SEARCH] - Title: ${item.title}`)
+      console.log(`🔍🔍🔍 [GOOGLE-SEARCH] - Link: ${item.link}`)
+      console.log(`🔍🔍🔍 [GOOGLE-SEARCH] - Snippet length: ${item.snippet?.length || 0}`)
+      
+      // Extract thread ID from Reddit URL
+      // Example: https://www.reddit.com/r/subreddit/comments/abc123/title/
+      const threadIdMatch = item.link.match(/\/comments\/([a-zA-Z0-9]+)/)
+      const threadId = threadIdMatch ? threadIdMatch[1] : undefined
+      console.log(`🔍🔍🔍 [GOOGLE-SEARCH] - Extracted thread ID: ${threadId || "None"}`)
 
-        // Extract Reddit thread ID from URL
-        // URL format: https://www.reddit.com/r/healthcare/comments/1i2m7ya/comment/mjnc73e/
-        const redditUrlMatch = result.link.match(
-          /\/r\/([^\/]+)\/comments\/([^\/]+)/
-        )
-        if (redditUrlMatch) {
-          result.subreddit = redditUrlMatch[1]
-          result.threadId = redditUrlMatch[2]
-        }
-
-        return result
+      return {
+        title: item.title,
+        link: item.link,
+        snippet: item.snippet || "",
+        position: index + 1,
+        threadId
       }
-    )
+    })
 
-    // Filter to only include results that have Reddit thread IDs
-    const redditResults = results.filter(result => result.threadId)
-
-    console.log(
-      `✅ Found ${redditResults.length} Reddit threads for keyword: "${keyword}"`
-    )
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH] ✅ Search completed successfully")
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH] Total results processed:", results.length)
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH] Results with thread IDs:", results.filter(r => r.threadId).length)
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH] ========== SEARCH END (SUCCESS) ==========")
 
     return {
       isSuccess: true,
-      message: `Found ${redditResults.length} Reddit search results`,
-      data: redditResults
+      message: `Found ${results.length} Reddit threads`,
+      data: results
     }
   } catch (error) {
-    console.error("Error searching Reddit threads:", error)
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH] ❌ Exception caught")
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH] Error type:", typeof error)
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH] Error:", error)
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH] Error message:", error instanceof Error ? error.message : "Unknown error")
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH] Error stack:", error instanceof Error ? error.stack : "No stack trace")
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH] ========== SEARCH END (EXCEPTION) ==========")
+    
     return {
       isSuccess: false,
-      message: `Failed to search Reddit threads: ${error instanceof Error ? error.message : "Unknown error"}`
+      message: `Search failed: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }
 
 export async function searchMultipleKeywordsAction(
   keywords: string[],
-  maxResultsPerKeyword = 10
-): Promise<ActionState<{ keyword: string; results: RedditSearchResult[] }[]>> {
+  numResultsPerKeyword: number = 10
+): Promise<ActionState<{ keyword: string; results: GoogleSearchResult[] }[]>> {
+  console.log("🔍🔍🔍 [GOOGLE-SEARCH-MULTI] ========== MULTI-SEARCH START ==========")
+  console.log("🔍🔍🔍 [GOOGLE-SEARCH-MULTI] Timestamp:", new Date().toISOString())
+  console.log("🔍🔍🔍 [GOOGLE-SEARCH-MULTI] Keywords count:", keywords.length)
+  console.log("🔍🔍🔍 [GOOGLE-SEARCH-MULTI] Keywords:", keywords)
+  console.log("🔍🔍🔍 [GOOGLE-SEARCH-MULTI] Results per keyword:", numResultsPerKeyword)
+  
   try {
-    const allResults: { keyword: string; results: RedditSearchResult[] }[] = []
-
-    console.log(`🔍 Searching for ${keywords.length} keywords...`)
-
-    for (const keyword of keywords) {
-      const searchResult = await searchRedditThreadsAction(
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH-MULTI] Starting parallel searches...")
+    const searchPromises = keywords.map(async (keyword, index) => {
+      console.log(`🔍🔍🔍 [GOOGLE-SEARCH-MULTI] Initiating search ${index + 1}/${keywords.length} for: "${keyword}"`)
+      const result = await searchRedditThreadsAction(keyword, numResultsPerKeyword)
+      console.log(`🔍🔍🔍 [GOOGLE-SEARCH-MULTI] Search ${index + 1} completed:`, {
         keyword,
-        maxResultsPerKeyword
-      )
-
-      if (searchResult.isSuccess) {
-        allResults.push({
-          keyword,
-          results: searchResult.data
-        })
-
-        // Add a small delay between requests to be respectful to the API
-        await new Promise(resolve => setTimeout(resolve, 1000))
-      } else {
-        console.error(
-          `Failed to search for keyword "${keyword}":`,
-          searchResult.message
-        )
-        // Continue with other keywords even if one fails
-        allResults.push({
-          keyword,
-          results: []
-        })
+        success: result.isSuccess,
+        resultCount: result.data?.length || 0
+      })
+      return {
+        keyword,
+        results: result.isSuccess ? result.data : []
       }
-    }
+    })
 
-    const totalResults = allResults.reduce(
-      (sum, item) => sum + item.results.length,
-      0
-    )
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH-MULTI] Waiting for all searches to complete...")
+    const allResults = await Promise.all(searchPromises)
+    
+    const totalResults = allResults.reduce((sum, r) => sum + r.results.length, 0)
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH-MULTI] ✅ All searches completed")
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH-MULTI] Total results across all keywords:", totalResults)
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH-MULTI] Results breakdown:")
+    allResults.forEach(r => {
+      console.log(`🔍🔍🔍 [GOOGLE-SEARCH-MULTI] - "${r.keyword}": ${r.results.length} results`)
+    })
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH-MULTI] ========== MULTI-SEARCH END (SUCCESS) ==========")
 
     return {
       isSuccess: true,
-      message: `Completed search for ${keywords.length} keywords, found ${totalResults} total results`,
+      message: `Found ${totalResults} total results across ${keywords.length} keywords`,
       data: allResults
     }
   } catch (error) {
-    console.error("Error in multiple keyword search:", error)
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH-MULTI] ❌ Exception caught")
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH-MULTI] Error type:", typeof error)
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH-MULTI] Error:", error)
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH-MULTI] Error message:", error instanceof Error ? error.message : "Unknown error")
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH-MULTI] Error stack:", error instanceof Error ? error.stack : "No stack trace")
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH-MULTI] ========== MULTI-SEARCH END (EXCEPTION) ==========")
+    
     return {
       isSuccess: false,
-      message: `Failed to search multiple keywords: ${error instanceof Error ? error.message : "Unknown error"}`
+      message: `Multiple search failed: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }
 
 export async function testGoogleSearchConnectionAction(): Promise<
-  ActionState<{ status: string }>
+  ActionState<boolean>
 > {
+  console.log("🔍🔍🔍 [GOOGLE-SEARCH-TEST] ========== CONNECTION TEST START ==========")
+  console.log("🔍🔍🔍 [GOOGLE-SEARCH-TEST] Timestamp:", new Date().toISOString())
+  console.log("🔍🔍🔍 [GOOGLE-SEARCH-TEST] Testing Google Search API connection...")
+  
   try {
-    if (
-      !process.env.GOOGLE_SEARCH_API_KEY ||
-      !process.env.GOOGLE_SEARCH_ENGINE_ID
-    ) {
-      return {
-        isSuccess: false,
-        message: "Google Search API credentials not configured"
-      }
-    }
-
-    // Test with a simple search
-    const testResult = await searchRedditThreadsAction("test", 1)
-
-    if (testResult.isSuccess) {
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH-TEST] Running test search with query: 'test site:reddit.com'")
+    const result = await searchRedditThreadsAction("test", 1)
+    
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH-TEST] Test result:", {
+      isSuccess: result.isSuccess,
+      message: result.message,
+      hasData: !!result.data
+    })
+    
+    if (result.isSuccess) {
+      console.log("🔍🔍🔍 [GOOGLE-SEARCH-TEST] ✅ Google Search API is working")
+      console.log("🔍🔍🔍 [GOOGLE-SEARCH-TEST] ========== CONNECTION TEST END (SUCCESS) ==========")
       return {
         isSuccess: true,
-        message: "Google Search API connection test successful",
-        data: { status: "connected" }
+        message: "Google Search API is working",
+        data: true
       }
     } else {
+      console.log("🔍🔍🔍 [GOOGLE-SEARCH-TEST] ❌ Google Search API test failed")
+      console.log("🔍🔍🔍 [GOOGLE-SEARCH-TEST] ========== CONNECTION TEST END (FAILED) ==========")
       return {
         isSuccess: false,
-        message: `Google Search API test failed: ${testResult.message}`
+        message: result.message
       }
     }
   } catch (error) {
-    console.error("Error testing Google Search connection:", error)
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH-TEST] ❌ Exception during test")
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH-TEST] Error:", error)
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH-TEST] ========== CONNECTION TEST END (EXCEPTION) ==========")
+    
     return {
       isSuccess: false,
-      message: `Google Search connection test failed: ${error instanceof Error ? error.message : "Unknown error"}`
+      message: `Connection test failed: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }

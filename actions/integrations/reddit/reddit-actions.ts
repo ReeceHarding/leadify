@@ -43,96 +43,138 @@ export interface RedditComment {
 }
 
 async function makeRedditApiCall(endpoint: string): Promise<any> {
-  console.log(`➡️ [REDDIT-API] Attempting GET: ${endpoint}`)
+  console.log("🔴🔴🔴 [REDDIT-API] ========== API CALL START ==========")
+  console.log("🔴🔴🔴 [REDDIT-API] Timestamp:", new Date().toISOString())
+  console.log("🔴🔴🔴 [REDDIT-API] Endpoint:", endpoint)
+  console.log("🔴🔴🔴 [REDDIT-API] Method: GET")
+  
   // Get access token
+  console.log("🔴🔴🔴 [REDDIT-API] Getting access token...")
   let tokenResult = await getRedditAccessTokenAction()
+  console.log("🔴🔴🔴 [REDDIT-API] Token result:", {
+    isSuccess: tokenResult.isSuccess,
+    hasData: !!tokenResult.data,
+    message: tokenResult.message
+  })
 
   if (!tokenResult.isSuccess) {
     // Try to refresh token if available
-    console.log("🔧 [REDDIT-API] Access token failed, attempting refresh...")
+    console.log("🔴🔴🔴 [REDDIT-API] ⚠️ Access token failed, attempting refresh...")
     const refreshResult = await refreshRedditTokenAction()
+    console.log("🔴🔴🔴 [REDDIT-API] Refresh result:", {
+      isSuccess: refreshResult.isSuccess,
+      message: refreshResult.message
+    })
+    
     if (!refreshResult.isSuccess) {
-      console.error("❌ [REDDIT-API] Token refresh failed:", refreshResult.message)
+      console.log("🔴🔴🔴 [REDDIT-API] ❌ Token refresh failed:", refreshResult.message)
+      console.log("🔴🔴🔴 [REDDIT-API] ========== API CALL END (AUTH FAILED) ==========")
       throw new Error(
         "No valid Reddit access token available. Please re-authenticate."
       )
     }
+    
     // Get the new token
+    console.log("🔴🔴🔴 [REDDIT-API] Getting new token after refresh...")
     tokenResult = await getRedditAccessTokenAction()
     if (!tokenResult.isSuccess) {
-      console.error("❌ [REDDIT-API] Failed to get refreshed access token after refresh.")
+      console.log("🔴🔴🔴 [REDDIT-API] ❌ Failed to get refreshed access token")
+      console.log("🔴🔴🔴 [REDDIT-API] ========== API CALL END (TOKEN FAILED) ==========")
       throw new Error("Failed to get refreshed access token")
     }
-    console.log("✅ [REDDIT-API] Token refreshed successfully.")
+    console.log("🔴🔴🔴 [REDDIT-API] ✅ Token refreshed successfully")
   }
 
   const accessToken = tokenResult.data
   if (!accessToken) {
-    console.error("❌ [REDDIT-API] Access token is undefined even after successful fetch/refresh.")
+    console.log("🔴🔴🔴 [REDDIT-API] ❌ Access token is undefined")
+    console.log("🔴🔴🔴 [REDDIT-API] ========== API CALL END (NO TOKEN) ==========")
     throw new Error("Access token is undefined.")
   }
-  console.log(`🔑 [REDDIT-API] Using access token: ${accessToken.substring(0, 20)}...`)
+  console.log("🔴🔴🔴 [REDDIT-API] 🔑 Using access token:", accessToken.substring(0, 20) + "...")
 
   const headers = {
     Authorization: `Bearer ${accessToken}`,
     "User-Agent": process.env.REDDIT_USER_AGENT || "reddit-lead-gen:v1.0.0"
   }
-  console.log(`📬 [REDDIT-API] GET Headers for ${endpoint}:`, headers)
-
-  const response = await fetch(`https://oauth.reddit.com${endpoint}`, {
-    headers
+  console.log("🔴🔴🔴 [REDDIT-API] Request headers:", {
+    Authorization: "Bearer " + accessToken.substring(0, 20) + "...",
+    "User-Agent": headers["User-Agent"]
   })
-  console.log(`📥 [REDDIT-API] GET Response Status for ${endpoint}: ${response.status} ${response.statusText}`)
+
+  const fullUrl = `https://oauth.reddit.com${endpoint}`
+  console.log("🔴🔴🔴 [REDDIT-API] Full URL:", fullUrl)
+  console.log("🔴🔴🔴 [REDDIT-API] Making request...")
+  
+  const response = await fetch(fullUrl, { headers })
+  console.log("🔴🔴🔴 [REDDIT-API] Response received")
+  console.log("🔴🔴🔴 [REDDIT-API] Response status:", response.status, response.statusText)
+  console.log("🔴🔴🔴 [REDDIT-API] Response headers:", Object.fromEntries(response.headers.entries()))
 
   if (!response.ok) {
+    console.log("🔴🔴🔴 [REDDIT-API] ❌ Response not OK")
+    
     if (response.status === 401) {
       // Token expired, try to refresh
-      console.log("🔧 [REDDIT-API] GET request got 401, attempting refresh...")
+      console.log("🔴🔴🔴 [REDDIT-API] 🔄 Got 401, attempting token refresh...")
       const refreshResult = await refreshRedditTokenAction()
+      console.log("🔴🔴🔴 [REDDIT-API] Refresh attempt result:", refreshResult.isSuccess)
+      
       if (refreshResult.isSuccess) {
         // Retry with new token
+        console.log("🔴🔴🔴 [REDDIT-API] Getting new token for retry...")
         const newTokenResult = await getRedditAccessTokenAction()
         if (newTokenResult.isSuccess && newTokenResult.data) {
-          console.log("✅ [REDDIT-API] Retrying GET request with new token.")
+          console.log("🔴🔴🔴 [REDDIT-API] ✅ Got new token, retrying request...")
           const retryHeaders = {
             Authorization: `Bearer ${newTokenResult.data}`,
-            "User-Agent":
-              process.env.REDDIT_USER_AGENT || "reddit-lead-gen:v1.0.0"
+            "User-Agent": process.env.REDDIT_USER_AGENT || "reddit-lead-gen:v1.0.0"
           }
-          console.log(`📬 [REDDIT-API] Retry GET Headers for ${endpoint}:`, retryHeaders)
-          const retryResponse = await fetch(
-            `https://oauth.reddit.com${endpoint}`,
-            {
-              headers: retryHeaders
-            }
-          )
-          console.log(`📥 [REDDIT-API] Retry GET Response Status for ${endpoint}: ${retryResponse.status} ${retryResponse.statusText}`)
+          console.log("🔴🔴🔴 [REDDIT-API] Retry headers:", {
+            Authorization: "Bearer " + newTokenResult.data.substring(0, 20) + "...",
+            "User-Agent": retryHeaders["User-Agent"]
+          })
+          
+          const retryResponse = await fetch(fullUrl, { headers: retryHeaders })
+          console.log("🔴🔴🔴 [REDDIT-API] Retry response status:", retryResponse.status, retryResponse.statusText)
+          
           if (!retryResponse.ok) {
             const errorBody = await retryResponse.text()
-            console.error(
-              `❌ [REDDIT-API] Retry GET request failed: ${retryResponse.status} ${retryResponse.statusText}`,
-              errorBody
-            )
+            console.log("🔴🔴🔴 [REDDIT-API] ❌ Retry failed")
+            console.log("🔴🔴🔴 [REDDIT-API] Error body:", errorBody)
+            console.log("🔴🔴🔴 [REDDIT-API] ========== API CALL END (RETRY FAILED) ==========")
             throw new Error(`Reddit API error on retry: ${retryResponse.status} ${retryResponse.statusText} - ${errorBody}`)
           }
-          return await retryResponse.json()
+          
+          const retryData = await retryResponse.json()
+          console.log("🔴🔴🔴 [REDDIT-API] ✅ Retry successful")
+          console.log("🔴🔴🔴 [REDDIT-API] Response data keys:", Object.keys(retryData || {}))
+          console.log("🔴🔴🔴 [REDDIT-API] ========== API CALL END (RETRY SUCCESS) ==========")
+          return retryData
         }
       }
-      console.error("❌ [REDDIT-API] Refresh failed after 401 on GET, or new token was invalid.")
+      console.log("🔴🔴🔴 [REDDIT-API] ❌ Refresh failed or couldn't get new token")
+      console.log("🔴🔴🔴 [REDDIT-API] ========== API CALL END (AUTH EXPIRED) ==========")
       throw new Error("Reddit authentication expired. Please re-authenticate.")
     }
+    
     const errorBody = await response.text()
-    console.error(
-      `❌ [REDDIT-API] Initial GET request failed: ${response.status} ${response.statusText}`,
-      errorBody
-    )
+    console.log("🔴🔴🔴 [REDDIT-API] ❌ Request failed")
+    console.log("🔴🔴🔴 [REDDIT-API] Error body:", errorBody)
+    console.log("🔴🔴🔴 [REDDIT-API] ========== API CALL END (REQUEST FAILED) ==========")
     throw new Error(
       `Reddit API error: ${response.status} ${response.statusText} - ${errorBody}`
     )
   }
 
   const responseData = await response.json()
-  console.log(`✅ [REDDIT-API] GET request successful for ${endpoint}. Response data keys:`, Object.keys(responseData || {}))
+  console.log("🔴🔴🔴 [REDDIT-API] ✅ Request successful")
+  console.log("🔴🔴🔴 [REDDIT-API] Response data keys:", Object.keys(responseData || {}))
+  console.log("🔴🔴🔴 [REDDIT-API] Response data type:", typeof responseData)
+  if (Array.isArray(responseData)) {
+    console.log("🔴🔴🔴 [REDDIT-API] Response is array, length:", responseData.length)
+  }
+  console.log("🔴🔴🔴 [REDDIT-API] ========== API CALL END (SUCCESS) ==========")
   return responseData
 }
 
@@ -258,27 +300,59 @@ export async function fetchRedditThreadAction(
   threadId: string,
   subreddit?: string
 ): Promise<ActionState<RedditThreadData>> {
+  console.log("📖📖📖 [FETCH-THREAD] ========== FETCH START ==========")
+  console.log("📖📖📖 [FETCH-THREAD] Timestamp:", new Date().toISOString())
+  console.log("📖📖📖 [FETCH-THREAD] Thread ID:", threadId)
+  console.log("📖📖📖 [FETCH-THREAD] Subreddit:", subreddit || "not specified")
+  
   try {
-    console.log(
-      `📖 Fetching Reddit thread: ${threadId} from r/${subreddit || "unknown"}`
-    )
-
     // Construct the API endpoint
     const endpoint = subreddit
       ? `/r/${subreddit}/comments/${threadId}.json`
       : `/comments/${threadId}.json`
+    console.log("📖📖📖 [FETCH-THREAD] Endpoint:", endpoint)
 
+    console.log("📖📖📖 [FETCH-THREAD] Making Reddit API call...")
     const data = await makeRedditApiCall(endpoint)
+    console.log("📖📖📖 [FETCH-THREAD] API call completed")
 
     // Reddit returns an array with [post, comments]
+    console.log("📖📖📖 [FETCH-THREAD] Data structure:", {
+      isArray: Array.isArray(data),
+      length: Array.isArray(data) ? data.length : "N/A",
+      hasFirstElement: Array.isArray(data) && data[0] ? "yes" : "no"
+    })
+    
     const postData = data[0]?.data?.children?.[0]?.data
+    console.log("📖📖📖 [FETCH-THREAD] Post data extracted:", !!postData)
 
     if (!postData) {
+      console.log("📖📖📖 [FETCH-THREAD] ❌ No post data found")
+      console.log("📖📖📖 [FETCH-THREAD] Data structure debug:", {
+        data0: !!data[0],
+        data0_data: !!data[0]?.data,
+        data0_data_children: !!data[0]?.data?.children,
+        data0_data_children_length: data[0]?.data?.children?.length || 0
+      })
+      console.log("📖📖📖 [FETCH-THREAD] ========== FETCH END (NOT FOUND) ==========")
       return {
         isSuccess: false,
         message: `Reddit thread not found: ${threadId}`
       }
     }
+
+    console.log("📖📖📖 [FETCH-THREAD] Post data details:", {
+      id: postData.id,
+      title: postData.title?.substring(0, 50) + "...",
+      author: postData.author,
+      subreddit: postData.subreddit,
+      score: postData.score,
+      num_comments: postData.num_comments,
+      selftext_length: postData.selftext?.length || 0,
+      is_video: postData.is_video,
+      post_hint: postData.post_hint,
+      domain: postData.domain
+    })
 
     const threadData: RedditThreadData = {
       id: postData.id,
@@ -296,9 +370,17 @@ export async function fetchRedditThreadAction(
       domain: postData.domain || ""
     }
 
-    console.log(
-      `✅ Reddit thread fetched: "${threadData.title}" (${threadData.content.length} chars)`
-    )
+    console.log("📖📖📖 [FETCH-THREAD] ✅ Thread data constructed successfully")
+    console.log("📖📖📖 [FETCH-THREAD] Thread summary:", {
+      id: threadData.id,
+      title: threadData.title.substring(0, 50) + "...",
+      contentLength: threadData.content.length,
+      author: threadData.author,
+      subreddit: threadData.subreddit,
+      score: threadData.score,
+      numComments: threadData.numComments
+    })
+    console.log("📖📖📖 [FETCH-THREAD] ========== FETCH END (SUCCESS) ==========")
 
     return {
       isSuccess: true,
@@ -306,28 +388,40 @@ export async function fetchRedditThreadAction(
       data: threadData
     }
   } catch (error) {
-    console.error("Error fetching Reddit thread:", error)
+    console.log("📖📖📖 [FETCH-THREAD] ❌ Exception caught")
+    console.log("📖📖📖 [FETCH-THREAD] Error type:", typeof error)
+    console.log("📖📖📖 [FETCH-THREAD] Error:", error)
+    console.log("📖📖📖 [FETCH-THREAD] Error message:", error instanceof Error ? error.message : "Unknown error")
+    console.log("📖📖📖 [FETCH-THREAD] Error stack:", error instanceof Error ? error.stack : "No stack trace")
 
     if (error instanceof Error) {
       if (error.message.includes("authentication")) {
+        console.log("📖📖📖 [FETCH-THREAD] Authentication error detected")
+        console.log("📖📖📖 [FETCH-THREAD] ========== FETCH END (AUTH ERROR) ==========")
         return {
           isSuccess: false,
           message: error.message
         }
       }
       if (error.message.includes("404")) {
+        console.log("📖📖📖 [FETCH-THREAD] 404 error - thread not found")
+        console.log("📖📖📖 [FETCH-THREAD] ========== FETCH END (404) ==========")
         return {
           isSuccess: false,
           message: `Reddit thread not found: ${threadId}`
         }
       }
       if (error.message.includes("403")) {
+        console.log("📖📖📖 [FETCH-THREAD] 403 error - access denied")
+        console.log("📖📖📖 [FETCH-THREAD] ========== FETCH END (403) ==========")
         return {
           isSuccess: false,
           message: `Access denied to Reddit thread: ${threadId}`
         }
       }
       if (error.message.includes("429")) {
+        console.log("📖📖📖 [FETCH-THREAD] 429 error - rate limit exceeded")
+        console.log("📖📖📖 [FETCH-THREAD] ========== FETCH END (429) ==========")
         return {
           isSuccess: false,
           message: "Reddit API rate limit exceeded, please try again later"
@@ -335,6 +429,7 @@ export async function fetchRedditThreadAction(
       }
     }
 
+    console.log("📖📖📖 [FETCH-THREAD] ========== FETCH END (GENERIC ERROR) ==========")
     return {
       isSuccess: false,
       message: `Failed to fetch Reddit thread: ${error instanceof Error ? error.message : "Unknown error"}`
@@ -345,28 +440,47 @@ export async function fetchRedditThreadAction(
 export async function fetchMultipleRedditThreadsAction(
   threadIds: { threadId: string; subreddit?: string }[]
 ): Promise<ActionState<RedditThreadData[]>> {
+  console.log("📖📖📖 [FETCH-MULTIPLE] ========== MULTI-FETCH START ==========")
+  console.log("📖📖📖 [FETCH-MULTIPLE] Timestamp:", new Date().toISOString())
+  console.log("📖📖📖 [FETCH-MULTIPLE] Thread count:", threadIds.length)
+  console.log("📖📖📖 [FETCH-MULTIPLE] Thread IDs:", threadIds.map(t => t.threadId))
+  
   try {
     const results: RedditThreadData[] = []
     const errors: string[] = []
 
-    console.log(`📖 Fetching ${threadIds.length} Reddit threads...`)
-
-    for (const { threadId, subreddit } of threadIds) {
+    for (let i = 0; i < threadIds.length; i++) {
+      const { threadId, subreddit } = threadIds[i]
+      console.log(`📖📖📖 [FETCH-MULTIPLE] Fetching thread ${i + 1}/${threadIds.length}: ${threadId}`)
+      
       const result = await fetchRedditThreadAction(threadId, subreddit)
 
       if (result.isSuccess) {
         results.push(result.data)
+        console.log(`📖📖📖 [FETCH-MULTIPLE] ✅ Thread ${i + 1} fetched successfully`)
       } else {
         errors.push(`${threadId}: ${result.message}`)
-        console.error(`Failed to fetch thread ${threadId}:`, result.message)
+        console.log(`📖📖📖 [FETCH-MULTIPLE] ❌ Thread ${i + 1} failed:`, result.message)
       }
 
       // Add delay between requests to respect rate limits
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      if (i < threadIds.length - 1) {
+        console.log("📖📖📖 [FETCH-MULTIPLE] Waiting 1 second before next request...")
+        await new Promise(resolve => setTimeout(resolve, 1000))
+      }
     }
 
     const successCount = results.length
     const errorCount = errors.length
+
+    console.log("📖📖📖 [FETCH-MULTIPLE] ✅ Multi-fetch completed")
+    console.log("📖📖📖 [FETCH-MULTIPLE] Summary:", {
+      total: threadIds.length,
+      successful: successCount,
+      failed: errorCount,
+      errors: errors
+    })
+    console.log("📖📖📖 [FETCH-MULTIPLE] ========== MULTI-FETCH END (SUCCESS) ==========")
 
     return {
       isSuccess: true,
@@ -374,7 +488,10 @@ export async function fetchMultipleRedditThreadsAction(
       data: results
     }
   } catch (error) {
-    console.error("Error in multiple thread fetch:", error)
+    console.log("📖📖📖 [FETCH-MULTIPLE] ❌ Exception caught")
+    console.log("📖📖📖 [FETCH-MULTIPLE] Error:", error)
+    console.log("📖📖📖 [FETCH-MULTIPLE] ========== MULTI-FETCH END (ERROR) ==========")
+    
     return {
       isSuccess: false,
       message: `Failed to fetch multiple Reddit threads: ${error instanceof Error ? error.message : "Unknown error"}`
