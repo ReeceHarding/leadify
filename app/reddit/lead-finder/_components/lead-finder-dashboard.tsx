@@ -457,6 +457,15 @@ export default function LeadFinderDashboard() {
                   .toISOString()
               }
             }
+            
+            // DEBUGGING: Log the date values
+            addDebugLog("Transforming lead dates", {
+              leadId: docSnap.id,
+              rawCreatedAt: comment.createdAt,
+              rawPostCreatedAt: comment.postCreatedAt,
+              createdAtISO,
+              postCreatedAtISO
+            });
 
             return {
               id: docSnap.id,

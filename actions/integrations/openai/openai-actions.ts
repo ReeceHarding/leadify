@@ -536,8 +536,9 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
   threadTitle: string,
   threadContent: string,
   subreddit: string,
-  userId: string,
-  existingComments?: string[] // Add parameter for existing comments
+  campaignBusinessName: string,
+  campaignWebsiteContentOrDescription: string,
+  existingComments?: string[]
 ): Promise<
   ActionState<{
     score: number
@@ -551,35 +552,12 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
     console.log("🤖 [OPENAI-PERSONALIZED] Starting personalized scoring and comment generation")
     console.log("🤖 [OPENAI-PERSONALIZED] Thread title:", threadTitle)
     console.log("🤖 [OPENAI-PERSONALIZED] Subreddit:", subreddit)
-    console.log("🤖 [OPENAI-PERSONALIZED] User ID:", userId)
+    console.log("🤖 [OPENAI-PERSONALIZED] Campaign Business Name:", campaignBusinessName)
+    console.log("🤖 [OPENAI-PERSONALIZED] Campaign Website Content/Description length:", campaignWebsiteContentOrDescription.length)
     console.log("🤖 [OPENAI-PERSONALIZED] Existing comments provided:", existingComments?.length || 0)
 
-    // Get user profile for personalization
-    const profileResult = await getProfileByUserIdAction(userId)
-    if (!profileResult.isSuccess || !profileResult.data) {
-      console.error("❌ [OPENAI-PERSONALIZED] Failed to get user profile")
-      return { isSuccess: false, message: "Failed to get user profile" }
-    }
-
-    const profile = profileResult.data
-    const websiteUrl = profile.website || ""
-    const businessName = profile.name || "our solution"
-
-    console.log("🤖 [OPENAI-PERSONALIZED] Business name:", businessName)
-    console.log("🤖 [OPENAI-PERSONALIZED] Website URL:", websiteUrl)
-
-    // Scrape website content if available
-    let websiteContent = ""
-    if (websiteUrl) {
-      console.log("🌐 [OPENAI-PERSONALIZED] Scraping website:", websiteUrl)
-      const scrapeResult = await scrapeWebsiteAction(websiteUrl)
-      if (scrapeResult.isSuccess) {
-        websiteContent = scrapeResult.data.content
-        console.log("✅ [OPENAI-PERSONALIZED] Website scraped successfully")
-      } else {
-        console.warn("⚠️ [OPENAI-PERSONALIZED] Failed to scrape website")
-      }
-    }
+    const businessName = campaignBusinessName || "our solution";
+    const websiteContent = campaignWebsiteContentOrDescription;
 
     // Analyze existing comments for tone and style
     let toneAnalysis = ""
@@ -610,7 +588,7 @@ Provide a brief analysis of:
 
     const systemPrompt = `You are a Reddit comment analyzer and generator. Your job is to:
 1. Score how relevant a Reddit thread is for promoting ${businessName}
-2. Generate natural, authentic Reddit comments that match the community's style
+2. Generate natural, authentic Reddit comments that match the community\'s style
 
 ${websiteContent ? `Business Context: ${websiteContent.substring(0, 1000)}` : ""}
 

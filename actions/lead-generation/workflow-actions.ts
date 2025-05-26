@@ -373,11 +373,14 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
         // Immediately score and generate comment with tone analysis
         console.log(`🤖 [WORKFLOW] Starting AI scoring for thread: "${apiThread.title}"`)
         const { scoreThreadAndGeneratePersonalizedCommentsAction } = await import("@/actions/integrations/openai/openai-actions")
+        
+        // Use campaign.name and the determined websiteContent (either scraped or from businessDescription)
         const scoringResult = await scoreThreadAndGeneratePersonalizedCommentsAction(
           apiThread.title,
           apiThread.content,
           apiThread.subreddit,
-          campaign.userId, // Pass userId for personalization
+          campaign.name, // Pass campaign name
+          websiteContent, // Pass campaign-specific website content or business description
           existingComments // Pass existing comments for tone matching
         )
 

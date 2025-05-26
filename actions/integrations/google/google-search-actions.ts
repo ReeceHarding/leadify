@@ -36,9 +36,19 @@ export async function searchRedditThreadsAction(
       }
     }
 
-    // Format search query to specifically target Reddit
-    const searchQuery = `${keyword} site:reddit.com`
-    console.log(`🔍 Searching Google for: "${searchQuery}"`)
+    // Refined search queries to target hiring discussions
+    const searchQueries = [
+      `"hiring software developers" ${keyword} site:reddit.com -jobs -job`, // Prioritize exact phrase
+      `"looking to hire software engineers" ${keyword} site:reddit.com -jobs -job`,
+      `"best place to find software developers for hire" ${keyword} site:reddit.com -jobs -job`,
+      `${keyword} "recruiting developers" site:reddit.com -jobs -job`,
+      `${keyword} "developer job posting" site:reddit.com -jobs -job` // Less ideal but can catch some
+    ];
+
+    // For now, let's try the first, most promising query. 
+    // In the future, we could iterate or combine results from multiple queries.
+    const searchQuery = searchQueries[0];
+    console.log(`🔍 Searching Google for: "${searchQuery}"`);
 
     // Build Google Custom Search API URL
     const apiUrl = new URL("https://www.googleapis.com/customsearch/v1")
