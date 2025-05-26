@@ -110,16 +110,17 @@ export default function FindMoreLeads({
       if (!userId || !campaignId) return;
 
       try {
-        // Get user profile for keywords
-        const profileResult = await getProfileByUserIdAction(userId);
-        if (profileResult.isSuccess && profileResult.data) {
-          const userKeywords = profileResult.data.keywords || [];
-          setKeywords(userKeywords);
+        // Get campaign for keywords
+        const { getCampaignByIdAction } = await import("@/actions/db/campaign-actions");
+        const campaignResult = await getCampaignByIdAction(campaignId);
+        if (campaignResult.isSuccess && campaignResult.data) {
+          const campaignKeywords = campaignResult.data.keywords || [];
+          setKeywords(campaignKeywords);
           
           // Calculate stats for each keyword
           const leadsResult = await getGeneratedCommentsByCampaignAction(campaignId);
           if (leadsResult.isSuccess && leadsResult.data) {
-            const stats: KeywordStats[] = userKeywords.map(keyword => {
+            const stats: KeywordStats[] = campaignKeywords.map((keyword: string) => {
               const keywordLeads = leadsResult.data.filter(lead => lead.keyword === keyword);
               const highQualityLeads = keywordLeads.filter(lead => lead.relevanceScore >= 70);
               const avgScore = keywordLeads.length > 0 

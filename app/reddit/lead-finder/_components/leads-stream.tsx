@@ -7,10 +7,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { ExternalLink, MessageSquare, ThumbsUp, Clock, CheckCircle, Copy, Loader2, Search, Sparkles } from "lucide-react"
+import { ExternalLink, MessageSquare, ThumbsUp, Clock, CheckCircle, Copy, Loader2, Search, Sparkles, Globe, Database, Brain, MessageCircle, CheckCircle2, XCircle } from "lucide-react"
 import { toast } from "sonner"
 import { formatDistanceToNow } from "date-fns"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
+import { Progress } from "@/components/ui/progress"
+import { cn } from "@/lib/utils"
 
 interface Lead {
   id: string
@@ -31,8 +33,43 @@ interface Lead {
   updatedAt: any
 }
 
+interface LeadGenerationProgress {
+  campaignId: string
+  status: "pending" | "in_progress" | "completed" | "error"
+  currentStage: string
+  stages: {
+    name: string
+    status: "pending" | "in_progress" | "completed" | "error"
+    startedAt?: any
+    completedAt?: any
+    message?: string
+    progress?: number
+  }[]
+  totalProgress: number
+  startedAt: any
+  completedAt?: any
+  error?: string
+  results?: {
+    totalThreadsFound: number
+    totalThreadsAnalyzed: number
+    totalCommentsGenerated: number
+    averageRelevanceScore: number
+  }
+}
+
 interface Props {
   campaignId: string
+}
+
+const STAGE_ICONS = {
+  "Initializing": Search,
+  "Analyzing Business": Database,
+  "Scraping Website": Globe,
+  "Searching Reddit": Search,
+  "Retrieving Threads": MessageSquare,
+  "Analyzing Relevance": Brain,
+  "Generating Comments": MessageCircle,
+  "Finalizing Results": CheckCircle2
 }
 
 export default function LeadsStream({ campaignId }: Props) {
@@ -40,7 +77,7 @@ export default function LeadsStream({ campaignId }: Props) {
   
   const [leads, setLeads] = useState<Lead[]>([])
   const [loading, setLoading] = useState(true)
-  const [isGenerating, setIsGenerating] = useState(false)
+  const [progress, setProgress] = useState<LeadGenerationProgress | null>(null)
   
   console.log("🔥🔥🔥 [LEADS-STREAM] Initial state - leads count:", leads.length, "loading:", loading)
 
@@ -51,30 +88,6 @@ export default function LeadsStream({ campaignId }: Props) {
       console.log("🔥🔥🔥 [LEADS-STREAM] No campaignId, returning early")
       return
     }
-
-    // Check if lead generation is in progress
-    const checkGenerationStatus = async () => {
-      try {
-        const progressRef = doc(db, "lead_generation_progress", campaignId)
-        const progressDoc = await getDoc(progressRef)
-        
-        if (progressDoc.exists()) {
-          const data = progressDoc.data()
-          console.log("🔥🔥🔥 [LEADS-STREAM] Lead generation progress:", data)
-          
-          // Check if generation is in progress
-          if (data.status === "in_progress" || data.status === "pending") {
-            setIsGenerating(true)
-          } else {
-            setIsGenerating(false)
-          }
-        }
-      } catch (error) {
-        console.error("🔥🔥🔥 [LEADS-STREAM] Error checking generation status:", error)
-      }
-    }
-
-    checkGenerationStatus()
 
     console.log("🔥🔥🔥 [LEADS-STREAM] Setting up Firestore listener")
     console.log("🔥🔥🔥 [LEADS-STREAM] Firebase db instance:", !!db)
@@ -123,11 +136,6 @@ export default function LeadsStream({ campaignId }: Props) {
           setLeads(docs)
           setLoading(false)
           
-          // If we have leads, generation is complete
-          if (docs.length > 0) {
-            setIsGenerating(false)
-          }
-          
           console.log("🔥🔥🔥 [LEADS-STREAM] State updated - loading: false, leads:", docs.length)
         },
         (error) => {
@@ -144,14 +152,11 @@ export default function LeadsStream({ campaignId }: Props) {
       const progressRef = doc(db, "lead_generation_progress", campaignId)
       const unsubscribeProgress = onSnapshot(progressRef, (doc) => {
         if (doc.exists()) {
-          const data = doc.data()
+          const data = doc.data() as LeadGenerationProgress
           console.log("🔥🔥🔥 [LEADS-STREAM] Progress update:", data)
-          
-          if (data.status === "in_progress" || data.status === "pending") {
-            setIsGenerating(true)
-          } else {
-            setIsGenerating(false)
-          }
+          setProgress(data)
+        } else {
+          setProgress(null)
         }
       })
       
@@ -182,7 +187,79 @@ export default function LeadsStream({ campaignId }: Props) {
     }
   }
 
-  console.log("🔥🔥🔥 [LEADS-STREAM] Rendering component - loading:", loading, "leads:", leads.length, "isGenerating:", isGenerating)
+  const renderProgressStage = (stage: LeadGenerationProgress["stages"][0]) => {
+    const Icon = STAGE_ICONS[stage.name as keyof typeof STAGE_ICONS] || Search
+    const isActive = progress?.currentStage === stage.name
+    const isCompleted = stage.status === "completed"
+    const isError = stage.status === "error"
+    const isPending = stage.status === "pending"
+    
+    return (
+      <motion.div
+        key={stage.name}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className={cn(
+          "flex items-center gap-3 p-3 rounded-lg transition-all",
+          isActive && "bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800",
+          isCompleted && !isActive && "opacity-60",
+          isPending && "opacity-40"
+        )}
+      >
+        <div className={cn(
+          "relative flex items-center justify-center size-10 rounded-full",
+          isActive && "bg-blue-100 dark:bg-blue-900/50",
+          isCompleted && !isActive && "bg-green-100 dark:bg-green-900/50",
+          isError && "bg-red-100 dark:bg-red-900/50",
+          isPending && "bg-gray-100 dark:bg-gray-800"
+        )}>
+          {isActive && (
+            <motion.div
+              className="absolute inset-0 rounded-full bg-blue-400/20"
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+          )}
+          {isCompleted ? (
+            <CheckCircle2 className="size-5 text-green-600 dark:text-green-400" />
+          ) : isError ? (
+            <XCircle className="size-5 text-red-600 dark:text-red-400" />
+          ) : (
+            <Icon className={cn(
+              "size-5",
+              isActive ? "text-blue-600 dark:text-blue-400" : "text-gray-400"
+            )} />
+          )}
+        </div>
+        
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <span className={cn(
+              "text-sm font-medium",
+              isActive && "text-blue-900 dark:text-blue-100",
+              isCompleted && !isActive && "text-green-700 dark:text-green-300",
+              isError && "text-red-700 dark:text-red-300"
+            )}>
+              {stage.name}
+            </span>
+            {isActive && (
+              <Loader2 className="size-3 animate-spin text-blue-600 dark:text-blue-400" />
+            )}
+          </div>
+          {stage.message && (
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {stage.message}
+            </p>
+          )}
+          {stage.progress !== undefined && isActive && (
+            <Progress value={stage.progress} className="h-1 mt-1" />
+          )}
+        </div>
+      </motion.div>
+    )
+  }
+
+  console.log("🔥🔥🔥 [LEADS-STREAM] Rendering component - loading:", loading, "leads:", leads.length, "progress:", progress?.status)
 
   return (
     <div className="space-y-6">
@@ -197,53 +274,75 @@ export default function LeadsStream({ campaignId }: Props) {
             </div>
           )
         })()
-      ) : leads.length === 0 && isGenerating ? (
+      ) : leads.length === 0 && progress?.status === "in_progress" ? (
         (() => {
-          console.log("🔥🔥🔥 [LEADS-STREAM] Rendering generating state")
+          console.log("🔥🔥🔥 [LEADS-STREAM] Rendering progress state")
           return (
-            <Card className="p-12">
-              <div className="flex flex-col items-center justify-center space-y-6">
-                <div className="relative">
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                    className="size-16"
-                  >
-                    <Search className="size-16 text-blue-600" />
-                  </motion.div>
-                  <motion.div
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="absolute inset-0 flex items-center justify-center"
-                  >
-                    <Sparkles className="size-8 text-yellow-500" />
-                  </motion.div>
-                </div>
-                
-                <div className="space-y-2 text-center">
+            <Card className="p-8">
+              <div className="space-y-6">
+                <div className="text-center space-y-2">
                   <h3 className="text-lg font-semibold">Finding Your Perfect Leads</h3>
-                  <p className="text-muted-foreground max-w-md text-sm">
-                    Our AI is searching Reddit for relevant discussions and crafting personalized responses. 
+                  <p className="text-muted-foreground text-sm max-w-md mx-auto">
+                    Our AI is analyzing Reddit to find the most relevant discussions for your business. 
                     This typically takes about 60 seconds.
                   </p>
                 </div>
                 
-                <div className="text-muted-foreground flex items-center gap-2">
-                  <Loader2 className="size-4 animate-spin" />
-                  <span className="text-sm">Analyzing threads and generating comments...</span>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Overall Progress</span>
+                    <span className="font-medium">{progress.totalProgress}%</span>
+                  </div>
+                  <Progress value={progress.totalProgress} className="h-2" />
                 </div>
                 
-                <div className="w-full max-w-xs">
-                  <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
-                    <motion.div
-                      className="h-full bg-gradient-to-r from-blue-500 to-blue-600"
-                      animate={{ x: ["-100%", "100%"] }}
-                      transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                      style={{ width: "50%" }}
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <AnimatePresence mode="sync">
+                    {progress.stages.map((stage) => renderProgressStage(stage))}
+                  </AnimatePresence>
                 </div>
+                
+                {progress.results && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-muted/50 rounded-lg p-4 space-y-2"
+                  >
+                    <p className="text-sm font-medium">Progress Summary</p>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div>
+                        <span className="text-muted-foreground">Threads Found:</span>
+                        <span className="ml-1 font-medium">{progress.results.totalThreadsFound}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Analyzed:</span>
+                        <span className="ml-1 font-medium">{progress.results.totalThreadsAnalyzed}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Comments Generated:</span>
+                        <span className="ml-1 font-medium">{progress.results.totalCommentsGenerated}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Avg. Score:</span>
+                        <span className="ml-1 font-medium">{progress.results.averageRelevanceScore}%</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
               </div>
+            </Card>
+          )
+        })()
+      ) : leads.length === 0 && progress?.status === "error" ? (
+        (() => {
+          console.log("🔥🔥🔥 [LEADS-STREAM] Rendering error state")
+          return (
+            <Card className="p-12 text-center border-red-200 dark:border-red-800">
+              <XCircle className="text-red-600 dark:text-red-400 mx-auto mb-4 size-12" />
+              <h3 className="mb-2 text-lg font-semibold">Lead Generation Failed</h3>
+              <p className="text-muted-foreground text-sm max-w-md mx-auto">
+                {progress.error || "An error occurred during lead generation. Please try again."}
+              </p>
             </Card>
           )
         })()
@@ -265,9 +364,18 @@ export default function LeadsStream({ campaignId }: Props) {
           console.log("🔥🔥🔥 [LEADS-STREAM] Rendering leads list with", leads.length, "leads")
           return (
             <div className="space-y-4">
-              <p className="text-muted-foreground text-sm">
-                Showing {leads.length} lead{leads.length !== 1 ? 's' : ''}
-              </p>
+              <div className="flex items-center justify-between">
+                <p className="text-muted-foreground text-sm">
+                  Showing {leads.length} lead{leads.length !== 1 ? 's' : ''}
+                </p>
+                {progress?.status === "completed" && progress.results && (
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                    <span>Avg. Score: {progress.results.averageRelevanceScore}%</span>
+                    <span>•</span>
+                    <span>From {progress.results.totalThreadsAnalyzed} threads</span>
+                  </div>
+                )}
+              </div>
               {leads.map((lead, index) => {
                 console.log(`🔥🔥🔥 [LEADS-STREAM] Rendering lead ${index}:`, lead.id, lead.postTitle)
                 return (

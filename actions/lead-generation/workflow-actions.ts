@@ -35,6 +35,11 @@ import {
 import { removeUndefinedValues } from "@/lib/firebase-utils"
 import { createGeneratedCommentAction } from "@/actions/db/lead-generation-actions"
 import { scoreThreadAndGenerateThreeTierCommentsAction } from "@/actions/integrations/openai/openai-actions"
+import { 
+  createLeadGenerationProgressAction, 
+  updateLeadGenerationProgressAction,
+  LEAD_GENERATION_STAGES
+} from "@/actions/db/lead-generation-progress-actions"
 
 export interface WorkflowStepResult {
   step: string
@@ -72,6 +77,20 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
   }
 
   try {
+    // Create progress tracking
+    console.log(`🚀 Creating progress tracking for campaign: ${campaignId}`)
+    await createLeadGenerationProgressAction(campaignId)
+    await updateLeadGenerationProgressAction(campaignId, {
+      status: "in_progress",
+      currentStage: "Initializing",
+      stageUpdate: {
+        stageName: "Initializing",
+        status: "in_progress",
+        message: "Starting lead generation workflow"
+      },
+      totalProgress: 5
+    })
+
     // Step 1: Get campaign details
     progress.currentStep = "Loading campaign"
     console.log(
@@ -82,6 +101,10 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
     const campaignResult = await getCampaignByIdAction(campaignId)
     if (!campaignResult.isSuccess) {
       progress.error = campaignResult.message
+      await updateLeadGenerationProgressAction(campaignId, {
+        status: "error",
+        error: campaignResult.message
+      })
       return { isSuccess: false, message: campaignResult.message }
     }
 
@@ -106,7 +129,26 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
     })
     progress.completedSteps++
 
-    // Step 2: Scrape website content OR use business description
+    await updateLeadGenerationProgressAction(campaignId, {
+      stageUpdate: {
+        stageName: "Initializing",
+        status: "completed",
+        message: "Campaign loaded successfully"
+      },
+      totalProgress: 10
+    })
+
+    // Step 2: Analyze business and prepare content
+    await updateLeadGenerationProgressAction(campaignId, {
+      currentStage: "Analyzing Business",
+      stageUpdate: {
+        stageName: "Analyzing Business",
+        status: "in_progress",
+        message: "Understanding your business"
+      },
+      totalProgress: 15
+    })
+
     progress.currentStep = "Preparing business content"
     console.log(`🔥 Step 2: Preparing business content`)
     console.log(`🔥 Campaign has website: ${!!campaign.website}`)
@@ -118,6 +160,24 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
     // Check if campaign has a website
     if (campaign.website) {
       console.log(`🔥 Campaign has website: ${campaign.website}`)
+      
+      // Update progress for scraping
+      await updateLeadGenerationProgressAction(campaignId, {
+        stageUpdate: {
+          stageName: "Analyzing Business",
+          status: "completed"
+        },
+        currentStage: "Scraping Website",
+        totalProgress: 20
+      })
+      
+      await updateLeadGenerationProgressAction(campaignId, {
+        stageUpdate: {
+          stageName: "Scraping Website",
+          status: "in_progress",
+          message: `Analyzing ${campaign.website}`
+        }
+      })
       
       // Check if we already have recent website content (less than 24 hours old)
       if (websiteContent && campaign.updatedAt) {
@@ -149,6 +209,15 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
             message: scrapeResult.message
           })
           await updateCampaignAction(campaignId, { status: "error" })
+          await updateLeadGenerationProgressAction(campaignId, {
+            status: "error",
+            error: scrapeResult.message,
+            stageUpdate: {
+              stageName: "Scraping Website",
+              status: "error",
+              message: scrapeResult.message
+            }
+          })
           progress.error = scrapeResult.message
           return {
             isSuccess: false,
@@ -172,6 +241,15 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
             contentLength: scrapeResult.data.content.length
           }
         })
+
+        await updateLeadGenerationProgressAction(campaignId, {
+          stageUpdate: {
+            stageName: "Scraping Website",
+            status: "completed",
+            message: "Website content analyzed"
+          },
+          totalProgress: 25
+        })
       } else {
         progress.results.push({
           step: "Prepare Business Content",
@@ -182,6 +260,15 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
             cached: true,
             contentLength: websiteContent?.length || 0
           }
+        })
+
+        await updateLeadGenerationProgressAction(campaignId, {
+          stageUpdate: {
+            stageName: "Scraping Website",
+            status: "completed",
+            message: "Using cached content"
+          },
+          totalProgress: 25
         })
       }
     } else if (campaign.businessDescription) {
@@ -203,6 +290,15 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
           contentLength: websiteContent.length
         }
       })
+
+      await updateLeadGenerationProgressAction(campaignId, {
+        stageUpdate: {
+          stageName: "Analyzing Business",
+          status: "completed",
+          message: "Business description analyzed"
+        },
+        totalProgress: 25
+      })
     }
 
     // Ensure we have content before proceeding
@@ -213,6 +309,10 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
         message: "No website or business description available"
       })
       await updateCampaignAction(campaignId, { status: "error" })
+      await updateLeadGenerationProgressAction(campaignId, {
+        status: "error",
+        error: "No website or business description available"
+      })
       progress.error = "No website or business description available"
       return { isSuccess: false, message: "No website or business description available" }
     }
@@ -220,6 +320,16 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
     progress.completedSteps++
 
     // Step 3: Search for Reddit threads
+    await updateLeadGenerationProgressAction(campaignId, {
+      currentStage: "Searching Reddit",
+      stageUpdate: {
+        stageName: "Searching Reddit",
+        status: "in_progress",
+        message: `Searching for ${keywordsToProcess.length} keywords`
+      },
+      totalProgress: 30
+    })
+
     progress.currentStep = "Searching Reddit threads"
     console.log(
       `🔍 Step 3: Searching for Reddit threads with ${keywordsToProcess.length} keywords`
@@ -289,7 +399,26 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
     })
     progress.completedSteps++
 
+    await updateLeadGenerationProgressAction(campaignId, {
+      stageUpdate: {
+        stageName: "Searching Reddit",
+        status: "completed",
+        message: `Found ${allSearchResults.length} threads`
+      },
+      totalProgress: 40
+    })
+
     // Step 4 & 5 Combined: Fetch Reddit threads and process them individually
+    await updateLeadGenerationProgressAction(campaignId, {
+      currentStage: "Retrieving Threads",
+      stageUpdate: {
+        stageName: "Retrieving Threads",
+        status: "in_progress",
+        message: "Fetching thread details"
+      },
+      totalProgress: 45
+    })
+
     progress.currentStep = "Fetching and processing Reddit threads"
     console.log(
       `📖 Step 4&5: Fetching and processing ${allSearchResults.length} Reddit threads individually`
@@ -314,6 +443,18 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
         console.log(`\n🔍 [WORKFLOW] Processing thread ${threadsProcessed + 1}/${threadsToFetch.length}`)
         console.log(`🔍 [WORKFLOW] Thread ID: ${threadToFetch.threadId}, Subreddit: ${threadToFetch.subreddit || 'unknown'}, Keyword: ${threadToFetch.keyword}`)
         
+        // Update progress for retrieving
+        const retrievalProgress = 45 + (threadsProcessed / threadsToFetch.length) * 10
+        await updateLeadGenerationProgressAction(campaignId, {
+          stageUpdate: {
+            stageName: "Retrieving Threads",
+            status: "in_progress",
+            message: `Processing thread ${threadsProcessed + 1} of ${threadsToFetch.length}`,
+            progress: (threadsProcessed / threadsToFetch.length) * 100
+          },
+          totalProgress: Math.round(retrievalProgress)
+        })
+        
         // Fetch individual thread
         const { fetchRedditThreadAction } = await import("@/actions/integrations/reddit/reddit-actions")
         const fetchResult = await fetchRedditThreadAction(threadToFetch.threadId, threadToFetch.subreddit)
@@ -325,6 +466,25 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
 
         const apiThread = fetchResult.data
         console.log(`✅ [WORKFLOW] Fetched thread: "${apiThread.title}" by u/${apiThread.author}, Score: ${apiThread.score}`)
+
+        // Update to analyzing stage when we start scoring
+        if (threadsProcessed === 0) {
+          await updateLeadGenerationProgressAction(campaignId, {
+            stageUpdate: {
+              stageName: "Retrieving Threads",
+              status: "completed"
+            },
+            currentStage: "Analyzing Relevance"
+          })
+          
+          await updateLeadGenerationProgressAction(campaignId, {
+            stageUpdate: {
+              stageName: "Analyzing Relevance",
+              status: "in_progress",
+              message: "Analyzing thread relevance"
+            }
+          })
+        }
 
         // Fetch comments from the thread to analyze tone
         console.log(`💬 [WORKFLOW] Fetching comments from thread for tone analysis...`)
@@ -370,8 +530,40 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
         await setDoc(threadRef, removeUndefinedValues(threadDocData))
         console.log(`✅ [WORKFLOW] Thread saved to Firestore`)
 
+        // Update progress for analyzing
+        const analyzingProgress = 55 + (threadsProcessed / threadsToFetch.length) * 15
+        await updateLeadGenerationProgressAction(campaignId, {
+          stageUpdate: {
+            stageName: "Analyzing Relevance",
+            status: "in_progress",
+            message: `Analyzing thread ${threadsProcessed + 1} of ${threadsToFetch.length}`,
+            progress: (threadsProcessed / threadsToFetch.length) * 100
+          },
+          totalProgress: Math.round(analyzingProgress)
+        })
+
         // Immediately score and generate comment with tone analysis
         console.log(`🤖 [WORKFLOW] Starting AI scoring for thread: "${apiThread.title}"`)
+        
+        // Update to generating comments stage when appropriate
+        if (threadsProcessed === Math.floor(threadsToFetch.length * 0.5)) {
+          await updateLeadGenerationProgressAction(campaignId, {
+            stageUpdate: {
+              stageName: "Analyzing Relevance",
+              status: "completed"
+            },
+            currentStage: "Generating Comments"
+          })
+          
+          await updateLeadGenerationProgressAction(campaignId, {
+            stageUpdate: {
+              stageName: "Generating Comments",
+              status: "in_progress",
+              message: "Creating personalized responses"
+            }
+          })
+        }
+
         const { scoreThreadAndGeneratePersonalizedCommentsAction } = await import("@/actions/integrations/openai/openai-actions")
         const scoringResult = await scoreThreadAndGeneratePersonalizedCommentsAction(
           apiThread.title,
@@ -386,6 +578,18 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
           const scoringData = scoringResult.data
           console.log(`✅ [WORKFLOW] AI Scoring complete - Score: ${scoringData.score}/100`)
           console.log(`📝 [WORKFLOW] Reasoning: ${scoringData.reasoning}`)
+          
+          // Update progress for generating
+          const generatingProgress = 70 + (threadsProcessed / threadsToFetch.length) * 20
+          await updateLeadGenerationProgressAction(campaignId, {
+            stageUpdate: {
+              stageName: "Generating Comments",
+              status: "in_progress",
+              message: `Generated ${commentsGeneratedCount + 1} personalized comments`,
+              progress: (threadsProcessed / threadsToFetch.length) * 100
+            },
+            totalProgress: Math.round(generatingProgress)
+          })
           
           // Prepare comment data with keyword tracking
           const postCreatedAtValue = apiThread.created ? Timestamp.fromDate(new Date(apiThread.created * 1000)) : undefined
@@ -443,6 +647,27 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
       }
     }
 
+    // Complete the generating comments stage
+    await updateLeadGenerationProgressAction(campaignId, {
+      stageUpdate: {
+        stageName: "Generating Comments",
+        status: "completed",
+        message: `Generated ${commentsGeneratedCount} comments`
+      },
+      totalProgress: 90
+    })
+
+    // Finalize results
+    await updateLeadGenerationProgressAction(campaignId, {
+      currentStage: "Finalizing Results",
+      stageUpdate: {
+        stageName: "Finalizing Results",
+        status: "in_progress",
+        message: "Preparing your results"
+      },
+      totalProgress: 95
+    })
+
     // Update campaign with final counts
     await updateCampaignAction(campaignId, {
       totalCommentsGenerated: commentsGeneratedCount,
@@ -477,6 +702,23 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
       }
     })
 
+    // Complete progress tracking
+    await updateLeadGenerationProgressAction(campaignId, {
+      status: "completed",
+      stageUpdate: {
+        stageName: "Finalizing Results",
+        status: "completed",
+        message: "Lead generation complete!"
+      },
+      totalProgress: 100,
+      results: {
+        totalThreadsFound: allSearchResults.length,
+        totalThreadsAnalyzed: threadsProcessed,
+        totalCommentsGenerated: commentsGeneratedCount,
+        averageRelevanceScore: commentsGeneratedCount > 0 ? Math.round(totalScoreSum / commentsGeneratedCount) : 0
+      }
+    })
+
     console.log(`✅ Workflow completed for campaign: ${campaignId}`)
 
     return {
@@ -487,6 +729,10 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
   } catch (error) {
     console.error("Error in lead generation workflow:", error)
     await updateCampaignAction(campaignId, { status: "error" })
+    await updateLeadGenerationProgressAction(campaignId, {
+      status: "error",
+      error: error instanceof Error ? error.message : "Unknown error"
+    })
 
     progress.error = error instanceof Error ? error.message : "Unknown error"
     progress.results.push({
