@@ -74,12 +74,7 @@ function serializeProfileDocument(
     updatedAt:
       profile.updatedAt instanceof Timestamp
         ? profile.updatedAt.toDate().toISOString()
-        : new Date().toISOString(),
-    // Handle Reddit token expiration timestamp
-    redditTokenExpiresAt:
-      profile.redditTokenExpiresAt instanceof Timestamp
-        ? profile.redditTokenExpiresAt.toDate().toISOString()
-        : (profile.redditTokenExpiresAt as any)
+        : new Date().toISOString()
   }
 
   console.log(
@@ -309,16 +304,6 @@ export async function updateProfileAction(
   console.log("🔥 [UPDATE-PROFILE] User ID:", userId)
   console.log("🔥 [UPDATE-PROFILE] Update data:", JSON.stringify(data, null, 2))
   console.log("🔥 [UPDATE-PROFILE] Update data keys:", Object.keys(data))
-  console.log("🔥 [UPDATE-PROFILE] Keywords in update data:", data.keywords)
-  console.log("🔥 [UPDATE-PROFILE] Keywords type:", typeof data.keywords)
-  console.log(
-    "🔥 [UPDATE-PROFILE] Keywords array length:",
-    data.keywords?.length || 0
-  )
-  console.log(
-    "🔥 [UPDATE-PROFILE] Keywords stringified:",
-    JSON.stringify(data.keywords)
-  )
 
   try {
     const profileRef = doc(db, COLLECTIONS.PROFILES, userId)
@@ -341,14 +326,7 @@ export async function updateProfileAction(
       "🔥 [UPDATE-PROFILE] Existing profile data:",
       JSON.stringify(existingData, null, 2)
     )
-    console.log(
-      "🔥 [UPDATE-PROFILE] Existing keywords:",
-      existingData?.keywords
-    )
-    console.log(
-      "🔥 [UPDATE-PROFILE] Existing keywords length:",
-      existingData?.keywords?.length || 0
-    )
+
 
     // Create update data and filter out undefined values
     const rawUpdateData = {

@@ -3379,3 +3379,27 @@
 [2025-05-26T17:22:59.807Z] COMMAND FINISHED: prettier --write {app,lib,db,components,context,types}/**/*.{ts,tsx} --cache (exit code: 2)
 [2025-05-26T17:22:59.807Z] ==================================================
 [2025-05-26T17:22:59.807Z] ERROR: Command failed with exit code 2
+[2025-05-26T17:26:54.029Z] ==================================================
+[2025-05-26T17:26:54.030Z] COMMAND STARTED: next build
+[2025-05-26T17:26:54.030Z] ==================================================
+[2025-05-26T17:26:54.345Z] STDOUT: ▲ Next.js 15.3.2
+[2025-05-26T17:26:54.345Z] STDOUT: - Environments: .env.local
+[2025-05-26T17:26:54.384Z] STDOUT: Creating an optimized production build ...
+[2025-05-26T17:27:03.347Z] STDERR: <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (121kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+[2025-05-26T17:27:07.284Z] STDOUT: ✓ Compiled successfully in 10.0s
+[2025-05-26T17:27:07.291Z] STDOUT: Linting and checking validity of types ...
+[2025-05-26T17:27:11.786Z] STDERR: Failed to compile.
+[2025-05-26T17:27:11.787Z] STDERR: ./actions/db/profiles-actions.ts:79:5
+[2025-05-26T17:27:11.787Z] STDERR: Type error: Object literal may only specify known properties, and 'redditTokenExpiresAt' does not exist in type 'SerializedProfileDocument'.
+[2025-05-26T17:27:11.787Z] STDERR: [0m [90m 77 |[39m         [33m:[39m [36mnew[39m [33mDate[39m()[33m.[39mtoISOString()[33m,[39m[0m
+[2025-05-26T17:27:11.787Z] STDERR: [0m [90m 78 |[39m     [90m// Handle Reddit token expiration timestamp[39m[0m
+[2025-05-26T17:27:11.787Z] STDERR: [0m[31m[1m>[22m[39m[90m 79 |[39m     redditTokenExpiresAt[33m:[39m[0m
+[2025-05-26T17:27:11.787Z] STDERR: [0m [90m    |[39m     [31m[1m^[22m[39m[0m
+[2025-05-26T17:27:11.787Z] STDERR: [0m [90m 80 |[39m       profile[33m.[39mredditTokenExpiresAt [36minstanceof[39m [33mTimestamp[39m[0m
+[2025-05-26T17:27:11.787Z] STDERR: [0m [90m 81 |[39m         [33m?[39m profile[33m.[39mredditTokenExpiresAt[33m.[39mtoDate()[33m.[39mtoISOString()[0m
+[2025-05-26T17:27:11.787Z] STDERR: [0m [90m 82 |[39m         [33m:[39m (profile[33m.[39mredditTokenExpiresAt [36mas[39m any)[0m
+[2025-05-26T17:27:11.816Z] STDERR: Next.js build worker exited with code: 1 and signal: null
+[2025-05-26T17:27:11.821Z] ==================================================
+[2025-05-26T17:27:11.821Z] COMMAND FINISHED: next build (exit code: 1)
+[2025-05-26T17:27:11.821Z] ==================================================
+[2025-05-26T17:27:11.822Z] ERROR: Command failed with exit code 1
