@@ -95,6 +95,7 @@ export interface SerializedGeneratedCommentDocument {
   postScore?: number
   keyword?: string
   postedCommentUrl?: string
+  postCreatedAt?: string
 }
 
 // Serialization helper functions
@@ -182,7 +183,8 @@ function serializeGeneratedCommentDocument(
     updatedAt: serializeTimestampToISOBoilerplate(comment.updatedAt),
     postScore: comment.postScore || undefined, // Handle optional
     keyword: comment.keyword || undefined, // Handle optional
-    postedCommentUrl: comment.postedCommentUrl || undefined // Handle optional
+    postedCommentUrl: comment.postedCommentUrl || undefined, // Handle optional
+    postCreatedAt: comment.postCreatedAt ? serializeTimestampToISOBoilerplate(comment.postCreatedAt) : undefined
   }
 }
 
@@ -314,7 +316,8 @@ export async function createGeneratedCommentAction(
       used: false, // Default to false
       // Optional tracking fields
       keyword: data.keyword,
-      postScore: data.postScore
+      postScore: data.postScore,
+      postCreatedAt: data.postCreatedAt
       // Timestamps will be added by serverTimestamp or directly
     }
 
