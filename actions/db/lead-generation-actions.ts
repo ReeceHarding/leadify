@@ -599,11 +599,57 @@ export async function createBatchGeneratedCommentsAction(
   }
 }
 
+export async function getGeneratedCommentsByOrganizationIdAction(
+  organizationId: string
+): Promise<ActionState<SerializedGeneratedCommentDocument[]>> {
+  try {
+    console.log(`📖 [LEAD-GEN] Fetching comments for organization: ${organizationId}`)
+
+    // First get all campaigns for this organization
+    const campaignsRef = collection(db, LEAD_COLLECTIONS.CAMPAIGNS)
+    const campaignsQuery = query(campaignsRef, where("organizationId", "==", organizationId))
+    const campaignsSnapshot = await getDocs(campaignsQuery)
+
+    if (campaignsSnapshot.empty) {
+      return {
+        isSuccess: true,
+        message: "No campaigns found for organization",
+        data: []
+      }
+    }
+
+    // Get all campaign IDs
+    const campaignIds = campaignsSnapshot.docs.map(doc => doc.id)
+
+    // Fetch all comments for these campaigns
+    const allComments: SerializedGeneratedCommentDocument[] = []
+
+    for (const campaignId of campaignIds) {
+      const result = await getGeneratedCommentsByCampaignAction(campaignId)
+      if (result.isSuccess) {
+        allComments.push(...result.data)
+      }
+    }
+
+    console.log(`✅ [LEAD-GEN] Found ${allComments.length} comments for organization`)
+
+    return {
+      isSuccess: true,
+      message: "Comments retrieved successfully",
+      data: allComments
+    }
+  } catch (error) {
+    console.error("Error getting comments by organization:", error)
+    return { isSuccess: false, message: "Failed to get organization comments" }
+  }
+}
+
+// Legacy function - kept for backward compatibility
 export async function getGeneratedCommentsByUserIdAction(
   userId: string
 ): Promise<ActionState<SerializedGeneratedCommentDocument[]>> {
   try {
-    console.log(`📖 [LEAD-GEN] Fetching comments for user: ${userId}`)
+    console.log(`📖 [LEAD-GEN] Fetching comments for user (LEGACY): ${userId}`)
 
     // First get all campaigns for this user
     const campaignsRef = collection(db, LEAD_COLLECTIONS.CAMPAIGNS)

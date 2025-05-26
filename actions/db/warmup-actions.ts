@@ -191,12 +191,13 @@ export async function createWarmupAccountAction(
   }
 }
 
+// Legacy function - kept for backward compatibility
 export async function getWarmupAccountByUserIdAction(
   userId: string
 ): Promise<ActionState<SerializedWarmupAccountDocument | null>> {
   try {
     console.log(
-      "🔍 [GET-WARMUP-ACCOUNT] Fetching warm-up account for user:",
+      "🔍 [GET-WARMUP-ACCOUNT] Fetching warm-up account for user (LEGACY):",
       userId
     )
 
@@ -306,12 +307,13 @@ export async function createWarmupPostAction(
   }
 }
 
+// Legacy function - kept for backward compatibility
 export async function getWarmupPostsByUserIdAction(
   userId: string
 ): Promise<ActionState<SerializedWarmupPostDocument[]>> {
   try {
     console.log(
-      "🔍 [GET-WARMUP-POSTS] Fetching warm-up posts for user:",
+      "🔍 [GET-WARMUP-POSTS] Fetching warm-up posts for user (LEGACY):",
       userId
     )
 

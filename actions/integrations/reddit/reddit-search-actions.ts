@@ -1,22 +1,24 @@
 "use server"
 
 import { ActionState, SearchOptions, RedditPost } from "@/types"
-import { getRedditTokensFromProfileAction } from "./reddit-oauth-user-actions"
+import { getCurrentOrganizationTokens } from "./reddit-auth-helpers"
 
 export async function searchRedditAction(
+  organizationId: string,
   query: string,
   options: SearchOptions = {}
 ): Promise<ActionState<RedditPost[]>> {
   try {
     console.log("🔍 [REDDIT-SEARCH] Starting search")
+    console.log("🔍 [REDDIT-SEARCH] Organization ID:", organizationId)
     console.log("🔍 [REDDIT-SEARCH] Query:", query)
     console.log("🔍 [REDDIT-SEARCH] Options:", options)
 
-    // Get the current user's Reddit tokens
-    const tokensResult = await getRedditTokensFromProfileAction()
+    // Get the organization's Reddit tokens
+    const tokensResult = await getCurrentOrganizationTokens(organizationId)
     if (!tokensResult.isSuccess || !tokensResult.data) {
       console.error("❌ [REDDIT-SEARCH] Failed to get Reddit tokens")
-      return { isSuccess: false, message: "Reddit authentication required" }
+      return { isSuccess: false, message: "Reddit authentication required for this organization" }
     }
 
     const { accessToken } = tokensResult.data

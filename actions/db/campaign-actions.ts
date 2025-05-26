@@ -152,11 +152,93 @@ export async function createCampaignAction(
   }
 }
 
+export async function getCampaignsByOrganizationIdAction(
+  organizationId: string
+): Promise<ActionState<SerializedCampaignDocument[]>> {
+  console.log(
+    "📋📋📋 [GET-CAMPAIGNS-BY-ORG] ========== ACTION START =========="
+  )
+  console.log(
+    "📋📋📋 [GET-CAMPAIGNS-BY-ORG] Timestamp:",
+    new Date().toISOString()
+  )
+  console.log("📋📋📋 [GET-CAMPAIGNS-BY-ORG] Organization ID:", organizationId)
+
+  try {
+    console.log("📋📋📋 [GET-CAMPAIGNS-BY-ORG] Creating query...")
+    const campaignsRef = collection(db, LEAD_COLLECTIONS.CAMPAIGNS)
+    const q = query(campaignsRef, where("organizationId", "==", organizationId))
+
+    console.log("📋📋📋 [GET-CAMPAIGNS-BY-ORG] Executing query...")
+    const querySnapshot = await getDocs(q)
+    console.log(
+      "📋📋📋 [GET-CAMPAIGNS-BY-ORG] Query returned documents:",
+      querySnapshot.size
+    )
+    console.log(
+      "📋📋📋 [GET-CAMPAIGNS-BY-ORG] Query empty:",
+      querySnapshot.empty
+    )
+
+    const campaigns = querySnapshot.docs.map((doc, index) => {
+      const data = doc.data() as CampaignDocument
+      console.log(`📋📋📋 [GET-CAMPAIGNS-BY-ORG] Campaign ${index + 1}:`, {
+        id: data.id,
+        name: data.name,
+        organizationId: data.organizationId,
+        keywordCount: data.keywords?.length || 0,
+        status: data.status,
+        totalCommentsGenerated: data.totalCommentsGenerated
+      })
+      return serializeCampaignDocument(data)
+    })
+
+    console.log(
+      "📋📋📋 [GET-CAMPAIGNS-BY-ORG] Total campaigns found:",
+      campaigns.length
+    )
+    console.log(
+      "📋📋📋 [GET-CAMPAIGNS-BY-ORG] Campaign IDs:",
+      campaigns.map(c => c.id)
+    )
+    console.log(
+      "📋📋📋 [GET-CAMPAIGNS-BY-ORG] ✅ Campaigns retrieved successfully"
+    )
+    console.log(
+      "📋📋📋 [GET-CAMPAIGNS-BY-ORG] ========== ACTION END (SUCCESS) =========="
+    )
+
+    return {
+      isSuccess: true,
+      message: "Campaigns retrieved successfully",
+      data: campaigns
+    }
+  } catch (error) {
+    console.log("📋📋📋 [GET-CAMPAIGNS-BY-ORG] ❌ Error getting campaigns")
+    console.log("📋📋📋 [GET-CAMPAIGNS-BY-ORG] Error type:", typeof error)
+    console.log("📋📋📋 [GET-CAMPAIGNS-BY-ORG] Error:", error)
+    console.log(
+      "📋📋📋 [GET-CAMPAIGNS-BY-ORG] Error message:",
+      error instanceof Error ? error.message : "Unknown error"
+    )
+    console.log(
+      "📋📋📋 [GET-CAMPAIGNS-BY-ORG] Error stack:",
+      error instanceof Error ? error.stack : "No stack trace"
+    )
+    console.log(
+      "📋📋📋 [GET-CAMPAIGNS-BY-ORG] ========== ACTION END (ERROR) =========="
+    )
+
+    return { isSuccess: false, message: "Failed to get campaigns" }
+  }
+}
+
+// Legacy function - kept for backward compatibility
 export async function getCampaignsByUserIdAction(
   userId: string
 ): Promise<ActionState<SerializedCampaignDocument[]>> {
   console.log(
-    "📋📋📋 [GET-CAMPAIGNS-BY-USER] ========== ACTION START =========="
+    "📋📋📋 [GET-CAMPAIGNS-BY-USER] ========== LEGACY ACTION START =========="
   )
   console.log(
     "📋📋📋 [GET-CAMPAIGNS-BY-USER] Timestamp:",

@@ -40,9 +40,8 @@ import {
   updateLeadGenerationProgressAction
 } from "@/actions/db/lead-generation-progress-actions"
 import { LEAD_GENERATION_STAGES } from "@/types"
-import { getKnowledgeBaseByUserIdAction } from "@/actions/db/personalization-actions"
-import { getVoiceSettingsByUserIdAction } from "@/actions/db/personalization-actions"
-import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
+import { getKnowledgeBaseByOrganizationIdAction } from "@/actions/db/personalization-actions"
+import { getVoiceSettingsByOrganizationIdAction } from "@/actions/db/personalization-actions"
 
 export async function runFullLeadGenerationWorkflowAction(
   campaignId: string
@@ -478,6 +477,7 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
           "@/actions/integrations/reddit/reddit-actions"
         )
         const fetchResult = await fetchRedditThreadAction(
+          organizationId, // Add organizationId parameter
           threadToFetch.threadId,
           threadToFetch.subreddit
         )
@@ -521,6 +521,7 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
           "@/actions/integrations/reddit/reddit-actions"
         )
         const commentsResult = await fetchRedditCommentsAction(
+          organizationId, // Add organizationId parameter
           threadToFetch.threadId,
           threadToFetch.subreddit || apiThread.subreddit,
           "best",
