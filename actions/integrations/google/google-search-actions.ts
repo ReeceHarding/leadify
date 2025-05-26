@@ -7,18 +7,10 @@ Used to search for Reddit threads based on keywords.
 
 "use server"
 
-import { ActionState } from "@/types"
+import { ActionState, GoogleSearchResult } from "@/types"
 
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY
 const GOOGLE_SEARCH_ENGINE_ID = process.env.GOOGLE_SEARCH_ENGINE_ID
-
-export interface GoogleSearchResult {
-  title: string
-  link: string
-  snippet: string
-  position: number
-  threadId?: string // Extracted Reddit thread ID
-}
 
 export async function searchRedditThreadsAction(
   keyword: string,
@@ -198,7 +190,7 @@ export async function testGoogleSearchConnectionAction(): Promise<
   console.log("🔍🔍🔍 [GOOGLE-SEARCH-TEST] Testing Google Search API connection...")
   
   try {
-    console.log("🔍🔍🔍 [GOOGLE-SEARCH-TEST] Running test search with query: 'test site:reddit.com'")
+    console.log("��🔍🔍 [GOOGLE-SEARCH-TEST] Running test search with query: 'test site:reddit.com'")
     const result = await searchRedditThreadsAction("test", 1)
     
     console.log("🔍🔍🔍 [GOOGLE-SEARCH-TEST] Test result:", {

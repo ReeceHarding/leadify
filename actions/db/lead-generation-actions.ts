@@ -16,7 +16,12 @@ import {
   GeneratedCommentDocument,
   CreateGeneratedCommentData
 } from "@/db/firestore/lead-generation-collections"
-import { ActionState } from "@/types"
+import { 
+  ActionState, 
+  SerializedSearchResultDocument,
+  SerializedRedditThreadDocument,
+  SerializedGeneratedCommentDocument 
+} from "@/types"
 import {
   doc,
   getDoc,
@@ -31,72 +36,6 @@ import {
   writeBatch,
   Timestamp
 } from "firebase/firestore"
-
-// Create serialized versions that can be passed to client components
-export interface SerializedSearchResultDocument {
-  id: string
-  campaignId: string
-  keyword: string
-  redditUrl: string
-  threadId?: string
-  title: string
-  snippet: string
-  position: number
-  processed: boolean
-  createdAt: string
-  updatedAt: string
-}
-
-export interface SerializedRedditThreadDocument {
-  id: string
-  campaignId: string
-  searchResultId: string
-  threadId: string
-  subreddit: string
-  title: string
-  content: string
-  author: string
-  score: number
-  numComments: number
-  url: string
-  processed: boolean
-  relevanceScore?: number
-  createdAt: string
-  updatedAt: string
-}
-
-export interface SerializedGeneratedCommentDocument {
-  id: string
-  campaignId: string
-  redditThreadId: string
-  threadId: string
-  postUrl: string
-  postTitle: string
-  postAuthor: string
-  postContentSnippet: string
-  relevanceScore: number
-  reasoning: string
-  microComment: string
-  mediumComment: string
-  verboseComment: string
-  status:
-    | "new"
-    | "viewed"
-    | "approved"
-    | "rejected"
-    | "used"
-    | "queued"
-    | "posted"
-  selectedLength?: "micro" | "medium" | "verbose"
-  approved: boolean
-  used: boolean
-  createdAt: string
-  updatedAt: string
-  postScore?: number
-  keyword?: string
-  postedCommentUrl?: string
-  postCreatedAt?: string
-}
 
 // Serialization helper functions
 function serializeTimestampToISOBoilerplate(timestamp: any): string {

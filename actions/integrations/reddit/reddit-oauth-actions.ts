@@ -6,16 +6,11 @@ Contains server actions for Reddit OAuth2 authentication flow.
 
 "use server"
 
-import { ActionState } from "@/types"
+import { auth } from "@clerk/nextjs/server"
+import { updateProfileAction } from "@/actions/db/profiles-actions"
+import { ActionState, RedditOAuthTokens } from "@/types"
+import { Timestamp } from "firebase/firestore"
 import { cookies } from "next/headers"
-
-export interface RedditOAuthTokens {
-  access_token: string
-  token_type: string
-  expires_in: number
-  scope: string
-  refresh_token?: string
-}
 
 export async function generateRedditAuthUrlAction(): Promise<
   ActionState<{ authUrl: string }>

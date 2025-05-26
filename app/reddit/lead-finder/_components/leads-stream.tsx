@@ -200,14 +200,14 @@ export default function LeadsStream({ campaignId }: Props) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className={cn(
-          "flex items-center gap-3 p-3 rounded-lg transition-all",
-          isActive && "bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800",
+          "flex items-center gap-3 rounded-lg p-3 transition-all",
+          isActive && "border border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/20",
           isCompleted && !isActive && "opacity-60",
           isPending && "opacity-40"
         )}
       >
         <div className={cn(
-          "relative flex items-center justify-center size-10 rounded-full",
+          "relative flex size-10 items-center justify-center rounded-full",
           isActive && "bg-blue-100 dark:bg-blue-900/50",
           isCompleted && !isActive && "bg-green-100 dark:bg-green-900/50",
           isError && "bg-red-100 dark:bg-red-900/50",
@@ -247,12 +247,12 @@ export default function LeadsStream({ campaignId }: Props) {
             )}
           </div>
           {stage.message && (
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <p className="text-muted-foreground mt-0.5 text-xs">
               {stage.message}
             </p>
           )}
           {stage.progress !== undefined && isActive && (
-            <Progress value={stage.progress} className="h-1 mt-1" />
+            <Progress value={stage.progress} className="mt-1 h-1" />
           )}
         </div>
       </motion.div>
@@ -280,9 +280,9 @@ export default function LeadsStream({ campaignId }: Props) {
           return (
             <Card className="p-8">
               <div className="space-y-6">
-                <div className="text-center space-y-2">
+                <div className="space-y-2 text-center">
                   <h3 className="text-lg font-semibold">Finding Your Perfect Leads</h3>
-                  <p className="text-muted-foreground text-sm max-w-md mx-auto">
+                  <p className="text-muted-foreground mx-auto max-w-md text-sm">
                     Our AI is analyzing Reddit to find the most relevant discussions for your business. 
                     This typically takes about 60 seconds.
                   </p>
@@ -306,7 +306,7 @@ export default function LeadsStream({ campaignId }: Props) {
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-muted/50 rounded-lg p-4 space-y-2"
+                    className="bg-muted/50 space-y-2 rounded-lg p-4"
                   >
                     <p className="text-sm font-medium">Progress Summary</p>
                     <div className="grid grid-cols-2 gap-2 text-xs">
@@ -337,10 +337,10 @@ export default function LeadsStream({ campaignId }: Props) {
         (() => {
           console.log("🔥🔥🔥 [LEADS-STREAM] Rendering error state")
           return (
-            <Card className="p-12 text-center border-red-200 dark:border-red-800">
-              <XCircle className="text-red-600 dark:text-red-400 mx-auto mb-4 size-12" />
+            <Card className="border-red-200 p-12 text-center dark:border-red-800">
+              <XCircle className="mx-auto mb-4 size-12 text-red-600 dark:text-red-400" />
               <h3 className="mb-2 text-lg font-semibold">Lead Generation Failed</h3>
-              <p className="text-muted-foreground text-sm max-w-md mx-auto">
+              <p className="text-muted-foreground mx-auto max-w-md text-sm">
                 {progress.error || "An error occurred during lead generation. Please try again."}
               </p>
             </Card>
@@ -369,7 +369,7 @@ export default function LeadsStream({ campaignId }: Props) {
                   Showing {leads.length} lead{leads.length !== 1 ? 's' : ''}
                 </p>
                 {progress?.status === "completed" && progress.results && (
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                  <div className="text-muted-foreground flex items-center gap-4 text-xs">
                     <span>Avg. Score: {progress.results.averageRelevanceScore}%</span>
                     <span>•</span>
                     <span>From {progress.results.totalThreadsAnalyzed} threads</span>

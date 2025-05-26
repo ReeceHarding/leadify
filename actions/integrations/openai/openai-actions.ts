@@ -1,6 +1,6 @@
 /*
 <ai_context>
-Contains server actions for OpenAI o3-mini API integration to critically score Reddit threads and generate three-tier comments.
+Contains server actions for OpenAI API interactions including comment generation and thread analysis.
 </ai_context>
 */
 
@@ -9,9 +9,12 @@ Contains server actions for OpenAI o3-mini API integration to critically score R
 import { generateObject, generateText } from "ai"
 import { openai } from "@ai-sdk/openai"
 import { z } from "zod"
-import { ActionState } from "@/types"
+import { ActionState, ThreeTierCommentResult, ReplyGenerationResult, InformationCombiningResult } from "@/types"
 import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
 import { scrapeWebsiteAction } from "@/actions/integrations/firecrawl/website-scraping-actions"
+import OpenAI from "openai"
+import { getVoiceSettingsByUserIdAction } from "@/actions/db/personalization-actions"
+import { getKnowledgeBaseByUserIdAction } from "@/actions/db/personalization-actions"
 
 // Schema for thread scoring and comment generation
 const ThreadAnalysisSchema = z.object({
@@ -21,14 +24,6 @@ const ThreadAnalysisSchema = z.object({
   mediumComment: z.string(),
   verboseComment: z.string()
 })
-
-export interface ThreeTierCommentResult {
-  score: number // 1-100
-  reasoning: string
-  microComment: string // Ultra-brief helpful advice (5-15 words)
-  mediumComment: string // Balanced response with good detail (30-80 words)
-  verboseComment: string // Comprehensive, valuable advice (100-200 words)
-}
 
 export async function scoreThreadAndGenerateThreeTierCommentsAction(
   threadTitle: string,
@@ -457,10 +452,6 @@ const ReplyGenerationSchema = z.object({
   reply: z.string()
 })
 
-export interface ReplyGenerationResult {
-  reply: string
-}
-
 export async function generateReplyToCommentAction(
   originalComment: string,
   replyToComment: string,
@@ -707,10 +698,6 @@ Return as JSON:
 const InformationCombiningSchema = z.object({
   combinedInformation: z.string()
 })
-
-export interface InformationCombiningResult {
-  combinedInformation: string
-}
 
 export async function combineInformationAction(
   oldInformation: string,

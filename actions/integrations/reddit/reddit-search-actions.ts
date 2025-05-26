@@ -1,44 +1,7 @@
 "use server"
 
-import { ActionState } from "@/types"
+import { ActionState, SearchOptions, RedditPost } from "@/types"
 import { getRedditTokensFromProfileAction } from "./reddit-oauth-user-actions"
-
-export interface SearchOptions {
-  sort?: "relevance" | "hot" | "top" | "new" | "comments"
-  time?: "hour" | "day" | "week" | "month" | "year" | "all"
-  limit?: number
-  subreddit?: string
-}
-
-export interface RedditPost {
-  id: string
-  title: string
-  selftext: string
-  author: string
-  subreddit: string
-  url: string
-  permalink: string
-  score: number
-  num_comments: number
-  created_utc: number
-  link_flair_text?: string
-  over_18: boolean
-  spoiler: boolean
-  locked: boolean
-  stickied: boolean
-  is_self: boolean
-  domain?: string
-  thumbnail?: string
-  preview?: {
-    images?: Array<{
-      source?: {
-        url?: string
-        width?: number
-        height?: number
-      }
-    }>
-  }
-}
 
 export async function searchRedditAction(
   query: string,

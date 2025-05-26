@@ -6,41 +6,11 @@ Contains server actions for Reddit API integration using OAuth2 authentication t
 
 "use server"
 
-import { ActionState } from "@/types"
+import { ActionState, RedditThreadData, RedditComment } from "@/types"
 import {
   getRedditAccessTokenAction,
   refreshRedditTokenAction
 } from "./reddit-oauth-actions"
-
-export interface RedditThreadData {
-  id: string
-  title: string
-  content: string
-  author: string
-  subreddit: string
-  score: number
-  numComments: number
-  url: string
-  created: number
-  selfText?: string
-  isVideo: boolean
-  isImage: boolean
-  domain: string
-}
-
-export interface RedditComment {
-  id: string
-  author: string
-  body: string
-  score: number
-  created_utc: number
-  is_submitter?: boolean
-  replies?: RedditComment[]
-  depth?: number
-  awards?: number
-  distinguished?: string
-  stickied?: boolean
-}
 
 async function makeRedditApiCall(endpoint: string): Promise<any> {
   console.log("🔴🔴🔴 [REDDIT-API] ========== API CALL START ==========")

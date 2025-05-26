@@ -1,25 +1,17 @@
 /*
 <ai_context>
-Contains server actions for Firecrawl API integration to scrape website content.
+Contains server actions for Firecrawl API integration for web scraping.
 </ai_context>
 */
 
 "use server"
 
+import { ActionState, ScrapeResult } from "@/types"
 import FirecrawlApp from "@mendable/firecrawl-js"
-import { ActionState } from "@/types"
 
 const firecrawl = new FirecrawlApp({
   apiKey: process.env.FIRECRAWL_API_KEY!
 })
-
-export interface ScrapeResult {
-  url: string
-  content: string
-  title?: string
-  description?: string
-  error?: string
-}
 
 export async function scrapeWebsiteAction(
   url: string

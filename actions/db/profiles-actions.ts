@@ -13,7 +13,7 @@ import {
   CreateProfileData,
   UpdateProfileData
 } from "@/db/firestore/collections"
-import { ActionState } from "@/types"
+import { ActionState, SerializedProfileDocument } from "@/types"
 import { removeUndefinedValues } from "@/lib/firebase-utils"
 import {
   doc,
@@ -32,28 +32,6 @@ import {
 } from "firebase/firestore"
 import { clearRedditTokensAction } from "../integrations/reddit/reddit-oauth-actions"
 import { LEAD_COLLECTIONS } from "@/db/schema"
-
-// Create a serialized version of ProfileDocument that can be passed to client components
-export interface SerializedProfileDocument {
-  userId: string
-  membership: "free" | "basic" | "pro"
-  stripeCustomerId?: string
-  stripeSubscriptionId?: string
-  name?: string
-  profilePictureUrl?: string
-  website?: string
-  keywords?: string[] // Keywords for lead generation
-  onboardingCompleted?: boolean
-  
-  // Reddit OAuth fields
-  redditAccessToken?: string
-  redditRefreshToken?: string
-  redditTokenExpiresAt?: string // ISO string instead of Timestamp
-  redditUsername?: string
-  
-  createdAt: string // ISO string instead of Timestamp
-  updatedAt: string // ISO string instead of Timestamp
-}
 
 // Helper function to serialize ProfileDocument to remove Firestore Timestamps
 function serializeProfileDocument(

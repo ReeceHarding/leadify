@@ -15,7 +15,7 @@ import {
   UpdateCampaignData,
   CampaignSummary
 } from "@/db/schema"
-import { ActionState } from "@/types"
+import { ActionState, SerializedCampaignDocument } from "@/types"
 import { removeUndefinedValues } from "@/lib/firebase-utils"
 import {
   doc,
@@ -31,23 +31,6 @@ import {
   serverTimestamp,
   Timestamp
 } from "firebase/firestore"
-
-// Serialized version for client components
-export interface SerializedCampaignDocument {
-  id: string
-  userId: string
-  name: string
-  website?: string
-  businessDescription?: string
-  websiteContent?: string
-  keywords: string[]
-  status: "draft" | "running" | "completed" | "paused" | "error"
-  totalSearchResults: number
-  totalThreadsAnalyzed: number
-  totalCommentsGenerated: number
-  createdAt: string // ISO string instead of Timestamp
-  updatedAt: string // ISO string instead of Timestamp
-}
 
 // Serialization helper function
 function serializeCampaignDocument(
@@ -160,7 +143,7 @@ export async function getCampaignsByUserIdAction(
     const campaignsRef = collection(db, LEAD_COLLECTIONS.CAMPAIGNS)
     const q = query(campaignsRef, where("userId", "==", userId))
     
-    console.log("��📋📋 [GET-CAMPAIGNS-BY-USER] Executing query...")
+    console.log("📋📋📋 [GET-CAMPAIGNS-BY-USER] Executing query...")
     const querySnapshot = await getDocs(q)
     console.log("📋📋📋 [GET-CAMPAIGNS-BY-USER] Query returned documents:", querySnapshot.size)
     console.log("📋📋📋 [GET-CAMPAIGNS-BY-USER] Query empty:", querySnapshot.empty)

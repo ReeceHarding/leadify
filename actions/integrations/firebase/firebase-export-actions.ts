@@ -7,7 +7,7 @@ Contains server actions for exporting lead generation data to Firebase instead o
 "use server"
 
 import { db } from "@/db/db"
-import { ActionState } from "@/types"
+import { ActionState, FirebaseExportData } from "@/types"
 import {
   LEAD_COLLECTIONS,
   GoogleSheetsExportData,
@@ -24,24 +24,6 @@ import {
   serverTimestamp
 } from "firebase/firestore"
 import { removeUndefinedValues } from "@/lib/firebase-utils"
-
-export interface FirebaseExportData {
-  id: string
-  campaignId: string
-  campaignName: string
-  keyword: string
-  redditUrl: string
-  threadTitle: string
-  subreddit: string
-  threadAuthor: string
-  threadScore: number
-  relevanceScore: number
-  generatedComment: string
-  reasoning: string
-  approved: boolean
-  used: boolean
-  exportedAt: Date
-}
 
 export async function exportCampaignToFirebaseAction(
   campaignId: string

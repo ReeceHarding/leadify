@@ -7,7 +7,11 @@ Coordinates Firecrawl, Google Search, Reddit API, and OpenAI integrations.
 
 "use server"
 
-import { ActionState } from "@/types"
+import { 
+  ActionState, 
+  WorkflowStepResult, 
+  WorkflowProgress 
+} from "@/types"
 import {
   updateCampaignAction,
   getCampaignByIdAction
@@ -40,22 +44,9 @@ import {
   updateLeadGenerationProgressAction,
   LEAD_GENERATION_STAGES
 } from "@/actions/db/lead-generation-progress-actions"
-
-export interface WorkflowStepResult {
-  step: string
-  success: boolean
-  message: string
-  data?: any
-}
-
-export interface WorkflowProgress {
-  currentStep: string
-  totalSteps: number
-  completedSteps: number
-  results: WorkflowStepResult[]
-  isComplete: boolean
-  error?: string
-}
+import { getKnowledgeBaseByUserIdAction } from "@/actions/db/personalization-actions"
+import { getVoiceSettingsByUserIdAction } from "@/actions/db/personalization-actions"
+import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
 
 export async function runFullLeadGenerationWorkflowAction(
   campaignId: string

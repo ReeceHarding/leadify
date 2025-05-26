@@ -1,32 +1,8 @@
 "use server"
 
 import { db } from "@/db/db"
-import { ActionState } from "@/types"
+import { ActionState, LeadGenerationProgress } from "@/types"
 import { doc, setDoc, getDoc, serverTimestamp, Timestamp } from "firebase/firestore"
-
-export interface LeadGenerationProgress {
-  campaignId: string
-  status: "pending" | "in_progress" | "completed" | "error"
-  currentStage: string
-  stages: {
-    name: string
-    status: "pending" | "in_progress" | "completed" | "error"
-    startedAt?: Timestamp
-    completedAt?: Timestamp
-    message?: string
-    progress?: number // 0-100
-  }[]
-  totalProgress: number // 0-100
-  startedAt: Timestamp
-  completedAt?: Timestamp
-  error?: string
-  results?: {
-    totalThreadsFound: number
-    totalThreadsAnalyzed: number
-    totalCommentsGenerated: number
-    averageRelevanceScore: number
-  }
-}
 
 export const LEAD_GENERATION_STAGES = [
   { name: "Initializing", duration: 3000 },

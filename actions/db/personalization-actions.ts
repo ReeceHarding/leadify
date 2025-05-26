@@ -1,6 +1,6 @@
 /*
 <ai_context>
-Database actions for managing personalization data including knowledge base and voice settings.
+Contains server actions related to personalization features in Firestore.
 </ai_context>
 */
 
@@ -17,13 +17,17 @@ import {
   UpdateVoiceSettingsData,
   ScrapedContentDocument,
   CreateScrapedContentData,
-  UpdateScrapedContentData,
   TwitterAnalysisDocument,
   CreateTwitterAnalysisData,
-  UpdateTwitterAnalysisData,
   TwitterTweet
-} from "@/db/schema"
-import { ActionState } from "@/types"
+} from "@/db/firestore/personalization-collections"
+import { 
+  ActionState, 
+  SerializedKnowledgeBaseDocument,
+  SerializedVoiceSettingsDocument,
+  SerializedScrapedContentDocument,
+  SerializedTwitterAnalysisDocument
+} from "@/types"
 import {
   doc,
   getDoc,
@@ -37,70 +41,6 @@ import {
   serverTimestamp,
   Timestamp
 } from "firebase/firestore"
-
-// Serialized interfaces for client components
-export interface SerializedKnowledgeBaseDocument {
-  id: string
-  userId: string
-  websiteUrl?: string
-  customInformation?: string
-  scrapedPages?: string[]
-  summary?: string
-  keyFacts?: string[]
-  createdAt: string // ISO string instead of Timestamp
-  updatedAt: string // ISO string instead of Timestamp
-}
-
-export interface SerializedVoiceSettingsDocument {
-  id: string
-  userId: string
-  writingStyle: "casual" | "professional" | "friendly" | "technical" | "custom"
-  customWritingStyle?: string
-  manualWritingStyleDescription?: string
-  twitterHandle?: string
-  twitterAnalyzed?: boolean
-  personaType: "ceo" | "user" | "subtle" | "custom"
-  customPersona?: string
-  useAllLowercase?: boolean
-  useEmojis?: boolean
-  useCasualTone?: boolean
-  useFirstPerson?: boolean
-  generatedPrompt?: string
-  createdAt: string // ISO string instead of Timestamp
-  updatedAt: string // ISO string instead of Timestamp
-}
-
-export interface SerializedScrapedContentDocument {
-  id: string
-  userId: string
-  url: string
-  title?: string
-  content: string
-  contentType: "webpage" | "pdf" | "document"
-  wordCount?: number
-  summary?: string
-  keyPoints?: string[]
-  scrapedAt: string // ISO string instead of Timestamp
-  createdAt: string // ISO string instead of Timestamp
-  updatedAt: string // ISO string instead of Timestamp
-}
-
-export interface SerializedTwitterAnalysisDocument {
-  id: string
-  userId: string
-  twitterHandle: string
-  tweets: TwitterTweet[]
-  writingStyleAnalysis: string
-  commonPhrases: string[]
-  toneAnalysis: string
-  vocabularyLevel: "casual" | "professional" | "mixed"
-  averageTweetLength: number
-  emojiUsage: boolean
-  hashtagUsage: boolean
-  analyzedAt: string // ISO string instead of Timestamp
-  createdAt: string // ISO string instead of Timestamp
-  updatedAt: string // ISO string instead of Timestamp
-}
 
 // Helper function to serialize Firestore Timestamps to ISO strings
 function serializeTimestamp(timestamp: Timestamp | any): string {
