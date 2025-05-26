@@ -25,7 +25,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import { X, Plus, Loader2, Globe, Search, Target, Sparkles } from "lucide-react"
+import { X, Plus, Loader2, Globe, Search, Target, Sparkles, Building2 } from "lucide-react"
 import { createCampaignAction } from "@/actions/db/campaign-actions"
 import { runFullLeadGenerationWorkflowAction } from "@/actions/lead-generation/workflow-actions"
 import { generateCampaignNameAction } from "@/actions/lead-generation/campaign-name-actions"
@@ -39,11 +39,15 @@ const campaignSchema = z.object({
     .string()
     .min(1, "Campaign name is required")
     .max(100, "Name too long"),
-  website: z.string().url("Please enter a valid website URL"),
+  website: z.string().url("Please enter a valid website URL").optional().or(z.literal("")),
+  businessDescription: z.string().optional(),
   keywords: z
     .array(z.string())
     .min(1, "At least one keyword is required")
     .max(10, "Maximum 10 keywords allowed")
+}).refine((data) => data.website || data.businessDescription, {
+  message: "Either website or business description is required",
+  path: ["businessDescription"]
 })
 
 type CampaignForm = z.infer<typeof campaignSchema>
@@ -70,22 +74,25 @@ export default function CreateCampaignDialog({
     defaultValues: {
       name: "",
       website: "",
+      businessDescription: "",
       keywords: []
     }
   })
 
   const keywordsForm = form.watch("keywords")
   const websiteForm = form.watch("website")
+  const businessDescriptionForm = form.watch("businessDescription")
 
-  // Auto-generate campaign name when keywords or website change
+  // Auto-generate campaign name when keywords or website/description change
   useEffect(() => {
     const generateName = async () => {
-      if (keywordsForm.length > 0 && websiteForm && !form.getValues("name")) {
+      if (keywordsForm.length > 0 && (websiteForm || businessDescriptionForm) && !form.getValues("name")) {
         setIsGeneratingKeywords(true)
         try {
           const nameResult = await generateCampaignNameAction({
             keywords: keywordsForm,
-            website: websiteForm,
+            website: websiteForm || undefined,
+            businessDescription: businessDescriptionForm || undefined,
             businessName: user?.fullName || undefined
           })
           
@@ -102,7 +109,7 @@ export default function CreateCampaignDialog({
 
     const timer = setTimeout(generateName, 500) // Debounce
     return () => clearTimeout(timer)
-  }, [keywordsForm, websiteForm, user?.fullName, form])
+  }, [keywordsForm, websiteForm, businessDescriptionForm, user?.fullName, form])
 
   const handleAddKeyword = () => {
     const keywords = form.getValues("keywords")
@@ -119,29 +126,38 @@ export default function CreateCampaignDialog({
 
   const handleGenerateWithAI = async () => {
     const website = form.getValues("website")
-    if (!website.trim()) {
-      toast.error("Please enter your website URL first")
+    const businessDescription = form.getValues("businessDescription")
+    
+    if (!website?.trim() && !businessDescription?.trim()) {
+      toast.error("Please enter your website URL or describe your business first")
       return
     }
 
     setIsGeneratingKeywords(true)
-    setGenerationStep("scraping")
+    setGenerationStep(website ? "scraping" : "generating")
 
     try {
-      // Step 1: Scrape the website
-      console.log("🌐 Scraping website:", website)
-      const scrapeResult = await scrapeWebsiteAction(website)
+      let contentForKeywords = businessDescription || ""
       
-      if (!scrapeResult.isSuccess) {
-        throw new Error("Failed to analyze website")
+      if (website) {
+        // Step 1: Scrape the website
+        console.log("🌐 Scraping website:", website)
+        const scrapeResult = await scrapeWebsiteAction(website)
+        
+        if (!scrapeResult.isSuccess) {
+          throw new Error("Failed to analyze website")
+        }
+        
+        contentForKeywords = scrapeResult.data.content || businessDescription || ""
       }
 
       // Step 2: Generate keywords
       setGenerationStep("generating")
-      console.log("🎯 Generating keywords from scraped content")
+      console.log("🎯 Generating keywords from content")
       
       const keywordsResult = await generateKeywordsAction({
-        website: website,
+        website: website || undefined,
+        businessDescription: contentForKeywords || businessDescription,
         refinement: "Generate 10 diverse keywords for finding potential customers on Reddit"
       })
 
@@ -177,7 +193,8 @@ export default function CreateCampaignDialog({
       const campaignResult = await createCampaignAction({
         userId: user.id,
         name: data.name,
-        website: data.website,
+        website: data.website || undefined,
+        businessDescription: data.businessDescription || undefined,
         keywords: data.keywords
       })
 
@@ -258,7 +275,10 @@ export default function CreateCampaignDialog({
               name="website"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Your Website</FormLabel>
+                  <FormLabel className="flex items-center gap-2">
+                    <Globe className="size-4" />
+                    Your Website (Optional)
+                  </FormLabel>
                   <FormControl>
                     <Input
                       type="url"
@@ -274,6 +294,34 @@ export default function CreateCampaignDialog({
                 </FormItem>
               )}
             />
+
+            {/* Show business description field when no website is provided */}
+            {!websiteForm && (
+              <FormField
+                control={form.control}
+                name="businessDescription"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      <Building2 className="size-4" />
+                      Business Description
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Describe your business, products, or services. What do you offer? Who are your ideal customers?"
+                        className="min-h-[100px] resize-none"
+                        {...field}
+                        disabled={isCreating}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Help us understand your business to generate better keywords
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
             <FormField
               control={form.control}
@@ -313,7 +361,7 @@ export default function CreateCampaignDialog({
                       type="button"
                       variant="outline"
                       onClick={handleGenerateWithAI}
-                      disabled={!websiteForm.trim() || field.value.length >= 10 || isGeneratingKeywords || isCreating}
+                      disabled={(!websiteForm?.trim() && !businessDescriptionForm?.trim()) || field.value.length >= 10 || isGeneratingKeywords || isCreating}
                       className="w-full"
                     >
                       {isGeneratingKeywords ? (

@@ -2,6 +2,7 @@
 <ai_context>
 Twitter AIO integration for fetching user tweets and analyzing writing style.
 Updated to follow official Twitter AIO API documentation.
+Uses /search endpoint with fromTheseAccounts filter to get user tweets.
 </ai_context>
 */
 
@@ -28,16 +29,13 @@ interface TwitterAIOTweet {
   }
 }
 
-// Updated response structure based on Twitter AIO docs
-interface TwitterAIOResponse {
+// Response structure based on Twitter AIO docs
+interface TwitterAIOSearchResponse {
   tweets?: TwitterAIOTweet[]
   data?: TwitterAIOTweet[]
-  result?: {
-    tweets: TwitterAIOTweet[]
-  }
+  cursor_top?: string
+  cursor_bottom?: string
   error?: string
-  message?: string
-  status?: string
 }
 
 export async function fetchUserTweetsAction(
@@ -61,17 +59,25 @@ export async function fetchUserTweetsAction(
     const cleanUsername = username.replace("@", "").trim()
     console.log("🔥 [TWITTER-AIO] Clean username:", cleanUsername)
 
-    // According to Twitter AIO docs, the correct endpoint is /user/tweets
-    const endpoint = `/user/tweets?username=${cleanUsername}&count=${Math.min(count, 100)}`
-    const url = `${TWITTER_AIO_BASE_URL}${endpoint}`
+    // According to Twitter AIO docs, we should use /search with fromTheseAccounts filter
+    const filters = {
+      fromTheseAccounts: [cleanUsername],
+      removeReplies: true // Only get original tweets, not replies
+    }
     
-    console.log("🔥 [TWITTER-AIO] Request URL:", url)
-    console.log("🔥 [TWITTER-AIO] Request headers:", {
-      "X-RapidAPI-Key": "***hidden***",
-      "X-RapidAPI-Host": "twitter-aio.p.rapidapi.com"
+    const url = `${TWITTER_AIO_BASE_URL}/search`
+    const params = new URLSearchParams({
+      query: `from:${cleanUsername}`, // Basic query to get tweets from user
+      count: Math.min(count, 100).toString(),
+      category: "Latest", // Get latest tweets
+      filters: JSON.stringify(filters)
     })
+    
+    const fullUrl = `${url}?${params}`
+    console.log("🔥 [TWITTER-AIO] Request URL:", fullUrl)
+    console.log("🔥 [TWITTER-AIO] Filters:", JSON.stringify(filters, null, 2))
 
-    const response = await fetch(url, {
+    const response = await fetch(fullUrl, {
       method: "GET",
       headers: {
         "X-RapidAPI-Key": TWITTER_AIO_API_KEY,
@@ -120,7 +126,7 @@ export async function fetchUserTweetsAction(
     }
 
     // Try to parse the response
-    let data: any
+    let data: TwitterAIOSearchResponse
     try {
       data = JSON.parse(responseText)
     } catch (parseError) {
@@ -136,17 +142,14 @@ export async function fetchUserTweetsAction(
     console.log("🔥 [TWITTER-AIO] Full response structure:", JSON.stringify(data, null, 2).substring(0, 1000))
 
     // Check for API error in response
-    if (data && typeof data === 'object' && (data.error || data.message === "error" || data.status === "error")) {
-      console.error("🔥 [TWITTER-AIO] API returned error:", data.error || data.message)
+    if (data && data.error) {
+      console.error("🔥 [TWITTER-AIO] API returned error:", data.error)
       return {
         isSuccess: false,
-        message: data.error || data.message || "Twitter API returned an error"
+        message: data.error
       }
     }
 
-    // Handle different response structures based on Twitter AIO docs
-    let tweets: TwitterAIOTweet[] = []
-    
     // Check if response is empty object
     if (data && typeof data === 'object' && Object.keys(data).length === 0) {
       console.error("🔥 [TWITTER-AIO] API returned empty object")
@@ -155,28 +158,24 @@ export async function fetchUserTweetsAction(
         message: "The Twitter API service is currently not returning data. This appears to be an issue with the Twitter AIO service. Please try again later or contact support if the issue persists."
       }
     }
+
+    // Extract tweets from response
+    let tweets: TwitterAIOTweet[] = []
     
     if (data && data.tweets && Array.isArray(data.tweets)) {
-      // Direct tweets array
       tweets = data.tweets
-      console.log("🔥 [TWITTER-AIO] Found tweets in root tweets array")
+      console.log("🔥 [TWITTER-AIO] Found tweets in tweets array")
     } else if (data && data.data && Array.isArray(data.data)) {
-      // Tweets in data array
       tweets = data.data
       console.log("🔥 [TWITTER-AIO] Found tweets in data array")
-    } else if (data && data.result?.tweets && Array.isArray(data.result.tweets)) {
-      // Tweets in result.tweets
-      tweets = data.result.tweets
-      console.log("🔥 [TWITTER-AIO] Found tweets in result.tweets")
     } else if (Array.isArray(data)) {
-      // Response is directly an array
       tweets = data as TwitterAIOTweet[]
       console.log("🔥 [TWITTER-AIO] Response is direct array")
     } else {
       console.error("🔥 [TWITTER-AIO] No tweets found in response structure")
       return {
         isSuccess: false,
-        message: "No tweets found. The Twitter API may be experiencing issues or the response format has changed."
+        message: "No tweets found. The user may have no public tweets or the account may be private."
       }
     }
 
@@ -242,7 +241,7 @@ export async function searchTwitterAction(
     const url = `${TWITTER_AIO_BASE_URL}/search`
     const params = new URLSearchParams({
       query: query,
-      count: Math.min(count, 100).toString(), // API limit
+      count: Math.min(count, 100).toString(),
       category: category
     })
 
@@ -269,7 +268,7 @@ export async function searchTwitterAction(
     }
 
     const responseText = await response.text()
-    let data: TwitterAIOResponse
+    let data: TwitterAIOSearchResponse
     
     try {
       data = JSON.parse(responseText)
@@ -288,7 +287,7 @@ export async function searchTwitterAction(
       console.error("🔥 [TWITTER-AIO] API returned error:", data.error)
       return {
         isSuccess: false,
-        message: `Twitter API error: ${data.error}`
+        message: data.error
       }
     }
 

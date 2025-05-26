@@ -6,7 +6,8 @@ import { generateText } from "ai"
 import { scrapeWebsiteAction } from "@/actions/integrations/firecrawl/website-scraping-actions"
 
 interface GenerateKeywordsData {
-  website: string
+  website?: string
+  businessDescription?: string
   refinement?: string
 }
 
@@ -22,22 +23,28 @@ interface KeywordsResult {
 
 export async function generateKeywordsAction({
   website,
+  businessDescription,
   refinement = ""
-}: {
-  website: string
-  refinement?: string
-}): Promise<ActionState<{ keywords: string[] }>> {
+}: GenerateKeywordsData): Promise<ActionState<{ keywords: string[] }>> {
   try {
-    console.log("🔍 [KEYWORDS] Generating keywords for website:", website)
+    console.log("🔍 [KEYWORDS] Generating keywords")
+    console.log("🔍 [KEYWORDS] Website:", website || "None")
+    console.log("🔍 [KEYWORDS] Business Description:", businessDescription ? "Provided" : "None")
     console.log("🔍 [KEYWORDS] Refinement:", refinement)
 
     // Extract keyword count from refinement if specified
-    const keywordCountMatch = refinement.match(/Generate exactly (\d+) keywords/i)
+    const keywordCountMatch = refinement.match(/Generate (?:exactly )?(\d+) (?:diverse )?keywords/i)
     const requestedCount = keywordCountMatch ? parseInt(keywordCountMatch[1]) : 10
+
+    const businessInfo = businessDescription 
+      ? `Business Description: ${businessDescription}`
+      : website 
+        ? `Website: ${website}`
+        : "No business information provided"
 
     const prompt = `You are a Reddit keyword expert. Generate search keywords for finding potential customers on Reddit.
 
-Website: ${website}
+${businessInfo}
 
 ${refinement ? `Additional instructions: ${refinement}` : ""}
 

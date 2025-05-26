@@ -28,6 +28,7 @@ export interface CampaignDocument {
   userId: string
   name: string
   website: string
+  businessDescription?: string // Custom business description when no website
   websiteContent?: string // Scraped content from Firecrawl
   keywords: string[] // Keywords to search for
   status: CampaignStatus
@@ -42,7 +43,8 @@ export interface CampaignDocument {
 export interface CreateCampaignData {
   userId: string
   name: string
-  website: string
+  website?: string
+  businessDescription?: string
   keywords: string[]
 }
 
@@ -50,6 +52,7 @@ export interface CreateCampaignData {
 export interface UpdateCampaignData {
   name?: string
   website?: string
+  businessDescription?: string
   websiteContent?: string
   keywords?: string[]
   status?: CampaignStatus

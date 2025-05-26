@@ -8,6 +8,7 @@ interface GenerateCampaignNameData {
   keywords: string[]
   website?: string
   businessName?: string
+  businessDescription?: string
 }
 
 export async function generateCampaignNameAction(
@@ -16,10 +17,16 @@ export async function generateCampaignNameAction(
   console.log("🏷️ [CAMPAIGN-NAME] Generating campaign name with data:", data)
 
   try {
+    const businessInfo = data.businessDescription 
+      ? `Business Description: ${data.businessDescription}`
+      : data.website 
+        ? `Website: ${data.website}`
+        : "No business information provided"
+
     const prompt = `Generate a short, catchy campaign name (max 4 words) for a Reddit lead generation campaign.
 
 Business: ${data.businessName || "Unknown Business"}
-Website: ${data.website || "No website"}
+${businessInfo}
 Keywords: ${data.keywords.join(", ")}
 
 The campaign name should:

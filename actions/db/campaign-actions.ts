@@ -37,7 +37,8 @@ export interface SerializedCampaignDocument {
   id: string
   userId: string
   name: string
-  website: string
+  website?: string
+  businessDescription?: string
   websiteContent?: string
   keywords: string[]
   status: "draft" | "running" | "completed" | "paused" | "error"
@@ -76,6 +77,7 @@ export async function createCampaignAction(
       userId: data.userId,
       name: data.name,
       website: data.website,
+      businessDescription: data.businessDescription,
       keywords: data.keywords,
       status: "draft" as const,
       totalSearchResults: 0,
