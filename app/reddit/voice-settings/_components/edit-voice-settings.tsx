@@ -336,30 +336,33 @@ export default function EditVoiceSettings({
         {/* Twitter Analysis */}
         <div className="space-y-4">
           <Label>Twitter Writing Style Analysis</Label>
-          <div className="flex gap-2">
-            <Input
-              placeholder="@username"
-              value={twitterHandle}
-              onChange={e => setTwitterHandle(e.target.value)}
-              className="flex-1"
-            />
-            <Button
-              variant="outline"
-              onClick={handleAnalyzeTwitter}
-              disabled={isAnalyzingTwitter}
-            >
-              {isAnalyzingTwitter ? (
-                <Loader2 className="mr-2 size-4 animate-spin" />
-              ) : (
-                <Twitter className="mr-2 size-4" />
-              )}
-              Analyze
-            </Button>
+          <div className="space-y-2">
+            <Label htmlFor="twitter-handle">Twitter Handle</Label>
+            <div className="flex gap-2">
+              <Input
+                id="twitter-handle"
+                placeholder="@username"
+                value={twitterHandle}
+                onChange={(e) => setTwitterHandle(e.target.value)}
+              />
+              <Button
+                onClick={handleAnalyzeTwitter}
+                disabled={isAnalyzingTwitter || !twitterHandle.trim()}
+              >
+                {isAnalyzingTwitter ? (
+                  <>
+                    <Loader2 className="mr-2 size-4 animate-spin" />
+                    Analyzing...
+                  </>
+                ) : (
+                  "Analyze"
+                )}
+              </Button>
+            </div>
+            <p className="text-muted-foreground text-sm">
+              We'll analyze your recent tweets to understand your writing style
+            </p>
           </div>
-          <p className="text-sm text-gray-600">
-            Analyze your Twitter profile to automatically extract your writing
-            style.
-          </p>
         </div>
 
         {/* Edit Existing Description */}

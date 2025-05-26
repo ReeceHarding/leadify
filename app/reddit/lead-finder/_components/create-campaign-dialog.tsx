@@ -60,9 +60,6 @@ export default function CreateCampaignDialog({
   onSuccess
 }: CreateCampaignDialogProps) {
   const { user } = useUser()
-  const [campaignName, setCampaignName] = useState("")
-  const [website, setWebsite] = useState("")
-  const [keywords, setKeywords] = useState<string[]>([])
   const [currentKeyword, setCurrentKeyword] = useState("")
   const [isCreating, setIsCreating] = useState(false)
   const [isGeneratingKeywords, setIsGeneratingKeywords] = useState(false)
@@ -108,17 +105,20 @@ export default function CreateCampaignDialog({
   }, [keywordsForm, websiteForm, user?.fullName, form])
 
   const handleAddKeyword = () => {
+    const keywords = form.getValues("keywords")
     if (currentKeyword.trim() && keywords.length < 10) {
-      setKeywords([...keywords, currentKeyword.trim()])
+      form.setValue("keywords", [...keywords, currentKeyword.trim()])
       setCurrentKeyword("")
     }
   }
 
   const handleRemoveKeyword = (index: number) => {
-    setKeywords(keywords.filter((_, i) => i !== index))
+    const keywords = form.getValues("keywords")
+    form.setValue("keywords", keywords.filter((_, i) => i !== index))
   }
 
   const handleGenerateWithAI = async () => {
+    const website = form.getValues("website")
     if (!website.trim()) {
       toast.error("Please enter your website URL first")
       return
@@ -147,9 +147,10 @@ export default function CreateCampaignDialog({
 
       if (keywordsResult.isSuccess) {
         // Add generated keywords (up to remaining slots)
-        const remainingSlots = 10 - keywords.length
+        const currentKeywords = form.getValues("keywords")
+        const remainingSlots = 10 - currentKeywords.length
         const newKeywords = keywordsResult.data.keywords.slice(0, remainingSlots)
-        setKeywords([...keywords, ...newKeywords])
+        form.setValue("keywords", [...currentKeywords, ...newKeywords])
         toast.success(`Generated ${newKeywords.length} keywords!`)
       } else {
         throw new Error("Failed to generate keywords")
@@ -163,12 +164,7 @@ export default function CreateCampaignDialog({
     }
   }
 
-  const handleCreateCampaign = async () => {
-    if (!campaignName.trim() || !website.trim() || keywords.length === 0) {
-      toast.error("Please fill in all fields and add at least one keyword")
-      return
-    }
-
+  const onSubmit = async (data: CampaignForm) => {
     setIsCreating(true)
 
     try {
@@ -180,9 +176,9 @@ export default function CreateCampaignDialog({
       // Create the campaign
       const campaignResult = await createCampaignAction({
         userId: user.id,
-        name: campaignName,
-        website: website,
-        keywords: keywords
+        name: data.name,
+        website: data.website,
+        keywords: data.keywords
       })
 
       if (!campaignResult.isSuccess || !campaignResult.data) {
@@ -201,6 +197,9 @@ export default function CreateCampaignDialog({
       toast.success("Campaign created! Finding leads...")
       onSuccess?.()
       onOpenChange(false)
+      
+      // Reset form
+      form.reset()
     } catch (error) {
       console.error("Error creating campaign:", error)
       toast.error(error instanceof Error ? error.message : "Failed to create campaign")
@@ -209,6 +208,7 @@ export default function CreateCampaignDialog({
     }
   }
 
+  const keywords = form.watch("keywords")
   const estimatedThreads = keywords.length * 10
 
   return (
@@ -221,143 +221,156 @@ export default function CreateCampaignDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <FormLabel htmlFor="campaign-name">Campaign Name</FormLabel>
-            <FormControl>
-              <div className="relative">
-                <Input
-                  id="campaign-name"
-                  placeholder="e.g., Q1 2024 Lead Generation"
-                  value={campaignName}
-                  onChange={(e) => setCampaignName(e.target.value)}
-                  disabled={isCreating}
-                />
-                {isGeneratingKeywords && (
-                  <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                    <Loader2 className="size-4 animate-spin text-gray-400" />
-                  </div>
-                )}
-              </div>
-            </FormControl>
-            <FormDescription>
-              {isGeneratingKeywords 
-                ? "AI is generating a campaign name based on your keywords..."
-                : "Give your campaign a descriptive name or let AI generate one."}
-            </FormDescription>
-            <FormMessage />
-          </div>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Campaign Name</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        placeholder="e.g., Q1 2024 Lead Generation"
+                        {...field}
+                        disabled={isCreating}
+                      />
+                      {isGeneratingKeywords && (
+                        <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                          <Loader2 className="size-4 animate-spin text-gray-400" />
+                        </div>
+                      )}
+                    </div>
+                  </FormControl>
+                  <FormDescription>
+                    {isGeneratingKeywords 
+                      ? "AI is generating a campaign name based on your keywords..."
+                      : "Give your campaign a descriptive name or let AI generate one."}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <div className="space-y-2">
-            <FormLabel htmlFor="website">Your Website</FormLabel>
-            <FormControl>
-              <Input
-                id="website"
-                type="url"
-                placeholder="https://example.com"
-                value={website}
-                onChange={(e) => setWebsite(e.target.value)}
-                disabled={isCreating}
-              />
-            </FormControl>
-            <FormDescription>
-              We'll analyze your website to understand your business
-            </FormDescription>
-            <FormMessage />
-          </div>
-
-          <div className="space-y-2">
-            <FormLabel htmlFor="keywords" className="flex items-center gap-2">
-              <Search className="size-4" />
-              Search Keywords
-            </FormLabel>
-            <div className="space-y-3">
-              <div className="flex gap-2">
-                <Input
-                  id="keywords"
-                  placeholder="e.g., software developer hiring"
-                  value={currentKeyword}
-                  onChange={(e) => setCurrentKeyword(e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault()
-                      handleAddKeyword()
-                    }
-                  }}
-                  disabled={isCreating || keywords.length >= 10}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleAddKeyword}
-                  disabled={!currentKeyword.trim() || keywords.length >= 10 || isCreating}
-                >
-                  <Plus className="size-4" />
-                </Button>
-              </div>
-              
-              {/* AI Generation Button */}
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleGenerateWithAI}
-                disabled={!website.trim() || keywords.length >= 10 || isGeneratingKeywords || isCreating}
-                className="w-full"
-              >
-                {isGeneratingKeywords ? (
-                  <>
-                    <Loader2 className="mr-2 size-4 animate-spin" />
-                    {generationStep === "scraping" ? (
-                      <>
-                        <Globe className="mr-2 size-4" />
-                        Scraping homepage...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="mr-2 size-4" />
-                        Generating keywords...
-                      </>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="mr-2 size-4" />
-                    Generate with AI
-                  </>
-                )}
-              </Button>
-            </div>
-            <FormDescription>
-              Keywords to search for on Reddit. We'll score threads related to these terms. ({keywords.length}/10)
-            </FormDescription>
-            <FormMessage />
-          </div>
-
-          {keywords.length > 0 && (
-            <div className="space-y-2">
-              <FormLabel>Selected Keywords</FormLabel>
-              <div className="flex flex-wrap gap-2">
-                {keywords.map((keyword, index) => (
-                  <Badge key={index} variant="secondary" className="gap-1">
-                    {keyword}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveKeyword(index)}
-                      className="hover:text-destructive ml-1"
+            <FormField
+              control={form.control}
+              name="website"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Your Website</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="url"
+                      placeholder="https://example.com"
+                      {...field}
                       disabled={isCreating}
-                    >
-                      <X className="size-3" />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          )}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    We'll analyze your website to understand your business
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          {keywords.length > 0 && (
-            <div className="space-y-2">
-              <FormLabel>Estimated Threads</FormLabel>
-              <FormControl>
+            <FormField
+              control={form.control}
+              name="keywords"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-2">
+                    <Search className="size-4" />
+                    Search Keywords
+                  </FormLabel>
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="e.g., software developer hiring"
+                        value={currentKeyword}
+                        onChange={(e) => setCurrentKeyword(e.target.value)}
+                        onKeyPress={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault()
+                            handleAddKeyword()
+                          }
+                        }}
+                        disabled={isCreating || field.value.length >= 10}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleAddKeyword}
+                        disabled={!currentKeyword.trim() || field.value.length >= 10 || isCreating}
+                      >
+                        <Plus className="size-4" />
+                      </Button>
+                    </div>
+                    
+                    {/* AI Generation Button */}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleGenerateWithAI}
+                      disabled={!websiteForm.trim() || field.value.length >= 10 || isGeneratingKeywords || isCreating}
+                      className="w-full"
+                    >
+                      {isGeneratingKeywords ? (
+                        <>
+                          <Loader2 className="mr-2 size-4 animate-spin" />
+                          {generationStep === "scraping" ? (
+                            <>
+                              <Globe className="mr-2 size-4" />
+                              Scraping homepage...
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="mr-2 size-4" />
+                              Generating keywords...
+                            </>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="mr-2 size-4" />
+                          Generate with AI
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  <FormDescription>
+                    Keywords to search for on Reddit. We'll score threads related to these terms. ({field.value.length}/10)
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {keywords.length > 0 && (
+              <div className="space-y-2">
+                <FormLabel>Selected Keywords</FormLabel>
+                <div className="flex flex-wrap gap-2">
+                  {keywords.map((keyword, index) => (
+                    <Badge key={index} variant="secondary" className="gap-1">
+                      {keyword}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveKeyword(index)}
+                        className="hover:text-destructive ml-1"
+                        disabled={isCreating}
+                      >
+                        <X className="size-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {keywords.length > 0 && (
+              <div className="space-y-2">
+                <FormLabel>Estimated Threads</FormLabel>
                 <div className="flex items-center gap-3">
                   <p className="text-muted-foreground text-sm">
                     {estimatedThreads} threads
@@ -366,33 +379,34 @@ export default function CreateCampaignDialog({
                     across {keywords.length} keywords
                   </p>
                 </div>
-              </FormControl>
-            </div>
-          )}
-        </div>
-
-        <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            disabled={isCreating}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleCreateCampaign}
-            disabled={!campaignName.trim() || !website.trim() || keywords.length === 0 || isCreating}
-          >
-            {isCreating ? (
-              <>
-                <Loader2 className="mr-2 size-4 animate-spin" />
-                Creating Campaign...
-              </>
-            ) : (
-              `Create & Score ${estimatedThreads} Threads`
+              </div>
             )}
-          </Button>
-        </DialogFooter>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={isCreating}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isCreating || !form.formState.isValid}
+              >
+                {isCreating ? (
+                  <>
+                    <Loader2 className="mr-2 size-4 animate-spin" />
+                    Creating Campaign...
+                  </>
+                ) : (
+                  `Create & Score ${estimatedThreads} Threads`
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   )
