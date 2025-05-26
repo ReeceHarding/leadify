@@ -38,6 +38,77 @@ interface TwitterAIOSearchResponse {
   error?: string
 }
 
+// Helper: Fetch tweets via Nitter RSS feed as a fallback when Twitter AIO fails
+async function fetchTweetsViaNitter(
+  username: string,
+  count: number
+): Promise<TwitterAIOTweet[]> {
+  try {
+    // Allow overriding the Nitter instance via env for reliability
+    const NITTER_BASE =
+      process.env.NITTER_INSTANCE?.replace(/\/$/, "") ||
+      "https://nitter.net"
+
+    const rssUrl = `${NITTER_BASE}/${username}/rss`
+    console.log("🔥 [TWITTER-AIO] Fallback RSS URL:", rssUrl)
+
+    const response = await fetch(rssUrl, {
+      // Force no-cache in case the instance caches heavily
+      headers: { "Cache-Control": "no-cache" }
+    })
+
+    if (!response.ok) {
+      console.error(
+        "🔥 [TWITTER-AIO] Nitter RSS fetch failed:",
+        response.status,
+        await response.text().catch(() => "")
+      )
+      return []
+    }
+
+    const xmlText = await response.text()
+
+    // Very small XML parser: extract <item> blocks and pull out <title>, <link>, <pubDate>
+    const items = xmlText.split(/<item>/).slice(1) // first split is preamble
+    const tweets: TwitterAIOTweet[] = []
+
+    for (const item of items) {
+      if (tweets.length >= count) break
+
+      const titleMatch = item.match(/<title><!\[CDATA\[([\s\S]*?)\]\]><\/title>/)
+      const linkMatch = item.match(/<link>(.*?)<\/link>/)
+      const dateMatch = item.match(/<pubDate>(.*?)<\/pubDate>/)
+
+      if (!titleMatch || !linkMatch || !dateMatch) continue
+
+      const text = titleMatch[1].trim()
+      const link = linkMatch[1].trim()
+      const createdAt = new Date(dateMatch[1].trim()).toISOString()
+
+      const idMatch = link.match(/status\/(\d+)/)
+      const id = idMatch ? idMatch[1] : Math.random().toString()
+
+      tweets.push({
+        id,
+        text,
+        created_at: createdAt,
+        public_metrics: {
+          like_count: 0,
+          retweet_count: 0,
+          reply_count: 0
+        },
+        author: { username, name: username }
+      })
+    }
+
+    console.log("🔥 [TWITTER-AIO] Fallback tweets fetched:", tweets.length)
+    return tweets
+  } catch (err) {
+    console.error("🔥 [TWITTER-AIO] Fallback Nitter error:", err)
+    return []
+  }
+}
+
 export async function fetchUserTweetsAction(
   username: string,
   count: number = 30
@@ -47,13 +118,12 @@ export async function fetchUserTweetsAction(
   console.log("🔥 [TWITTER-AIO] Count:", count)
 
   try {
-    if (!TWITTER_AIO_API_KEY) {
-      console.error("🔥 [TWITTER-AIO] API key not found")
-      return {
-        isSuccess: false,
-        message:
-          "Twitter AIO API key not configured. Please add TWITTER_AIO_API_KEY to your environment variables."
-      }
+    const hasApiKey = Boolean(TWITTER_AIO_API_KEY)
+
+    if (!hasApiKey) {
+      console.warn(
+        "🔥 [TWITTER-AIO] No API key found – skipping Twitter AIO requests and using fallback"
+      )
     }
 
     // Remove @ symbol if present
@@ -75,7 +145,8 @@ export async function fetchUserTweetsAction(
 
     let lastError = ""
     
-    for (const query of queries) {
+    // Only loop through RapidAPI queries if we actually have a key configured
+    for (const query of (hasApiKey ? queries : [])) {
       console.log(`🔥 [TWITTER-AIO] Trying query: "${query}"`)
       
       const params = new URLSearchParams({
@@ -89,14 +160,20 @@ export async function fetchUserTweetsAction(
       console.log("🔥 [TWITTER-AIO] Request URL:", fullUrl)
       console.log("🔥 [TWITTER-AIO] Filters:", JSON.stringify(filters, null, 2))
 
+      const headers: HeadersInit = {
+        "X-RapidAPI-Host": "twitter-aio.p.rapidapi.com",
+        Accept: "application/json"
+      }
+
+      // Only attach API key if we have one (should always be true in this block)
+      if (TWITTER_AIO_API_KEY) {
+        headers["X-RapidAPI-Key"] = TWITTER_AIO_API_KEY
+      }
+
       try {
         const response = await fetch(fullUrl, {
           method: "GET",
-          headers: {
-            "X-RapidAPI-Key": TWITTER_AIO_API_KEY,
-            "X-RapidAPI-Host": "twitter-aio.p.rapidapi.com",
-            Accept: "application/json"
-          }
+          headers
         })
 
         console.log("🔥 [TWITTER-AIO] Response status:", response.status)
@@ -239,11 +316,27 @@ export async function fetchUserTweetsAction(
       }
     }
 
-    // If we get here, all queries failed
-    console.error("🔥 [TWITTER-AIO] All queries failed")
+    // If we get here, all queries failed – try fallback via Nitter RSS
+    console.error(
+      "🔥 [TWITTER-AIO] All RapidAPI queries skipped/failed – attempting fallback via Nitter"
+    )
+
+    const fallbackTweets = await fetchTweetsViaNitter(cleanUsername, count)
+
+    if (fallbackTweets.length > 0) {
+      return {
+        isSuccess: true,
+        message: `Successfully fetched ${fallbackTweets.length} tweets via fallback`,
+        data: fallbackTweets
+      }
+    }
+
+    // Still no tweets
     return {
       isSuccess: false,
-      message: lastError || "Twitter AIO API is not responding correctly. The API may have changed or be experiencing issues."
+      message:
+        lastError ||
+        "Unable to fetch tweets. Both Twitter AIO and the fallback method failed. The account may be private or the services are unavailable."
     }
     
   } catch (error) {
