@@ -3,6 +3,7 @@
 ## Overview
 
 This system implements a sophisticated rate-limited posting mechanism for Reddit that:
+
 - Limits posts to one per Reddit account every 5-7 minutes (randomized)
 - Processes posts asynchronously via a queue system
 - Provides automatic retry on failures
@@ -13,16 +14,19 @@ This system implements a sophisticated rate-limited posting mechanism for Reddit
 ### Components
 
 1. **Rate Limiting Service** (`actions/integrations/reddit-posting-queue.ts`)
+
    - Tracks last post time per user
    - Enforces 5-7 minute delays between posts
    - Randomizes delays to appear more human-like
 
 2. **Posting Queue** (Firestore collection: `postingQueue`)
+
    - Stores pending posts with scheduled times
    - Tracks status: pending, processing, completed, failed
    - Enables retry logic with exponential backoff
 
 3. **Queue Processor** (`app/api/queue/process-posts/route.ts`)
+
    - API endpoint called by cron job
    - Processes one post at a time
    - Updates queue status and handles errors
@@ -44,6 +48,7 @@ CRON_SECRET=your-secure-random-string-here
 ```
 
 Generate a secure random string for `CRON_SECRET`:
+
 ```bash
 openssl rand -hex 32
 ```
@@ -51,6 +56,7 @@ openssl rand -hex 32
 ### 2. Firestore Setup
 
 The system will automatically create these collections:
+
 - `postingQueue` - Stores queued posts
 - `redditRateLimits` - Tracks rate limits per user
 
@@ -66,25 +72,29 @@ Add to `vercel.json`:
 
 ```json
 {
-  "crons": [{
-    "path": "/api/queue/process-posts",
-    "schedule": "* * * * *",
-    "headers": {
-      "Authorization": "Bearer YOUR_CRON_SECRET"
+  "crons": [
+    {
+      "path": "/api/queue/process-posts",
+      "schedule": "* * * * *",
+      "headers": {
+        "Authorization": "Bearer YOUR_CRON_SECRET"
+      }
     }
-  }]
+  ]
 }
 ```
 
 #### Option B: External Cron Service
 
 Use services like:
+
 - Upstash Cron
 - Cron-job.org
 - EasyCron
 - Google Cloud Scheduler
 
 Configure to:
+
 - URL: `https://your-domain.com/api/queue/process-posts`
 - Method: GET or POST
 - Headers: `Authorization: Bearer YOUR_CRON_SECRET`
@@ -96,24 +106,27 @@ For local development, you can use a simple Node.js script:
 
 ```javascript
 // scripts/queue-processor.js
-const INTERVAL = 60000; // 1 minute
+const INTERVAL = 60000 // 1 minute
 
 async function processQueue() {
   try {
-    const response = await fetch('http://localhost:3000/api/queue/process-posts', {
-      headers: {
-        'Authorization': `Bearer ${process.env.CRON_SECRET}`
+    const response = await fetch(
+      "http://localhost:3000/api/queue/process-posts",
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.CRON_SECRET}`
+        }
       }
-    });
-    const data = await response.json();
-    console.log('Queue processed:', data);
+    )
+    const data = await response.json()
+    console.log("Queue processed:", data)
   } catch (error) {
-    console.error('Error processing queue:', error);
+    console.error("Error processing queue:", error)
   }
 }
 
-setInterval(processQueue, INTERVAL);
-console.log('Queue processor started...');
+setInterval(processQueue, INTERVAL)
+console.log("Queue processor started...")
 ```
 
 Run with: `node scripts/queue-processor.js`
@@ -123,14 +136,9 @@ Run with: `node scripts/queue-processor.js`
 ### 1. Single Post with Rate Limiting
 
 ```typescript
-import { processPostWithRateLimit } from '@/actions/integrations/reddit-posting-queue'
+import { processPostWithRateLimit } from "@/actions/integrations/reddit-posting-queue"
 
-const result = await processPostWithRateLimit(
-  userId,
-  leadId,
-  threadId,
-  comment
-)
+const result = await processPostWithRateLimit(userId, leadId, threadId, comment)
 
 if (!result.isSuccess) {
   // User is rate limited, show wait time
@@ -141,11 +149,11 @@ if (!result.isSuccess) {
 ### 2. Batch Queue Posts
 
 ```typescript
-import { queuePostsForAsyncProcessing } from '@/actions/integrations/reddit-posting-queue'
+import { queuePostsForAsyncProcessing } from "@/actions/integrations/reddit-posting-queue"
 
 const posts = [
-  { leadId: '1', threadId: 'abc', comment: 'Great post!' },
-  { leadId: '2', threadId: 'def', comment: 'Thanks for sharing!' },
+  { leadId: "1", threadId: "abc", comment: "Great post!" },
+  { leadId: "2", threadId: "def", comment: "Thanks for sharing!" }
   // ... more posts
 ]
 
@@ -160,7 +168,7 @@ if (result.isSuccess) {
 ### 3. Check Queue Status
 
 ```typescript
-import { getPostingQueueStatus } from '@/actions/integrations/reddit-posting-queue'
+import { getPostingQueueStatus } from "@/actions/integrations/reddit-posting-queue"
 
 const status = await getPostingQueueStatus(userId)
 
@@ -234,4 +242,4 @@ Monitor the system through:
 2. **Monitor Queue Size**: Large queues indicate issues
 3. **Log Everything**: Comprehensive logging helps debugging
 4. **Test Locally**: Use the local processor script for development
-5. **Gradual Rollout**: Start with small batches to test the system 
+5. **Gradual Rollout**: Start with small batches to test the system

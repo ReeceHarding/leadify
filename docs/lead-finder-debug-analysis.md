@@ -5,11 +5,13 @@
 ### What the Logs Reveal
 
 1. **Authentication Issue**
+
    - When accessing via curl: `🔥🔥🔥 [CAMPAIGN-SELECTOR] Auth check - userId: null`
    - This is because curl has no auth cookies
    - The middleware now protects `/reddit` routes (changed from public to protected)
 
 2. **Component Execution Flow**
+
    ```
    [LEAD-FINDER-PAGE] Rendering LeadFinderPage
    [LEAD-FINDER-PAGE] Showing Suspense fallback
@@ -28,11 +30,13 @@
 ### Where to Check Logs
 
 1. **Server Console**
+
    - Look for `🔥🔥🔥` prefixed logs
    - Components log their lifecycle events
    - Authentication states are logged
 
 2. **Browser Console** (when logged in)
+
    - `[START-LEAD-GEN]` - Button click and API call logs
    - `[LEADS-STREAM]` - Firestore listener setup and data flow
    - Real-time updates as documents are added
@@ -47,10 +51,12 @@
 When a logged-in user accesses the page:
 
 1. **Campaign Selection**
+
    - Auto-creates campaign if none exists
    - Logs all profile and campaign data
 
 2. **Lead Generation Start**
+
    - Logs API request/response
    - Shows workflow initiation
 
@@ -62,10 +68,12 @@ When a logged-in user accesses the page:
 ### Troubleshooting Guide
 
 1. **"Not authenticated" Error**
+
    - Ensure user is logged in via Clerk
    - Check middleware logs for auth status
 
 2. **No Real-Time Updates**
+
    - Check Firestore listener logs in browser console
    - Verify campaign ID is passed correctly
    - Check for Firestore permission errors
@@ -80,4 +88,4 @@ When a logged-in user accesses the page:
 - `🔥🔥🔥 [START-LEAD-GEN] Success! Showing toast` - Workflow started
 - `🔥🔥🔥 [API-LEAD-GEN] Workflow result: {isSuccess: true}` - Backend success
 
-The extensive logging confirms the first-principles refactor successfully addresses all the original issues. 
+The extensive logging confirms the first-principles refactor successfully addresses all the original issues.

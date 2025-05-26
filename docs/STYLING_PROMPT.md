@@ -3,6 +3,7 @@
 Based on Leadify, create sleek and modern Next.js styling with these exact specifications:
 
 ## Core Tech Stack
+
 - **Next.js 15** with App Router
 - **Tailwind CSS** for styling
 - **Shadcn/ui** components
@@ -10,13 +11,16 @@ Based on Leadify, create sleek and modern Next.js styling with these exact speci
 - **Lucide React** for icons
 
 ## Design Philosophy
+
 - **MVP Focus**: Core functionality only, no accessibility or performance optimization yet
 - **High Quality**: Clean, professional, modern aesthetic
 - **Minimal Animations**: Subtle, purposeful motion - NO overboard effects
 - **Mobile-first**: Responsive but basic breakpoints
 
 ## Color System
+
 Use CSS variables with Tailwind for theme support:
+
 ```css
 :root {
   --background: 0 0% 100%;
@@ -42,15 +46,18 @@ Use CSS variables with Tailwind for theme support:
 ```
 
 ## Typography Scale
+
 - **Headings**: font-bold with text-4xl, text-3xl, text-2xl, text-xl
 - **Body**: text-base (16px default)
 - **Small**: text-sm (14px)
 - **Spacing**: Use text-balance for headlines, max-w-2xl for content
 
 ## Animation Guidelines
+
 **Keep animations minimal and purposeful:**
 
 ### Entry Animations (Framer Motion)
+
 ```tsx
 // Basic fade-in
 initial={{ opacity: 0, y: 20 }}
@@ -66,6 +73,7 @@ transition={{ type: "spring", stiffness: 300 }}
 ```
 
 ### CSS Transitions
+
 ```css
 /* Hover states */
 transition-all duration-200 ease-out
@@ -81,6 +89,7 @@ transform-gpu transition-transform duration-200
 ## Component Patterns
 
 ### Cards
+
 ```tsx
 <Card className="group transition-shadow duration-200 hover:shadow-lg">
   <CardHeader>
@@ -92,6 +101,7 @@ transform-gpu transition-transform duration-200
 ```
 
 ### Buttons
+
 ```tsx
 <Button className="bg-blue-500 hover:bg-blue-600 text-lg">
   <Icon className="mr-2 size-5" />
@@ -100,12 +110,11 @@ transform-gpu transition-transform duration-200
 ```
 
 ### Sections
+
 ```tsx
 <section className="py-20 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800 dark:to-gray-900">
   <div className="container mx-auto px-4">
-    <div className="mx-auto max-w-6xl">
-      {/* Content */}
-    </div>
+    <div className="mx-auto max-w-6xl">{/* Content */}</div>
   </div>
 </section>
 ```
@@ -113,6 +122,7 @@ transform-gpu transition-transform duration-200
 ## Layout Structure
 
 ### Page Layout
+
 ```tsx
 <div className="pb-20">
   <HeroSection />
@@ -123,15 +133,17 @@ transform-gpu transition-transform duration-200
 ```
 
 ### Grid Systems
+
 ```tsx
 // Feature grids
 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
 
-// Content grids  
+// Content grids
 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 ```
 
 ## Scrolling Animations
+
 For testimonials and logos, use CSS-only infinite scroll:
 
 ```tsx
@@ -154,12 +166,14 @@ For testimonials and logos, use CSS-only infinite scroll:
 ```
 
 ## Spacing System
+
 - **Sections**: py-20 (80px vertical)
-- **Components**: gap-8, gap-6, gap-4  
+- **Components**: gap-8, gap-6, gap-4
 - **Content**: px-4 for container padding
 - **Text**: space-y-6 for content blocks
 
 ## Component Library Priorities
+
 1. **Cards** - Primary content containers
 2. **Buttons** - Clear CTAs with icons
 3. **Typography** - Consistent heading hierarchy
@@ -167,20 +181,27 @@ For testimonials and logos, use CSS-only infinite scroll:
 5. **Subtle Animations** - Entry effects and hover states
 
 ## Forbidden Patterns
+
 - ❌ Complex scroll-triggered animations
-- ❌ Heavy parallax effects  
+- ❌ Heavy parallax effects
 - ❌ Accessibility attributes (MVP phase)
 - ❌ Performance optimizations
 - ❌ Multiple animation libraries
 - ❌ Custom CSS beyond Tailwind
 
 ## Example Component Structure
+
 ```tsx
 "use client"
 
 import { motion } from "framer-motion"
 import { Icon } from "lucide-react"
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription
+} from "@/components/ui/card"
 
 export const ExampleSection = () => {
   return (
@@ -191,7 +212,9 @@ export const ExampleSection = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          <h2 className="text-4xl font-bold text-center mb-12">Section Title</h2>
+          <h2 className="text-4xl font-bold text-center mb-12">
+            Section Title
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {items.map((item, index) => (
               <motion.div
@@ -217,4 +240,4 @@ export const ExampleSection = () => {
 }
 ```
 
-Remember: **LASER FOCUS** on core MVP functionality. Beautiful, modern, but minimal scope. 
+Remember: **LASER FOCUS** on core MVP functionality. Beautiful, modern, but minimal scope.

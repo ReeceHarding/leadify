@@ -34,11 +34,14 @@ export default function CompleteStep({
 
   const handleComplete = async () => {
     console.log("🔍 [COMPLETE] handleComplete() called")
-    console.log("🔍 [COMPLETE] Final data before completion:", { profileName, organizationName, website, keywords, redditConnected })
-    console.log(
-      "🔍 [COMPLETE] Final keywords before completion:",
-      keywords
-    )
+    console.log("🔍 [COMPLETE] Final data before completion:", {
+      profileName,
+      organizationName,
+      website,
+      keywords,
+      redditConnected
+    })
+    console.log("🔍 [COMPLETE] Final keywords before completion:", keywords)
     console.log(
       "🔍 [COMPLETE] Final keywords length before completion:",
       keywords.length
@@ -58,7 +61,13 @@ export default function CompleteStep({
   }
 
   console.log("🔍 [COMPLETE] Rendering component")
-  console.log("🔍 [COMPLETE] Current data:", { profileName, organizationName, website, keywords, redditConnected })
+  console.log("🔍 [COMPLETE] Current data:", {
+    profileName,
+    organizationName,
+    website,
+    keywords,
+    redditConnected
+  })
   console.log("🔍 [COMPLETE] Current keywords:", keywords)
   console.log("🔍 [COMPLETE] Current keywords length:", keywords.length)
 
@@ -146,7 +155,8 @@ export default function CompleteStep({
                   Keywords Generated
                 </p>
                 <p className="text-gray-400">
-                  {keywords.length} {keywords.length === 1 ? "keyword" : "keywords"} ready
+                  {keywords.length}{" "}
+                  {keywords.length === 1 ? "keyword" : "keywords"} ready
                 </p>
               </div>
               <div className="flex size-8 items-center justify-center rounded-full bg-blue-600/10">

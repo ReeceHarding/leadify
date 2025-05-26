@@ -2,13 +2,26 @@
 
 import { useState } from "react"
 import { useOrganization } from "@/components/utilities/organization-provider"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Loader2, Building2, User, Link, AlertCircle, Check } from "lucide-react"
+import {
+  Loader2,
+  Building2,
+  User,
+  Link,
+  AlertCircle,
+  Check
+} from "lucide-react"
 import { updateOrganizationAction } from "@/actions/db/organizations-actions"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
@@ -28,7 +41,8 @@ export default function OrganizationSettings() {
       <Alert>
         <AlertCircle className="size-4" />
         <AlertDescription>
-          No organization selected. Please select an organization from the sidebar.
+          No organization selected. Please select an organization from the
+          sidebar.
         </AlertDescription>
       </Alert>
     )
@@ -84,7 +98,7 @@ export default function OrganizationSettings() {
             <Input
               id="org-name"
               value={orgName}
-              onChange={(e) => setOrgName(e.target.value)}
+              onChange={e => setOrgName(e.target.value)}
               placeholder="My Organization"
             />
           </div>
@@ -95,7 +109,7 @@ export default function OrganizationSettings() {
               id="website"
               type="url"
               value={website}
-              onChange={(e) => setWebsite(e.target.value)}
+              onChange={e => setWebsite(e.target.value)}
               placeholder="https://example.com"
             />
           </div>
@@ -106,7 +120,7 @@ export default function OrganizationSettings() {
               id="description"
               className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring min-h-[100px] w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               value={businessDescription}
-              onChange={(e) => setBusinessDescription(e.target.value)}
+              onChange={e => setBusinessDescription(e.target.value)}
               placeholder="Describe your business..."
             />
           </div>
@@ -148,7 +162,9 @@ export default function OrganizationSettings() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <User className="text-muted-foreground size-4" />
-                  <span className="font-medium">u/{activeOrganization.redditUsername}</span>
+                  <span className="font-medium">
+                    u/{activeOrganization.redditUsername}
+                  </span>
                   <Badge variant="secondary">Connected</Badge>
                 </div>
               </div>
@@ -156,7 +172,8 @@ export default function OrganizationSettings() {
               <Alert>
                 <AlertCircle className="size-4" />
                 <AlertDescription>
-                  To change the Reddit account, disconnect the current one and connect a new one.
+                  To change the Reddit account, disconnect the current one and
+                  connect a new one.
                 </AlertDescription>
               </Alert>
 
@@ -180,7 +197,10 @@ export default function OrganizationSettings() {
                 </AlertDescription>
               </Alert>
 
-              <Button onClick={handleConnectReddit} className="w-full sm:w-auto">
+              <Button
+                onClick={handleConnectReddit}
+                className="w-full sm:w-auto"
+              >
                 <Link className="mr-2 size-4" />
                 Connect Reddit Account
               </Button>
@@ -193,19 +213,18 @@ export default function OrganizationSettings() {
       <Card>
         <CardHeader>
           <CardTitle>Subscription Plan</CardTitle>
-          <CardDescription>
-            Your current plan and usage limits
-          </CardDescription>
+          <CardDescription>Your current plan and usage limits</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-2">
             <span className="text-lg font-medium">Current Plan:</span>
             <Badge variant="default" className="text-lg">
-              {activeOrganization.plan.charAt(0).toUpperCase() + activeOrganization.plan.slice(1)}
+              {activeOrganization.plan.charAt(0).toUpperCase() +
+                activeOrganization.plan.slice(1)}
             </Badge>
           </div>
         </CardContent>
       </Card>
     </div>
   )
-} 
+}

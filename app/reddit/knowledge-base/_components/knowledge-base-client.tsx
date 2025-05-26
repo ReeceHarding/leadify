@@ -1,7 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { SerializedKnowledgeBaseDocument, SerializedProfileDocument } from "@/types"
+import {
+  SerializedKnowledgeBaseDocument,
+  SerializedProfileDocument
+} from "@/types"
 import KnowledgeBaseDisplay from "./knowledge-base-display"
 import AddToKnowledgeBase from "./add-to-knowledge-base"
 
@@ -30,8 +33,9 @@ export default function KnowledgeBaseClient({
             Knowledge Base
           </h1>
           <p className="text-gray-600 dark:text-gray-300">
-            Build your organization's knowledge base with website content, scraped data, and
-            additional information to create more informed Reddit comments.
+            Build your organization's knowledge base with website content,
+            scraped data, and additional information to create more informed
+            Reddit comments.
           </p>
         </div>
       </div>

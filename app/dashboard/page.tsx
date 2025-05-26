@@ -8,17 +8,17 @@ This server page provides the main dashboard view with placeholder content.
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { auth } from "@clerk/nextjs/server"
-import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
+import { getOrganizationsByUserIdAction } from "@/actions/db/organizations-actions"
 import { redirect } from "next/navigation"
 
 export default async function DashboardPage() {
   const { userId } = await auth()
 
   if (userId) {
-    const profileRes = await getProfileByUserIdAction(userId)
+    const organizationsRes = await getOrganizationsByUserIdAction(userId)
 
-    // Redirect to onboarding if profile doesn't exist or onboarding isn't completed
-    if (!profileRes.isSuccess || !profileRes.data.onboardingCompleted) {
+    // Redirect to onboarding if no organizations exist
+    if (!organizationsRes.isSuccess || organizationsRes.data.length === 0) {
       redirect("/onboarding")
     }
   } else {

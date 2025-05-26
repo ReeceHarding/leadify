@@ -21,16 +21,14 @@ export default function WarmupWrapper({ userId }: WarmupWrapperProps) {
       <Alert>
         <AlertCircle className="size-4" />
         <AlertDescription>
-          No organization selected. Please select an organization from the sidebar.
+          No organization selected. Please select an organization from the
+          sidebar.
         </AlertDescription>
       </Alert>
     )
   }
 
   return (
-    <WarmupDashboard 
-      userId={userId} 
-      organizationId={activeOrganization.id}
-    />
+    <WarmupDashboard userId={userId} organizationId={activeOrganization.id} />
   )
-} 
+}

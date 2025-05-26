@@ -32,6 +32,7 @@ scripts/
 ## How It Works
 
 ### 1. Development Server (`npm run dev`)
+
 - Uses `scripts/dev-with-logging.js`
 - **Clears** `docs/log.txt` for fresh session
 - Kills any processes on port 3000
@@ -39,12 +40,14 @@ scripts/
 - Captures all Next.js output, webpack builds, hot reloads, etc.
 
 ### 2. Other Commands (`npm run build`, `npm run lint`, etc.)
+
 - Use `scripts/run-with-logging.js` wrapper
 - **Appends** to existing `docs/log.txt` (doesn't clear)
 - Captures all command output with timestamps
 - Maintains command history throughout session
 
 ### 3. Fallback Commands
+
 - `npm run dev:no-log` - Run dev without logging
 - `npm run build:no-log` - Run build without logging
 - `npm run start:no-log` - Run start without logging
@@ -80,24 +83,28 @@ Each log entry follows this format:
 ## Usage Examples
 
 ### Start Development with Logging
+
 ```bash
 npm run dev
 # Clears log.txt and starts fresh logging session
 ```
 
 ### Build with Logging
+
 ```bash
 npm run build
 # Appends build output to existing log.txt
 ```
 
 ### Run Any Command with Logging
+
 ```bash
 node scripts/run-with-logging.js <command> [args...]
 # Example: node scripts/run-with-logging.js git status
 ```
 
 ### Run Without Logging (Emergency)
+
 ```bash
 npm run dev:no-log     # Original dev command
 npm run build:no-log   # Original build command
@@ -121,17 +128,20 @@ npm run build:no-log   # Original build command
 ## Troubleshooting
 
 ### If Logging Stops Working
+
 1. Check if `docs/` directory exists
 2. Verify script permissions: `chmod +x scripts/*.js`
 3. Check Node.js version compatibility
 4. Try fallback commands (`npm run dev:no-log`)
 
 ### If Log File Gets Too Large
+
 1. Stop current process (Ctrl+C)
 2. Archive current log: `mv docs/log.txt docs/log-backup-$(date +%Y%m%d).txt`
 3. Start fresh session with `npm run dev`
 
 ### Performance Impact
+
 - Minimal impact on command execution
 - File I/O is asynchronous and non-blocking
 - Large logs may slow file viewing but not command execution
@@ -151,4 +161,4 @@ grep "ERROR\|STDERR" docs/log.txt | ai-tool debug
 tail -n 1000 docs/log.txt | ai-tool diagnose
 ```
 
-This system ensures you never lose critical debugging information and provides complete context for AI-assisted development and troubleshooting. 
+This system ensures you never lose critical debugging information and provides complete context for AI-assisted development and troubleshooting.

@@ -28,8 +28,8 @@ export default function VoiceSettingsClient({
             Voice Settings
           </h1>
           <p className="text-gray-600 dark:text-gray-300">
-            Customize your organization's writing style and tone to create more authentic
-            Reddit comments that match your voice.
+            Customize your organization's writing style and tone to create more
+            authentic Reddit comments that match your voice.
           </p>
         </div>
       </div>

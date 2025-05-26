@@ -57,7 +57,7 @@ export default function WebsiteStep({
 
     if (!data.website.trim()) {
       // If website is empty, but business name might have been updated
-      onUpdate({ website: "", businessName: data.businessName }) 
+      onUpdate({ website: "", businessName: data.businessName })
       onNext()
       return
     }
@@ -118,7 +118,12 @@ export default function WebsiteStep({
               id="website"
               type="text"
               value={data.website}
-              onChange={e => onUpdate({ website: e.target.value, businessName: data.businessName })}
+              onChange={e =>
+                onUpdate({
+                  website: e.target.value,
+                  businessName: data.businessName
+                })
+              }
               placeholder="Enter your website URL (e.g., https://mycompany.com)"
               className="rounded-lg border-gray-600 bg-gray-900 py-3 pl-12 text-center text-base text-white placeholder:text-gray-500"
             />

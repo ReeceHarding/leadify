@@ -13,7 +13,10 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Loader2, Globe, Plus, FileText, Merge, Replace } from "lucide-react"
-import { SerializedKnowledgeBaseDocument, SerializedProfileDocument } from "@/types"
+import {
+  SerializedKnowledgeBaseDocument,
+  SerializedProfileDocument
+} from "@/types"
 import { useToast } from "@/hooks/use-toast"
 import WebsiteScrapeDialog from "../../personalization/_components/website-scrape-dialog"
 
@@ -271,8 +274,8 @@ export default function AddToKnowledgeBase({
             Add to Knowledge Base
           </CardTitle>
           <CardDescription>
-            Expand your organization's knowledge base with website scraping and additional
-            information
+            Expand your organization's knowledge base with website scraping and
+            additional information
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">

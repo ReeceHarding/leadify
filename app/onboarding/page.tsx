@@ -18,10 +18,7 @@ import WebsiteStep from "./_components/website-step"
 import KeywordsStep from "./_components/keywords-step"
 import ConnectRedditStep from "./_components/connect-reddit-step"
 import CompleteStep from "./_components/complete-step"
-import {
-  updateProfileAction,
-  getProfileByUserIdAction
-} from "@/actions/db/profiles-actions"
+import { updateProfileAction } from "@/actions/db/profiles-actions"
 import { createOrganizationAction } from "@/actions/db/organizations-actions"
 import { getCurrentOrganizationTokens } from "@/actions/integrations/reddit/reddit-auth-helpers"
 import { SerializedOrganizationDocument } from "@/db/firestore/organizations-collections"
@@ -97,25 +94,18 @@ export default function OnboardingPage() {
     const loadData = async () => {
       setIsLoading(true)
       try {
-        const profileResult = await getProfileByUserIdAction(user.id)
         let initialOrganizationName = `${user.fullName || "My"} Organization`
-        let initialWebsite = ""
-        let initialKeywords: string[] = []
         let isRedditConnectedForCurrentOrg = false
         let currentOrgId = onboardingData.organizationId // Persist if already set by a previous step
 
-        if (profileResult.isSuccess && profileResult.data) {
-          const profile = profileResult.data
-          setOnboardingData(prev => ({
-            ...prev,
-            profileName: profile.name || user.fullName || "",
-            profilePictureUrl: profile.profilePictureUrl || user.imageUrl || ""
-          }))
-          // Note: profile.website and profile.keywords are legacy and removed.
-          // We use a default org name based on profile/user name if no org is yet created/focused.
-          initialOrganizationName =
-            profile.name || user.fullName || initialOrganizationName
-        }
+        // Set default profile data from user
+        setOnboardingData(prev => ({
+          ...prev,
+          profileName: user.fullName || "",
+          profilePictureUrl: user.imageUrl || ""
+        }))
+        
+        initialOrganizationName = user.fullName || initialOrganizationName
 
         // Here, you might add logic to load an *existing* default/first organization for the user
         // if they are returning to onboarding. For now, we assume a new/default setup.
@@ -140,11 +130,8 @@ export default function OnboardingPage() {
           redditConnected: isRedditConnectedForCurrentOrg
         }))
 
-        if (
-          profileResult.data?.onboardingCompleted &&
-          currentOrgId &&
-          isRedditConnectedForCurrentOrg
-        ) {
+        // Check if user should be redirected to dashboard
+        if (currentOrgId && isRedditConnectedForCurrentOrg) {
           router.push("/reddit/lead-finder")
         } else {
           // Stay on current step or default to profile. CurrentStep is already managed.

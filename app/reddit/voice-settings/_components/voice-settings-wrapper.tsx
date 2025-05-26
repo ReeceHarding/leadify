@@ -13,9 +13,12 @@ interface VoiceSettingsWrapperProps {
   userId: string
 }
 
-export default function VoiceSettingsWrapper({ userId }: VoiceSettingsWrapperProps) {
+export default function VoiceSettingsWrapper({
+  userId
+}: VoiceSettingsWrapperProps) {
   const { activeOrganization, isLoading: orgLoading } = useOrganization()
-  const [voiceSettings, setVoiceSettings] = useState<SerializedVoiceSettingsDocument | null>(null)
+  const [voiceSettings, setVoiceSettings] =
+    useState<SerializedVoiceSettingsDocument | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -29,7 +32,9 @@ export default function VoiceSettingsWrapper({ userId }: VoiceSettingsWrapperPro
 
     try {
       setIsLoading(true)
-      const voiceSettingsResult = await getVoiceSettingsByOrganizationIdAction(activeOrganization.id)
+      const voiceSettingsResult = await getVoiceSettingsByOrganizationIdAction(
+        activeOrganization.id
+      )
       setVoiceSettings(voiceSettingsResult.data || null)
     } catch (error) {
       console.error("Error loading voice settings:", error)
@@ -47,7 +52,8 @@ export default function VoiceSettingsWrapper({ userId }: VoiceSettingsWrapperPro
       <Alert>
         <AlertCircle className="size-4" />
         <AlertDescription>
-          No organization selected. Please select an organization from the sidebar.
+          No organization selected. Please select an organization from the
+          sidebar.
         </AlertDescription>
       </Alert>
     )
@@ -60,4 +66,4 @@ export default function VoiceSettingsWrapper({ userId }: VoiceSettingsWrapperPro
       initialVoiceSettings={voiceSettings}
     />
   )
-} 
+}

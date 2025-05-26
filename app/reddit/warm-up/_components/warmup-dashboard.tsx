@@ -33,7 +33,10 @@ interface WarmupDashboardProps {
   organizationId: string
 }
 
-export default function WarmupDashboard({ userId, organizationId }: WarmupDashboardProps) {
+export default function WarmupDashboard({
+  userId,
+  organizationId
+}: WarmupDashboardProps) {
   const [warmupAccount, setWarmupAccount] =
     useState<SerializedWarmupAccountDocument | null>(null)
   const [redditUsername, setRedditUsername] = useState<string | null>(null)
@@ -53,8 +56,12 @@ export default function WarmupDashboard({ userId, organizationId }: WarmupDashbo
   const loadWarmupAccount = async () => {
     if (!organizationId) return
     try {
-      console.log("🔍 [WARMUP-DASHBOARD] Loading warm-up account for organization:", organizationId)
-      const result = await getWarmupAccountByOrganizationIdAction(organizationId)
+      console.log(
+        "🔍 [WARMUP-DASHBOARD] Loading warm-up account for organization:",
+        organizationId
+      )
+      const result =
+        await getWarmupAccountByOrganizationIdAction(organizationId)
       if (result.isSuccess && result.data) {
         setWarmupAccount(result.data)
       }
@@ -79,14 +86,23 @@ export default function WarmupDashboard({ userId, organizationId }: WarmupDashbo
       return
     }
     try {
-      console.log("🔍 [WARMUP-DASHBOARD] Checking Reddit connection for org:", organizationId)
+      console.log(
+        "🔍 [WARMUP-DASHBOARD] Checking Reddit connection for org:",
+        organizationId
+      )
       const userInfoResult = await getRedditUserInfoAction(organizationId)
       if (userInfoResult.isSuccess && userInfoResult.data?.name) {
         setRedditUsername(userInfoResult.data.name)
-        console.log("✅ [WARMUP-DASHBOARD] Reddit connected as:", userInfoResult.data.name)
+        console.log(
+          "✅ [WARMUP-DASHBOARD] Reddit connected as:",
+          userInfoResult.data.name
+        )
       } else {
         setRedditUsername(null)
-        console.warn("⚠️ [WARMUP-DASHBOARD] Reddit not connected for org or failed to get user info:", userInfoResult.message)
+        console.warn(
+          "⚠️ [WARMUP-DASHBOARD] Reddit not connected for org or failed to get user info:",
+          userInfoResult.message
+        )
       }
     } catch (error) {
       setRedditUsername(null)
@@ -99,15 +115,22 @@ export default function WarmupDashboard({ userId, organizationId }: WarmupDashbo
 
   const handleConnectReddit = async () => {
     if (!organizationId) {
-      toast({ title: "Error", description: "Organization context is missing.", variant: "destructive" })
+      toast({
+        title: "Error",
+        description: "Organization context is missing.",
+        variant: "destructive"
+      })
       return
     }
     try {
       setIsConnecting(true)
-      console.log("🔗 [WARMUP-DASHBOARD] Connecting Reddit account for org:", organizationId)
+      console.log(
+        "🔗 [WARMUP-DASHBOARD] Connecting Reddit account for org:",
+        organizationId
+      )
 
       document.cookie = `reddit_auth_org_id=${organizationId}; path=/; max-age=600; SameSite=Lax`
-      
+
       const result = await generateRedditAuthUrlAction()
       if (result.isSuccess && result.data) {
         window.location.href = result.data.authUrl
@@ -229,8 +252,8 @@ export default function WarmupDashboard({ userId, organizationId }: WarmupDashbo
         <CardHeader>
           <CardTitle>Connect Your Organization's Reddit Account</CardTitle>
           <CardDescription>
-            To start the warm-up process, you need to connect your organization's Reddit
-            account.
+            To start the warm-up process, you need to connect your
+            organization's Reddit account.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -339,10 +362,10 @@ export default function WarmupDashboard({ userId, organizationId }: WarmupDashbo
           </TabsContent>
 
           <TabsContent value="posts" className="space-y-4">
-            <WarmupPostsList 
-              userId={userId} 
+            <WarmupPostsList
+              userId={userId}
               organizationId={organizationId}
-              warmupAccount={warmupAccount} 
+              warmupAccount={warmupAccount}
             />
           </TabsContent>
 

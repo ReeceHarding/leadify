@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useUser } from "@clerk/nextjs"
+import { useOrganization } from "@/components/utilities/organization-provider"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -30,7 +31,7 @@ import {
 import { toast } from "sonner"
 
 // Actions
-import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
+import { getOrganizationsByUserIdAction } from "@/actions/db/organizations-actions"
 import {
   getCampaignsByOrganizationIdAction,
   createCampaignAction
@@ -50,10 +51,11 @@ interface DebugStep {
 
 export default function LeadGenerationDebugger() {
   const { user, isLoaded } = useUser()
+  const { activeOrganization, isLoading: orgLoading } = useOrganization()
   const [isRunning, setIsRunning] = useState(false)
   const [steps, setSteps] = useState<DebugStep[]>([
     { name: "User Authentication", status: "pending" },
-    { name: "Profile Check", status: "pending" },
+    { name: "Organization Check", status: "pending" },
     { name: "Keywords Check", status: "pending" },
     { name: "Campaign Check", status: "pending" },
     { name: "Comments Check", status: "pending" },

@@ -15,11 +15,10 @@ import {
   ReplyGenerationResult,
   InformationCombiningResult
 } from "@/types"
-import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
+
 import { scrapeWebsiteAction } from "@/actions/integrations/firecrawl/website-scraping-actions"
 import OpenAI from "openai"
-import { getVoiceSettingsByUserIdAction } from "@/actions/db/personalization-actions"
-import { getKnowledgeBaseByUserIdAction } from "@/actions/db/personalization-actions"
+
 
 // Schema for thread scoring and comment generation
 const ThreadAnalysisSchema = z.object({

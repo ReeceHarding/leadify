@@ -61,7 +61,8 @@ export default function SubredditSelector({
   const { activeOrganization } = useOrganization()
   const { toast } = useToast()
 
-  const currentOrganizationId = organizationId || warmupAccount?.organizationId || activeOrganization?.id
+  const currentOrganizationId =
+    organizationId || warmupAccount?.organizationId || activeOrganization?.id
 
   const [selectedSubreddits, setSelectedSubreddits] = useState<string[]>(
     warmupAccount?.targetSubreddits || []
@@ -80,14 +81,23 @@ export default function SubredditSelector({
         return
       }
       if (!currentOrganizationId) {
-        toast({ title: "Error", description: "Organization not selected.", variant: "destructive" })
+        toast({
+          title: "Error",
+          description: "Organization not selected.",
+          variant: "destructive"
+        })
         return
       }
 
       setIsSearching(true)
       try {
-        console.log(`🔍 [SUBREDDIT-SELECTOR] Searching for: "${query}" in org: ${currentOrganizationId}`)
-        const result = await searchSubredditsAction(currentOrganizationId, query)
+        console.log(
+          `🔍 [SUBREDDIT-SELECTOR] Searching for: "${query}" in org: ${currentOrganizationId}`
+        )
+        const result = await searchSubredditsAction(
+          currentOrganizationId,
+          query
+        )
 
         if (result.isSuccess && result.data) {
           setSuggestions(
@@ -125,12 +135,19 @@ export default function SubredditSelector({
 
   const handleGenerateRecommendations = async () => {
     if (!currentOrganizationId || !activeOrganization) {
-      toast({ title: "Error", description: "Organization not available for recommendations.", variant: "destructive" })
+      toast({
+        title: "Error",
+        description: "Organization not available for recommendations.",
+        variant: "destructive"
+      })
       return
     }
     try {
       setIsGenerating(true)
-      console.log("🤖 [SUBREDDIT-SELECTOR] Generating recommendations for org:", currentOrganizationId)
+      console.log(
+        "🤖 [SUBREDDIT-SELECTOR] Generating recommendations for org:",
+        currentOrganizationId
+      )
 
       let productDesc = activeOrganization.name || ""
       if (activeOrganization.businessDescription) {
@@ -143,7 +160,8 @@ export default function SubredditSelector({
         productDesc = "General business providing services/products."
       }
 
-      const keywordsForRecommendation = (activeOrganization as any).keywordsForAi || []
+      const keywordsForRecommendation =
+        (activeOrganization as any).keywordsForAi || []
 
       const result = await recommendSubredditsAction(
         keywordsForRecommendation,
@@ -162,11 +180,22 @@ export default function SubredditSelector({
           description: `Added ${newSubreddits.length} recommended subreddits`
         })
       } else {
-        toast({ title: "AI Suggestion Error", description: result.message || "Could not generate suggestions.", variant: "destructive" })
+        toast({
+          title: "AI Suggestion Error",
+          description: result.message || "Could not generate suggestions.",
+          variant: "destructive"
+        })
       }
     } catch (error) {
-      console.error("❌ [SUBREDDIT-SELECTOR] Error generating recommendations:", error)
-      toast({ title: "Error", description: "Failed to generate recommendations", variant: "destructive" })
+      console.error(
+        "❌ [SUBREDDIT-SELECTOR] Error generating recommendations:",
+        error
+      )
+      toast({
+        title: "Error",
+        description: "Failed to generate recommendations",
+        variant: "destructive"
+      })
     } finally {
       setIsGenerating(false)
     }
@@ -174,27 +203,50 @@ export default function SubredditSelector({
 
   const handleSave = async () => {
     if (!currentOrganizationId) {
-      toast({ title: "Error", description: "Organization not identified for saving.", variant: "destructive" })
+      toast({
+        title: "Error",
+        description: "Organization not identified for saving.",
+        variant: "destructive"
+      })
       return
     }
     try {
       setIsSaving(true)
-      console.log("💾 [SUBREDDIT-SELECTOR] Saving subreddits for org:", currentOrganizationId)
+      console.log(
+        "💾 [SUBREDDIT-SELECTOR] Saving subreddits for org:",
+        currentOrganizationId
+      )
 
-      if (warmupAccount && warmupAccount.organizationId === currentOrganizationId) {
+      if (
+        warmupAccount &&
+        warmupAccount.organizationId === currentOrganizationId
+      ) {
         const result = await updateWarmupAccountAction(warmupAccount.id, {
           targetSubreddits: selectedSubreddits
         })
         if (result.isSuccess) {
-          toast({ title: "Success", description: "Subreddits updated successfully" })
+          toast({
+            title: "Success",
+            description: "Subreddits updated successfully"
+          })
           onUpdate()
         } else {
-          toast({ title: "Error", description: result.message, variant: "destructive" })
+          toast({
+            title: "Error",
+            description: result.message,
+            variant: "destructive"
+          })
         }
       } else {
         const userResult = await getRedditUserInfoAction(currentOrganizationId)
         if (!userResult.isSuccess || !userResult.data) {
-          toast({ title: "Error", description: userResult.message || "Please connect your organization\'s Reddit account first", variant: "destructive" })
+          toast({
+            title: "Error",
+            description:
+              userResult.message ||
+              "Please connect your organization\'s Reddit account first",
+            variant: "destructive"
+          })
           setIsSaving(false)
           return
         }
@@ -206,15 +258,26 @@ export default function SubredditSelector({
           targetSubreddits: selectedSubreddits
         })
         if (result.isSuccess) {
-          toast({ title: "Success", description: "Warm-up account created successfully" })
+          toast({
+            title: "Success",
+            description: "Warm-up account created successfully"
+          })
           onUpdate()
         } else {
-          toast({ title: "Error", description: result.message, variant: "destructive" })
+          toast({
+            title: "Error",
+            description: result.message,
+            variant: "destructive"
+          })
         }
       }
     } catch (error) {
       console.error("❌ [SUBREDDIT-SELECTOR] Error saving:", error)
-      toast({ title: "Error", description: "Failed to save subreddits", variant: "destructive" })
+      toast({
+        title: "Error",
+        description: "Failed to save subreddits",
+        variant: "destructive"
+      })
     } finally {
       setIsSaving(false)
     }
@@ -225,7 +288,11 @@ export default function SubredditSelector({
       <CardHeader>
         <CardTitle>Target Subreddits</CardTitle>
         <CardDescription>
-          Select subreddits where your organization <span className="font-semibold">{activeOrganization?.name || "selected organization"}</span> wants to build karma and authority.
+          Select subreddits where your organization{" "}
+          <span className="font-semibold">
+            {activeOrganization?.name || "selected organization"}
+          </span>{" "}
+          wants to build karma and authority.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -325,7 +392,11 @@ export default function SubredditSelector({
 
         <Button
           onClick={handleSave}
-          disabled={isSaving || selectedSubreddits.length === 0 || !currentOrganizationId}
+          disabled={
+            isSaving ||
+            selectedSubreddits.length === 0 ||
+            !currentOrganizationId
+          }
           className="w-full"
         >
           {isSaving ? (

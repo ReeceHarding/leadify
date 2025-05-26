@@ -83,7 +83,10 @@ export default function KeywordsStep({
   const generateKeywords = async (refinement?: string) => {
     console.log("🔍 [KEYWORDS] generateKeywords() called with o3-mini")
     console.log("🔍 [KEYWORDS] Website:", data.website)
-    console.log("🔍 [KEYWORDS] Business Description (Org Name for context):", data.businessDescription)
+    console.log(
+      "🔍 [KEYWORDS] Business Description (Org Name for context):",
+      data.businessDescription
+    )
     console.log("🔍 [KEYWORDS] Refinement:", refinement)
 
     setIsGenerating(true)

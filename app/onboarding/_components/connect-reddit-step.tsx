@@ -44,11 +44,11 @@ export default function ConnectRedditStep({
     setConnectionStatus("connecting")
 
     if (!organizationId) {
-        console.error("ConnectRedditStep: Missing organizationId!");
-        setConnectionStatus("error");
-        setIsConnecting(false);
-        alert("Error: Organization not identified. Cannot connect Reddit.");
-        return;
+      console.error("ConnectRedditStep: Missing organizationId!")
+      setConnectionStatus("error")
+      setIsConnecting(false)
+      alert("Error: Organization not identified. Cannot connect Reddit.")
+      return
     }
 
     try {

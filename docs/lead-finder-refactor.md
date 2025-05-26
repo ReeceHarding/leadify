@@ -7,6 +7,7 @@ This document describes the first-principles refactor of the lead-finder feature
 ## Problem Statement
 
 The original implementation had several issues:
+
 1. **No real-time updates**: Leads only appeared after all 20 were generated
 2. **Server action coupling**: Client components directly imported server actions causing "Failed to find Server Action" errors
 3. **State management complexity**: Single component managing too many responsibilities
@@ -28,16 +29,19 @@ app/reddit/lead-finder/
 ### 2. Key Changes
 
 #### Real-time Updates
+
 - Replaced polling with Firestore `onSnapshot` listeners
 - Leads appear immediately as they're generated
 - No more waiting for all 20 comments to complete
 
 #### Server Action Isolation
+
 - Created `/api/lead-generation/start` route
 - Client components use fetch() instead of direct server action imports
 - Eliminates "Failed to find Server Action" errors
 
 #### State Management
+
 - Firestore is the single source of truth
 - UI components are purely reactive to Firestore changes
 - No complex local state management
@@ -45,11 +49,13 @@ app/reddit/lead-finder/
 ### 3. Data Flow
 
 1. **Campaign Selection** (Server Component)
+
    - Fetches user profile and campaigns
    - Auto-creates campaign if needed
    - Passes campaignId to child components
 
 2. **Lead Generation Start** (Client Component)
+
    - Calls API route to trigger workflow
    - Shows loading state
    - No direct server action imports
@@ -73,12 +79,12 @@ app/reddit/lead-finder/
 
 ```typescript
 const q = query(
-  collection(db, "generated_comments"), 
+  collection(db, "generated_comments"),
   where("campaignId", "==", campaignId),
   orderBy("createdAt", "desc")
 )
 
-const unsubscribe = onSnapshot(q, (snapshot) => {
+const unsubscribe = onSnapshot(q, snapshot => {
   const docs = snapshot.docs.map(doc => ({
     id: doc.id,
     ...doc.data()
@@ -94,9 +100,9 @@ const unsubscribe = onSnapshot(q, (snapshot) => {
 export async function POST(req: NextRequest) {
   const { userId } = await auth()
   const { campaignId } = await req.json()
-  
+
   const result = await runFullLeadGenerationWorkflowAction(campaignId)
-  
+
   return NextResponse.json({
     success: true,
     data: result.data
@@ -110,4 +116,4 @@ export async function POST(req: NextRequest) {
 2. Implement optimistic updates for better UX
 3. Add pagination for large result sets
 4. Cache campaign data in React Query
-5. Add error boundaries for better error handling 
+5. Add error boundaries for better error handling
