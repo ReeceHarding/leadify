@@ -1,19 +1,8 @@
 "use server"
 
 import { db } from "@/db/db"
-import { ActionState, LeadGenerationProgress } from "@/types"
+import { ActionState, LeadGenerationProgress, LEAD_GENERATION_STAGES } from "@/types"
 import { doc, setDoc, getDoc, serverTimestamp, Timestamp } from "firebase/firestore"
-
-export const LEAD_GENERATION_STAGES = [
-  { name: "Initializing", duration: 3000 },
-  { name: "Analyzing Business", duration: 5000 },
-  { name: "Scraping Website", duration: 8000 },
-  { name: "Searching Reddit", duration: 12000 },
-  { name: "Retrieving Threads", duration: 10000 },
-  { name: "Analyzing Relevance", duration: 8000 },
-  { name: "Generating Comments", duration: 10000 },
-  { name: "Finalizing Results", duration: 4000 }
-]
 
 export async function createLeadGenerationProgressAction(
   campaignId: string

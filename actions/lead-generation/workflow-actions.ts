@@ -41,9 +41,9 @@ import { createGeneratedCommentAction } from "@/actions/db/lead-generation-actio
 import { scoreThreadAndGenerateThreeTierCommentsAction } from "@/actions/integrations/openai/openai-actions"
 import { 
   createLeadGenerationProgressAction, 
-  updateLeadGenerationProgressAction,
-  LEAD_GENERATION_STAGES
+  updateLeadGenerationProgressAction
 } from "@/actions/db/lead-generation-progress-actions"
+import { LEAD_GENERATION_STAGES } from "@/types"
 import { getKnowledgeBaseByUserIdAction } from "@/actions/db/personalization-actions"
 import { getVoiceSettingsByUserIdAction } from "@/actions/db/personalization-actions"
 import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
