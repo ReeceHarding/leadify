@@ -131,7 +131,11 @@ export default function WarmupDashboard({
 
       document.cookie = `reddit_auth_org_id=${organizationId}; path=/; max-age=600; SameSite=Lax`
 
-      const result = await generateRedditAuthUrlAction()
+      // Pass the current page URL as the return URL
+      const currentUrl = window.location.pathname + window.location.search
+      const result = await generateRedditAuthUrlAction({
+        returnUrl: currentUrl
+      })
       if (result.isSuccess && result.data) {
         window.location.href = result.data.authUrl
       } else {

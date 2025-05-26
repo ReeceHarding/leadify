@@ -82,10 +82,10 @@ export default function VoiceSettingsDisplay({
         {!hasAnyData ? (
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <MessageCircle className="mb-4 size-12 text-gray-300" />
-            <h3 className="mb-2 text-lg font-medium text-gray-900">
+            <h3 className="mb-2 text-lg font-medium text-gray-900 dark:text-white">
               No Voice Settings Yet
             </h3>
-            <p className="max-w-sm text-sm text-gray-600">
+            <p className="max-w-sm text-sm text-gray-600 dark:text-gray-400">
               Configure your writing style and persona to create more authentic
               Reddit comments that match your voice.
             </p>
@@ -97,16 +97,16 @@ export default function VoiceSettingsDisplay({
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Settings className="size-4 text-blue-600" />
-                  <h4 className="text-sm font-medium text-gray-900">
+                  <h4 className="text-sm font-medium text-gray-900 dark:text-white">
                     Writing Style
                   </h4>
                 </div>
-                <div className="rounded-lg bg-blue-50 p-3">
-                  <p className="text-sm font-medium text-blue-900">
+                <div className="rounded-lg bg-blue-50 p-3 dark:bg-blue-900/30">
+                  <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
                     {getWritingStyleLabel(voiceSettings.writingStyle)}
                   </p>
                   {voiceSettings.customWritingStyle && (
-                    <p className="mt-1 text-xs text-blue-700">
+                    <p className="mt-1 text-xs text-blue-700 dark:text-blue-300">
                       {voiceSettings.customWritingStyle}
                     </p>
                   )}
@@ -119,16 +119,16 @@ export default function VoiceSettingsDisplay({
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <User className="size-4 text-green-600" />
-                  <h4 className="text-sm font-medium text-gray-900">
+                  <h4 className="text-sm font-medium text-gray-900 dark:text-white">
                     Comment Persona
                   </h4>
                 </div>
-                <div className="rounded-lg bg-green-50 p-3">
-                  <p className="text-sm font-medium text-green-900">
+                <div className="rounded-lg bg-green-50 p-3 dark:bg-green-900/30">
+                  <p className="text-sm font-medium text-green-900 dark:text-green-100">
                     {getPersonaLabel(voiceSettings.personaType)}
                   </p>
                   {voiceSettings.customPersona && (
-                    <p className="mt-1 text-xs text-green-700">
+                    <p className="mt-1 text-xs text-green-700 dark:text-green-300">
                       {voiceSettings.customPersona}
                     </p>
                   )}
@@ -141,7 +141,7 @@ export default function VoiceSettingsDisplay({
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Twitter className="size-4 text-purple-600" />
-                  <h4 className="text-sm font-medium text-gray-900">
+                  <h4 className="text-sm font-medium text-gray-900 dark:text-white">
                     Twitter Analysis
                   </h4>
                   {voiceSettings.twitterAnalyzed && (
@@ -150,11 +150,11 @@ export default function VoiceSettingsDisplay({
                     </Badge>
                   )}
                 </div>
-                <div className="rounded-lg bg-purple-50 p-3">
-                  <p className="text-sm font-medium text-purple-900">
+                <div className="rounded-lg bg-purple-50 p-3 dark:bg-purple-900/30">
+                  <p className="text-sm font-medium text-purple-900 dark:text-purple-100">
                     @{voiceSettings.twitterHandle}
                   </p>
-                  <p className="mt-1 text-xs text-purple-700">
+                  <p className="mt-1 text-xs text-purple-700 dark:text-purple-300">
                     {voiceSettings.twitterAnalyzed
                       ? "Writing style analyzed from recent tweets"
                       : "Ready for analysis"}
@@ -207,7 +207,7 @@ export default function VoiceSettingsDisplay({
               voiceSettings?.useCasualTone ||
               voiceSettings?.useFirstPerson) && (
               <div className="space-y-2">
-                <h4 className="text-sm font-medium text-gray-900">
+                <h4 className="text-sm font-medium text-gray-900 dark:text-white">
                   Style Preferences
                 </h4>
                 <div className="flex flex-wrap gap-2">
@@ -235,19 +235,17 @@ export default function VoiceSettingsDisplay({
               </div>
             )}
 
-
-
             {/* Generated Prompt */}
             {voiceSettings?.generatedPrompt && (
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Sparkles className="size-4 text-pink-600" />
-                  <h4 className="text-sm font-medium text-gray-900">
+                  <h4 className="text-sm font-medium text-gray-900 dark:text-white">
                     AI Generated Prompt
                   </h4>
                 </div>
-                <div className="rounded-lg bg-pink-50 p-3">
-                  <p className="text-sm text-pink-900">
+                <div className="rounded-lg bg-pink-50 p-3 dark:bg-pink-900/30">
+                  <p className="text-sm text-pink-900 dark:text-pink-100">
                     {voiceSettings.generatedPrompt}
                   </p>
                 </div>
@@ -257,7 +255,7 @@ export default function VoiceSettingsDisplay({
             {/* Metadata */}
             {voiceSettings && (
               <div className="border-t pt-4">
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   Last updated:{" "}
                   {new Date(voiceSettings.updatedAt).toLocaleDateString()}
                 </p>

@@ -30,7 +30,9 @@ import {
   searchSubredditsAction,
   getRedditUserInfoAction
 } from "@/actions/integrations/reddit/reddit-warmup-actions"
+import { searchSubredditsAction as searchSubredditsCSVAction } from "@/actions/integrations/reddit/subreddit-search-actions"
 import { recommendSubredditsAction } from "@/actions/integrations/openai/warmup-content-generation-actions"
+import { getKnowledgeBaseByOrganizationIdAction } from "@/actions/db/personalization-actions"
 import {
   createWarmupAccountAction,
   updateWarmupAccountAction
@@ -38,18 +40,13 @@ import {
 import { SerializedWarmupAccountDocument } from "@/db/firestore/warmup-collections"
 import { useOrganization } from "@/components/utilities/organization-provider"
 import { debounce } from "lodash"
+import type { SubredditData } from "@/actions/integrations/reddit/subreddit-search-actions"
 
 interface SubredditSelectorProps {
   userId: string
   warmupAccount: SerializedWarmupAccountDocument | null
   onUpdate: () => void
   organizationId: string
-}
-
-interface SubredditSuggestion {
-  name: string
-  subscribers?: number
-  description?: string
 }
 
 export default function SubredditSelector({
@@ -68,11 +65,67 @@ export default function SubredditSelector({
     warmupAccount?.targetSubreddits || []
   )
   const [searchQuery, setSearchQuery] = useState("")
-  const [suggestions, setSuggestions] = useState<SubredditSuggestion[]>([])
+  const [suggestions, setSuggestions] = useState<SubredditData[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
+  const [hasLoadedInitialSuggestions, setHasLoadedInitialSuggestions] = useState(false)
+
+  useEffect(() => {
+    if (currentOrganizationId && activeOrganization && !hasLoadedInitialSuggestions && selectedSubreddits.length === 0) {
+      loadInitialSuggestions()
+    }
+  }, [currentOrganizationId, activeOrganization, hasLoadedInitialSuggestions, selectedSubreddits.length])
+
+  const loadInitialSuggestions = async () => {
+    if (!currentOrganizationId || !activeOrganization) return
+    
+    try {
+      console.log("🤖 [SUBREDDIT-SELECTOR] Loading initial AI suggestions based on knowledge base")
+      
+      const kbResult = await getKnowledgeBaseByOrganizationIdAction(currentOrganizationId)
+      
+      let productDesc = activeOrganization.name || ""
+      if (activeOrganization.businessDescription) {
+        productDesc += ` - ${activeOrganization.businessDescription}`
+      }
+      if (kbResult.isSuccess && kbResult.data) {
+        if (kbResult.data.summary) {
+          productDesc += ` ${kbResult.data.summary}`
+        }
+        if (kbResult.data.customInformation) {
+          productDesc += ` ${kbResult.data.customInformation}`
+        }
+      }
+      if (activeOrganization.website) {
+        productDesc += ` (Website: ${activeOrganization.website})`
+      }
+      
+      const keywordsForRecommendation = (activeOrganization as any).keywordsForAi || []
+      
+      const result = await recommendSubredditsAction(
+        keywordsForRecommendation,
+        productDesc
+      )
+      
+      if (result.isSuccess && result.data) {
+        const recommendedSubreddits = result.data
+          .slice(0, 3)
+          .map(rec => rec.subreddit)
+        
+        setSelectedSubreddits(recommendedSubreddits)
+        setHasLoadedInitialSuggestions(true)
+        
+        toast({
+          title: "AI Suggestions Applied",
+          description: `Automatically selected ${recommendedSubreddits.length} relevant subreddits based on your organization's profile`
+        })
+      }
+    } catch (error) {
+      console.error("❌ [SUBREDDIT-SELECTOR] Error loading initial suggestions:", error)
+    }
+  }
 
   const debouncedSearch = useCallback(
     debounce(async (query: string) => {
@@ -80,33 +133,17 @@ export default function SubredditSelector({
         setSuggestions([])
         return
       }
-      if (!currentOrganizationId) {
-        toast({
-          title: "Error",
-          description: "Organization not selected.",
-          variant: "destructive"
-        })
-        return
-      }
 
       setIsSearching(true)
       try {
         console.log(
-          `🔍 [SUBREDDIT-SELECTOR] Searching for: "${query}" in org: ${currentOrganizationId}`
+          `🔍 [SUBREDDIT-SELECTOR] Searching for: "${query}"`
         )
-        const result = await searchSubredditsAction(
-          currentOrganizationId,
-          query
-        )
+        const result = await searchSubredditsCSVAction(query, 20)
 
         if (result.isSuccess && result.data) {
-          setSuggestions(
-            result.data.map(sub => ({
-              name: sub.display_name,
-              subscribers: sub.subscribers,
-              description: sub.public_description
-            }))
-          )
+          setSuggestions(result.data)
+          console.log("🔍 [SUBREDDIT-SELECTOR] Found subreddits:", result.data.length)
         }
       } catch (error) {
         console.error("❌ [SUBREDDIT-SELECTOR] Search error:", error)
@@ -114,7 +151,7 @@ export default function SubredditSelector({
         setIsSearching(false)
       }
     }, 300),
-    [currentOrganizationId, toast]
+    []
   )
 
   useEffect(() => {
@@ -283,6 +320,17 @@ export default function SubredditSelector({
     }
   }
 
+  const formatSubscribers = (count: string) => {
+    const num = parseInt(count)
+    if (num >= 1000000) {
+      return `${(num / 1000000).toFixed(1)}M`
+    }
+    if (num >= 1000) {
+      return `${(num / 1000).toFixed(1)}K`
+    }
+    return count
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -327,16 +375,16 @@ export default function SubredditSelector({
                     <CommandEmpty>No subreddits found.</CommandEmpty>
                   ) : (
                     <CommandGroup>
-                      {suggestions.map(sub => (
+                      {suggestions.map((sub) => (
                         <CommandItem
-                          key={sub.name}
-                          onSelect={() => handleAddSubreddit(sub.name)}
+                          key={sub.base10_id}
+                          onSelect={() => handleAddSubreddit(sub.subreddit_name)}
                         >
                           <div className="flex-1">
-                            <div className="font-medium">r/{sub.name}</div>
-                            {sub.subscribers && (
+                            <div className="font-medium">r/{sub.subreddit_name}</div>
+                            {sub.subscribers_count && sub.subscribers_count !== 'None' && (
                               <div className="text-muted-foreground text-sm">
-                                {sub.subscribers.toLocaleString()} members
+                                {formatSubscribers(sub.subscribers_count)} members
                               </div>
                             )}
                           </div>
