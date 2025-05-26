@@ -303,6 +303,8 @@ export async function createVoiceSettingsAction(
       manualWritingStyleDescription: data.manualWritingStyleDescription,
       twitterHandle: data.twitterHandle,
       twitterAnalyzed: data.twitterAnalyzed || false,
+      redditWritingStyleAnalysis: data.redditWritingStyleAnalysis,
+      redditPostSource: data.redditPostSource,
       personaType: data.personaType,
       customPersona: data.customPersona,
       useAllLowercase: data.useAllLowercase || false,

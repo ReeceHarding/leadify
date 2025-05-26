@@ -23,6 +23,7 @@ import { Loader2, Twitter, Edit, Merge, Replace } from "lucide-react"
 import { SerializedVoiceSettingsDocument } from "@/types"
 import { PersonaType, WritingStyle } from "@/db/schema"
 import { useToast } from "@/hooks/use-toast"
+import RedditStyleCopier from "./reddit-style-copier"
 
 interface EditVoiceSettingsProps {
   userId: string
@@ -250,7 +251,16 @@ export default function EditVoiceSettings({
     await saveVoiceSettings(editableOldDescription)
   }
 
-  const saveVoiceSettings = async (manualWritingStyleDescription?: string) => {
+  const handleRedditStyleCopied = async (analysis: string, postSource: any) => {
+    console.log("🔥 [REDDIT-STYLE] Style copied from Reddit post")
+    console.log("🔥 [REDDIT-STYLE] Analysis length:", analysis.length)
+    console.log("🔥 [REDDIT-STYLE] Post source:", postSource)
+    
+    // Save the Reddit writing style analysis
+    await saveVoiceSettings(analysis, postSource)
+  }
+
+  const saveVoiceSettings = async (manualWritingStyleDescription?: string, redditPostSource?: any) => {
     setIsLoading(true)
     try {
       const settingsData = {
@@ -258,6 +268,8 @@ export default function EditVoiceSettings({
         manualWritingStyleDescription:
           manualWritingStyleDescription || editableOldDescription || undefined,
         twitterHandle: twitterHandle || undefined,
+        redditWritingStyleAnalysis: redditPostSource ? manualWritingStyleDescription : undefined,
+        redditPostSource: redditPostSource || undefined,
         personaType,
         customPersona: personaType === "custom" ? customPersona : undefined,
         useAllLowercase: false,
@@ -505,4 +517,64 @@ export default function EditVoiceSettings({
       </CardContent>
     </Card>
   )
+}
+
+// Add the Reddit Style Copier as a separate component
+export function RedditStyleCopierCard({
+  userId,
+  organizationId,
+  voiceSettings,
+  setVoiceSettings
+}: EditVoiceSettingsProps) {
+  const handleRedditStyleCopied = async (analysis: string, postSource: any) => {
+    console.log("🔥 [REDDIT-STYLE] Style copied from Reddit post")
+    console.log("🔥 [REDDIT-STYLE] Analysis length:", analysis.length)
+    console.log("🔥 [REDDIT-STYLE] Post source:", postSource)
+    
+    try {
+      const settingsData = {
+        writingStyle: "casual" as WritingStyle,
+        redditWritingStyleAnalysis: analysis,
+        redditPostSource: postSource,
+        personaType: voiceSettings?.personaType || ("user" as PersonaType),
+        useAllLowercase: false,
+        useEmojis: false,
+        useCasualTone: true,
+        useFirstPerson: false
+      }
+
+      if (voiceSettings) {
+        // Update existing voice settings
+        const { updateVoiceSettingsAction } = await import(
+          "@/actions/db/personalization-actions"
+        )
+        const result = await updateVoiceSettingsAction(
+          voiceSettings.id,
+          settingsData
+        )
+
+        if (result.isSuccess) {
+          setVoiceSettings(result.data)
+        }
+      } else {
+        // Create new voice settings
+        const { createVoiceSettingsAction } = await import(
+          "@/actions/db/personalization-actions"
+        )
+        const result = await createVoiceSettingsAction({
+          userId,
+          organizationId,
+          ...settingsData
+        })
+
+        if (result.isSuccess) {
+          setVoiceSettings(result.data)
+        }
+      }
+    } catch (error) {
+      console.error("🔥 [REDDIT-STYLE] Error saving:", error)
+    }
+  }
+
+  return <RedditStyleCopier onStyleCopied={handleRedditStyleCopied} />
 }

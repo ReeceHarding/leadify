@@ -48,11 +48,20 @@ export interface SerializedKnowledgeBaseDocument {
 export interface SerializedVoiceSettingsDocument {
   id: string
   userId: string
+  organizationId: string
   writingStyle: "casual" | "professional" | "friendly" | "technical" | "custom"
   customWritingStyle?: string
   manualWritingStyleDescription?: string
   twitterHandle?: string
   twitterAnalyzed?: boolean
+  redditWritingStyleAnalysis?: string
+  redditPostSource?: {
+    subreddit: string
+    postId: string
+    postTitle: string
+    author: string
+    score: number
+  }
   personaType: "ceo" | "user" | "subtle" | "custom"
   customPersona?: string
   useAllLowercase?: boolean

@@ -69,6 +69,16 @@ export interface VoiceSettingsDocument {
   twitterHandle?: string
   twitterAnalyzed?: boolean
 
+  // Reddit writing style copying
+  redditWritingStyleAnalysis?: string
+  redditPostSource?: {
+    subreddit: string
+    postId: string
+    postTitle: string
+    author: string
+    score: number
+  }
+
   // Persona preferences
   personaType: PersonaType
   customPersona?: string
@@ -94,6 +104,14 @@ export interface CreateVoiceSettingsData {
   manualWritingStyleDescription?: string
   twitterHandle?: string
   twitterAnalyzed?: boolean
+  redditWritingStyleAnalysis?: string
+  redditPostSource?: {
+    subreddit: string
+    postId: string
+    postTitle: string
+    author: string
+    score: number
+  }
   personaType: PersonaType
   customPersona?: string
   useAllLowercase?: boolean
@@ -109,6 +127,14 @@ export interface UpdateVoiceSettingsData {
   manualWritingStyleDescription?: string
   twitterHandle?: string
   twitterAnalyzed?: boolean
+  redditWritingStyleAnalysis?: string
+  redditPostSource?: {
+    subreddit: string
+    postId: string
+    postTitle: string
+    author: string
+    score: number
+  }
   personaType?: PersonaType
   customPersona?: string
   useAllLowercase?: boolean

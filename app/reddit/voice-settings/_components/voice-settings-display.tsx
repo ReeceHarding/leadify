@@ -211,6 +211,35 @@ export default function VoiceSettingsDisplay({
               </div>
             )}
 
+            {/* Reddit Writing Style */}
+            {voiceSettings?.redditWritingStyleAnalysis && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <MessageCircle className="size-4 text-orange-600" />
+                  <h4 className="text-sm font-medium text-gray-900">
+                    Reddit Writing Style
+                  </h4>
+                </div>
+                <div className="rounded-lg bg-orange-50 p-3">
+                  <p className="text-sm text-orange-900 mb-2">
+                    {voiceSettings.redditWritingStyleAnalysis}
+                  </p>
+                  {voiceSettings.redditPostSource && (
+                    <div className="text-xs text-orange-700 border-t border-orange-200 pt-2">
+                      <p>
+                        <strong>Source:</strong> r/{voiceSettings.redditPostSource.subreddit} • 
+                        u/{voiceSettings.redditPostSource.author} • 
+                        {voiceSettings.redditPostSource.score} upvotes
+                      </p>
+                      <p className="truncate">
+                        <strong>Post:</strong> {voiceSettings.redditPostSource.postTitle}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Generated Prompt */}
             {voiceSettings?.generatedPrompt && (
               <div className="space-y-2">

@@ -1,872 +1,884 @@
-[2025-05-26T18:33:48.770Z] ================================================================================
-[2025-05-26T18:33:48.771Z] NEW DEV SESSION STARTED: 2025-05-26T18:33:48.771Z
-[2025-05-26T18:33:48.771Z] ================================================================================
-[2025-05-26T18:33:48.771Z] STEP: Killing processes on port 3000
-[2025-05-26T18:33:48.819Z] ✅ Killed process 51463 on port 3000
-[2025-05-26T18:33:48.819Z] ✅ Killed process 53900 on port 3000
-[2025-05-26T18:33:48.937Z] NEXTJS_CLOSE: Next.js dev server stopped with exit code: 0
-[2025-05-26T18:33:49.317Z] STEP: Starting Next.js development server
-[2025-05-26T18:33:50.365Z] NEXTJS_STDOUT: ▲ Next.js 15.3.2
-[2025-05-26T18:33:50.365Z] NEXTJS_STDOUT: - Local:        http://localhost:3000
-[2025-05-26T18:33:50.365Z] NEXTJS_STDOUT: - Network:      http://100.110.212.88:3000
-[2025-05-26T18:33:50.365Z] NEXTJS_STDOUT: - Environments: .env.local
-[2025-05-26T18:33:50.365Z] NEXTJS_STDOUT: ✓ Starting...
-[2025-05-26T18:33:51.470Z] NEXTJS_STDOUT: ✓ Ready in 1177ms
-[2025-05-26T18:34:42.421Z] ==================================================
-[2025-05-26T18:34:42.422Z] COMMAND STARTED: next lint --fix
-[2025-05-26T18:34:42.422Z] ==================================================
-[2025-05-26T18:34:44.110Z] STDOUT: ✔ No ESLint warnings or errors
-[2025-05-26T18:34:44.176Z] ==================================================
-[2025-05-26T18:34:44.176Z] COMMAND FINISHED: next lint --fix (exit code: 0)
-[2025-05-26T18:34:44.176Z] ==================================================
-[2025-05-26T18:34:44.356Z] ==================================================
-[2025-05-26T18:34:44.357Z] COMMAND STARTED: prettier --write {app,lib,db,components,context,types}/**/*.{ts,tsx} --cache
-[2025-05-26T18:34:44.357Z] ==================================================
-[2025-05-26T18:34:44.442Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.442Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.442Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.442Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.442Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.443Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.443Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.445Z] STDOUT: app/api/lead-generation/start/route.ts 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.446Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.446Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.446Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.446Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.446Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.446Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.447Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.447Z] STDOUT: app/api/queue/check-warmup-comments/route.ts 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.448Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.448Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.448Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.448Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.448Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.449Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.449Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.450Z] STDOUT: app/api/queue/process-posts/route.ts 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.450Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.450Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.451Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.451Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.451Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.451Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.451Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.451Z] STDOUT: app/api/queue/process-warmup/route.ts 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.452Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.452Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.452Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.453Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.453Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.453Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.453Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.453Z] STDOUT: app/api/reddit/auth/route.ts 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.454Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.454Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.454Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.455Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.455Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.455Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.455Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.455Z] STDOUT: app/api/reddit/callback/route.ts 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.457Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.457Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.457Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.457Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.457Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.457Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.457Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.458Z] STDOUT: app/api/reddit/comments/[commentId]/replies/route.ts 1ms (unchanged) (cached)
-[2025-05-26T18:34:44.458Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.458Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.458Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.458Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.458Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.458Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.458Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.459Z] STDOUT: app/api/reddit/comments/route.ts 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.460Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.460Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.460Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.460Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.460Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.460Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.460Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.461Z] STDOUT: app/api/stripe/webhooks/route.ts 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.461Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.462Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.462Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.462Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.462Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.462Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.462Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.499Z] STDOUT: app/api/test-twitter-analysis/route.ts 37ms
-[2025-05-26T18:34:44.502Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.502Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.502Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.502Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.502Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.502Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.502Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.561Z] STDOUT: app/api/test-twitter-direct/route.ts 58ms
-[2025-05-26T18:34:44.568Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.569Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.569Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.569Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.569Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.569Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.569Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.573Z] STDOUT: app/api/warmup/generate-posts/route.ts 1ms (unchanged) (cached)
-[2025-05-26T18:34:44.577Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.577Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.577Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.577Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.577Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.577Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.577Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.578Z] STDOUT: app/reddit/lead-finder/_components/dashboard/types.ts 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.578Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.578Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.578Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.578Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.578Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.578Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.578Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.579Z] STDOUT: app/reddit/lead-finder/_components/dashboard/utils.ts 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.581Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.581Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.581Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.581Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.581Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.581Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.581Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.582Z] STDOUT: app/(auth)/layout.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.583Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.583Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.583Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.584Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.584Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.584Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.584Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.585Z] STDOUT: app/(marketing)/layout.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.586Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.586Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.586Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.586Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.586Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.587Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.587Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.587Z] STDOUT: app/(marketing)/page.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.589Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.590Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.590Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.590Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.590Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.590Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.590Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.591Z] STDOUT: app/dashboard/layout.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.591Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.591Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.591Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.592Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.592Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.592Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.592Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.592Z] STDOUT: app/dashboard/page.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.594Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.594Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.594Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.594Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.594Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.594Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.594Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.595Z] STDOUT: app/firebase-test/page.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.598Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.599Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.599Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.599Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.599Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.599Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.599Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.601Z] STDOUT: app/onboarding/layout.tsx 1ms (unchanged) (cached)
-[2025-05-26T18:34:44.604Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.604Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.605Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.605Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.605Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.605Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.605Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.606Z] STDOUT: app/onboarding/page.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.612Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.613Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.613Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.613Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.613Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.613Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.613Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.615Z] STDOUT: app/reddit-auth/page.tsx 1ms (unchanged) (cached)
-[2025-05-26T18:34:44.617Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.618Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.618Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.618Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.618Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.618Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.618Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.619Z] STDOUT: app/reddit-test/page.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.620Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.621Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.621Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.621Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.621Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.621Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.621Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.622Z] STDOUT: app/reddit/layout.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.623Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.623Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.624Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.624Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.624Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.624Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.624Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.625Z] STDOUT: lib/hooks/use-toast.ts 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.626Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.626Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.626Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.626Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.626Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.626Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.626Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.627Z] STDOUT: lib/hooks/use-copy-to-clipboard.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.627Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.628Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.628Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.628Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.628Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.628Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.628Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.628Z] STDOUT: lib/hooks/use-mobile.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.630Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.630Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.630Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.630Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.630Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.630Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.630Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.631Z] STDOUT: db/firestore/collections.ts 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.631Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.631Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.631Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.632Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.632Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.632Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.632Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.632Z] STDOUT: db/firestore/lead-generation-collections.ts 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.633Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.633Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.633Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.633Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.633Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.633Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.633Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.634Z] STDOUT: db/firestore/organizations-collections.ts 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.635Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.635Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.635Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.635Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.635Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.636Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.636Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.639Z] STDOUT: db/firestore/personalization-collections.ts 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.642Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.642Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.642Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.642Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.642Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.642Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.642Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.643Z] STDOUT: db/firestore/posting-queue-collections.ts 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.644Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.644Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.644Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.644Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.644Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.644Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.645Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.645Z] STDOUT: db/firestore/warmup-collections.ts 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.648Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.648Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.648Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.648Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.648Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.648Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.648Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.649Z] STDOUT: db/schema/index.ts 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.650Z] STDERR: [error] No files matching the pattern were found: "db/**/*.tsx".
-[2025-05-26T18:34:44.651Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.652Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.652Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.652Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.652Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.652Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.652Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.652Z] STDOUT: components/ui/use-toast.ts 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.654Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.654Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.654Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.654Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.654Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.654Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.654Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.655Z] STDOUT: components/landing/hero.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.656Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.656Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.656Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.656Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.656Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.656Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.656Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.657Z] STDOUT: components/landing/logo-carousel.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.657Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.657Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.658Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.658Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.658Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.658Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.658Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.658Z] STDOUT: components/landing/testimonials.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.660Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.660Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.660Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.660Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.661Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.661Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.661Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.661Z] STDOUT: components/magicui/animated-gradient-text.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.662Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.662Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.662Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.662Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.662Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.662Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.662Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.663Z] STDOUT: components/magicui/hero-video-dialog.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.664Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.664Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.664Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.664Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.664Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.664Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.664Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.665Z] STDOUT: components/sidebar/app-sidebar.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.665Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.665Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.665Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.665Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.666Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.666Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.666Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.690Z] STDOUT: components/sidebar/create-organization-dialog.tsx 24ms
-[2025-05-26T18:34:44.691Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.692Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.692Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.692Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.692Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.692Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.692Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.694Z] STDOUT: components/sidebar/nav-main.tsx 1ms (unchanged) (cached)
-[2025-05-26T18:34:44.694Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.694Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.695Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.695Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.695Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.695Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.695Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.696Z] STDOUT: components/sidebar/nav-projects.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.697Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.698Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.698Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.698Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.698Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.698Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.698Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.698Z] STDOUT: components/sidebar/nav-user.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.699Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.699Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.699Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.699Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.699Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.699Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.699Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.712Z] STDOUT: components/sidebar/team-switcher.tsx 12ms
-[2025-05-26T18:34:44.713Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.713Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.713Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.713Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.713Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.713Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.714Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.714Z] STDOUT: components/ui/accordion.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.715Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.715Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.715Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.715Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.715Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.715Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.715Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.716Z] STDOUT: components/ui/alert-dialog.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.716Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.716Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.716Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.716Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.716Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.716Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.716Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.717Z] STDOUT: components/ui/alert.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.717Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.717Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.717Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.717Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.718Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.718Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.718Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.718Z] STDOUT: components/ui/aspect-ratio.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.718Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.719Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.719Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.719Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.719Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.719Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.719Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.719Z] STDOUT: components/ui/avatar.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.720Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.720Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.720Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.720Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.720Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.720Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.720Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.720Z] STDOUT: components/ui/badge.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.721Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.721Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.721Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.721Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.721Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.721Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.721Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.722Z] STDOUT: components/ui/breadcrumb.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.723Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.723Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.723Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.723Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.723Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.723Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.723Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.723Z] STDOUT: components/ui/button.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.724Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.724Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.724Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.724Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.724Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.724Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.724Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.724Z] STDOUT: components/ui/calendar.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.725Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.725Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.725Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.725Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.725Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.725Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.725Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.725Z] STDOUT: components/ui/card.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.726Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.726Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.726Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.726Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.726Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.726Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.726Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.727Z] STDOUT: components/ui/carousel.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.727Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.727Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.727Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.727Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.727Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.727Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.727Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.728Z] STDOUT: components/ui/chart.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.728Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.728Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.728Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.728Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.728Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.728Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.729Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.729Z] STDOUT: components/ui/checkbox.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.730Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.730Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.730Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.730Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.730Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.730Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.730Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.730Z] STDOUT: components/ui/collapsible.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.731Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.731Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.731Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.731Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.731Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.731Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.731Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.732Z] STDOUT: components/ui/command.tsx 1ms (unchanged) (cached)
-[2025-05-26T18:34:44.732Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.732Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.732Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.732Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.732Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.732Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.732Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.733Z] STDOUT: components/ui/context-menu.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.733Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.733Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.733Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.733Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.733Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.734Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.734Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.734Z] STDOUT: components/ui/dialog.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.734Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.734Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.734Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.734Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.735Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.735Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.735Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.735Z] STDOUT: components/ui/drawer.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.737Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.737Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.737Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.737Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.737Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.737Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.737Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.737Z] STDOUT: components/ui/dropdown-menu.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.738Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.738Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.738Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.738Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.738Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.738Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.738Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.739Z] STDOUT: components/ui/form.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.739Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.739Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.739Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.739Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.739Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.739Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.739Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.740Z] STDOUT: components/ui/hover-card.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.740Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.740Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.740Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.740Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.740Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.740Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.740Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.741Z] STDOUT: components/ui/input-otp.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.741Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.741Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.741Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.741Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.741Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.741Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.741Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.742Z] STDOUT: components/ui/input.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.742Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.742Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.742Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.742Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.742Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.743Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.743Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.743Z] STDOUT: components/ui/label.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.743Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.743Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.743Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.744Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.744Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.744Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.744Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.744Z] STDOUT: components/ui/menubar.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.744Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.745Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.745Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.745Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.745Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.745Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.745Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.745Z] STDOUT: components/ui/navigation-menu.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.746Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.746Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.746Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.746Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.746Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.746Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.746Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.746Z] STDOUT: components/ui/pagination.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.747Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.747Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.747Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.747Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.747Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.747Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.747Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.748Z] STDOUT: components/ui/popover.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.748Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.748Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.748Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.748Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.748Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.748Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.748Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.749Z] STDOUT: components/ui/progress.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.749Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.749Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.749Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.749Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.749Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.749Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.749Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.750Z] STDOUT: components/ui/radio-group.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.750Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.750Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.750Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.750Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.750Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.750Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.750Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.751Z] STDOUT: components/ui/resizable.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.751Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.751Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.751Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.751Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.751Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.751Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.751Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.752Z] STDOUT: components/ui/scroll-area.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.752Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.752Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.752Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.752Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.752Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.752Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.752Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.753Z] STDOUT: components/ui/select.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.753Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.753Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.753Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.753Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.753Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.753Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.753Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.754Z] STDOUT: components/ui/separator.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.754Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.754Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.754Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.754Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.754Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.754Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.754Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.755Z] STDOUT: components/ui/sheet.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.755Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.755Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.755Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.755Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.755Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.756Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.756Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.756Z] STDOUT: components/ui/sidebar.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.757Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.757Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.757Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.757Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.757Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.757Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.757Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.757Z] STDOUT: components/ui/skeleton.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.758Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.758Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.758Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.758Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.758Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.758Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.758Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.758Z] STDOUT: components/ui/slider.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.760Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.760Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.761Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.761Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.762Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.762Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.762Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.769Z] STDOUT: components/ui/sonner.tsx 1ms (unchanged) (cached)
-[2025-05-26T18:34:44.778Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.778Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.778Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.778Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.778Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.779Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.779Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.781Z] STDOUT: components/ui/switch.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.783Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.783Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.784Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.784Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.784Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.784Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.784Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.786Z] STDOUT: components/ui/table.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.788Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.788Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.788Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.789Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.790Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.791Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.791Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.794Z] STDOUT: components/ui/tabs.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.798Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.798Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.798Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.798Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.798Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.800Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.801Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.802Z] STDOUT: components/ui/textarea.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.807Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.807Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.807Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.807Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.807Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.807Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.807Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.810Z] STDOUT: components/ui/toast.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.820Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.820Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.820Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.820Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.820Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.820Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.820Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.822Z] STDOUT: components/ui/toaster.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.825Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.826Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.826Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.827Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.827Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.827Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.827Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.828Z] STDOUT: components/ui/toggle-group.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.832Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.832Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.833Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.833Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.833Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.833Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.833Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.835Z] STDOUT: components/ui/toggle.tsx 1ms (unchanged) (cached)
-[2025-05-26T18:34:44.837Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.838Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.838Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.838Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.838Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.838Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.838Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.840Z] STDOUT: components/ui/tooltip.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.847Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.848Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.848Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.848Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.848Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.848Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.849Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.853Z] STDOUT: components/utilities/organization-provider.tsx 1ms (unchanged) (cached)
-[2025-05-26T18:34:44.857Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.857Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.858Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.858Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.858Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.858Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.858Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.861Z] STDOUT: components/utilities/providers.tsx 1ms (unchanged) (cached)
-[2025-05-26T18:34:44.863Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.864Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.864Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.864Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.864Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.864Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.865Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.866Z] STDOUT: components/utilities/tailwind-indicator.tsx 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.869Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.869Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.869Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.869Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.870Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.870Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.870Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.872Z] STDOUT: components/utilities/theme-switcher.tsx 1ms (unchanged) (cached)
-[2025-05-26T18:34:44.872Z] STDERR: [error] No files matching the pattern were found: "context/**/*.ts".
-[2025-05-26T18:34:44.872Z] STDERR: [error] No files matching the pattern were found: "context/**/*.tsx".
-[2025-05-26T18:34:44.873Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.873Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.873Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.873Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.873Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.873Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.873Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.874Z] STDOUT: types/action-interfaces.ts 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.874Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.874Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.874Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.874Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.875Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.875Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.875Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.875Z] STDOUT: types/index.ts 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.876Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.876Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.876Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.876Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.876Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.876Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.876Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.876Z] STDOUT: types/lead-generation-types.ts 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.877Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.877Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.877Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.877Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.877Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.877Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.877Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.878Z] STDOUT: types/organization-types.ts 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.878Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.878Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.878Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.878Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.878Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.878Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.878Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.879Z] STDOUT: types/profile-types.ts 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.879Z] STDERR: [warn] Ignored unknown option { importOrder: ["^.+\\.scss$", "^.+\\.css$", "^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "<THIRD_PARTY_MODULES>", "", "^types$", "^@/types/(.*)$", "^@/config/(.*)$", "^@/lib/(.*)$", "^@/hooks/(.*)$", "^@/components/ui/(.*)$", "^@/components/(.*)$", "^@/registry/(.*)$", "^@/styles/(.*)$", "^@/app/(.*)$", "", "^[./]"] }.
-[2025-05-26T18:34:44.879Z] STDERR: [warn] Ignored unknown option { importOrderSeparation: false }.
-[2025-05-26T18:34:44.879Z] STDERR: [warn] Ignored unknown option { importOrderSortSpecifiers: true }.
-[2025-05-26T18:34:44.879Z] STDERR: [warn] Ignored unknown option { importOrderBuiltinModulesToTop: true }.
-[2025-05-26T18:34:44.879Z] STDERR: [warn] Ignored unknown option { importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"] }.
-[2025-05-26T18:34:44.879Z] STDERR: [warn] Ignored unknown option { importOrderMergeDuplicateImports: true }.
-[2025-05-26T18:34:44.879Z] STDERR: [warn] Ignored unknown option { importOrderCombineTypeAndValueImports: true }.
-[2025-05-26T18:34:44.880Z] STDOUT: types/server-action-types.ts 0ms (unchanged) (cached)
-[2025-05-26T18:34:44.881Z] STDERR: [error] No files matching the pattern were found: "types/**/*.tsx".
-[2025-05-26T18:34:44.896Z] ==================================================
-[2025-05-26T18:34:44.896Z] COMMAND FINISHED: prettier --write {app,lib,db,components,context,types}/**/*.{ts,tsx} --cache (exit code: 2)
-[2025-05-26T18:34:44.896Z] ==================================================
-[2025-05-26T18:34:44.897Z] ERROR: Command failed with exit code 2
+[2025-05-26T18:52:05.337Z] ================================================================================
+[2025-05-26T18:52:05.337Z] NEW DEV SESSION STARTED: 2025-05-26T18:52:05.337Z
+[2025-05-26T18:52:05.337Z] ================================================================================
+[2025-05-26T18:52:05.338Z] STEP: Killing processes on port 3000
+[2025-05-26T18:52:05.384Z] ✅ Killed process 56749 on port 3000
+[2025-05-26T18:52:05.385Z] ✅ Killed process 56785 on port 3000
+[2025-05-26T18:52:05.531Z] NEXTJS_CLOSE: Next.js dev server stopped with exit code: 0
+[2025-05-26T18:52:05.883Z] STEP: Starting Next.js development server
+[2025-05-26T18:52:06.801Z] NEXTJS_STDOUT: ▲ Next.js 15.3.2
+[2025-05-26T18:52:06.801Z] NEXTJS_STDOUT: - Local:        http://localhost:3000
+[2025-05-26T18:52:06.801Z] NEXTJS_STDOUT: - Network:      http://100.110.212.88:3000
+[2025-05-26T18:52:06.801Z] NEXTJS_STDOUT: - Environments: .env.local
+[2025-05-26T18:52:06.801Z] NEXTJS_STDOUT: ✓ Starting...
+[2025-05-26T18:52:07.887Z] NEXTJS_STDOUT: ✓ Ready in 1158ms
+[2025-05-26T18:52:24.569Z] NEXTJS_STDOUT: ✓ Compiled /middleware in 189ms (269 modules)
+[2025-05-26T18:52:24.818Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/knowledge-base
+[2025-05-26T18:52:24.818Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/knowledge-base
+[2025-05-26T18:52:24.818Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth userId: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:52:24.818Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Is protected route: true
+[2025-05-26T18:52:25.331Z] NEXTJS_STDOUT: ○ Compiling /reddit/knowledge-base ...
+[2025-05-26T18:52:25.597Z] NEXTJS_STDERR: <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (121kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+[2025-05-26T18:52:27.779Z] NEXTJS_STDOUT: ✓ Compiled /reddit/knowledge-base in 3s (2184 modules)
+[2025-05-26T18:52:28.179Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Action called
+[2025-05-26T18:52:28.179Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Input data: {
+[2025-05-26T18:52:28.179Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy"
+[2025-05-26T18:52:28.179Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:28.179Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Input data keys: [ 'userId' ]
+[2025-05-26T18:52:28.179Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] User ID: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:52:28.179Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Created Firestore document reference
+[2025-05-26T18:52:28.180Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Collection: profiles
+[2025-05-26T18:52:28.180Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Document path: profiles/user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:52:28.180Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw profile data before filtering: {
+[2025-05-26T18:52:28.180Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:52:28.180Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:52:28.180Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-26T18:52:28.180Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-26T18:52:28.180Z] NEXTJS_STDOUT: },
+[2025-05-26T18:52:28.180Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-26T18:52:28.180Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-26T18:52:28.180Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:28.180Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:28.180Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw profile data keys: [
+[2025-05-26T18:52:28.180Z] NEXTJS_STDOUT: 'userId',
+[2025-05-26T18:52:28.180Z] NEXTJS_STDOUT: 'membership',
+[2025-05-26T18:52:28.180Z] NEXTJS_STDOUT: 'stripeCustomerId',
+[2025-05-26T18:52:28.180Z] NEXTJS_STDOUT: 'stripeSubscriptionId',
+[2025-05-26T18:52:28.180Z] NEXTJS_STDOUT: 'createdAt',
+[2025-05-26T18:52:28.180Z] NEXTJS_STDOUT: 'updatedAt'
+[2025-05-26T18:52:28.180Z] NEXTJS_STDOUT: ]
+[2025-05-26T18:52:28.181Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] serverTimestamp() type: object
+[2025-05-26T18:52:28.181Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Profile data after filtering undefined values: {
+[2025-05-26T18:52:28.181Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:52:28.181Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:52:28.181Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-26T18:52:28.181Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-26T18:52:28.181Z] NEXTJS_STDOUT: },
+[2025-05-26T18:52:28.181Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-26T18:52:28.181Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-26T18:52:28.181Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:28.181Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:28.181Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Filtered profile data keys: [ 'userId', 'membership', 'createdAt', 'updatedAt' ]
+[2025-05-26T18:52:28.181Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Writing to Firestore...
+[2025-05-26T18:52:28.342Z] NEXTJS_STDOUT: ✓ Compiled in 161ms (662 modules)
+[2025-05-26T18:52:28.495Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Successfully wrote to Firestore
+[2025-05-26T18:52:28.495Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Reading back created document...
+[2025-05-26T18:52:28.621Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Document exists: true
+[2025-05-26T18:52:28.621Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Document id: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:52:28.621Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw data from Firestore: {
+[2025-05-26T18:52:28.622Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:52:28.622Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:52:28.622Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-26T18:52:28.622Z] NEXTJS_STDOUT: "seconds": 1748285548,
+[2025-05-26T18:52:28.622Z] NEXTJS_STDOUT: "nanoseconds": 459000000
+[2025-05-26T18:52:28.623Z] NEXTJS_STDOUT: },
+[2025-05-26T18:52:28.623Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-26T18:52:28.623Z] NEXTJS_STDOUT: "seconds": 1748285548,
+[2025-05-26T18:52:28.623Z] NEXTJS_STDOUT: "nanoseconds": 459000000
+[2025-05-26T18:52:28.623Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:28.624Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:28.624Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw data keys: [ 'userId', 'membership', 'createdAt', 'updatedAt' ]
+[2025-05-26T18:52:28.624Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw createdAt from Firestore: Timestamp { seconds: 1748285548, nanoseconds: 459000000 }
+[2025-05-26T18:52:28.625Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw updatedAt from Firestore: Timestamp { seconds: 1748285548, nanoseconds: 459000000 }
+[2025-05-26T18:52:28.625Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Casting to ProfileDocument
+[2025-05-26T18:52:28.625Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] ProfileDocument createdAt: Timestamp { seconds: 1748285548, nanoseconds: 459000000 }
+[2025-05-26T18:52:28.625Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] ProfileDocument updatedAt: Timestamp { seconds: 1748285548, nanoseconds: 459000000 }
+[2025-05-26T18:52:28.625Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Starting serialization...
+[2025-05-26T18:52:28.626Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Starting serialization
+[2025-05-26T18:52:28.626Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Input profile keys: [ 'userId', 'membership', 'createdAt', 'updatedAt' ]
+[2025-05-26T18:52:28.626Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Raw profile data: {
+[2025-05-26T18:52:28.626Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:52:28.627Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:52:28.627Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-26T18:52:28.627Z] NEXTJS_STDOUT: "seconds": 1748285548,
+[2025-05-26T18:52:28.627Z] NEXTJS_STDOUT: "nanoseconds": 459000000
+[2025-05-26T18:52:28.627Z] NEXTJS_STDOUT: },
+[2025-05-26T18:52:28.627Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-26T18:52:28.627Z] NEXTJS_STDOUT: "seconds": 1748285548,
+[2025-05-26T18:52:28.627Z] NEXTJS_STDOUT: "nanoseconds": 459000000
+[2025-05-26T18:52:28.627Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:28.628Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:28.628Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt type: object
+[2025-05-26T18:52:28.628Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt instanceof Timestamp: true
+[2025-05-26T18:52:28.628Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt value: Timestamp { seconds: 1748285548, nanoseconds: 459000000 }
+[2025-05-26T18:52:28.628Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt type: object
+[2025-05-26T18:52:28.628Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt instanceof Timestamp: true
+[2025-05-26T18:52:28.628Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt value: Timestamp { seconds: 1748285548, nanoseconds: 459000000 }
+[2025-05-26T18:52:28.628Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized profile: {
+[2025-05-26T18:52:28.628Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:52:28.629Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:52:28.629Z] NEXTJS_STDOUT: "createdAt": "2025-05-26T18:52:28.459Z",
+[2025-05-26T18:52:28.629Z] NEXTJS_STDOUT: "updatedAt": "2025-05-26T18:52:28.459Z"
+[2025-05-26T18:52:28.629Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:28.629Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized createdAt: 2025-05-26T18:52:28.459Z
+[2025-05-26T18:52:28.629Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized updatedAt: 2025-05-26T18:52:28.459Z
+[2025-05-26T18:52:28.629Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialization complete
+[2025-05-26T18:52:28.629Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Final result: {
+[2025-05-26T18:52:28.629Z] NEXTJS_STDOUT: "isSuccess": true,
+[2025-05-26T18:52:28.630Z] NEXTJS_STDOUT: "message": "Profile created successfully",
+[2025-05-26T18:52:28.630Z] NEXTJS_STDOUT: "data": {
+[2025-05-26T18:52:28.630Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:52:28.630Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:52:28.630Z] NEXTJS_STDOUT: "createdAt": "2025-05-26T18:52:28.459Z",
+[2025-05-26T18:52:28.630Z] NEXTJS_STDOUT: "updatedAt": "2025-05-26T18:52:28.459Z"
+[2025-05-26T18:52:28.630Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:28.630Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:28.630Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Action completed successfully
+[2025-05-26T18:52:28.734Z] NEXTJS_STDOUT: 🍞 [REDDIT-HEADER] Current pathname: /reddit/knowledge-base
+[2025-05-26T18:52:28.735Z] NEXTJS_STDOUT: 🍞 [REDDIT-HEADER] Generating breadcrumbs for: /reddit/knowledge-base
+[2025-05-26T18:52:28.735Z] NEXTJS_STDOUT: 🍞 [REDDIT-HEADER] Generated breadcrumbs: [
+[2025-05-26T18:52:28.735Z] NEXTJS_STDOUT: { label: 'Dashboard', href: '/dashboard', isActive: false },
+[2025-05-26T18:52:28.735Z] NEXTJS_STDOUT: { label: 'Reddit', href: '/reddit', isActive: true }
+[2025-05-26T18:52:28.735Z] NEXTJS_STDOUT: ]
+[2025-05-26T18:52:28.765Z] NEXTJS_STDOUT: GET /reddit/knowledge-base 200 in 3945ms
+[2025-05-26T18:52:28.849Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/.well-known/appspecific/com.chrome.devtools.json
+[2025-05-26T18:52:28.849Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /.well-known/appspecific/com.chrome.devtools.json
+[2025-05-26T18:52:28.849Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth userId: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:52:28.850Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Is protected route: false
+[2025-05-26T18:52:29.366Z] NEXTJS_STDOUT: ○ Compiling /_not-found ...
+[2025-05-26T18:52:29.553Z] NEXTJS_STDOUT: ✓ Compiled /_not-found in 690ms (2176 modules)
+[2025-05-26T18:52:29.676Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Action called
+[2025-05-26T18:52:29.677Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Input data: {
+[2025-05-26T18:52:29.677Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy"
+[2025-05-26T18:52:29.677Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:29.677Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Input data keys: [ 'userId' ]
+[2025-05-26T18:52:29.677Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] User ID: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:52:29.677Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Created Firestore document reference
+[2025-05-26T18:52:29.677Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Collection: profiles
+[2025-05-26T18:52:29.677Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Document path: profiles/user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:52:29.677Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw profile data before filtering: {
+[2025-05-26T18:52:29.677Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:52:29.677Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:52:29.677Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-26T18:52:29.677Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-26T18:52:29.677Z] NEXTJS_STDOUT: },
+[2025-05-26T18:52:29.677Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-26T18:52:29.677Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-26T18:52:29.677Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:29.677Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:29.678Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw profile data keys: [
+[2025-05-26T18:52:29.678Z] NEXTJS_STDOUT: 'userId',
+[2025-05-26T18:52:29.678Z] NEXTJS_STDOUT: 'membership',
+[2025-05-26T18:52:29.678Z] NEXTJS_STDOUT: 'stripeCustomerId',
+[2025-05-26T18:52:29.678Z] NEXTJS_STDOUT: 'stripeSubscriptionId',
+[2025-05-26T18:52:29.678Z] NEXTJS_STDOUT: 'createdAt',
+[2025-05-26T18:52:29.678Z] NEXTJS_STDOUT: 'updatedAt'
+[2025-05-26T18:52:29.678Z] NEXTJS_STDOUT: ]
+[2025-05-26T18:52:29.678Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] serverTimestamp() type: object
+[2025-05-26T18:52:29.678Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Profile data after filtering undefined values: {
+[2025-05-26T18:52:29.678Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:52:29.678Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:52:29.678Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-26T18:52:29.678Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-26T18:52:29.678Z] NEXTJS_STDOUT: },
+[2025-05-26T18:52:29.678Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-26T18:52:29.678Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-26T18:52:29.678Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:29.678Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:29.678Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Filtered profile data keys: [ 'userId', 'membership', 'createdAt', 'updatedAt' ]
+[2025-05-26T18:52:29.678Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Writing to Firestore...
+[2025-05-26T18:52:29.876Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Successfully wrote to Firestore
+[2025-05-26T18:52:29.876Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Reading back created document...
+[2025-05-26T18:52:30.061Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Document exists: true
+[2025-05-26T18:52:30.061Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Document id: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:52:30.061Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw data from Firestore: {
+[2025-05-26T18:52:30.061Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:52:30.061Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:52:30.062Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-26T18:52:30.062Z] NEXTJS_STDOUT: "seconds": 1748285549,
+[2025-05-26T18:52:30.065Z] NEXTJS_STDOUT: "nanoseconds": 842000000
+[2025-05-26T18:52:30.065Z] NEXTJS_STDOUT: },
+[2025-05-26T18:52:30.065Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-26T18:52:30.065Z] NEXTJS_STDOUT: "seconds": 1748285549,
+[2025-05-26T18:52:30.065Z] NEXTJS_STDOUT: "nanoseconds": 842000000
+[2025-05-26T18:52:30.065Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:30.066Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:30.066Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw data keys: [ 'userId', 'membership', 'createdAt', 'updatedAt' ]
+[2025-05-26T18:52:30.066Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw createdAt from Firestore: Timestamp { seconds: 1748285549, nanoseconds: 842000000 }
+[2025-05-26T18:52:30.066Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw updatedAt from Firestore: Timestamp { seconds: 1748285549, nanoseconds: 842000000 }
+[2025-05-26T18:52:30.066Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Casting to ProfileDocument
+[2025-05-26T18:52:30.066Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] ProfileDocument createdAt: Timestamp { seconds: 1748285549, nanoseconds: 842000000 }
+[2025-05-26T18:52:30.066Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] ProfileDocument updatedAt: Timestamp { seconds: 1748285549, nanoseconds: 842000000 }
+[2025-05-26T18:52:30.066Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Starting serialization...
+[2025-05-26T18:52:30.067Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Starting serialization
+[2025-05-26T18:52:30.067Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Input profile keys: [ 'userId', 'membership', 'createdAt', 'updatedAt' ]
+[2025-05-26T18:52:30.067Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Raw profile data: {
+[2025-05-26T18:52:30.067Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:52:30.067Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:52:30.067Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-26T18:52:30.067Z] NEXTJS_STDOUT: "seconds": 1748285549,
+[2025-05-26T18:52:30.067Z] NEXTJS_STDOUT: "nanoseconds": 842000000
+[2025-05-26T18:52:30.067Z] NEXTJS_STDOUT: },
+[2025-05-26T18:52:30.067Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-26T18:52:30.067Z] NEXTJS_STDOUT: "seconds": 1748285549,
+[2025-05-26T18:52:30.067Z] NEXTJS_STDOUT: "nanoseconds": 842000000
+[2025-05-26T18:52:30.067Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:30.067Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:30.067Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt type: object
+[2025-05-26T18:52:30.067Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt instanceof Timestamp: true
+[2025-05-26T18:52:30.067Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt value: Timestamp { seconds: 1748285549, nanoseconds: 842000000 }
+[2025-05-26T18:52:30.068Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt type: object
+[2025-05-26T18:52:30.068Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt instanceof Timestamp: true
+[2025-05-26T18:52:30.068Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt value: Timestamp { seconds: 1748285549, nanoseconds: 842000000 }
+[2025-05-26T18:52:30.068Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized profile: {
+[2025-05-26T18:52:30.068Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:52:30.068Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:52:30.068Z] NEXTJS_STDOUT: "createdAt": "2025-05-26T18:52:29.842Z",
+[2025-05-26T18:52:30.068Z] NEXTJS_STDOUT: "updatedAt": "2025-05-26T18:52:29.842Z"
+[2025-05-26T18:52:30.068Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:30.068Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized createdAt: 2025-05-26T18:52:29.842Z
+[2025-05-26T18:52:30.068Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized updatedAt: 2025-05-26T18:52:29.842Z
+[2025-05-26T18:52:30.068Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialization complete
+[2025-05-26T18:52:30.068Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Final result: {
+[2025-05-26T18:52:30.068Z] NEXTJS_STDOUT: "isSuccess": true,
+[2025-05-26T18:52:30.068Z] NEXTJS_STDOUT: "message": "Profile created successfully",
+[2025-05-26T18:52:30.068Z] NEXTJS_STDOUT: "data": {
+[2025-05-26T18:52:30.068Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:52:30.069Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:52:30.069Z] NEXTJS_STDOUT: "createdAt": "2025-05-26T18:52:29.842Z",
+[2025-05-26T18:52:30.069Z] NEXTJS_STDOUT: "updatedAt": "2025-05-26T18:52:29.842Z"
+[2025-05-26T18:52:30.069Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:30.069Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:30.069Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Action completed successfully
+[2025-05-26T18:52:30.154Z] NEXTJS_STDOUT: GET /.well-known/appspecific/com.chrome.devtools.json 404 in 1295ms
+[2025-05-26T18:52:30.195Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/knowledge-base
+[2025-05-26T18:52:30.195Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/knowledge-base
+[2025-05-26T18:52:30.195Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth userId: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:52:30.195Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Is protected route: true
+[2025-05-26T18:52:30.514Z] NEXTJS_STDOUT: ○ Compiling /icon.png ...
+[2025-05-26T18:52:30.644Z] NEXTJS_STDOUT: ✓ Compiled /icon.png in 630ms (1529 modules)
+[2025-05-26T18:52:30.915Z] NEXTJS_STDOUT: GET /icon.png?6cfa51926824cb4f 200 in 935ms
+[2025-05-26T18:52:31.124Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] ========== ACTION START ==========
+[2025-05-26T18:52:31.124Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] Timestamp: 2025-05-26T18:52:31.123Z
+[2025-05-26T18:52:31.124Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] User ID: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:52:31.127Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] Fetching organization memberships...
+[2025-05-26T18:52:31.184Z] NEXTJS_STDOUT: GET /icon.png?6cfa51926824cb4f 200 in 60ms
+[2025-05-26T18:52:31.364Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] Found memberships: 2
+[2025-05-26T18:52:31.364Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] Organization IDs: [ 'PH1HuLm3o00D4wvoZ2lr', 'k0V9nQJ6BPAO9gVkdaOR' ]
+[2025-05-26T18:52:31.423Z] NEXTJS_STDOUT: 🏢 [SERIALIZE-ORG] Starting serialization
+[2025-05-26T18:52:31.515Z] NEXTJS_STDOUT: 🏢 [SERIALIZE-ORG] Starting serialization
+[2025-05-26T18:52:31.515Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] Total organizations found: 2
+[2025-05-26T18:52:31.515Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] ✅ Organizations retrieved successfully
+[2025-05-26T18:52:31.515Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] ========== ACTION END (SUCCESS) ==========
+[2025-05-26T18:52:31.518Z] NEXTJS_STDOUT: POST /reddit/knowledge-base 200 in 1321ms
+[2025-05-26T18:52:31.553Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/knowledge-base
+[2025-05-26T18:52:31.553Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/knowledge-base
+[2025-05-26T18:52:31.553Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth userId: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:52:31.553Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Is protected route: true
+[2025-05-26T18:52:31.557Z] NEXTJS_STDOUT: 🔥 [KNOWLEDGE-BASE] Starting getKnowledgeBaseByOrganizationIdAction
+[2025-05-26T18:52:31.557Z] NEXTJS_STDOUT: 🔥 [KNOWLEDGE-BASE] Organization ID: PH1HuLm3o00D4wvoZ2lr
+[2025-05-26T18:52:31.633Z] NEXTJS_STDOUT: 🔥 [KNOWLEDGE-BASE] No knowledge base found for organization
+[2025-05-26T18:52:31.635Z] NEXTJS_STDOUT: POST /reddit/knowledge-base 200 in 81ms
+[2025-05-26T18:52:33.086Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/voice-settings
+[2025-05-26T18:52:33.086Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/voice-settings
+[2025-05-26T18:52:33.086Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth userId: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:52:33.086Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Is protected route: true
+[2025-05-26T18:52:33.589Z] NEXTJS_STDOUT: ○ Compiling /reddit/voice-settings ...
+[2025-05-26T18:52:34.147Z] NEXTJS_STDOUT: ✓ Compiled /reddit/voice-settings in 1058ms (2260 modules)
+[2025-05-26T18:52:34.350Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Action called
+[2025-05-26T18:52:34.350Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Input data: {
+[2025-05-26T18:52:34.351Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy"
+[2025-05-26T18:52:34.351Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:34.351Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Input data keys: [ 'userId' ]
+[2025-05-26T18:52:34.351Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] User ID: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:52:34.351Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Created Firestore document reference
+[2025-05-26T18:52:34.351Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Collection: profiles
+[2025-05-26T18:52:34.351Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Document path: profiles/user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:52:34.351Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw profile data before filtering: {
+[2025-05-26T18:52:34.351Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:52:34.351Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:52:34.351Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-26T18:52:34.351Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-26T18:52:34.351Z] NEXTJS_STDOUT: },
+[2025-05-26T18:52:34.351Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-26T18:52:34.351Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-26T18:52:34.351Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:34.351Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:34.351Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw profile data keys: [
+[2025-05-26T18:52:34.352Z] NEXTJS_STDOUT: 'userId',
+[2025-05-26T18:52:34.352Z] NEXTJS_STDOUT: 'membership',
+[2025-05-26T18:52:34.352Z] NEXTJS_STDOUT: 'stripeCustomerId',
+[2025-05-26T18:52:34.352Z] NEXTJS_STDOUT: 'stripeSubscriptionId',
+[2025-05-26T18:52:34.352Z] NEXTJS_STDOUT: 'createdAt',
+[2025-05-26T18:52:34.352Z] NEXTJS_STDOUT: 'updatedAt'
+[2025-05-26T18:52:34.352Z] NEXTJS_STDOUT: ]
+[2025-05-26T18:52:34.352Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] serverTimestamp() type: object
+[2025-05-26T18:52:34.352Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Profile data after filtering undefined values: {
+[2025-05-26T18:52:34.352Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:52:34.352Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:52:34.352Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-26T18:52:34.352Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-26T18:52:34.352Z] NEXTJS_STDOUT: },
+[2025-05-26T18:52:34.352Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-26T18:52:34.352Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-26T18:52:34.352Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:34.352Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:34.352Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Filtered profile data keys: [ 'userId', 'membership', 'createdAt', 'updatedAt' ]
+[2025-05-26T18:52:34.352Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Writing to Firestore...
+[2025-05-26T18:52:34.531Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Successfully wrote to Firestore
+[2025-05-26T18:52:34.531Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Reading back created document...
+[2025-05-26T18:52:34.688Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Document exists: true
+[2025-05-26T18:52:34.689Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Document id: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:52:34.689Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw data from Firestore: {
+[2025-05-26T18:52:34.689Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:52:34.689Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:52:34.689Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-26T18:52:34.689Z] NEXTJS_STDOUT: "seconds": 1748285554,
+[2025-05-26T18:52:34.689Z] NEXTJS_STDOUT: "nanoseconds": 505000000
+[2025-05-26T18:52:34.689Z] NEXTJS_STDOUT: },
+[2025-05-26T18:52:34.689Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-26T18:52:34.689Z] NEXTJS_STDOUT: "seconds": 1748285554,
+[2025-05-26T18:52:34.689Z] NEXTJS_STDOUT: "nanoseconds": 505000000
+[2025-05-26T18:52:34.689Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:34.689Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:34.689Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw data keys: [ 'userId', 'membership', 'createdAt', 'updatedAt' ]
+[2025-05-26T18:52:34.690Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw createdAt from Firestore: Timestamp { seconds: 1748285554, nanoseconds: 505000000 }
+[2025-05-26T18:52:34.690Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw updatedAt from Firestore: Timestamp { seconds: 1748285554, nanoseconds: 505000000 }
+[2025-05-26T18:52:34.690Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Casting to ProfileDocument
+[2025-05-26T18:52:34.690Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] ProfileDocument createdAt: Timestamp { seconds: 1748285554, nanoseconds: 505000000 }
+[2025-05-26T18:52:34.690Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] ProfileDocument updatedAt: Timestamp { seconds: 1748285554, nanoseconds: 505000000 }
+[2025-05-26T18:52:34.690Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Starting serialization...
+[2025-05-26T18:52:34.690Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Starting serialization
+[2025-05-26T18:52:34.690Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Input profile keys: [ 'userId', 'membership', 'createdAt', 'updatedAt' ]
+[2025-05-26T18:52:34.690Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Raw profile data: {
+[2025-05-26T18:52:34.690Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:52:34.690Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:52:34.690Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-26T18:52:34.690Z] NEXTJS_STDOUT: "seconds": 1748285554,
+[2025-05-26T18:52:34.690Z] NEXTJS_STDOUT: "nanoseconds": 505000000
+[2025-05-26T18:52:34.690Z] NEXTJS_STDOUT: },
+[2025-05-26T18:52:34.690Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-26T18:52:34.690Z] NEXTJS_STDOUT: "seconds": 1748285554,
+[2025-05-26T18:52:34.690Z] NEXTJS_STDOUT: "nanoseconds": 505000000
+[2025-05-26T18:52:34.690Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:34.690Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:34.690Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt type: object
+[2025-05-26T18:52:34.690Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt instanceof Timestamp: true
+[2025-05-26T18:52:34.690Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt value: Timestamp { seconds: 1748285554, nanoseconds: 505000000 }
+[2025-05-26T18:52:34.691Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt type: object
+[2025-05-26T18:52:34.691Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt instanceof Timestamp: true
+[2025-05-26T18:52:34.691Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt value: Timestamp { seconds: 1748285554, nanoseconds: 505000000 }
+[2025-05-26T18:52:34.691Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized profile: {
+[2025-05-26T18:52:34.692Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:52:34.692Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:52:34.693Z] NEXTJS_STDOUT: "createdAt": "2025-05-26T18:52:34.505Z",
+[2025-05-26T18:52:34.694Z] NEXTJS_STDOUT: "updatedAt": "2025-05-26T18:52:34.505Z"
+[2025-05-26T18:52:34.694Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:34.694Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized createdAt: 2025-05-26T18:52:34.505Z
+[2025-05-26T18:52:34.694Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized updatedAt: 2025-05-26T18:52:34.505Z
+[2025-05-26T18:52:34.694Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialization complete
+[2025-05-26T18:52:34.695Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Final result: {
+[2025-05-26T18:52:34.695Z] NEXTJS_STDOUT: "isSuccess": true,
+[2025-05-26T18:52:34.696Z] NEXTJS_STDOUT: "message": "Profile created successfully",
+[2025-05-26T18:52:34.697Z] NEXTJS_STDOUT: "data": {
+[2025-05-26T18:52:34.698Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:52:34.699Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:52:34.699Z] NEXTJS_STDOUT: "createdAt": "2025-05-26T18:52:34.505Z",
+[2025-05-26T18:52:34.699Z] NEXTJS_STDOUT: "updatedAt": "2025-05-26T18:52:34.505Z"
+[2025-05-26T18:52:34.699Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:34.699Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:34.699Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Action completed successfully
+[2025-05-26T18:52:34.922Z] NEXTJS_STDOUT: 🍞 [REDDIT-HEADER] Current pathname: /reddit/voice-settings
+[2025-05-26T18:52:34.922Z] NEXTJS_STDOUT: 🍞 [REDDIT-HEADER] Generating breadcrumbs for: /reddit/voice-settings
+[2025-05-26T18:52:34.922Z] NEXTJS_STDOUT: 🍞 [REDDIT-HEADER] Generated breadcrumbs: [
+[2025-05-26T18:52:34.922Z] NEXTJS_STDOUT: { label: 'Dashboard', href: '/dashboard', isActive: false },
+[2025-05-26T18:52:34.922Z] NEXTJS_STDOUT: { label: 'Reddit', href: '/reddit', isActive: true }
+[2025-05-26T18:52:34.922Z] NEXTJS_STDOUT: ]
+[2025-05-26T18:52:34.969Z] NEXTJS_STDOUT: GET /reddit/voice-settings 200 in 1882ms
+[2025-05-26T18:52:35.001Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/.well-known/appspecific/com.chrome.devtools.json
+[2025-05-26T18:52:35.001Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /.well-known/appspecific/com.chrome.devtools.json
+[2025-05-26T18:52:35.001Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth userId: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:52:35.001Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Is protected route: false
+[2025-05-26T18:52:35.026Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Action called
+[2025-05-26T18:52:35.026Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Input data: {
+[2025-05-26T18:52:35.026Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy"
+[2025-05-26T18:52:35.027Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:35.027Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Input data keys: [ 'userId' ]
+[2025-05-26T18:52:35.027Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] User ID: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:52:35.027Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Created Firestore document reference
+[2025-05-26T18:52:35.027Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Collection: profiles
+[2025-05-26T18:52:35.027Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Document path: profiles/user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:52:35.027Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw profile data before filtering: {
+[2025-05-26T18:52:35.027Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:52:35.027Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:52:35.027Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-26T18:52:35.027Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-26T18:52:35.027Z] NEXTJS_STDOUT: },
+[2025-05-26T18:52:35.028Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-26T18:52:35.028Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-26T18:52:35.028Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:35.028Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:35.028Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw profile data keys: [
+[2025-05-26T18:52:35.028Z] NEXTJS_STDOUT: 'userId',
+[2025-05-26T18:52:35.028Z] NEXTJS_STDOUT: 'membership',
+[2025-05-26T18:52:35.028Z] NEXTJS_STDOUT: 'stripeCustomerId',
+[2025-05-26T18:52:35.028Z] NEXTJS_STDOUT: 'stripeSubscriptionId',
+[2025-05-26T18:52:35.028Z] NEXTJS_STDOUT: 'createdAt',
+[2025-05-26T18:52:35.028Z] NEXTJS_STDOUT: 'updatedAt'
+[2025-05-26T18:52:35.028Z] NEXTJS_STDOUT: ]
+[2025-05-26T18:52:35.028Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] serverTimestamp() type: object
+[2025-05-26T18:52:35.028Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Profile data after filtering undefined values: {
+[2025-05-26T18:52:35.028Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:52:35.028Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:52:35.028Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-26T18:52:35.028Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-26T18:52:35.028Z] NEXTJS_STDOUT: },
+[2025-05-26T18:52:35.028Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-26T18:52:35.028Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-26T18:52:35.028Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:35.028Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:35.029Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Filtered profile data keys: [ 'userId', 'membership', 'createdAt', 'updatedAt' ]
+[2025-05-26T18:52:35.029Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Writing to Firestore...
+[2025-05-26T18:52:35.093Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Successfully wrote to Firestore
+[2025-05-26T18:52:35.093Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Reading back created document...
+[2025-05-26T18:52:35.200Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Document exists: true
+[2025-05-26T18:52:35.200Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Document id: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:52:35.200Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw data from Firestore: {
+[2025-05-26T18:52:35.200Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:52:35.200Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:52:35.200Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-26T18:52:35.200Z] NEXTJS_STDOUT: "seconds": 1748285555,
+[2025-05-26T18:52:35.200Z] NEXTJS_STDOUT: "nanoseconds": 76000000
+[2025-05-26T18:52:35.200Z] NEXTJS_STDOUT: },
+[2025-05-26T18:52:35.200Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-26T18:52:35.200Z] NEXTJS_STDOUT: "seconds": 1748285555,
+[2025-05-26T18:52:35.200Z] NEXTJS_STDOUT: "nanoseconds": 76000000
+[2025-05-26T18:52:35.200Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:35.200Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:35.200Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw data keys: [ 'userId', 'membership', 'createdAt', 'updatedAt' ]
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw createdAt from Firestore: Timestamp { seconds: 1748285555, nanoseconds: 76000000 }
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw updatedAt from Firestore: Timestamp { seconds: 1748285555, nanoseconds: 76000000 }
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Casting to ProfileDocument
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] ProfileDocument createdAt: Timestamp { seconds: 1748285555, nanoseconds: 76000000 }
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] ProfileDocument updatedAt: Timestamp { seconds: 1748285555, nanoseconds: 76000000 }
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Starting serialization...
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Starting serialization
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Input profile keys: [ 'userId', 'membership', 'createdAt', 'updatedAt' ]
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Raw profile data: {
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: "seconds": 1748285555,
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: "nanoseconds": 76000000
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: },
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: "seconds": 1748285555,
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: "nanoseconds": 76000000
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt type: object
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt instanceof Timestamp: true
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt value: Timestamp { seconds: 1748285555, nanoseconds: 76000000 }
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt type: object
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt instanceof Timestamp: true
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt value: Timestamp { seconds: 1748285555, nanoseconds: 76000000 }
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized profile: {
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: "createdAt": "2025-05-26T18:52:35.076Z",
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: "updatedAt": "2025-05-26T18:52:35.076Z"
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:35.201Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized createdAt: 2025-05-26T18:52:35.076Z
+[2025-05-26T18:52:35.202Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized updatedAt: 2025-05-26T18:52:35.076Z
+[2025-05-26T18:52:35.202Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialization complete
+[2025-05-26T18:52:35.202Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Final result: {
+[2025-05-26T18:52:35.202Z] NEXTJS_STDOUT: "isSuccess": true,
+[2025-05-26T18:52:35.202Z] NEXTJS_STDOUT: "message": "Profile created successfully",
+[2025-05-26T18:52:35.202Z] NEXTJS_STDOUT: "data": {
+[2025-05-26T18:52:35.202Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:52:35.202Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:52:35.202Z] NEXTJS_STDOUT: "createdAt": "2025-05-26T18:52:35.076Z",
+[2025-05-26T18:52:35.202Z] NEXTJS_STDOUT: "updatedAt": "2025-05-26T18:52:35.076Z"
+[2025-05-26T18:52:35.202Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:35.202Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:35.202Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Action completed successfully
+[2025-05-26T18:52:35.213Z] NEXTJS_STDOUT: GET /.well-known/appspecific/com.chrome.devtools.json 404 in 205ms
+[2025-05-26T18:52:35.670Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/voice-settings
+[2025-05-26T18:52:35.670Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/voice-settings
+[2025-05-26T18:52:35.670Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth userId: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:52:35.670Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Is protected route: true
+[2025-05-26T18:52:35.881Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] ========== ACTION START ==========
+[2025-05-26T18:52:35.881Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] Timestamp: 2025-05-26T18:52:35.881Z
+[2025-05-26T18:52:35.882Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] User ID: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:52:35.886Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] Fetching organization memberships...
+[2025-05-26T18:52:36.106Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] Found memberships: 2
+[2025-05-26T18:52:36.106Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] Organization IDs: [ 'PH1HuLm3o00D4wvoZ2lr', 'k0V9nQJ6BPAO9gVkdaOR' ]
+[2025-05-26T18:52:36.168Z] NEXTJS_STDOUT: 🏢 [SERIALIZE-ORG] Starting serialization
+[2025-05-26T18:52:36.238Z] NEXTJS_STDOUT: 🏢 [SERIALIZE-ORG] Starting serialization
+[2025-05-26T18:52:36.239Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] Total organizations found: 2
+[2025-05-26T18:52:36.239Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] ✅ Organizations retrieved successfully
+[2025-05-26T18:52:36.239Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] ========== ACTION END (SUCCESS) ==========
+[2025-05-26T18:52:36.242Z] NEXTJS_STDOUT: POST /reddit/voice-settings 200 in 571ms
+[2025-05-26T18:52:36.316Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/voice-settings
+[2025-05-26T18:52:36.317Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/voice-settings
+[2025-05-26T18:52:36.317Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth userId: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:52:36.317Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Is protected route: true
+[2025-05-26T18:52:36.339Z] NEXTJS_STDOUT: 🔥 [VOICE-SETTINGS] Starting getVoiceSettingsByOrganizationIdAction
+[2025-05-26T18:52:36.339Z] NEXTJS_STDOUT: 🔥 [VOICE-SETTINGS] Organization ID: PH1HuLm3o00D4wvoZ2lr
+[2025-05-26T18:52:36.409Z] NEXTJS_STDOUT: 🔥 [VOICE-SETTINGS] No voice settings found for organization
+[2025-05-26T18:52:36.412Z] NEXTJS_STDOUT: POST /reddit/voice-settings 200 in 92ms
+[2025-05-26T18:52:48.999Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/voice-settings
+[2025-05-26T18:52:49.000Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/voice-settings
+[2025-05-26T18:52:49.000Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth userId: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:52:49.000Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Is protected route: true
+[2025-05-26T18:52:49.019Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Action called
+[2025-05-26T18:52:49.019Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Input data: {
+[2025-05-26T18:52:49.019Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy"
+[2025-05-26T18:52:49.019Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:49.019Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Input data keys: [ 'userId' ]
+[2025-05-26T18:52:49.019Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] User ID: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:52:49.019Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Created Firestore document reference
+[2025-05-26T18:52:49.019Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Collection: profiles
+[2025-05-26T18:52:49.019Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Document path: profiles/user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:52:49.019Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw profile data before filtering: {
+[2025-05-26T18:52:49.019Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:52:49.019Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:52:49.019Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-26T18:52:49.019Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-26T18:52:49.019Z] NEXTJS_STDOUT: },
+[2025-05-26T18:52:49.019Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-26T18:52:49.019Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-26T18:52:49.019Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:49.019Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:49.019Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw profile data keys: [
+[2025-05-26T18:52:49.019Z] NEXTJS_STDOUT: 'userId',
+[2025-05-26T18:52:49.019Z] NEXTJS_STDOUT: 'membership',
+[2025-05-26T18:52:49.019Z] NEXTJS_STDOUT: 'stripeCustomerId',
+[2025-05-26T18:52:49.020Z] NEXTJS_STDOUT: 'stripeSubscriptionId',
+[2025-05-26T18:52:49.020Z] NEXTJS_STDOUT: 'createdAt',
+[2025-05-26T18:52:49.020Z] NEXTJS_STDOUT: 'updatedAt'
+[2025-05-26T18:52:49.020Z] NEXTJS_STDOUT: ]
+[2025-05-26T18:52:49.020Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] serverTimestamp() type: object
+[2025-05-26T18:52:49.020Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Profile data after filtering undefined values: {
+[2025-05-26T18:52:49.020Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:52:49.020Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:52:49.020Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-26T18:52:49.020Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-26T18:52:49.020Z] NEXTJS_STDOUT: },
+[2025-05-26T18:52:49.020Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-26T18:52:49.020Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-26T18:52:49.020Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:49.020Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:49.020Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Filtered profile data keys: [ 'userId', 'membership', 'createdAt', 'updatedAt' ]
+[2025-05-26T18:52:49.020Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Writing to Firestore...
+[2025-05-26T18:52:49.098Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Successfully wrote to Firestore
+[2025-05-26T18:52:49.098Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Reading back created document...
+[2025-05-26T18:52:49.158Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Document exists: true
+[2025-05-26T18:52:49.158Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Document id: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:52:49.158Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw data from Firestore: {
+[2025-05-26T18:52:49.158Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:52:49.158Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:52:49.158Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-26T18:52:49.158Z] NEXTJS_STDOUT: "seconds": 1748285569,
+[2025-05-26T18:52:49.158Z] NEXTJS_STDOUT: "nanoseconds": 69000000
+[2025-05-26T18:52:49.158Z] NEXTJS_STDOUT: },
+[2025-05-26T18:52:49.158Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-26T18:52:49.158Z] NEXTJS_STDOUT: "seconds": 1748285569,
+[2025-05-26T18:52:49.158Z] NEXTJS_STDOUT: "nanoseconds": 69000000
+[2025-05-26T18:52:49.158Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:49.158Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:49.158Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw data keys: [ 'userId', 'membership', 'createdAt', 'updatedAt' ]
+[2025-05-26T18:52:49.158Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw createdAt from Firestore: Timestamp { seconds: 1748285569, nanoseconds: 69000000 }
+[2025-05-26T18:52:49.158Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw updatedAt from Firestore: Timestamp { seconds: 1748285569, nanoseconds: 69000000 }
+[2025-05-26T18:52:49.158Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Casting to ProfileDocument
+[2025-05-26T18:52:49.158Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] ProfileDocument createdAt: Timestamp { seconds: 1748285569, nanoseconds: 69000000 }
+[2025-05-26T18:52:49.159Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] ProfileDocument updatedAt: Timestamp { seconds: 1748285569, nanoseconds: 69000000 }
+[2025-05-26T18:52:49.159Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Starting serialization...
+[2025-05-26T18:52:49.159Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Starting serialization
+[2025-05-26T18:52:49.159Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Input profile keys: [ 'userId', 'membership', 'createdAt', 'updatedAt' ]
+[2025-05-26T18:52:49.159Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Raw profile data: {
+[2025-05-26T18:52:49.159Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:52:49.159Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:52:49.159Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-26T18:52:49.159Z] NEXTJS_STDOUT: "seconds": 1748285569,
+[2025-05-26T18:52:49.159Z] NEXTJS_STDOUT: "nanoseconds": 69000000
+[2025-05-26T18:52:49.159Z] NEXTJS_STDOUT: },
+[2025-05-26T18:52:49.159Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-26T18:52:49.159Z] NEXTJS_STDOUT: "seconds": 1748285569,
+[2025-05-26T18:52:49.159Z] NEXTJS_STDOUT: "nanoseconds": 69000000
+[2025-05-26T18:52:49.159Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:49.159Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:49.159Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt type: object
+[2025-05-26T18:52:49.159Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt instanceof Timestamp: true
+[2025-05-26T18:52:49.159Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt value: Timestamp { seconds: 1748285569, nanoseconds: 69000000 }
+[2025-05-26T18:52:49.159Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt type: object
+[2025-05-26T18:52:49.159Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt instanceof Timestamp: true
+[2025-05-26T18:52:49.159Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt value: Timestamp { seconds: 1748285569, nanoseconds: 69000000 }
+[2025-05-26T18:52:49.159Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized profile: {
+[2025-05-26T18:52:49.159Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:52:49.159Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:52:49.159Z] NEXTJS_STDOUT: "createdAt": "2025-05-26T18:52:49.069Z",
+[2025-05-26T18:52:49.159Z] NEXTJS_STDOUT: "updatedAt": "2025-05-26T18:52:49.069Z"
+[2025-05-26T18:52:49.159Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:49.159Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized createdAt: 2025-05-26T18:52:49.069Z
+[2025-05-26T18:52:49.159Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized updatedAt: 2025-05-26T18:52:49.069Z
+[2025-05-26T18:52:49.160Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialization complete
+[2025-05-26T18:52:49.160Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Final result: {
+[2025-05-26T18:52:49.160Z] NEXTJS_STDOUT: "isSuccess": true,
+[2025-05-26T18:52:49.160Z] NEXTJS_STDOUT: "message": "Profile created successfully",
+[2025-05-26T18:52:49.160Z] NEXTJS_STDOUT: "data": {
+[2025-05-26T18:52:49.160Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:52:49.160Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:52:49.160Z] NEXTJS_STDOUT: "createdAt": "2025-05-26T18:52:49.069Z",
+[2025-05-26T18:52:49.160Z] NEXTJS_STDOUT: "updatedAt": "2025-05-26T18:52:49.069Z"
+[2025-05-26T18:52:49.160Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:49.160Z] NEXTJS_STDOUT: }
+[2025-05-26T18:52:49.160Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Action completed successfully
+[2025-05-26T18:52:49.231Z] NEXTJS_STDOUT: 🍞 [REDDIT-HEADER] Current pathname: /reddit/voice-settings
+[2025-05-26T18:52:49.232Z] NEXTJS_STDOUT: 🍞 [REDDIT-HEADER] Generating breadcrumbs for: /reddit/voice-settings
+[2025-05-26T18:52:49.232Z] NEXTJS_STDOUT: 🍞 [REDDIT-HEADER] Generated breadcrumbs: [
+[2025-05-26T18:52:49.232Z] NEXTJS_STDOUT: { label: 'Dashboard', href: '/dashboard', isActive: false },
+[2025-05-26T18:52:49.232Z] NEXTJS_STDOUT: { label: 'Reddit', href: '/reddit', isActive: true }
+[2025-05-26T18:52:49.233Z] NEXTJS_STDOUT: ]
+[2025-05-26T18:52:49.307Z] NEXTJS_STDOUT: GET /reddit/voice-settings 200 in 307ms
+[2025-05-26T18:52:49.604Z] NEXTJS_STDOUT: GET /icon.png?6cfa51926824cb4f 200 in 77ms
+[2025-05-26T18:52:49.633Z] NEXTJS_STDOUT: GET /icon.png?6cfa51926824cb4f 200 in 28ms
+[2025-05-26T18:52:49.646Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/voice-settings
+[2025-05-26T18:52:49.646Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/voice-settings
+[2025-05-26T18:52:49.646Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth userId: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:52:49.646Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Is protected route: true
+[2025-05-26T18:52:49.650Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] ========== ACTION START ==========
+[2025-05-26T18:52:49.651Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] Timestamp: 2025-05-26T18:52:49.650Z
+[2025-05-26T18:52:49.651Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] User ID: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:52:49.652Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] Fetching organization memberships...
+[2025-05-26T18:52:49.724Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] Found memberships: 2
+[2025-05-26T18:52:49.724Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] Organization IDs: [ 'PH1HuLm3o00D4wvoZ2lr', 'k0V9nQJ6BPAO9gVkdaOR' ]
+[2025-05-26T18:52:49.799Z] NEXTJS_STDOUT: 🏢 [SERIALIZE-ORG] Starting serialization
+[2025-05-26T18:52:49.846Z] NEXTJS_STDOUT: 🏢 [SERIALIZE-ORG] Starting serialization
+[2025-05-26T18:52:49.846Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] Total organizations found: 2
+[2025-05-26T18:52:49.846Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] ✅ Organizations retrieved successfully
+[2025-05-26T18:52:49.846Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] ========== ACTION END (SUCCESS) ==========
+[2025-05-26T18:52:49.848Z] NEXTJS_STDOUT: POST /reddit/voice-settings 200 in 201ms
+[2025-05-26T18:52:49.871Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/voice-settings
+[2025-05-26T18:52:49.871Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/voice-settings
+[2025-05-26T18:52:49.871Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth userId: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:52:49.871Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Is protected route: true
+[2025-05-26T18:52:49.876Z] NEXTJS_STDOUT: 🔥 [VOICE-SETTINGS] Starting getVoiceSettingsByOrganizationIdAction
+[2025-05-26T18:52:49.876Z] NEXTJS_STDOUT: 🔥 [VOICE-SETTINGS] Organization ID: PH1HuLm3o00D4wvoZ2lr
+[2025-05-26T18:52:49.941Z] NEXTJS_STDOUT: 🔥 [VOICE-SETTINGS] No voice settings found for organization
+[2025-05-26T18:52:49.948Z] NEXTJS_STDOUT: POST /reddit/voice-settings 200 in 75ms
+[2025-05-26T18:52:55.583Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/voice-settings
+[2025-05-26T18:52:55.583Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/voice-settings
+[2025-05-26T18:52:55.584Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth userId: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:52:55.584Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Is protected route: true
+[2025-05-26T18:52:55.592Z] NEXTJS_STDOUT: 🔍 [SUBREDDIT-SEARCH] Starting subreddit search
+[2025-05-26T18:52:55.592Z] NEXTJS_STDOUT: 🔍 [SUBREDDIT-SEARCH] Query: travel
+[2025-05-26T18:52:55.592Z] NEXTJS_STDOUT: 🔍 [SUBREDDIT-SEARCH] Limit: 20
+[2025-05-26T18:52:55.592Z] NEXTJS_STDOUT: 🔍 [SUBREDDIT-SEARCH] Reading CSV file...
+[2025-05-26T18:52:55.869Z] NEXTJS_STDERR: 🔍 [SUBREDDIT-SEARCH] Error: Error: Invalid Record Length: columns length is 5, got 4 on line 14900
+[2025-05-26T18:52:55.869Z] NEXTJS_STDERR: at searchSubredditsAction (actions/integrations/reddit/subreddit-search-actions.ts:47:26)
+[2025-05-26T18:52:55.870Z] NEXTJS_STDERR: 45 |
+[2025-05-26T18:52:55.870Z] NEXTJS_STDERR: 46 |     // Parse CSV with streaming to handle large file
+[2025-05-26T18:52:55.870Z] NEXTJS_STDERR: > 47 |     const records = parse(csvContent, {
+[2025-05-26T18:52:55.870Z] NEXTJS_STDERR: |                          ^
+[2025-05-26T18:52:55.870Z] NEXTJS_STDERR: 48 |       columns: true,
+[2025-05-26T18:52:55.870Z] NEXTJS_STDERR: 49 |       skip_empty_lines: true,
+[2025-05-26T18:52:55.870Z] NEXTJS_STDERR: 50 |       cast: false {
+[2025-05-26T18:52:55.870Z] NEXTJS_STDERR: code: 'CSV_RECORD_INCONSISTENT_COLUMNS',
+[2025-05-26T18:52:55.870Z] NEXTJS_STDERR: bytes: 616359,
+[2025-05-26T18:52:55.870Z] NEXTJS_STDERR: comment_lines: 0,
+[2025-05-26T18:52:55.870Z] NEXTJS_STDERR: empty_lines: 0,
+[2025-05-26T18:52:55.870Z] NEXTJS_STDERR: invalid_field_length: 0,
+[2025-05-26T18:52:55.870Z] NEXTJS_STDERR: lines: 14900,
+[2025-05-26T18:52:55.870Z] NEXTJS_STDERR: records: 14898,
+[2025-05-26T18:52:55.870Z] NEXTJS_STDERR: columns: [Array],
+[2025-05-26T18:52:55.870Z] NEXTJS_STDERR: error: undefined,
+[2025-05-26T18:52:55.870Z] NEXTJS_STDERR: header: false,
+[2025-05-26T18:52:55.870Z] NEXTJS_STDERR: index: 4,
+[2025-05-26T18:52:55.870Z] NEXTJS_STDERR: raw: undefined,
+[2025-05-26T18:52:55.870Z] NEXTJS_STDERR: column: 'subscribers_count',
+[2025-05-26T18:52:55.870Z] NEXTJS_STDERR: quoting: false,
+[2025-05-26T18:52:55.870Z] NEXTJS_STDERR: record: [Array]
+[2025-05-26T18:52:55.870Z] NEXTJS_STDERR: }
+[2025-05-26T18:52:55.871Z] NEXTJS_STDOUT: POST /reddit/voice-settings 200 in 286ms
+[2025-05-26T18:53:26.047Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/.well-known/appspecific/com.chrome.devtools.json
+[2025-05-26T18:53:26.049Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /.well-known/appspecific/com.chrome.devtools.json
+[2025-05-26T18:53:26.049Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth userId: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:53:26.049Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Is protected route: false
+[2025-05-26T18:53:26.058Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Action called
+[2025-05-26T18:53:26.059Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Input data: {
+[2025-05-26T18:53:26.059Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy"
+[2025-05-26T18:53:26.059Z] NEXTJS_STDOUT: }
+[2025-05-26T18:53:26.059Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Input data keys: [ 'userId' ]
+[2025-05-26T18:53:26.059Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] User ID: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:53:26.059Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Created Firestore document reference
+[2025-05-26T18:53:26.059Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Collection: profiles
+[2025-05-26T18:53:26.059Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Document path: profiles/user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:53:26.059Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw profile data before filtering: {
+[2025-05-26T18:53:26.059Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:53:26.059Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:53:26.059Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-26T18:53:26.059Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-26T18:53:26.059Z] NEXTJS_STDOUT: },
+[2025-05-26T18:53:26.059Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-26T18:53:26.059Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-26T18:53:26.059Z] NEXTJS_STDOUT: }
+[2025-05-26T18:53:26.059Z] NEXTJS_STDOUT: }
+[2025-05-26T18:53:26.059Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw profile data keys: [
+[2025-05-26T18:53:26.060Z] NEXTJS_STDOUT: 'userId',
+[2025-05-26T18:53:26.060Z] NEXTJS_STDOUT: 'membership',
+[2025-05-26T18:53:26.060Z] NEXTJS_STDOUT: 'stripeCustomerId',
+[2025-05-26T18:53:26.060Z] NEXTJS_STDOUT: 'stripeSubscriptionId',
+[2025-05-26T18:53:26.060Z] NEXTJS_STDOUT: 'createdAt',
+[2025-05-26T18:53:26.060Z] NEXTJS_STDOUT: 'updatedAt'
+[2025-05-26T18:53:26.060Z] NEXTJS_STDOUT: ]
+[2025-05-26T18:53:26.060Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] serverTimestamp() type: object
+[2025-05-26T18:53:26.060Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Profile data after filtering undefined values: {
+[2025-05-26T18:53:26.060Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:53:26.060Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:53:26.060Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-26T18:53:26.060Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-26T18:53:26.060Z] NEXTJS_STDOUT: },
+[2025-05-26T18:53:26.060Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-26T18:53:26.060Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-26T18:53:26.060Z] NEXTJS_STDOUT: }
+[2025-05-26T18:53:26.060Z] NEXTJS_STDOUT: }
+[2025-05-26T18:53:26.060Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Filtered profile data keys: [ 'userId', 'membership', 'createdAt', 'updatedAt' ]
+[2025-05-26T18:53:26.060Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Writing to Firestore...
+[2025-05-26T18:53:26.143Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Successfully wrote to Firestore
+[2025-05-26T18:53:26.143Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Reading back created document...
+[2025-05-26T18:53:26.203Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Document exists: true
+[2025-05-26T18:53:26.203Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Document id: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-26T18:53:26.203Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw data from Firestore: {
+[2025-05-26T18:53:26.203Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:53:26.203Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:53:26.203Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-26T18:53:26.203Z] NEXTJS_STDOUT: "seconds": 1748285606,
+[2025-05-26T18:53:26.203Z] NEXTJS_STDOUT: "nanoseconds": 108000000
+[2025-05-26T18:53:26.204Z] NEXTJS_STDOUT: },
+[2025-05-26T18:53:26.204Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-26T18:53:26.204Z] NEXTJS_STDOUT: "seconds": 1748285606,
+[2025-05-26T18:53:26.204Z] NEXTJS_STDOUT: "nanoseconds": 108000000
+[2025-05-26T18:53:26.204Z] NEXTJS_STDOUT: }
+[2025-05-26T18:53:26.204Z] NEXTJS_STDOUT: }
+[2025-05-26T18:53:26.204Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw data keys: [ 'userId', 'membership', 'createdAt', 'updatedAt' ]
+[2025-05-26T18:53:26.204Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw createdAt from Firestore: Timestamp { seconds: 1748285606, nanoseconds: 108000000 }
+[2025-05-26T18:53:26.204Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw updatedAt from Firestore: Timestamp { seconds: 1748285606, nanoseconds: 108000000 }
+[2025-05-26T18:53:26.204Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Casting to ProfileDocument
+[2025-05-26T18:53:26.204Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] ProfileDocument createdAt: Timestamp { seconds: 1748285606, nanoseconds: 108000000 }
+[2025-05-26T18:53:26.204Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] ProfileDocument updatedAt: Timestamp { seconds: 1748285606, nanoseconds: 108000000 }
+[2025-05-26T18:53:26.204Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Starting serialization...
+[2025-05-26T18:53:26.204Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Starting serialization
+[2025-05-26T18:53:26.204Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Input profile keys: [ 'userId', 'membership', 'createdAt', 'updatedAt' ]
+[2025-05-26T18:53:26.204Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Raw profile data: {
+[2025-05-26T18:53:26.204Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:53:26.204Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:53:26.204Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-26T18:53:26.204Z] NEXTJS_STDOUT: "seconds": 1748285606,
+[2025-05-26T18:53:26.204Z] NEXTJS_STDOUT: "nanoseconds": 108000000
+[2025-05-26T18:53:26.204Z] NEXTJS_STDOUT: },
+[2025-05-26T18:53:26.204Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-26T18:53:26.204Z] NEXTJS_STDOUT: "seconds": 1748285606,
+[2025-05-26T18:53:26.204Z] NEXTJS_STDOUT: "nanoseconds": 108000000
+[2025-05-26T18:53:26.204Z] NEXTJS_STDOUT: }
+[2025-05-26T18:53:26.204Z] NEXTJS_STDOUT: }
+[2025-05-26T18:53:26.204Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt type: object
+[2025-05-26T18:53:26.204Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt instanceof Timestamp: true
+[2025-05-26T18:53:26.204Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt value: Timestamp { seconds: 1748285606, nanoseconds: 108000000 }
+[2025-05-26T18:53:26.204Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt type: object
+[2025-05-26T18:53:26.205Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt instanceof Timestamp: true
+[2025-05-26T18:53:26.205Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt value: Timestamp { seconds: 1748285606, nanoseconds: 108000000 }
+[2025-05-26T18:53:26.205Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized profile: {
+[2025-05-26T18:53:26.205Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:53:26.205Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:53:26.205Z] NEXTJS_STDOUT: "createdAt": "2025-05-26T18:53:26.108Z",
+[2025-05-26T18:53:26.205Z] NEXTJS_STDOUT: "updatedAt": "2025-05-26T18:53:26.108Z"
+[2025-05-26T18:53:26.205Z] NEXTJS_STDOUT: }
+[2025-05-26T18:53:26.205Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized createdAt: 2025-05-26T18:53:26.108Z
+[2025-05-26T18:53:26.205Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized updatedAt: 2025-05-26T18:53:26.108Z
+[2025-05-26T18:53:26.205Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialization complete
+[2025-05-26T18:53:26.205Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Final result: {
+[2025-05-26T18:53:26.205Z] NEXTJS_STDOUT: "isSuccess": true,
+[2025-05-26T18:53:26.205Z] NEXTJS_STDOUT: "message": "Profile created successfully",
+[2025-05-26T18:53:26.205Z] NEXTJS_STDOUT: "data": {
+[2025-05-26T18:53:26.205Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-26T18:53:26.205Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-26T18:53:26.205Z] NEXTJS_STDOUT: "createdAt": "2025-05-26T18:53:26.108Z",
+[2025-05-26T18:53:26.205Z] NEXTJS_STDOUT: "updatedAt": "2025-05-26T18:53:26.108Z"
+[2025-05-26T18:53:26.205Z] NEXTJS_STDOUT: }
+[2025-05-26T18:53:26.205Z] NEXTJS_STDOUT: }
+[2025-05-26T18:53:26.205Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Action completed successfully
+[2025-05-26T18:53:26.215Z] NEXTJS_STDOUT: GET /.well-known/appspecific/com.chrome.devtools.json 404 in 167ms
+[2025-05-26T18:53:56.358Z] NEXTJS_STDOUT: ✓ Compiled in 542ms (2256 modules)
+[2025-05-26T18:54:04.455Z] NEXTJS_STDOUT: ✓ Compiled in 419ms (2256 modules)
+[2025-05-26T18:54:15.034Z] NEXTJS_STDOUT: ✓ Compiled in 368ms (2256 modules)
+[2025-05-26T18:54:27.069Z] NEXTJS_STDOUT: ✓ Compiled in 314ms (2256 modules)
+[2025-05-26T18:54:36.349Z] ==================================================
+[2025-05-26T18:54:36.349Z] COMMAND STARTED: next build
+[2025-05-26T18:54:36.349Z] ==================================================
+[2025-05-26T18:54:36.755Z] STDOUT: ▲ Next.js 15.3.2
+[2025-05-26T18:54:36.756Z] STDOUT: - Environments: .env.local
+[2025-05-26T18:54:36.805Z] STDOUT: Creating an optimized production build ...
+[2025-05-26T18:54:43.013Z] STDOUT: ✓ Compiled successfully in 4.0s
+[2025-05-26T18:54:43.015Z] STDOUT: Linting and checking validity of types ...
+[2025-05-26T18:54:43.852Z] STDOUT: ./app/reddit/voice-settings/_components/reddit-style-copier.tsx
+[2025-05-26T18:54:43.853Z] STDOUT: 212:20  Warning: Invalid Tailwind CSS classnames order  tailwindcss/classnames-order
+[2025-05-26T18:54:43.853Z] STDOUT: 216:21  Warning: Invalid Tailwind CSS classnames order  tailwindcss/classnames-order
+[2025-05-26T18:54:43.853Z] STDOUT: 239:18  Warning: Invalid Tailwind CSS classnames order  tailwindcss/classnames-order
+[2025-05-26T18:54:43.853Z] STDOUT: 293:20  Warning: Invalid Tailwind CSS classnames order  tailwindcss/classnames-order
+[2025-05-26T18:54:43.853Z] STDOUT: 297:21  Warning: Invalid Tailwind CSS classnames order  tailwindcss/classnames-order
+[2025-05-26T18:54:43.853Z] STDOUT: 302:30  Warning: Invalid Tailwind CSS classnames order  tailwindcss/classnames-order
+[2025-05-26T18:54:43.853Z] STDOUT: 303:31  Warning: Invalid Tailwind CSS classnames order  tailwindcss/classnames-order
+[2025-05-26T18:54:43.853Z] STDOUT: 349:28  Warning: Invalid Tailwind CSS classnames order  tailwindcss/classnames-order
+[2025-05-26T18:54:43.853Z] STDOUT: 360:20  Warning: Invalid Tailwind CSS classnames order  tailwindcss/classnames-order
+[2025-05-26T18:54:43.853Z] STDOUT: ./app/reddit/voice-settings/_components/voice-settings-display.tsx
+[2025-05-26T18:54:43.853Z] STDOUT: 224:22  Warning: Invalid Tailwind CSS classnames order  tailwindcss/classnames-order
+[2025-05-26T18:54:43.853Z] STDOUT: 228:26  Warning: Invalid Tailwind CSS classnames order  tailwindcss/classnames-order
+[2025-05-26T18:54:43.853Z] STDOUT: info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+[2025-05-26T18:54:47.756Z] STDOUT: Collecting page data ...
+[2025-05-26T18:54:49.961Z] STDOUT: Generating static pages (0/33) ...
+[2025-05-26T18:54:50.461Z] STDOUT: Generating static pages (8/33)
+[2025-05-26T18:54:50.476Z] STDOUT: Generating static pages (16/33)
+[2025-05-26T18:54:50.504Z] STDOUT: Generating static pages (24/33)
+[2025-05-26T18:54:50.609Z] STDOUT: ✓ Generating static pages (33/33)
+[2025-05-26T18:54:50.609Z] STDOUT: 🔥🔥🔥 [LEAD-FINDER-PAGE] Rendering LeadFinderPage
+[2025-05-26T18:54:50.609Z] STDOUT: 🔥🔥🔥 [LEAD-FINDER-PAGE] Environment: production
+[2025-05-26T18:54:50.610Z] STDOUT: 🔥🔥🔥 [LEAD-FINDER-PAGE] Time: 2025-05-26T18:54:50.527Z
+[2025-05-26T18:54:50.610Z] STDOUT: 🔥🔥🔥 [LEAD-FINDER-PAGE] Rendering LeadFinderDashboard inside Suspense
+[2025-05-26T18:54:50.777Z] STDOUT: Finalizing page optimization ...
+[2025-05-26T18:54:50.778Z] STDOUT: Collecting build traces ...
+[2025-05-26T18:54:52.812Z] STDOUT: Route (app)                                      Size  First Load JS
+[2025-05-26T18:54:52.812Z] STDOUT: ┌ ƒ /                                         5.98 kB         235 kB
+[2025-05-26T18:54:52.812Z] STDOUT: ├ ƒ /_not-found                                 990 B         103 kB
+[2025-05-26T18:54:52.812Z] STDOUT: ├ ƒ /about                                      197 B         102 kB
+[2025-05-26T18:54:52.812Z] STDOUT: ├ ƒ /api/lead-generation/start                  197 B         102 kB
+[2025-05-26T18:54:52.812Z] STDOUT: ├ ƒ /api/queue/check-warmup-comments            197 B         102 kB
+[2025-05-26T18:54:52.812Z] STDOUT: ├ ƒ /api/queue/process-posts                    197 B         102 kB
+[2025-05-26T18:54:52.812Z] STDOUT: ├ ƒ /api/queue/process-warmup                   197 B         102 kB
+[2025-05-26T18:54:52.812Z] STDOUT: ├ ƒ /api/reddit/auth                            197 B         102 kB
+[2025-05-26T18:54:52.812Z] STDOUT: ├ ƒ /api/reddit/callback                        197 B         102 kB
+[2025-05-26T18:54:52.812Z] STDOUT: ├ ƒ /api/reddit/comments                        197 B         102 kB
+[2025-05-26T18:54:52.812Z] STDOUT: ├ ƒ /api/reddit/comments/[commentId]/replies    197 B         102 kB
+[2025-05-26T18:54:52.813Z] STDOUT: ├ ƒ /api/stripe/webhooks                        197 B         102 kB
+[2025-05-26T18:54:52.813Z] STDOUT: ├ ƒ /api/test-twitter-analysis                  197 B         102 kB
+[2025-05-26T18:54:52.813Z] STDOUT: ├ ƒ /api/test-twitter-direct                    197 B         102 kB
+[2025-05-26T18:54:52.813Z] STDOUT: ├ ƒ /api/warmup/generate-posts                  197 B         102 kB
+[2025-05-26T18:54:52.813Z] STDOUT: ├ ƒ /contact                                    197 B         102 kB
+[2025-05-26T18:54:52.813Z] STDOUT: ├ ƒ /dashboard                                  197 B         102 kB
+[2025-05-26T18:54:52.813Z] STDOUT: ├ ƒ /debug/lead-generation-debug              1.88 kB         111 kB
+[2025-05-26T18:54:52.813Z] STDOUT: ├ ƒ /debug/test-page                            197 B         102 kB
+[2025-05-26T18:54:52.813Z] STDOUT: ├ ƒ /firebase-test                            5.16 kB         252 kB
+[2025-05-26T18:54:52.813Z] STDOUT: ├ ○ /icon.png                                     0 B            0 B
+[2025-05-26T18:54:52.813Z] STDOUT: ├ ƒ /login/[[...login]]                         395 B         135 kB
+[2025-05-26T18:54:52.813Z] STDOUT: ├ ƒ /onboarding                               13.6 kB         186 kB
+[2025-05-26T18:54:52.813Z] STDOUT: ├ ƒ /pricing                                    197 B         102 kB
+[2025-05-26T18:54:52.813Z] STDOUT: ├ ƒ /reddit-auth                              3.28 kB         143 kB
+[2025-05-26T18:54:52.813Z] STDOUT: ├ ƒ /reddit-test                              3.51 kB         137 kB
+[2025-05-26T18:54:52.813Z] STDOUT: ├ ƒ /reddit/knowledge-base                     7.8 kB         167 kB
+[2025-05-26T18:54:52.813Z] STDOUT: ├ ƒ /reddit/lead-finder                       38.3 kB         448 kB
+[2025-05-26T18:54:52.813Z] STDOUT: ├ ƒ /reddit/my-posts                          6.88 kB         150 kB
+[2025-05-26T18:54:52.813Z] STDOUT: ├ ƒ /reddit/personalization                    3.3 kB         116 kB
+[2025-05-26T18:54:52.813Z] STDOUT: ├ ƒ /reddit/settings                          4.89 kB         145 kB
+[2025-05-26T18:54:52.813Z] STDOUT: ├ ƒ /reddit/voice-settings                     8.6 kB         183 kB
+[2025-05-26T18:54:52.813Z] STDOUT: ├ ƒ /reddit/warm-up                           22.5 kB         196 kB
+[2025-05-26T18:54:52.813Z] STDOUT: └ ƒ /signup/[[...signup]]                       392 B         135 kB
+[2025-05-26T18:54:52.813Z] STDOUT: + First Load JS shared by all                  102 kB
+[2025-05-26T18:54:52.813Z] STDOUT: ├ chunks/1684-8fa040d7b4455d38.js           46.4 kB
+[2025-05-26T18:54:52.813Z] STDOUT: ├ chunks/4bd1b696-72d041b606c6bd53.js       53.2 kB
+[2025-05-26T18:54:52.813Z] STDOUT: └ other shared chunks (total)               2.23 kB
+[2025-05-26T18:54:52.813Z] STDOUT: ƒ Middleware                                  75.7 kB
+[2025-05-26T18:54:52.813Z] STDOUT: ○  (Static)   prerendered as static content
+[2025-05-26T18:54:52.813Z] STDOUT: ƒ  (Dynamic)  server-rendered on demand
+[2025-05-26T18:54:52.835Z] ==================================================
+[2025-05-26T18:54:52.835Z] COMMAND FINISHED: next build (exit code: 0)
+[2025-05-26T18:54:52.835Z] ==================================================
