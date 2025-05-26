@@ -342,18 +342,7 @@ export async function updateProfileAction(
       "🔥 [UPDATE-PROFILE] Raw update data keys:",
       Object.keys(rawUpdateData)
     )
-    console.log(
-      "🔥 [UPDATE-PROFILE] Raw keywords before filtering:",
-      rawUpdateData.keywords
-    )
-    console.log(
-      "🔥 [UPDATE-PROFILE] Raw keywords type before filtering:",
-      typeof rawUpdateData.keywords
-    )
-    console.log(
-      "🔥 [UPDATE-PROFILE] Raw keywords stringified before filtering:",
-      JSON.stringify(rawUpdateData.keywords)
-    )
+
     console.log(
       "🔥 [UPDATE-PROFILE] serverTimestamp() for updatedAt type:",
       typeof rawUpdateData.updatedAt
@@ -368,19 +357,7 @@ export async function updateProfileAction(
       "🔥 [UPDATE-PROFILE] Filtered update data keys:",
       Object.keys(updateData)
     )
-    console.log("🔥 [UPDATE-PROFILE] Filtered keywords:", updateData.keywords)
-    console.log(
-      "🔥 [UPDATE-PROFILE] Filtered keywords type:",
-      typeof updateData.keywords
-    )
-    console.log(
-      "🔥 [UPDATE-PROFILE] Filtered keywords length:",
-      updateData.keywords?.length || 0
-    )
-    console.log(
-      "🔥 [UPDATE-PROFILE] Filtered keywords stringified:",
-      JSON.stringify(updateData.keywords)
-    )
+
 
     console.log("🔥 [UPDATE-PROFILE] Writing update to Firestore...")
     await updateDoc(profileRef, updateData)
@@ -420,22 +397,7 @@ export async function updateProfileAction(
       "🔥 [UPDATE-PROFILE] Raw updated updatedAt:",
       rawUpdatedProfile?.updatedAt
     )
-    console.log(
-      "🔥 [UPDATE-PROFILE] Raw updated keywords:",
-      rawUpdatedProfile?.keywords
-    )
-    console.log(
-      "🔥 [UPDATE-PROFILE] Raw updated keywords type:",
-      typeof rawUpdatedProfile?.keywords
-    )
-    console.log(
-      "🔥 [UPDATE-PROFILE] Raw updated keywords length:",
-      rawUpdatedProfile?.keywords?.length || 0
-    )
-    console.log(
-      "🔥 [UPDATE-PROFILE] Raw updated keywords stringified:",
-      JSON.stringify(rawUpdatedProfile?.keywords)
-    )
+    // Keywords logging removed - keywords are now organization-based
 
     const profile = rawUpdatedProfile as ProfileDocument
     console.log("🔥 [UPDATE-PROFILE] Casting to ProfileDocument")
@@ -449,30 +411,24 @@ export async function updateProfileAction(
     )
     console.log(
       "🔥 [UPDATE-PROFILE] ProfileDocument keywords:",
-      profile.keywords
     )
     console.log(
       "🔥 [UPDATE-PROFILE] ProfileDocument keywords type:",
-      typeof profile.keywords
     )
     console.log(
       "🔥 [UPDATE-PROFILE] ProfileDocument keywords length:",
-      profile.keywords?.length || 0
     )
 
     console.log("🔥 [UPDATE-PROFILE] Starting serialization...")
     const serializedProfile = serializeProfileDocument(profile)
     console.log(
       "🔥 [UPDATE-PROFILE] Serialized profile keywords:",
-      serializedProfile.keywords
     )
     console.log(
       "🔥 [UPDATE-PROFILE] Serialized profile keywords type:",
-      typeof serializedProfile.keywords
     )
     console.log(
       "🔥 [UPDATE-PROFILE] Serialized profile keywords length:",
-      serializedProfile.keywords?.length || 0
     )
 
     const result = {
@@ -487,7 +443,6 @@ export async function updateProfileAction(
     )
     console.log(
       "🔥 [UPDATE-PROFILE] Final result keywords:",
-      result.data.keywords
     )
     console.log("🔥 [UPDATE-PROFILE] Action completed successfully")
 

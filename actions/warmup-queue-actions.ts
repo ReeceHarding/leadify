@@ -272,14 +272,14 @@ export async function processWarmupPostQueueAction(): Promise<
           continue;
       }
       
-      if (new Date(account.warmupEndDate).getTime() < now.toMillis()) {
+      if (account.warmupEndDate.toMillis() < now.toMillis()) {
         console.log(`Warmup period ended for account ${account.id}. Setting to completed.`);
         await updateWarmupAccountAction(account.id, { status: "completed", isActive: false });
         continue;
       }
 
       const today = new Date().toISOString().split('T')[0];
-      const lastActivityDate = account.lastActivityAt ? new Date(account.lastActivityAt).toISOString().split('T')[0] : null;
+      const lastActivityDate = account.lastActivityAt ? account.lastActivityAt.toDate().toISOString().split('T')[0] : null;
       let postsToday = account.postsToday || 0;
       let commentsToday = account.commentsToday || 0;
       if (lastActivityDate !== today) {
@@ -322,7 +322,7 @@ export async function processWarmupPostQueueAction(): Promise<
       
       // 2. Process Comments
       let commentsAttemptedThisCycle = 0;
-      const dailyCommentLimit = account.dailyCommentLimit ? Math.max(1, Math.floor(account.dailyPostLimit / 2)) : 2; // Example: half of post limit, min 1
+      const dailyCommentLimit = Math.max(1, Math.floor((account.dailyPostLimit || 3) / 2)); // Example: half of post limit, min 1
       if (commentsToday < dailyCommentLimit) {
         const recentPostsQuery = query(
             collection(db, WARMUP_COLLECTIONS.WARMUP_POSTS),

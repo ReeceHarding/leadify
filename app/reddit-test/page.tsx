@@ -1,11 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useUser } from "@clerk/nextjs"
 import {
   testRedditConnectionAction,
   fetchRedditThreadAction,
   fetchRedditCommentsAction
 } from "@/actions/integrations/reddit/reddit-actions"
+import { getOrganizationsByUserIdAction } from "@/actions/db/organizations-actions"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -16,13 +18,41 @@ import {
 } from "@/components/ui/card"
 
 export default function RedditTestPage() {
+  const { user } = useUser()
   const [loading, setLoading] = useState(false)
   const [results, setResults] = useState<any[]>([])
+  const [organizationId, setOrganizationId] = useState<string | null>(null)
+
+  useEffect(() => {
+    const loadOrganization = async () => {
+      if (user?.id) {
+        const orgResult = await getOrganizationsByUserIdAction(user.id)
+        if (orgResult.isSuccess && orgResult.data.length > 0) {
+          setOrganizationId(orgResult.data[0].id)
+        }
+      }
+    }
+    loadOrganization()
+  }, [user?.id])
 
   const testConnection = async () => {
+    if (!organizationId) {
+      setResults(prev => [
+        ...prev,
+        {
+          type: "connection",
+          timestamp: new Date().toLocaleTimeString(),
+          success: false,
+          message: "No organization found. Please complete onboarding.",
+          data: null
+        }
+      ])
+      return
+    }
+
     setLoading(true)
     try {
-      const result = await testRedditConnectionAction()
+      const result = await testRedditConnectionAction(organizationId)
       setResults(prev => [
         ...prev,
         {
@@ -50,10 +80,24 @@ export default function RedditTestPage() {
   }
 
   const testFetchThread = async () => {
+    if (!organizationId) {
+      setResults(prev => [
+        ...prev,
+        {
+          type: "fetch",
+          timestamp: new Date().toLocaleTimeString(),
+          success: false,
+          message: "No organization found. Please complete onboarding.",
+          data: null
+        }
+      ])
+      return
+    }
+
     setLoading(true)
     try {
       // Test with a popular thread ID
-      const result = await fetchRedditThreadAction("1i2m7ya", "programming")
+      const result = await fetchRedditThreadAction(organizationId, "1i2m7ya", "programming")
       setResults(prev => [
         ...prev,
         {

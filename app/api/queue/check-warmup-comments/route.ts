@@ -87,6 +87,7 @@ export async function POST(request: Request) {
 
         // Fetch current comments from Reddit
         const commentsResult = await getPostCommentsAction(
+          post.organizationId,
           post.subreddit,
           post.redditPostId
         )
@@ -143,6 +144,7 @@ export async function POST(request: Request) {
           // Store the Reddit comment ID so we don't reply to it again
           await createWarmupCommentAction({
             userId: post.userId,
+            organizationId: post.organizationId,
             warmupPostId: post.id,
             redditParentCommentId: reply.commentId,
             content: reply.reply,

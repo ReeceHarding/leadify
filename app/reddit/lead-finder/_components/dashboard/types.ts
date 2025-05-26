@@ -1,4 +1,4 @@
-import { SerializedGeneratedCommentDocument } from "@/actions/db/lead-generation-actions"
+import { SerializedGeneratedCommentDocument } from "@/types"
 
 // Interface for individual lead result displayed in the UI
 export interface LeadResult {

@@ -320,9 +320,10 @@ export interface GoogleSearchResult {
 
 // From firecrawl-actions.ts
 export interface ScrapeResult {
-  success: boolean
-  content?: string
-  error?: string
+  url: string
+  content: string
+  title?: string
+  description?: string
 }
 
 // From firebase-export-actions.ts

@@ -3,6 +3,7 @@
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import { fetchRedditCommentsAction } from "@/actions/integrations/reddit/reddit-actions"
+import { getOrganizationsByUserIdAction } from "@/actions/db/organizations-actions"
 
 export async function GET(request: Request) {
   try {
@@ -44,12 +45,25 @@ export async function GET(request: Request) {
       )
     }
 
+    // Get user's organization
+    const organizationsResult = await getOrganizationsByUserIdAction(userId)
+    if (!organizationsResult.isSuccess || organizationsResult.data.length === 0) {
+      console.log("❌ [REDDIT-COMMENTS-API] No organization found for user")
+      return NextResponse.json(
+        { error: "No organization found. Please complete onboarding." },
+        { status: 400 }
+      )
+    }
+
+    const organizationId = organizationsResult.data[0].id
+
     // Fetch comments from Reddit
     console.log(
       `📥 [REDDIT-COMMENTS-API] Fetching comments for thread ${threadId} in r/${subreddit}`
     )
 
     const result = await fetchRedditCommentsAction(
+      organizationId,
       threadId,
       subreddit,
       sort || "best",

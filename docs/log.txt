@@ -3403,3 +3403,374 @@
 [2025-05-26T17:27:11.821Z] COMMAND FINISHED: next build (exit code: 1)
 [2025-05-26T17:27:11.821Z] ==================================================
 [2025-05-26T17:27:11.822Z] ERROR: Command failed with exit code 1
+[2025-05-26T17:29:12.364Z] ==================================================
+[2025-05-26T17:29:12.364Z] COMMAND STARTED: next build
+[2025-05-26T17:29:12.365Z] ==================================================
+[2025-05-26T17:29:12.610Z] STDOUT: ▲ Next.js 15.3.2
+[2025-05-26T17:29:12.610Z] STDOUT: - Environments: .env.local
+[2025-05-26T17:29:12.661Z] STDOUT: Creating an optimized production build ...
+[2025-05-26T17:29:17.834Z] STDOUT: ✓ Compiled successfully in 2000ms
+[2025-05-26T17:29:17.835Z] STDOUT: Linting and checking validity of types ...
+[2025-05-26T17:29:22.353Z] STDERR: Failed to compile.
+[2025-05-26T17:29:22.353Z] STDERR: ./actions/db/profiles-actions.ts:347:21
+[2025-05-26T17:29:22.353Z] STDERR: Type error: Property 'keywords' does not exist on type '{ updatedAt: FieldValue; membership?: MembershipType | undefined; stripeCustomerId?: string | undefined; stripeSubscriptionId?: string | undefined; name?: string | undefined; profilePictureUrl?: string | undefined; onboardingCompleted?: boolean | undefined; }'.
+[2025-05-26T17:29:22.354Z] STDERR: [0m [90m 345 |[39m     console[33m.[39mlog([0m
+[2025-05-26T17:29:22.354Z] STDERR: [0m [90m 346 |[39m       [32m"🔥 [UPDATE-PROFILE] Raw keywords before filtering:"[39m[33m,[39m[0m
+[2025-05-26T17:29:22.354Z] STDERR: [0m[31m[1m>[22m[39m[90m 347 |[39m       rawUpdateData[33m.[39mkeywords[0m
+[2025-05-26T17:29:22.354Z] STDERR: [0m [90m     |[39m                     [31m[1m^[22m[39m[0m
+[2025-05-26T17:29:22.354Z] STDERR: [0m [90m 348 |[39m     )[0m
+[2025-05-26T17:29:22.354Z] STDERR: [0m [90m 349 |[39m     console[33m.[39mlog([0m
+[2025-05-26T17:29:22.354Z] STDERR: [0m [90m 350 |[39m       [32m"🔥 [UPDATE-PROFILE] Raw keywords type before filtering:"[39m[33m,[39m[0m
+[2025-05-26T17:29:22.383Z] STDERR: Next.js build worker exited with code: 1 and signal: null
+[2025-05-26T17:29:22.388Z] ==================================================
+[2025-05-26T17:29:22.389Z] COMMAND FINISHED: next build (exit code: 1)
+[2025-05-26T17:29:22.389Z] ==================================================
+[2025-05-26T17:29:22.389Z] ERROR: Command failed with exit code 1
+[2025-05-26T17:30:07.747Z] ==================================================
+[2025-05-26T17:30:07.748Z] COMMAND STARTED: next build
+[2025-05-26T17:30:07.748Z] ==================================================
+[2025-05-26T17:30:08.007Z] STDOUT: ▲ Next.js 15.3.2
+[2025-05-26T17:30:08.007Z] STDOUT: - Environments: .env.local
+[2025-05-26T17:30:08.058Z] STDOUT: Creating an optimized production build ...
+[2025-05-26T17:30:12.923Z] STDOUT: ✓ Compiled successfully in 2000ms
+[2025-05-26T17:30:12.924Z] STDOUT: Linting and checking validity of types ...
+[2025-05-26T17:30:17.495Z] STDERR: Failed to compile.
+[2025-05-26T17:30:17.495Z] STDERR: ./actions/db/profiles-actions.ts:414:15
+[2025-05-26T17:30:17.495Z] STDERR: Type error: Property 'keywords' does not exist on type 'ProfileDocument'.
+[2025-05-26T17:30:17.495Z] STDERR: [0m [90m 412 |[39m     console[33m.[39mlog([0m
+[2025-05-26T17:30:17.496Z] STDERR: [0m [90m 413 |[39m       [32m"🔥 [UPDATE-PROFILE] ProfileDocument keywords:"[39m[33m,[39m[0m
+[2025-05-26T17:30:17.496Z] STDERR: [0m[31m[1m>[22m[39m[90m 414 |[39m       profile[33m.[39mkeywords[0m
+[2025-05-26T17:30:17.496Z] STDERR: [0m [90m     |[39m               [31m[1m^[22m[39m[0m
+[2025-05-26T17:30:17.496Z] STDERR: [0m [90m 415 |[39m     )[0m
+[2025-05-26T17:30:17.496Z] STDERR: [0m [90m 416 |[39m     console[33m.[39mlog([0m
+[2025-05-26T17:30:17.496Z] STDERR: [0m [90m 417 |[39m       [32m"🔥 [UPDATE-PROFILE] ProfileDocument keywords type:"[39m[33m,[39m[0m
+[2025-05-26T17:30:17.531Z] STDERR: Next.js build worker exited with code: 1 and signal: null
+[2025-05-26T17:30:17.536Z] ==================================================
+[2025-05-26T17:30:17.536Z] COMMAND FINISHED: next build (exit code: 1)
+[2025-05-26T17:30:17.536Z] ==================================================
+[2025-05-26T17:30:17.536Z] ERROR: Command failed with exit code 1
+[2025-05-26T17:30:36.852Z] ==================================================
+[2025-05-26T17:30:36.852Z] COMMAND STARTED: next build
+[2025-05-26T17:30:36.852Z] ==================================================
+[2025-05-26T17:30:37.117Z] STDOUT: ▲ Next.js 15.3.2
+[2025-05-26T17:30:37.118Z] STDOUT: - Environments: .env.local
+[2025-05-26T17:30:37.168Z] STDOUT: Creating an optimized production build ...
+[2025-05-26T17:30:42.429Z] STDOUT: ✓ Compiled successfully in 3.0s
+[2025-05-26T17:30:42.431Z] STDOUT: Linting and checking validity of types ...
+[2025-05-26T17:30:47.043Z] STDERR: Failed to compile.
+[2025-05-26T17:30:47.043Z] STDERR: ./actions/integrations/firecrawl/firecrawl-actions.ts:53:7
+[2025-05-26T17:30:47.043Z] STDERR: Type error: Object literal may only specify known properties, and 'url' does not exist in type 'ScrapeResult'.
+[2025-05-26T17:30:47.043Z] STDERR: [0m [90m 51 |[39m[0m
+[2025-05-26T17:30:47.043Z] STDERR: [0m [90m 52 |[39m     [36mconst[39m result[33m:[39m [33mScrapeResult[39m [33m=[39m {[0m
+[2025-05-26T17:30:47.043Z] STDERR: [0m[31m[1m>[22m[39m[90m 53 |[39m       url[33m:[39m url[33m,[39m[0m
+[2025-05-26T17:30:47.043Z] STDERR: [0m [90m    |[39m       [31m[1m^[22m[39m[0m
+[2025-05-26T17:30:47.043Z] STDERR: [0m [90m 54 |[39m       content[33m:[39m data[33m.[39mmarkdown [33m||[39m data[33m.[39mcontent [33m||[39m [32m""[39m[33m,[39m[0m
+[2025-05-26T17:30:47.043Z] STDERR: [0m [90m 55 |[39m       title[33m:[39m data[33m.[39mmetadata[33m?[39m[33m.[39mtitle [33m||[39m data[33m.[39mtitle[33m,[39m[0m
+[2025-05-26T17:30:47.044Z] STDERR: [0m [90m 56 |[39m       description[33m:[39m data[33m.[39mmetadata[33m?[39m[33m.[39mdescription [33m||[39m data[33m.[39mdescription[0m
+[2025-05-26T17:30:47.069Z] STDERR: Next.js build worker exited with code: 1 and signal: null
+[2025-05-26T17:30:47.074Z] ==================================================
+[2025-05-26T17:30:47.074Z] COMMAND FINISHED: next build (exit code: 1)
+[2025-05-26T17:30:47.074Z] ==================================================
+[2025-05-26T17:30:47.074Z] ERROR: Command failed with exit code 1
+[2025-05-26T17:31:15.323Z] ==================================================
+[2025-05-26T17:31:15.324Z] COMMAND STARTED: next build
+[2025-05-26T17:31:15.324Z] ==================================================
+[2025-05-26T17:31:15.568Z] STDOUT: ▲ Next.js 15.3.2
+[2025-05-26T17:31:15.569Z] STDOUT: - Environments: .env.local
+[2025-05-26T17:31:15.623Z] STDOUT: Creating an optimized production build ...
+[2025-05-26T17:31:20.447Z] STDOUT: ✓ Compiled successfully in 2000ms
+[2025-05-26T17:31:20.449Z] STDOUT: Linting and checking validity of types ...
+[2025-05-26T17:31:24.718Z] STDERR: Failed to compile.
+[2025-05-26T17:31:24.718Z] STDERR: ./actions/integrations/openai/openai-actions.ts:346:11
+[2025-05-26T17:31:24.718Z] STDERR: Type error: Argument of type '10' is not assignable to parameter of type '"best" | "top" | "new" | "controversial" | "old" | undefined'.
+[2025-05-26T17:31:24.718Z] STDERR: [0m [90m 344 |[39m           subreddit[33m,[39m[0m
+[2025-05-26T17:31:24.719Z] STDERR: [0m [90m 345 |[39m           [32m"best"[39m[33m,[39m[0m
+[2025-05-26T17:31:24.719Z] STDERR: [0m[31m[1m>[22m[39m[90m 346 |[39m           [35m10[39m[0m
+[2025-05-26T17:31:24.719Z] STDERR: [0m [90m     |[39m           [31m[1m^[22m[39m[0m
+[2025-05-26T17:31:24.719Z] STDERR: [0m [90m 347 |[39m         )[0m
+[2025-05-26T17:31:24.719Z] STDERR: [0m [90m 348 |[39m[0m
+[2025-05-26T17:31:24.719Z] STDERR: [0m [90m 349 |[39m         [36mif[39m (commentsResult[33m.[39misSuccess [33m&&[39m commentsResult[33m.[39mdata[33m.[39mlength [33m>[39m [35m0[39m) {[0m
+[2025-05-26T17:31:24.744Z] STDERR: Next.js build worker exited with code: 1 and signal: null
+[2025-05-26T17:31:24.748Z] ==================================================
+[2025-05-26T17:31:24.748Z] COMMAND FINISHED: next build (exit code: 1)
+[2025-05-26T17:31:24.748Z] ==================================================
+[2025-05-26T17:31:24.749Z] ERROR: Command failed with exit code 1
+[2025-05-26T17:32:06.921Z] ==================================================
+[2025-05-26T17:32:06.922Z] COMMAND STARTED: next build
+[2025-05-26T17:32:06.922Z] ==================================================
+[2025-05-26T17:32:07.162Z] STDOUT: ▲ Next.js 15.3.2
+[2025-05-26T17:32:07.162Z] STDOUT: - Environments: .env.local
+[2025-05-26T17:32:07.212Z] STDOUT: Creating an optimized production build ...
+[2025-05-26T17:32:12.818Z] STDOUT: ✓ Compiled successfully in 3.0s
+[2025-05-26T17:32:12.820Z] STDOUT: Linting and checking validity of types ...
+[2025-05-26T17:32:17.382Z] STDERR: Failed to compile.
+[2025-05-26T17:32:17.382Z] STDERR: ./actions/lead-generation/workflow-actions.ts:862:32
+[2025-05-26T17:32:17.382Z] STDERR: Type error: Expected 1 arguments, but got 0.
+[2025-05-26T17:32:17.382Z] STDERR: [0m [90m 860 |[39m         [32m"@/actions/integrations/reddit/reddit-actions"[39m[0m
+[2025-05-26T17:32:17.382Z] STDERR: [0m [90m 861 |[39m       )[0m
+[2025-05-26T17:32:17.382Z] STDERR: [0m[31m[1m>[22m[39m[90m 862 |[39m       [36mconst[39m redditTest [33m=[39m [36mawait[39m testRedditConnectionAction()[0m
+[2025-05-26T17:32:17.382Z] STDERR: [0m [90m     |[39m                                [31m[1m^[22m[39m[0m
+[2025-05-26T17:32:17.382Z] STDERR: [0m [90m 863 |[39m       results[33m.[39mreddit [33m=[39m redditTest[33m.[39misSuccess[0m
+[2025-05-26T17:32:17.382Z] STDERR: [0m [90m 864 |[39m     } [36mcatch[39m {[0m
+[2025-05-26T17:32:17.382Z] STDERR: [0m [90m 865 |[39m       results[33m.[39mreddit [33m=[39m [36mfalse[39m[0m
+[2025-05-26T17:32:17.412Z] STDERR: Next.js build worker exited with code: 1 and signal: null
+[2025-05-26T17:32:17.418Z] ==================================================
+[2025-05-26T17:32:17.418Z] COMMAND FINISHED: next build (exit code: 1)
+[2025-05-26T17:32:17.418Z] ==================================================
+[2025-05-26T17:32:17.418Z] ERROR: Command failed with exit code 1
+[2025-05-26T17:33:15.314Z] ==================================================
+[2025-05-26T17:33:15.315Z] COMMAND STARTED: next build
+[2025-05-26T17:33:15.315Z] ==================================================
+[2025-05-26T17:33:15.553Z] STDOUT: ▲ Next.js 15.3.2
+[2025-05-26T17:33:15.553Z] STDOUT: - Environments: .env.local
+[2025-05-26T17:33:15.604Z] STDOUT: Creating an optimized production build ...
+[2025-05-26T17:33:21.010Z] STDOUT: ✓ Compiled successfully in 3.0s
+[2025-05-26T17:33:21.012Z] STDOUT: Linting and checking validity of types ...
+[2025-05-26T17:33:25.489Z] STDERR: Failed to compile.
+[2025-05-26T17:33:25.489Z] STDERR: ./actions/warmup-queue-actions.ts:275:20
+[2025-05-26T17:33:25.489Z] STDERR: Type error: No overload matches this call.
+[2025-05-26T17:33:25.489Z] STDERR: Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+[2025-05-26T17:33:25.489Z] STDERR: Argument of type 'Timestamp' is not assignable to parameter of type 'string | number | Date'.
+[2025-05-26T17:33:25.489Z] STDERR: Type 'Timestamp' is missing the following properties from type 'Date': toDateString, toTimeString, toLocaleDateString, toLocaleTimeString, and 36 more.
+[2025-05-26T17:33:25.489Z] STDERR: Overload 2 of 4, '(value: string | number): Date', gave the following error.
+[2025-05-26T17:33:25.489Z] STDERR: Argument of type 'Timestamp' is not assignable to parameter of type 'string | number'.
+[2025-05-26T17:33:25.489Z] STDERR: [0m [90m 273 |[39m       }[0m
+[2025-05-26T17:33:25.489Z] STDERR: [0m [90m 274 |[39m       [0m
+[2025-05-26T17:33:25.490Z] STDERR: [0m[31m[1m>[22m[39m[90m 275 |[39m       [36mif[39m ([36mnew[39m [33mDate[39m(account[33m.[39mwarmupEndDate)[33m.[39mgetTime() [33m<[39m now[33m.[39mtoMillis()) {[0m
+[2025-05-26T17:33:25.490Z] STDERR: [0m [90m     |[39m                    [31m[1m^[22m[39m[0m
+[2025-05-26T17:33:25.490Z] STDERR: [0m [90m 276 |[39m         console[33m.[39mlog([32m`Warmup period ended for account ${account.id}. Setting to completed.`[39m)[33m;[39m[0m
+[2025-05-26T17:33:25.490Z] STDERR: [0m [90m 277 |[39m         [36mawait[39m updateWarmupAccountAction(account[33m.[39mid[33m,[39m { status[33m:[39m [32m"completed"[39m[33m,[39m isActive[33m:[39m [36mfalse[39m })[33m;[39m[0m
+[2025-05-26T17:33:25.490Z] STDERR: [0m [90m 278 |[39m         [36mcontinue[39m[33m;[39m[0m
+[2025-05-26T17:33:25.519Z] STDERR: Next.js build worker exited with code: 1 and signal: null
+[2025-05-26T17:33:25.523Z] ==================================================
+[2025-05-26T17:33:25.524Z] COMMAND FINISHED: next build (exit code: 1)
+[2025-05-26T17:33:25.524Z] ==================================================
+[2025-05-26T17:33:25.524Z] ERROR: Command failed with exit code 1
+[2025-05-26T17:34:06.629Z] ==================================================
+[2025-05-26T17:34:06.630Z] COMMAND STARTED: next build
+[2025-05-26T17:34:06.630Z] ==================================================
+[2025-05-26T17:34:06.982Z] STDOUT: ▲ Next.js 15.3.2
+[2025-05-26T17:34:06.982Z] STDOUT: - Environments: .env.local
+[2025-05-26T17:34:07.034Z] STDOUT: Creating an optimized production build ...
+[2025-05-26T17:34:12.662Z] STDOUT: ✓ Compiled successfully in 3.0s
+[2025-05-26T17:34:12.664Z] STDOUT: Linting and checking validity of types ...
+[2025-05-26T17:34:17.349Z] STDERR: Failed to compile.
+[2025-05-26T17:34:17.350Z] STDERR: ./app/api/queue/check-warmup-comments/route.ts:89:38
+[2025-05-26T17:34:17.350Z] STDERR: Type error: Expected 3 arguments, but got 2.
+[2025-05-26T17:34:17.350Z] STDERR: [0m [90m 87 |[39m[0m
+[2025-05-26T17:34:17.350Z] STDERR: [0m [90m 88 |[39m         [90m// Fetch current comments from Reddit[39m[0m
+[2025-05-26T17:34:17.350Z] STDERR: [0m[31m[1m>[22m[39m[90m 89 |[39m         [36mconst[39m commentsResult [33m=[39m [36mawait[39m getPostCommentsAction([0m
+[2025-05-26T17:34:17.350Z] STDERR: [0m [90m    |[39m                                      [31m[1m^[22m[39m[0m
+[2025-05-26T17:34:17.350Z] STDERR: [0m [90m 90 |[39m           post[33m.[39msubreddit[33m,[39m[0m
+[2025-05-26T17:34:17.350Z] STDERR: [0m [90m 91 |[39m           post[33m.[39mredditPostId[0m
+[2025-05-26T17:34:17.350Z] STDERR: [0m [90m 92 |[39m         )[0m
+[2025-05-26T17:34:17.375Z] STDERR: Next.js build worker exited with code: 1 and signal: null
+[2025-05-26T17:34:17.380Z] ==================================================
+[2025-05-26T17:34:17.380Z] COMMAND FINISHED: next build (exit code: 1)
+[2025-05-26T17:34:17.380Z] ==================================================
+[2025-05-26T17:34:17.380Z] ERROR: Command failed with exit code 1
+[2025-05-26T17:34:42.988Z] ==================================================
+[2025-05-26T17:34:42.988Z] COMMAND STARTED: next build
+[2025-05-26T17:34:42.989Z] ==================================================
+[2025-05-26T17:34:43.336Z] STDOUT: ▲ Next.js 15.3.2
+[2025-05-26T17:34:43.337Z] STDOUT: - Environments: .env.local
+[2025-05-26T17:34:43.501Z] STDOUT: Creating an optimized production build ...
+[2025-05-26T17:34:49.369Z] STDOUT: ✓ Compiled successfully in 3.0s
+[2025-05-26T17:34:49.371Z] STDOUT: Linting and checking validity of types ...
+[2025-05-26T17:34:54.054Z] STDERR: Failed to compile.
+[2025-05-26T17:34:54.054Z] STDERR: ./app/api/queue/process-warmup/route.ts:86:36
+[2025-05-26T17:34:54.054Z] STDERR: Type error: Expected 4 arguments, but got 3.
+[2025-05-26T17:34:54.054Z] STDERR: [0m [90m 84 |[39m[0m
+[2025-05-26T17:34:54.054Z] STDERR: [0m [90m 85 |[39m         [90m// Submit to Reddit[39m[0m
+[2025-05-26T17:34:54.054Z] STDERR: [0m[31m[1m>[22m[39m[90m 86 |[39m         [36mconst[39m submitResult [33m=[39m [36mawait[39m submitRedditPostAction([0m
+[2025-05-26T17:34:54.054Z] STDERR: [0m [90m    |[39m                                    [31m[1m^[22m[39m[0m
+[2025-05-26T17:34:54.054Z] STDERR: [0m [90m 87 |[39m           post[33m.[39msubreddit[33m,[39m[0m
+[2025-05-26T17:34:54.055Z] STDERR: [0m [90m 88 |[39m           post[33m.[39mtitle[33m,[39m[0m
+[2025-05-26T17:34:54.055Z] STDERR: [0m [90m 89 |[39m           post[33m.[39mcontent[0m
+[2025-05-26T17:34:54.085Z] STDERR: Next.js build worker exited with code: 1 and signal: null
+[2025-05-26T17:34:54.090Z] ==================================================
+[2025-05-26T17:34:54.090Z] COMMAND FINISHED: next build (exit code: 1)
+[2025-05-26T17:34:54.090Z] ==================================================
+[2025-05-26T17:34:54.090Z] ERROR: Command failed with exit code 1
+[2025-05-26T17:35:23.147Z] ==================================================
+[2025-05-26T17:35:23.148Z] COMMAND STARTED: next build
+[2025-05-26T17:35:23.148Z] ==================================================
+[2025-05-26T17:35:23.418Z] STDOUT: ▲ Next.js 15.3.2
+[2025-05-26T17:35:23.418Z] STDOUT: - Environments: .env.local
+[2025-05-26T17:35:23.469Z] STDOUT: Creating an optimized production build ...
+[2025-05-26T17:35:29.663Z] STDOUT: ✓ Compiled successfully in 4.0s
+[2025-05-26T17:35:29.665Z] STDOUT: Linting and checking validity of types ...
+[2025-05-26T17:35:34.608Z] STDERR: Failed to compile.
+[2025-05-26T17:35:34.608Z] STDERR: ./app/api/reddit/comments/route.ts:56:7
+[2025-05-26T17:35:34.608Z] STDERR: Type error: Argument of type 'number' is not assignable to parameter of type '"best" | "top" | "new" | "controversial" | "old" | undefined'.
+[2025-05-26T17:35:34.608Z] STDERR: [0m [90m 54 |[39m       subreddit[33m,[39m[0m
+[2025-05-26T17:35:34.608Z] STDERR: [0m [90m 55 |[39m       sort [33m||[39m [32m"best"[39m[33m,[39m[0m
+[2025-05-26T17:35:34.608Z] STDERR: [0m[31m[1m>[22m[39m[90m 56 |[39m       limit [33m?[39m parseInt(limit) [33m:[39m [35m100[39m[0m
+[2025-05-26T17:35:34.608Z] STDERR: [0m [90m    |[39m       [31m[1m^[22m[39m[0m
+[2025-05-26T17:35:34.608Z] STDERR: [0m [90m 57 |[39m     )[0m
+[2025-05-26T17:35:34.608Z] STDERR: [0m [90m 58 |[39m[0m
+[2025-05-26T17:35:34.608Z] STDERR: [0m [90m 59 |[39m     [36mif[39m ([33m![39mresult[33m.[39misSuccess) {[0m
+[2025-05-26T17:35:34.636Z] STDERR: Next.js build worker exited with code: 1 and signal: null
+[2025-05-26T17:35:34.641Z] ==================================================
+[2025-05-26T17:35:34.641Z] COMMAND FINISHED: next build (exit code: 1)
+[2025-05-26T17:35:34.641Z] ==================================================
+[2025-05-26T17:35:34.641Z] ERROR: Command failed with exit code 1
+[2025-05-26T17:36:14.909Z] ==================================================
+[2025-05-26T17:36:14.910Z] COMMAND STARTED: next build
+[2025-05-26T17:36:14.910Z] ==================================================
+[2025-05-26T17:36:15.172Z] STDOUT: ▲ Next.js 15.3.2
+[2025-05-26T17:36:15.172Z] STDOUT: - Environments: .env.local
+[2025-05-26T17:36:15.225Z] STDOUT: Creating an optimized production build ...
+[2025-05-26T17:36:21.195Z] STDOUT: ✓ Compiled successfully in 4.0s
+[2025-05-26T17:36:21.197Z] STDOUT: Linting and checking validity of types ...
+[2025-05-26T17:36:25.738Z] STDERR: Failed to compile.
+[2025-05-26T17:36:25.738Z] STDERR: ./app/debug/lead-generation-debug/_components/lead-generation-debugger.tsx:116:35
+[2025-05-26T17:36:25.738Z] STDERR: Type error: Cannot find name 'getProfileByUserIdAction'.
+[2025-05-26T17:36:25.738Z] STDERR: [0m [90m 114 |[39m       [90m// Step 2: Check profile[39m[0m
+[2025-05-26T17:36:25.739Z] STDERR: [0m [90m 115 |[39m       updateStep([32m"Profile Check"[39m[33m,[39m [32m"checking"[39m)[0m
+[2025-05-26T17:36:25.739Z] STDERR: [0m[31m[1m>[22m[39m[90m 116 |[39m       [36mconst[39m profileResult [33m=[39m [36mawait[39m getProfileByUserIdAction(user[33m.[39mid)[0m
+[2025-05-26T17:36:25.739Z] STDERR: [0m [90m     |[39m                                   [31m[1m^[22m[39m[0m
+[2025-05-26T17:36:25.739Z] STDERR: [0m [90m 117 |[39m       [36mif[39m (profileResult[33m.[39misSuccess) {[0m
+[2025-05-26T17:36:25.739Z] STDERR: [0m [90m 118 |[39m         updateStep([32m"Profile Check"[39m[33m,[39m [32m"success"[39m[33m,[39m [32m"Profile found"[39m[33m,[39m {[0m
+[2025-05-26T17:36:25.739Z] STDERR: [0m [90m 119 |[39m           name[33m:[39m profileResult[33m.[39mdata[33m.[39mname[33m,[39m[0m
+[2025-05-26T17:36:25.766Z] STDERR: Next.js build worker exited with code: 1 and signal: null
+[2025-05-26T17:36:25.771Z] ==================================================
+[2025-05-26T17:36:25.771Z] COMMAND FINISHED: next build (exit code: 1)
+[2025-05-26T17:36:25.771Z] ==================================================
+[2025-05-26T17:36:25.772Z] ERROR: Command failed with exit code 1
+[2025-05-26T17:36:52.075Z] ==================================================
+[2025-05-26T17:36:52.076Z] COMMAND STARTED: next build
+[2025-05-26T17:36:52.076Z] ==================================================
+[2025-05-26T17:36:52.333Z] STDOUT: ▲ Next.js 15.3.2
+[2025-05-26T17:36:52.333Z] STDOUT: - Environments: .env.local
+[2025-05-26T17:36:52.387Z] STDOUT: Creating an optimized production build ...
+[2025-05-26T17:36:58.985Z] STDOUT: ✓ Compiled successfully in 4.0s
+[2025-05-26T17:36:58.987Z] STDOUT: Linting and checking validity of types ...
+[2025-05-26T17:37:03.664Z] STDERR: Failed to compile.
+[2025-05-26T17:37:03.664Z] STDERR: ./app/reddit-test/page.tsx:25:28
+[2025-05-26T17:37:03.664Z] STDERR: Type error: Expected 1 arguments, but got 0.
+[2025-05-26T17:37:03.664Z] STDERR: [0m [90m 23 |[39m     setLoading([36mtrue[39m)[0m
+[2025-05-26T17:37:03.664Z] STDERR: [0m [90m 24 |[39m     [36mtry[39m {[0m
+[2025-05-26T17:37:03.664Z] STDERR: [0m[31m[1m>[22m[39m[90m 25 |[39m       [36mconst[39m result [33m=[39m [36mawait[39m testRedditConnectionAction()[0m
+[2025-05-26T17:37:03.664Z] STDERR: [0m [90m    |[39m                            [31m[1m^[22m[39m[0m
+[2025-05-26T17:37:03.664Z] STDERR: [0m [90m 26 |[39m       setResults(prev [33m=>[39m [[0m
+[2025-05-26T17:37:03.664Z] STDERR: [0m [90m 27 |[39m         [33m...[39mprev[33m,[39m[0m
+[2025-05-26T17:37:03.664Z] STDERR: [0m [90m 28 |[39m         {[0m
+[2025-05-26T17:37:03.695Z] STDERR: Next.js build worker exited with code: 1 and signal: null
+[2025-05-26T17:37:03.700Z] ==================================================
+[2025-05-26T17:37:03.700Z] COMMAND FINISHED: next build (exit code: 1)
+[2025-05-26T17:37:03.700Z] ==================================================
+[2025-05-26T17:37:03.700Z] ERROR: Command failed with exit code 1
+[2025-05-26T17:37:43.575Z] ==================================================
+[2025-05-26T17:37:43.576Z] COMMAND STARTED: next build
+[2025-05-26T17:37:43.576Z] ==================================================
+[2025-05-26T17:37:43.840Z] STDOUT: ▲ Next.js 15.3.2
+[2025-05-26T17:37:43.840Z] STDOUT: - Environments: .env.local
+[2025-05-26T17:37:43.894Z] STDOUT: Creating an optimized production build ...
+[2025-05-26T17:37:49.948Z] STDOUT: ✓ Compiled successfully in 4.0s
+[2025-05-26T17:37:49.950Z] STDOUT: Linting and checking validity of types ...
+[2025-05-26T17:37:54.704Z] STDERR: Failed to compile.
+[2025-05-26T17:37:54.704Z] STDERR: ./app/reddit/knowledge-base/_components/add-to-knowledge-base.tsx:97:36
+[2025-05-26T17:37:54.704Z] STDERR: Type error: Property 'website' does not exist on type 'SerializedProfileDocument'.
+[2025-05-26T17:37:54.704Z] STDERR: [0m [90m  95 |[39m           organizationId[33m,[39m[0m
+[2025-05-26T17:37:54.704Z] STDERR: [0m [90m  96 |[39m           customInformation[33m:[39m newInformation[33m,[39m[0m
+[2025-05-26T17:37:54.704Z] STDERR: [0m[31m[1m>[22m[39m[90m  97 |[39m           websiteUrl[33m:[39m userProfile[33m?[39m[33m.[39mwebsite[0m
+[2025-05-26T17:37:54.704Z] STDERR: [0m [90m     |[39m                                    [31m[1m^[22m[39m[0m
+[2025-05-26T17:37:54.704Z] STDERR: [0m [90m  98 |[39m         })[0m
+[2025-05-26T17:37:54.704Z] STDERR: [0m [90m  99 |[39m[0m
+[2025-05-26T17:37:54.705Z] STDERR: [0m [90m 100 |[39m         [36mif[39m (result[33m.[39misSuccess) {[0m
+[2025-05-26T17:37:54.734Z] STDERR: Next.js build worker exited with code: 1 and signal: null
+[2025-05-26T17:37:54.740Z] ==================================================
+[2025-05-26T17:37:54.740Z] COMMAND FINISHED: next build (exit code: 1)
+[2025-05-26T17:37:54.740Z] ==================================================
+[2025-05-26T17:37:54.740Z] ERROR: Command failed with exit code 1
+[2025-05-26T17:38:43.209Z] ==================================================
+[2025-05-26T17:38:43.210Z] COMMAND STARTED: next build
+[2025-05-26T17:38:43.210Z] ==================================================
+[2025-05-26T17:38:43.474Z] STDOUT: ▲ Next.js 15.3.2
+[2025-05-26T17:38:43.474Z] STDOUT: - Environments: .env.local
+[2025-05-26T17:38:43.530Z] STDOUT: Creating an optimized production build ...
+[2025-05-26T17:38:49.640Z] STDOUT: ✓ Compiled successfully in 4.0s
+[2025-05-26T17:38:49.642Z] STDOUT: Linting and checking validity of types ...
+[2025-05-26T17:38:54.700Z] STDERR: Failed to compile.
+[2025-05-26T17:38:54.700Z] STDERR: ./app/reddit/knowledge-base/_components/knowledge-base-display.tsx:12:10
+[2025-05-26T17:38:54.700Z] STDERR: Type error: Module '"@/actions/db/personalization-actions"' declares 'SerializedKnowledgeBaseDocument' locally, but it is not exported.
+[2025-05-26T17:38:54.700Z] STDERR: [0m [90m 10 |[39m [36mimport[39m { [33mBadge[39m } [36mfrom[39m [32m"@/components/ui/badge"[39m[0m
+[2025-05-26T17:38:54.701Z] STDERR: [0m [90m 11 |[39m [36mimport[39m { [33mGlobe[39m[33m,[39m [33mFileText[39m[33m,[39m [33mLink[39m[33m,[39m [33mBrain[39m } [36mfrom[39m [32m"lucide-react"[39m[0m
+[2025-05-26T17:38:54.701Z] STDERR: [0m[31m[1m>[22m[39m[90m 12 |[39m [36mimport[39m { [33mSerializedKnowledgeBaseDocument[39m } [36mfrom[39m [32m"@/actions/db/personalization-actions"[39m[0m
+[2025-05-26T17:38:54.701Z] STDERR: [0m [90m    |[39m          [31m[1m^[22m[39m[0m
+[2025-05-26T17:38:54.701Z] STDERR: [0m [90m 13 |[39m [36mimport[39m { [33mSerializedProfileDocument[39m } [36mfrom[39m [32m"@/actions/db/profiles-actions"[39m[0m
+[2025-05-26T17:38:54.701Z] STDERR: [0m [90m 14 |[39m[0m
+[2025-05-26T17:38:54.701Z] STDERR: [0m [90m 15 |[39m [36minterface[39m [33mKnowledgeBaseDisplayProps[39m {[0m
+[2025-05-26T17:38:54.735Z] STDERR: Next.js build worker exited with code: 1 and signal: null
+[2025-05-26T17:38:54.741Z] ==================================================
+[2025-05-26T17:38:54.741Z] COMMAND FINISHED: next build (exit code: 1)
+[2025-05-26T17:38:54.741Z] ==================================================
+[2025-05-26T17:38:54.741Z] ERROR: Command failed with exit code 1
+[2025-05-26T17:39:30.643Z] ==================================================
+[2025-05-26T17:39:30.644Z] COMMAND STARTED: next build
+[2025-05-26T17:39:30.644Z] ==================================================
+[2025-05-26T17:39:30.908Z] STDOUT: ▲ Next.js 15.3.2
+[2025-05-26T17:39:30.908Z] STDOUT: - Environments: .env.local
+[2025-05-26T17:39:30.960Z] STDOUT: Creating an optimized production build ...
+[2025-05-26T17:39:37.026Z] STDOUT: ✓ Compiled successfully in 4.0s
+[2025-05-26T17:39:37.028Z] STDOUT: Linting and checking validity of types ...
+[2025-05-26T17:39:41.718Z] STDERR: Failed to compile.
+[2025-05-26T17:39:41.718Z] STDERR: ./app/reddit/knowledge-base/_components/knowledge-base-display.tsx:68:22
+[2025-05-26T17:39:41.718Z] STDERR: Type error: 'userProfile' is possibly 'null'.
+[2025-05-26T17:39:41.719Z] STDERR: [0m [90m 66 |[39m                 [33m<[39m[33mdiv[39m className[33m=[39m[32m"rounded-lg bg-blue-50 p-3 dark:bg-blue-900/30"[39m[33m>[39m[0m
+[2025-05-26T17:39:41.719Z] STDERR: [0m [90m 67 |[39m                   [33m<[39m[33mp[39m className[33m=[39m[32m"text-sm font-medium text-blue-900 dark:text-blue-100"[39m[33m>[39m[0m
+[2025-05-26T17:39:41.719Z] STDERR: [0m[31m[1m>[22m[39m[90m 68 |[39m                     {userProfile[33m.[39mwebsite}[0m
+[2025-05-26T17:39:41.719Z] STDERR: [0m [90m    |[39m                      [31m[1m^[22m[39m[0m
+[2025-05-26T17:39:41.719Z] STDERR: [0m [90m 69 |[39m                   [33m<[39m[33m/[39m[33mp[39m[33m>[39m[0m
+[2025-05-26T17:39:41.719Z] STDERR: [0m [90m 70 |[39m                   [33m<[39m[33mp[39m className[33m=[39m[32m"mt-1 text-xs text-blue-700 dark:text-blue-300"[39m[33m>[39m[0m
+[2025-05-26T17:39:41.719Z] STDERR: [0m [90m 71 |[39m                     [33mPrimary[39m website [36mfrom[39m your profile[0m
+[2025-05-26T17:39:41.749Z] STDERR: Next.js build worker exited with code: 1 and signal: null
+[2025-05-26T17:39:41.755Z] ==================================================
+[2025-05-26T17:39:41.755Z] COMMAND FINISHED: next build (exit code: 1)
+[2025-05-26T17:39:41.755Z] ==================================================
+[2025-05-26T17:39:41.755Z] ERROR: Command failed with exit code 1
+[2025-05-26T17:39:53.963Z] ==================================================
+[2025-05-26T17:39:53.964Z] COMMAND STARTED: next build
+[2025-05-26T17:39:53.964Z] ==================================================
+[2025-05-26T17:39:54.225Z] STDOUT: ▲ Next.js 15.3.2
+[2025-05-26T17:39:54.225Z] STDOUT: - Environments: .env.local
+[2025-05-26T17:39:54.278Z] STDOUT: Creating an optimized production build ...
+[2025-05-26T17:39:59.661Z] STDOUT: ✓ Compiled successfully in 3.0s
+[2025-05-26T17:39:59.663Z] STDOUT: Linting and checking validity of types ...
+[2025-05-26T17:40:04.238Z] STDERR: Failed to compile.
+[2025-05-26T17:40:04.239Z] STDERR: ./app/reddit/lead-finder/_components/dashboard/types.ts:1:10
+[2025-05-26T17:40:04.239Z] STDERR: Type error: Module '"@/actions/db/lead-generation-actions"' declares 'SerializedGeneratedCommentDocument' locally, but it is not exported.
+[2025-05-26T17:40:04.239Z] STDERR: [0m[31m[1m>[22m[39m[90m 1 |[39m [36mimport[39m { [33mSerializedGeneratedCommentDocument[39m } [36mfrom[39m [32m"@/actions/db/lead-generation-actions"[39m[0m
+[2025-05-26T17:40:04.239Z] STDERR: [0m [90m   |[39m          [31m[1m^[22m[39m[0m
+[2025-05-26T17:40:04.239Z] STDERR: [0m [90m 2 |[39m[0m
+[2025-05-26T17:40:04.239Z] STDERR: [0m [90m 3 |[39m [90m// Interface for individual lead result displayed in the UI[39m[0m
+[2025-05-26T17:40:04.239Z] STDERR: [0m [90m 4 |[39m [36mexport[39m [36minterface[39m [33mLeadResult[39m {[0m
+[2025-05-26T17:40:04.278Z] STDERR: Next.js build worker exited with code: 1 and signal: null
+[2025-05-26T17:40:04.284Z] ==================================================
+[2025-05-26T17:40:04.284Z] COMMAND FINISHED: next build (exit code: 1)
+[2025-05-26T17:40:04.285Z] ==================================================
+[2025-05-26T17:40:04.285Z] ERROR: Command failed with exit code 1
+[2025-05-26T17:40:18.170Z] ==================================================
+[2025-05-26T17:40:18.171Z] COMMAND STARTED: next build
+[2025-05-26T17:40:18.171Z] ==================================================
+[2025-05-26T17:40:18.442Z] STDOUT: ▲ Next.js 15.3.2
+[2025-05-26T17:40:18.442Z] STDOUT: - Environments: .env.local
+[2025-05-26T17:40:18.496Z] STDOUT: Creating an optimized production build ...
+[2025-05-26T17:40:24.129Z] STDOUT: ✓ Compiled successfully in 3.0s
+[2025-05-26T17:40:24.131Z] STDOUT: Linting and checking validity of types ...
+[2025-05-26T17:40:29.376Z] STDERR: Failed to compile.
+[2025-05-26T17:40:29.376Z] STDERR: ./app/reddit/personalization/_components/knowledge-base-section.tsx:17:10
+[2025-05-26T17:40:29.376Z] STDERR: Type error: Module '"@/actions/db/personalization-actions"' declares 'SerializedKnowledgeBaseDocument' locally, but it is not exported.
+[2025-05-26T17:40:29.376Z] STDERR: [0m [90m 15 |[39m [36mimport[39m { [33mBadge[39m } [36mfrom[39m [32m"@/components/ui/badge"[39m[0m
+[2025-05-26T17:40:29.376Z] STDERR: [0m [90m 16 |[39m [36mimport[39m { [33mLoader2[39m[33m,[39m [33mGlobe[39m[33m,[39m [33mPlus[39m[33m,[39m [33mX[39m } [36mfrom[39m [32m"lucide-react"[39m[0m
+[2025-05-26T17:40:29.376Z] STDERR: [0m[31m[1m>[22m[39m[90m 17 |[39m [36mimport[39m { [33mSerializedKnowledgeBaseDocument[39m } [36mfrom[39m [32m"@/actions/db/personalization-actions"[39m[0m
+[2025-05-26T17:40:29.376Z] STDERR: [0m [90m    |[39m          [31m[1m^[22m[39m[0m
+[2025-05-26T17:40:29.376Z] STDERR: [0m [90m 18 |[39m [36mimport[39m { [33mSerializedProfileDocument[39m } [36mfrom[39m [32m"@/actions/db/profiles-actions"[39m[0m
+[2025-05-26T17:40:29.376Z] STDERR: [0m [90m 19 |[39m [36mimport[39m { useToast } [36mfrom[39m [32m"@/hooks/use-toast"[39m[0m
+[2025-05-26T17:40:29.376Z] STDERR: [0m [90m 20 |[39m [36mimport[39m [33mWebsiteScrapeDialog[39m [36mfrom[39m [32m"./website-scrape-dialog"[39m[0m
+[2025-05-26T17:40:29.413Z] STDERR: Next.js build worker exited with code: 1 and signal: null
+[2025-05-26T17:40:29.418Z] ==================================================
+[2025-05-26T17:40:29.418Z] COMMAND FINISHED: next build (exit code: 1)
+[2025-05-26T17:40:29.418Z] ==================================================
+[2025-05-26T17:40:29.419Z] ERROR: Command failed with exit code 1

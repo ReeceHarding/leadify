@@ -14,8 +14,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Loader2, Globe, Plus, X } from "lucide-react"
-import { SerializedKnowledgeBaseDocument } from "@/actions/db/personalization-actions"
-import { SerializedProfileDocument } from "@/actions/db/profiles-actions"
+import { SerializedKnowledgeBaseDocument, SerializedProfileDocument } from "@/types"
+import { useOrganization } from "@/components/utilities/organization-provider"
 import { useToast } from "@/hooks/use-toast"
 import WebsiteScrapeDialog from "./website-scrape-dialog"
 
@@ -72,7 +72,7 @@ export default function KnowledgeBaseSection({
         const result = await createKnowledgeBaseAction({
           userId,
           customInformation,
-          websiteUrl: userProfile?.website
+          websiteUrl: activeOrganization?.website
         })
 
         if (result.isSuccess) {
@@ -119,7 +119,7 @@ export default function KnowledgeBaseSection({
             <Label>Connected Website</Label>
             <div className="flex items-center gap-2">
               <Input
-                value={userProfile?.website || ""}
+                value={activeOrganization?.website || ""}
                 placeholder="No website connected"
                 disabled
                 className="flex-1"
@@ -127,13 +127,13 @@ export default function KnowledgeBaseSection({
               <Button
                 variant="outline"
                 onClick={() => setShowScrapeDialog(true)}
-                disabled={!userProfile?.website}
+                disabled={!activeOrganization?.website}
               >
                 <Plus className="mr-2 size-4" />
                 Scrape Pages
               </Button>
             </div>
-            {userProfile?.website && (
+            {activeOrganization?.website && (
               <p className="text-sm text-gray-600">
                 We know about your website from your profile. You can scrape
                 specific pages to add to your knowledge base.
@@ -201,7 +201,7 @@ export default function KnowledgeBaseSection({
       <WebsiteScrapeDialog
         open={showScrapeDialog}
         onOpenChange={setShowScrapeDialog}
-        websiteUrl={userProfile?.website || ""}
+        websiteUrl={activeOrganization?.website || ""}
         userId={userId}
         knowledgeBase={knowledgeBase}
         setKnowledgeBase={setKnowledgeBase}

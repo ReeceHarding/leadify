@@ -9,8 +9,8 @@ import {
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Globe, FileText, Link, Brain } from "lucide-react"
-import { SerializedKnowledgeBaseDocument } from "@/actions/db/personalization-actions"
-import { SerializedProfileDocument } from "@/actions/db/profiles-actions"
+import { SerializedKnowledgeBaseDocument, SerializedProfileDocument } from "@/types"
+import { useOrganization } from "@/components/utilities/organization-provider"
 
 interface KnowledgeBaseDisplayProps {
   knowledgeBase: SerializedKnowledgeBaseDocument | null
@@ -21,11 +21,12 @@ export default function KnowledgeBaseDisplay({
   knowledgeBase,
   userProfile
 }: KnowledgeBaseDisplayProps) {
+  const { activeOrganization } = useOrganization()
   const hasAnyData =
     knowledgeBase?.customInformation ||
     knowledgeBase?.summary ||
     (knowledgeBase?.scrapedPages && knowledgeBase.scrapedPages.length > 0) ||
-    userProfile?.website
+    activeOrganization?.website
 
   return (
     <Card className="bg-white shadow-sm dark:bg-gray-900">
@@ -54,7 +55,7 @@ export default function KnowledgeBaseDisplay({
         ) : (
           <>
             {/* Connected Website */}
-            {userProfile?.website && (
+            {activeOrganization?.website && (
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Globe className="size-4 text-blue-600 dark:text-blue-400" />
@@ -64,7 +65,7 @@ export default function KnowledgeBaseDisplay({
                 </div>
                 <div className="rounded-lg bg-blue-50 p-3 dark:bg-blue-900/30">
                   <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                    {userProfile.website}
+                    {activeOrganization?.website}
                   </p>
                   <p className="mt-1 text-xs text-blue-700 dark:text-blue-300">
                     Primary website from your profile

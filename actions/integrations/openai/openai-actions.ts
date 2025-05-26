@@ -312,6 +312,7 @@ export async function regenerateCommentsWithToneAction(
   subreddit: string,
   websiteContent: string,
   toneInstruction: string,
+  organizationId: string,
   postUrl?: string // Add optional postUrl parameter
 ): Promise<
   ActionState<{
@@ -340,6 +341,7 @@ export async function regenerateCommentsWithToneAction(
         )
 
         const commentsResult = await fetchRedditCommentsAction(
+          organizationId,
           threadId,
           subreddit,
           "best",

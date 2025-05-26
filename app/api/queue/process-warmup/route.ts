@@ -84,6 +84,7 @@ export async function POST(request: Request) {
 
         // Submit to Reddit
         const submitResult = await submitRedditPostAction(
+          post.organizationId,
           post.subreddit,
           post.title,
           post.content
@@ -102,11 +103,7 @@ export async function POST(request: Request) {
           await updateWarmupRateLimitAction(post.userId, post.subreddit)
 
           // Generate comments for the post
-          await generateCommentsForWarmupPostAction(
-            post.id,
-            submitResult.data.id,
-            post.subreddit
-          )
+          await generateCommentsForWarmupPostAction(post.id)
 
           postsProcessed++
           console.log(
@@ -188,6 +185,7 @@ export async function POST(request: Request) {
               : `t3_${post.redditPostId}`
 
             const submitResult = await submitRedditCommentAction(
+              post.organizationId,
               parentFullname,
               comment.content
             )
