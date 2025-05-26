@@ -60,183 +60,149 @@ export async function fetchUserTweetsAction(
     const cleanUsername = username.replace("@", "").trim()
     console.log("🔥 [TWITTER-AIO] Clean username:", cleanUsername)
 
-    // According to Twitter AIO docs, we should use /search with fromTheseAccounts filter
-    const filters = {
-      fromTheseAccounts: [cleanUsername],
-      removeReplies: true // Only get original tweets, not replies
-    }
+    // Try multiple potential endpoints based on common Twitter API patterns
+    const endpointsToTry = [
+      { name: "user", path: "/user", params: { username: cleanUsername } },
+      { name: "user-tweets", path: "/user-tweets", params: { username: cleanUsername } },
+      { name: "profile", path: "/profile", params: { username: cleanUsername } },
+      { name: "tweets", path: "/tweets", params: { username: cleanUsername } },
+      { name: "user-timeline", path: "/user-timeline", params: { username: cleanUsername } }
+    ]
 
-    const url = `${TWITTER_AIO_BASE_URL}/search`
-    const params = new URLSearchParams({
-      query: `from:${cleanUsername}`, // Basic query to get tweets from user
-      count: Math.min(count, 100).toString(),
-      category: "Latest", // Get latest tweets
-      filters: JSON.stringify(filters)
-    })
+    let lastError = ""
+    
+    for (const endpoint of endpointsToTry) {
+      console.log(`🔥 [TWITTER-AIO] Trying endpoint: ${endpoint.name} (${endpoint.path})`)
+      
+      try {
+        const params = new URLSearchParams({
+          ...endpoint.params,
+          count: Math.min(count, 100).toString()
+        })
+        
+        const fullUrl = `${TWITTER_AIO_BASE_URL}${endpoint.path}?${params}`
+        console.log("🔥 [TWITTER-AIO] Request URL:", fullUrl)
 
-    const fullUrl = `${url}?${params}`
-    console.log("🔥 [TWITTER-AIO] Request URL:", fullUrl)
-    console.log("🔥 [TWITTER-AIO] Filters:", JSON.stringify(filters, null, 2))
+        const response = await fetch(fullUrl, {
+          method: "GET",
+          headers: {
+            "X-RapidAPI-Key": TWITTER_AIO_API_KEY,
+            "X-RapidAPI-Host": "twitter-aio.p.rapidapi.com",
+            Accept: "application/json"
+          }
+        })
 
-    const response = await fetch(fullUrl, {
-      method: "GET",
-      headers: {
-        "X-RapidAPI-Key": TWITTER_AIO_API_KEY,
-        "X-RapidAPI-Host": "twitter-aio.p.rapidapi.com",
-        Accept: "application/json"
-      }
-    })
+        console.log(`🔥 [TWITTER-AIO] ${endpoint.name} response status:`, response.status)
 
-    console.log("🔥 [TWITTER-AIO] Response status:", response.status)
-    console.log(
-      "🔥 [TWITTER-AIO] Response headers:",
-      Object.fromEntries(response.headers.entries())
-    )
-
-    const responseText = await response.text()
-    console.log("🔥 [TWITTER-AIO] Raw response length:", responseText.length)
-    console.log(
-      "🔥 [TWITTER-AIO] Raw response preview:",
-      responseText.substring(0, 500)
-    )
-
-    if (!response.ok) {
-      console.error(
-        "🔥 [TWITTER-AIO] API error:",
-        response.status,
-        responseText
-      )
-
-      // Handle specific error cases
-      if (response.status === 404) {
-        return {
-          isSuccess: false,
-          message: "User not found. Please check the Twitter handle."
+        if (response.status === 404) {
+          console.log(`🔥 [TWITTER-AIO] Endpoint ${endpoint.name} not found, trying next...`)
+          lastError = `Endpoint ${endpoint.path} not found`
+          continue
         }
-      } else if (response.status === 429) {
-        return {
-          isSuccess: false,
-          message: "Rate limit exceeded. Please try again later."
+
+        if (!response.ok) {
+          const errorText = await response.text()
+          console.error(`🔥 [TWITTER-AIO] ${endpoint.name} error:`, response.status, errorText)
+          lastError = `${endpoint.name}: ${response.status} - ${errorText}`
+          
+          // If it's a rate limit or auth error, don't try other endpoints
+          if (response.status === 429 || response.status === 401 || response.status === 403) {
+            return {
+              isSuccess: false,
+              message: response.status === 429 
+                ? "Rate limit exceeded. Please try again later."
+                : response.status === 401
+                ? "Invalid API key. Please check your Twitter AIO API key."
+                : "Access forbidden. The API key may not have the required permissions."
+            }
+          }
+          continue
         }
-      } else if (response.status === 401) {
-        return {
-          isSuccess: false,
-          message: "Invalid API key. Please check your Twitter AIO API key."
+
+        const responseText = await response.text()
+        console.log(`🔥 [TWITTER-AIO] ${endpoint.name} response length:`, responseText.length)
+
+        let data: any
+        try {
+          data = JSON.parse(responseText)
+        } catch (parseError) {
+          console.error(`🔥 [TWITTER-AIO] ${endpoint.name} parse error:`, parseError)
+          lastError = `${endpoint.name}: Invalid JSON response`
+          continue
         }
-      } else if (response.status === 403) {
-        return {
-          isSuccess: false,
-          message:
-            "Access forbidden. The API key may not have the required permissions."
+
+        // Check for API error in response
+        if (data && data.error) {
+          console.error(`🔥 [TWITTER-AIO] ${endpoint.name} API error:`, data.error)
+          lastError = `${endpoint.name}: ${data.error}`
+          continue
         }
-      }
 
-      return {
-        isSuccess: false,
-        message: `Twitter API error: ${response.status} - ${responseText}`
-      }
-    }
+        // Try to extract tweets from various possible response structures
+        let tweets: TwitterAIOTweet[] = []
+        
+        if (data && data.tweets && Array.isArray(data.tweets)) {
+          tweets = data.tweets
+          console.log(`🔥 [TWITTER-AIO] Found tweets in ${endpoint.name}.tweets`)
+        } else if (data && data.data && Array.isArray(data.data)) {
+          tweets = data.data
+          console.log(`🔥 [TWITTER-AIO] Found tweets in ${endpoint.name}.data`)
+        } else if (Array.isArray(data)) {
+          tweets = data
+          console.log(`🔥 [TWITTER-AIO] Found tweets as direct array in ${endpoint.name}`)
+        } else if (data && data.timeline && Array.isArray(data.timeline)) {
+          tweets = data.timeline
+          console.log(`🔥 [TWITTER-AIO] Found tweets in ${endpoint.name}.timeline`)
+        } else {
+          console.log(`🔥 [TWITTER-AIO] No tweets found in ${endpoint.name} response structure`)
+          lastError = `${endpoint.name}: No tweets found in response`
+          continue
+        }
 
-    // Try to parse the response
-    let data: TwitterAIOSearchResponse
-    try {
-      data = JSON.parse(responseText)
-    } catch (parseError) {
-      console.error("🔥 [TWITTER-AIO] Failed to parse response:", parseError)
-      return {
-        isSuccess: false,
-        message:
-          "Invalid response from Twitter API. The service may be experiencing issues."
-      }
-    }
+        if (tweets.length === 0) {
+          console.log(`🔥 [TWITTER-AIO] ${endpoint.name} returned empty tweets array`)
+          lastError = `${endpoint.name}: Empty tweets array`
+          continue
+        }
 
-    console.log("🔥 [TWITTER-AIO] Response data type:", typeof data)
-    console.log(
-      "🔥 [TWITTER-AIO] Response data keys:",
-      data ? Object.keys(data) : "null"
-    )
-    console.log(
-      "🔥 [TWITTER-AIO] Full response structure:",
-      JSON.stringify(data, null, 2).substring(0, 1000)
-    )
+        // Success! Normalize and return tweets
+        const normalizedTweets = tweets.map((tweet: any) => ({
+          id: tweet.id || tweet.tweet_id || Math.random().toString(),
+          text: tweet.text || tweet.full_text || tweet.content || "",
+          created_at: tweet.created_at || tweet.timestamp || new Date().toISOString(),
+          public_metrics: tweet.public_metrics || tweet.metrics || {
+            like_count: tweet.likes || tweet.favorite_count || 0,
+            retweet_count: tweet.retweets || tweet.retweet_count || 0,
+            reply_count: tweet.replies || tweet.reply_count || 0
+          },
+          author: tweet.author || tweet.user || { 
+            username: cleanUsername, 
+            name: cleanUsername 
+          }
+        }))
 
-    // Check for API error in response
-    if (data && data.error) {
-      console.error("🔥 [TWITTER-AIO] API returned error:", data.error)
-      return {
-        isSuccess: false,
-        message: data.error
-      }
-    }
+        console.log(`🔥 [TWITTER-AIO] Successfully fetched ${normalizedTweets.length} tweets from ${endpoint.name}`)
+        
+        return {
+          isSuccess: true,
+          message: `Successfully fetched ${normalizedTweets.length} tweets`,
+          data: normalizedTweets
+        }
 
-    // Check if response is empty object
-    if (data && typeof data === "object" && Object.keys(data).length === 0) {
-      console.error("🔥 [TWITTER-AIO] API returned empty object")
-      return {
-        isSuccess: false,
-        message:
-          "The Twitter API service is currently not returning data. This appears to be an issue with the Twitter AIO service. Please try again later or contact support if the issue persists."
-      }
-    }
-
-    // Extract tweets from response
-    let tweets: TwitterAIOTweet[] = []
-
-    if (data && data.tweets && Array.isArray(data.tweets)) {
-      tweets = data.tweets
-      console.log("🔥 [TWITTER-AIO] Found tweets in tweets array")
-    } else if (data && data.data && Array.isArray(data.data)) {
-      tweets = data.data
-      console.log("🔥 [TWITTER-AIO] Found tweets in data array")
-    } else if (Array.isArray(data)) {
-      tweets = data as TwitterAIOTweet[]
-      console.log("🔥 [TWITTER-AIO] Response is direct array")
-    } else {
-      console.error("🔥 [TWITTER-AIO] No tweets found in response structure")
-      return {
-        isSuccess: false,
-        message:
-          "No tweets found. The user may have no public tweets or the account may be private."
+      } catch (endpointError) {
+        console.error(`🔥 [TWITTER-AIO] ${endpoint.name} request error:`, endpointError)
+        lastError = `${endpoint.name}: ${endpointError instanceof Error ? endpointError.message : "Unknown error"}`
+        continue
       }
     }
 
-    if (tweets.length === 0) {
-      return {
-        isSuccess: false,
-        message:
-          "No tweets found for this user. They may have no public tweets or the account may be private."
-      }
-    }
-
-    console.log("🔥 [TWITTER-AIO] Tweets count:", tweets.length)
-
-    // Normalize tweet structure to ensure consistency
-    const normalizedTweets = tweets.map(tweet => ({
-      id: tweet.id || Math.random().toString(),
-      text: tweet.text || "",
-      created_at: tweet.created_at || new Date().toISOString(),
-      public_metrics: tweet.public_metrics || {
-        like_count: 0,
-        retweet_count: 0,
-        reply_count: 0
-      },
-      author: tweet.author || { username: cleanUsername, name: cleanUsername }
-    }))
-
-    console.log(
-      "🔥 [TWITTER-AIO] Successfully fetched tweets:",
-      normalizedTweets.length
-    )
-    console.log(
-      "🔥 [TWITTER-AIO] Sample tweet:",
-      normalizedTweets[0]?.text?.substring(0, 100)
-    )
-
+    // If we get here, all endpoints failed
+    console.error("🔥 [TWITTER-AIO] All endpoints failed")
     return {
-      isSuccess: true,
-      message: `Successfully fetched ${normalizedTweets.length} tweets`,
-      data: normalizedTweets
+      isSuccess: false,
+      message: `Twitter AIO API endpoints are not responding correctly. Last error: ${lastError}. The API may have changed or be experiencing issues.`
     }
+    
   } catch (error) {
     console.error("🔥 [TWITTER-AIO] Error fetching tweets:", error)
     return {
@@ -265,11 +231,11 @@ export async function searchTwitterAction(
       }
     }
 
-    const url = `${TWITTER_AIO_BASE_URL}/search`
+    // Try using /tweets endpoint instead of /search
+    const url = `${TWITTER_AIO_BASE_URL}/tweets`
     const params = new URLSearchParams({
       query: query,
-      count: Math.min(count, 100).toString(),
-      category: category
+      count: Math.min(count, 100).toString()
     })
 
     console.log("🔥 [TWITTER-AIO] Request URL:", `${url}?${params}`)
