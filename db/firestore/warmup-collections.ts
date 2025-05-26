@@ -28,6 +28,16 @@ export interface WarmupAccountDocument {
   warmupStartDate: Timestamp
   warmupEndDate: Timestamp // 7 days after start
   dailyPostLimit: number // 2-5 posts per day
+  
+  // NEW: Tracking fields for warmup progress
+  currentDay?: number         // Current day of the warmup cycle (e.g., 1 to 7)
+  postsToday?: number         // Number of posts made today for this account
+  commentsToday?: number      // Number of comments made today for this account
+  totalPostsMade?: number     // Total posts made during the warmup period
+  totalCommentsMade?: number  // Total comments made during the warmup period
+  status?: "active" | "paused" | "completed" | "error" // Overall status of the warmup account
+  lastActivityAt?: Timestamp  // Timestamp of the last post or comment made
+
   createdAt: Timestamp
   updatedAt: Timestamp
 }
@@ -36,12 +46,13 @@ export interface WarmupAccountDocument {
 export interface SerializedWarmupAccountDocument
   extends Omit<
     WarmupAccountDocument,
-    "warmupStartDate" | "warmupEndDate" | "createdAt" | "updatedAt"
+    "warmupStartDate" | "warmupEndDate" | "createdAt" | "updatedAt" | "lastActivityAt"
   > {
   warmupStartDate: string
   warmupEndDate: string
   createdAt: string
   updatedAt: string
+  lastActivityAt?: string
 }
 
 // Generated posts for warm-up
@@ -138,12 +149,11 @@ export interface SerializedSubredditAnalysisDocument
 
 // Rate limiting for warm-up posts
 export interface WarmupRateLimitDocument {
-  id: string // userId_organizationId_subreddit
-  userId: string
-  organizationId: string
+  id: string // Should be organizationId_subreddit
+  organizationId: string // NEW: Primary key component
   subreddit: string
   lastPostTime: Timestamp
-  postsInLast3Days: number
+  postsInLast3Days: number // Simple counter, could be more sophisticated
   createdAt: Timestamp
   updatedAt: Timestamp
 }
@@ -195,7 +205,17 @@ export interface UpdateWarmupAccountData {
   postingMode?: "auto" | "manual"
   isActive?: boolean
   dailyPostLimit?: number
-  updatedAt?: Timestamp
+  
+  // Allow updating tracking fields if needed (e.g., by a cron job or process)
+  currentDay?: number        
+  postsToday?: number        
+  commentsToday?: number     
+  totalPostsMade?: number    
+  totalCommentsMade?: number 
+  status?: "active" | "paused" | "completed" | "error"
+  lastActivityAt?: Timestamp 
+
+  updatedAt?: Timestamp // This is usually set by serverTimestamp() in the action
 }
 
 export interface UpdateWarmupPostData {

@@ -8,10 +8,17 @@ Handles scheduling and processing of posts and comments.
 "use server"
 
 import { ActionState } from "@/types"
-import { Timestamp } from "firebase/firestore"
+import { Timestamp, doc, getDoc } from "firebase/firestore"
+import { db } from "@/db/db"
 import {
-  getWarmupAccountByUserIdAction,
-  getWarmupPostsByUserIdAction,
+  WARMUP_COLLECTIONS,
+  WarmupPostDocument,
+  SubredditAnalysisDocument,
+  CreateWarmupPostData
+} from "@/db/firestore/warmup-collections"
+import {
+  getWarmupAccountByOrganizationIdAction,
+  getWarmupPostsByOrganizationIdAction,
   updateWarmupPostAction,
   checkWarmupRateLimitAction,
   updateWarmupRateLimitAction,
@@ -24,7 +31,6 @@ import {
 import {
   getTopPostsFromSubredditAction,
   submitRedditPostAction,
-  submitRedditCommentAction,
   getPostCommentsAction
 } from "@/actions/integrations/reddit/reddit-warmup-actions"
 import {
@@ -32,29 +38,25 @@ import {
   generateWarmupPostAction,
   generateWarmupCommentsAction
 } from "@/actions/integrations/openai/warmup-content-generation-actions"
-import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
-import { doc, getDoc } from "firebase/firestore"
-import { db } from "@/db/db"
-import {
-  WARMUP_COLLECTIONS,
-  WarmupPostDocument
-} from "@/db/firestore/warmup-collections"
+import { getOrganizationByIdAction } from "@/actions/db/organizations-actions"
 
 export async function generateAndScheduleWarmupPostsAction(
-  userId: string
+  organizationId: string
 ): Promise<ActionState<{ postsGenerated: number }>> {
   try {
     console.log(
-      "🔧 [GENERATE-WARMUP-POSTS] Starting post generation for user:",
-      userId
+      "🔧 [GENERATE-WARMUP-POSTS] Starting post generation for organization:",
+      organizationId
     )
-
-    // Get warm-up account
-    const accountResult = await getWarmupAccountByUserIdAction(userId)
-    if (!accountResult.isSuccess || !accountResult.data) {
-      return { isSuccess: false, message: "No warm-up account found" }
+    if (!organizationId) {
+      return { isSuccess: false, message: "Organization ID is required" }
     }
 
+    // Get warm-up account for the organization
+    const accountResult = await getWarmupAccountByOrganizationIdAction(organizationId)
+    if (!accountResult.isSuccess || !accountResult.data) {
+      return { isSuccess: false, message: "No warm-up account found for this organization" }
+    }
     const account = accountResult.data
     if (!account.isActive) {
       return { isSuccess: false, message: "Warm-up account is not active" }
@@ -67,13 +69,16 @@ export async function generateAndScheduleWarmupPostsAction(
       return { isSuccess: false, message: "Warm-up period has ended" }
     }
 
-    // Get user profile for keywords
-    const profileResult = await getProfileByUserIdAction(userId)
-    if (!profileResult.isSuccess || !profileResult.data) {
-      return { isSuccess: false, message: "User profile not found" }
+    // Get Organization details for context (e.g., website, businessDescription for AI)
+    const orgDetailsResult = await getOrganizationByIdAction(organizationId)
+    if (!orgDetailsResult.isSuccess || !orgDetailsResult.data) {
+      return { isSuccess: false, message: "Organization details not found." }
     }
+    const orgDetails = orgDetailsResult.data
+    // Use organization details for AI context, e.g., orgDetails.aiContextKeywords or construct from name/website/description
+    const aiContextKeywords = (orgDetails as any).aiContextKeywords || []
+    const businessContextForAI = orgDetails.businessDescription || orgDetails.name || orgDetails.website || "general business"
 
-    const userKeywords = profileResult.data.keywords || []
     let postsGenerated = 0
 
     // Generate posts for each target subreddit
@@ -82,9 +87,9 @@ export async function generateAndScheduleWarmupPostsAction(
         `🔍 [GENERATE-WARMUP-POSTS] Processing subreddit: r/${subreddit}`
       )
 
-      // Check rate limit
+      // Corrected call to checkWarmupRateLimitAction
       const rateLimitResult = await checkWarmupRateLimitAction(
-        userId,
+        organizationId, 
         subreddit
       )
       if (!rateLimitResult.isSuccess || !rateLimitResult.data?.canPost) {
@@ -96,7 +101,7 @@ export async function generateAndScheduleWarmupPostsAction(
 
       // Get or update subreddit analysis
       let analysisResult = await getSubredditAnalysisAction(subreddit)
-      let analysis = analysisResult.data
+      let analysis: SubredditAnalysisDocument | null = analysisResult.data
 
       // If no analysis or it's older than 7 days, refresh it
       if (
@@ -107,7 +112,8 @@ export async function generateAndScheduleWarmupPostsAction(
       ) {
         console.log(`📊 [GENERATE-WARMUP-POSTS] Analyzing r/${subreddit}`)
 
-        const topPostsResult = await getTopPostsFromSubredditAction(subreddit)
+        // Pass organizationId to getTopPostsFromSubredditAction
+        const topPostsResult = await getTopPostsFromSubredditAction(organizationId, subreddit)
         if (!topPostsResult.isSuccess || !topPostsResult.data) {
           console.error(
             `❌ [GENERATE-WARMUP-POSTS] Failed to get top posts for r/${subreddit}`
@@ -125,34 +131,31 @@ export async function generateAndScheduleWarmupPostsAction(
           continue
         }
 
+        const topPostsForDb = topPostsResult.data.map(post => ({
+          id: post.id,
+          title: post.title,
+          content: post.selftext || post.title,
+          upvotes: post.score,
+          createdUtc: post.created_utc
+        }))
+
         await saveSubredditAnalysisAction(
           subreddit,
-          topPostsResult.data.map(post => ({
-            id: post.id,
-            title: post.title,
-            content: post.selftext,
-            upvotes: post.score,
-            createdUtc: post.created_utc
-          })),
+          topPostsForDb,
           styleResult.data.writingStyle,
           styleResult.data.commonTopics
         )
 
+        // Construct analysis object conforming to SubredditAnalysisDocument (with Timestamps)
         analysis = {
-          subreddit,
-          topPosts: topPostsResult.data.map(post => ({
-            id: post.id,
-            title: post.title,
-            content: post.selftext,
-            upvotes: post.score,
-            createdUtc: post.created_utc
-          })),
-          writingStyle: styleResult.data.writingStyle,
-          commonTopics: styleResult.data.commonTopics,
-          lastAnalyzedAt: Timestamp.now(),
-          createdAt: Timestamp.now(),
-          updatedAt: Timestamp.now(),
-          id: subreddit
+          id: subreddit, 
+          subreddit, 
+          topPosts: topPostsForDb,
+          writingStyle: styleResult.data.writingStyle, 
+          commonTopics: styleResult.data.commonTopics, 
+          lastAnalyzedAt: Timestamp.now(), // Firestore Timestamp
+          createdAt: Timestamp.now(),      // Firestore Timestamp
+          updatedAt:Timestamp.now()       // Firestore Timestamp
         }
       }
 
@@ -169,7 +172,7 @@ export async function generateAndScheduleWarmupPostsAction(
         subreddit,
         analysis.writingStyle,
         analysis.commonTopics,
-        userKeywords
+        aiContextKeywords // Use AI context keywords from org
       )
 
       if (!postResult.isSuccess || !postResult.data) {
@@ -182,14 +185,16 @@ export async function generateAndScheduleWarmupPostsAction(
       // Schedule the post
       const scheduledFor = calculateNextPostTime(postsGenerated)
 
-      await createWarmupPostAction({
-        userId,
+      const warmupPostData: CreateWarmupPostData = {
+        userId: account.userId, // User who owns the warmup account record
+        organizationId, // Link post to organization
         warmupAccountId: account.id,
         subreddit,
         title: postResult.data.title,
         content: postResult.data.content,
         scheduledFor
-      })
+      }
+      await createWarmupPostAction(warmupPostData)
 
       postsGenerated++
       console.log(
@@ -197,7 +202,7 @@ export async function generateAndScheduleWarmupPostsAction(
       )
 
       // Limit posts per run
-      if (postsGenerated >= account.dailyPostLimit) {
+      if (postsGenerated >= (account.dailyPostLimit || 3)) {
         break
       }
     }
@@ -268,23 +273,35 @@ export async function submitWarmupPostAction(
 }
 
 export async function generateCommentsForWarmupPostAction(
-  warmupPostId: string,
-  redditPostId: string,
-  subreddit: string
+  warmupPostId: string
 ): Promise<ActionState<{ commentsGenerated: number }>> {
   try {
     console.log(
-      "🔧 [GENERATE-COMMENTS] Generating comments for post:",
+      "🔧 [GENERATE-COMMENTS] Generating comments for warmup post:",
       warmupPostId
     )
 
-    // Get comments from Reddit
-    const commentsResult = await getPostCommentsAction(subreddit, redditPostId)
+    // Fetch the WarmupPostDocument to get organizationId, subreddit, and redditPostId
+    const postRef = doc(db, WARMUP_COLLECTIONS.WARMUP_POSTS, warmupPostId)
+    const postDoc = await getDoc(postRef)
+    if (!postDoc.exists()) {
+      return { isSuccess: false, message: "Warmup post not found." }
+    }
+    const warmupPost = postDoc.data() as WarmupPostDocument
+    const organizationId = warmupPost.organizationId
+    const redditPostId = warmupPost.redditPostId
+    const subreddit = warmupPost.subreddit
+
+    if (!organizationId || !redditPostId || !subreddit) {
+      return { isSuccess: false, message: "Warmup post is missing required information (orgId, redditPostId, or subreddit)." }
+    }
+
+    // Get comments from Reddit using organizationId
+    const commentsResult = await getPostCommentsAction(organizationId, subreddit, redditPostId)
     if (!commentsResult.isSuccess || !commentsResult.data) {
       return { isSuccess: false, message: "Failed to fetch Reddit comments" }
     }
 
-    // Generate replies
     const repliesResult = await generateWarmupCommentsAction(
       commentsResult.data,
       `Post in r/${subreddit}`
@@ -294,7 +311,6 @@ export async function generateCommentsForWarmupPostAction(
       return { isSuccess: false, message: "Failed to generate replies" }
     }
 
-    // Schedule comments with spacing
     let commentDelay = 0
     const minDelay = 3 * 60 * 1000 // 3 minutes
     const maxDelay = 4 * 60 * 1000 // 4 minutes
@@ -305,10 +321,12 @@ export async function generateCommentsForWarmupPostAction(
       )
 
       await createWarmupCommentAction({
-        userId: "", // Would get from post
+        userId: warmupPost.userId, // User who owns the main warmup account
+        organizationId, // Pass the organizationId
         warmupPostId,
         content: reply.reply,
-        scheduledFor
+        scheduledFor,
+        // redditParentCommentId: reply.commentId, // If generateWarmupCommentsAction returns parent ID
       })
 
       // Add random delay between 3-4 minutes
@@ -340,73 +358,57 @@ function calculateNextPostTime(postsToday: number): Timestamp {
 }
 
 export async function postWarmupImmediatelyAction(
-  postId: string
+  postId: string,
+  organizationId: string
 ): Promise<ActionState<{ url?: string }>> {
   try {
     console.log(
-      "🚀 [POST-IMMEDIATELY] Posting warm-up post immediately:",
-      postId
+      "🚀 [POST-IMMEDIATELY] Posting warm-up post:", postId, "for org:", organizationId
     )
-
-    // Get the post
-    const postRef = doc(db, WARMUP_COLLECTIONS.WARMUP_POSTS, postId)
-    const postDoc = await getDoc(postRef)
-
-    if (!postDoc.exists()) {
-      return {
-        isSuccess: false,
-        message: "Post not found"
-      }
+    if (!organizationId) {
+      return { isSuccess: false, message: "Organization ID is required for posting." }
     }
 
+    const postRef = doc(db, WARMUP_COLLECTIONS.WARMUP_POSTS, postId)
+    const postDoc = await getDoc(postRef)
+    if (!postDoc.exists()) {
+      return { isSuccess: false, message: "Post not found" }
+    }
     const post = postDoc.data() as WarmupPostDocument
 
-    // Submit to Reddit immediately
+    // Ensure the post belongs to the specified organization if doing a cross-check (optional here)
+    if (post.organizationId !== organizationId) {
+      console.error(`❌ [POST-IMMEDIATELY] Post ${postId} does not belong to organization ${organizationId}. Belongs to ${post.organizationId}`)
+      return { isSuccess: false, message: "Post does not belong to this organization." }
+    }
+
+    // Pass organizationId to submitRedditPostAction
     const submitResult = await submitRedditPostAction(
+      organizationId,
       post.subreddit,
       post.title,
       post.content
     )
 
     if (submitResult.isSuccess && submitResult.data) {
-      // Update post status
       await updateWarmupPostAction(post.id, {
         status: "posted",
         postedAt: Timestamp.now(),
         redditPostId: submitResult.data.id,
         redditPostUrl: submitResult.data.url
       })
-
-      // Update rate limit
-      await updateWarmupRateLimitAction(post.userId, post.subreddit)
-
-      console.log(
-        `✅ [POST-IMMEDIATELY] Post submitted successfully: ${submitResult.data.url}`
-      )
-
-      return {
-        isSuccess: true,
-        message: "Post submitted successfully",
-        data: { url: submitResult.data.url }
-      }
+      // Pass organizationId to updateWarmupRateLimitAction
+      await updateWarmupRateLimitAction(organizationId, post.subreddit)
+      return { isSuccess: true, message: "Post submitted successfully", data: { url: submitResult.data.url } }
     } else {
-      // Mark as failed
-      await updateWarmupPostAction(post.id, {
-        status: "failed",
-        error: submitResult.message
-      })
-
-      return {
-        isSuccess: false,
-        message: submitResult.message || "Failed to submit post"
-      }
+      await updateWarmupPostAction(post.id, { status: "failed", error: submitResult.message })
+      return { isSuccess: false, message: submitResult.message || "Failed to submit post" }
     }
   } catch (error) {
     console.error("❌ [POST-IMMEDIATELY] Error:", error)
     return {
       isSuccess: false,
-      message:
-        error instanceof Error ? error.message : "Failed to post immediately"
+      message: error instanceof Error ? error.message : "Failed to post immediately"
     }
   }
 }

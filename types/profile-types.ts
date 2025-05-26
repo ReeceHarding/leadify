@@ -10,7 +10,7 @@ export interface SerializedProfileDocument {
   membership: "free" | "pro"
   stripeCustomerId?: string
   stripeSubscriptionId?: string
-  
+
   // User identity fields only
   name?: string
   profilePictureUrl?: string

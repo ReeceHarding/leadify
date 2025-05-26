@@ -8,7 +8,7 @@ Handles subreddit search, top posts analysis, and Reddit account info.
 "use server"
 
 import { ActionState } from "@/types"
-import { getRedditAccessTokenAction } from "./reddit-oauth-actions"
+import { makeRedditApiGet, makeRedditApiPost } from "./reddit-auth-helpers"
 
 interface RedditPost {
   id: string
@@ -40,307 +40,265 @@ interface RedditUser {
 }
 
 export async function searchSubredditsAction(
+  organizationId: string,
   query: string
 ): Promise<ActionState<RedditSubreddit[]>> {
   try {
-    console.log("🔍 [SEARCH-SUBREDDITS] Searching for:", query)
-
-    const tokenResult = await getRedditAccessTokenAction()
-    if (!tokenResult.isSuccess || !tokenResult.data) {
-      return { isSuccess: false, message: "No Reddit access token available" }
+    console.log(`🔍 [SEARCH-SUBREDDITS] Searching for: "${query}", org: ${organizationId}`);
+    if (!organizationId) {
+      return { isSuccess: false, message: "Organization ID is required" };
     }
 
-    const response = await fetch(
-      `https://oauth.reddit.com/subreddits/search?q=${encodeURIComponent(query)}&limit=10&type=sr`,
-      {
-        headers: {
-          Authorization: `Bearer ${tokenResult.data}`,
-          "User-Agent": process.env.REDDIT_USER_AGENT || "reddit-warmup:v1.0.0"
-        }
-      }
-    )
+    const endpoint = `/subreddits/search?q=${encodeURIComponent(query)}&limit=10&type=sr`;
+    const response = await makeRedditApiGet(organizationId, endpoint);
 
     if (!response.ok) {
-      console.error("❌ [SEARCH-SUBREDDITS] Reddit API error:", response.status)
-      return { isSuccess: false, message: "Failed to search subreddits" }
+      const errorBody = await response.text();
+      console.error("❌ [SEARCH-SUBREDDITS] Reddit API error:", response.status, errorBody);
+      return { isSuccess: false, message: `Failed to search subreddits: ${response.status}` };
     }
 
-    const data = await response.json()
+    const data = await response.json();
     const subreddits = data.data.children.map(
       (child: any) => child.data as RedditSubreddit
-    )
+    );
 
-    console.log(`✅ [SEARCH-SUBREDDITS] Found ${subreddits.length} subreddits`)
+    console.log(`✅ [SEARCH-SUBREDDITS] Found ${subreddits.length} subreddits`);
+    return { isSuccess: true, message: "Subreddits found", data: subreddits };
 
-    return {
-      isSuccess: true,
-      message: "Subreddits found",
-      data: subreddits
-    }
   } catch (error) {
-    console.error("❌ [SEARCH-SUBREDDITS] Error:", error)
-    return { isSuccess: false, message: "Failed to search subreddits" }
+    console.error("❌ [SEARCH-SUBREDDITS] Error:", error);
+    return { 
+        isSuccess: false, 
+        message: `Failed to search subreddits: ${error instanceof Error ? error.message : "Unknown error"}` 
+    };
   }
 }
 
 export async function getTopPostsFromSubredditAction(
+  organizationId: string,
   subreddit: string,
   timeframe: "year" | "month" | "week" = "year",
   limit: number = 10
 ): Promise<ActionState<RedditPost[]>> {
   try {
-    console.log(`🔍 [GET-TOP-POSTS] Fetching top posts from r/${subreddit}`)
-
-    const tokenResult = await getRedditAccessTokenAction()
-    if (!tokenResult.isSuccess || !tokenResult.data) {
-      return { isSuccess: false, message: "No Reddit access token available" }
+    console.log(`🔍 [GET-TOP-POSTS] Fetching top posts from r/${subreddit}, org: ${organizationId}`);
+    if (!organizationId) {
+      return { isSuccess: false, message: "Organization ID is required" };
     }
 
-    const response = await fetch(
-      `https://oauth.reddit.com/r/${subreddit}/top?t=${timeframe}&limit=${limit}`,
-      {
-        headers: {
-          Authorization: `Bearer ${tokenResult.data}`,
-          "User-Agent": process.env.REDDIT_USER_AGENT || "reddit-warmup:v1.0.0"
-        }
-      }
-    )
+    const endpoint = `/r/${subreddit}/top?t=${timeframe}&limit=${limit}&raw_json=1`;
+    const response = await makeRedditApiGet(organizationId, endpoint);
 
     if (!response.ok) {
-      console.error("❌ [GET-TOP-POSTS] Reddit API error:", response.status)
-      return { isSuccess: false, message: "Failed to fetch top posts" }
+      const errorBody = await response.text();
+      console.error("❌ [GET-TOP-POSTS] Reddit API error:", response.status, errorBody);
+      return { isSuccess: false, message: `Failed to fetch top posts: ${response.status}` };
     }
 
-    const data = await response.json()
+    const data = await response.json();
     const posts = data.data.children.map(
       (child: any) => child.data as RedditPost
-    )
+    );
 
-    console.log(`✅ [GET-TOP-POSTS] Found ${posts.length} top posts`)
+    console.log(`✅ [GET-TOP-POSTS] Found ${posts.length} top posts`);
+    return { isSuccess: true, message: "Top posts retrieved", data: posts };
 
-    return {
-      isSuccess: true,
-      message: "Top posts retrieved",
-      data: posts
-    }
   } catch (error) {
-    console.error("❌ [GET-TOP-POSTS] Error:", error)
-    return { isSuccess: false, message: "Failed to fetch top posts" }
+    console.error("❌ [GET-TOP-POSTS] Error:", error);
+    return { 
+        isSuccess: false, 
+        message: `Failed to fetch top posts: ${error instanceof Error ? error.message : "Unknown error"}` 
+    };
   }
 }
 
-export async function getRedditUserInfoAction(): Promise<
-  ActionState<RedditUser>
-> {
+export async function getRedditUserInfoAction(
+  organizationId: string
+): Promise<ActionState<RedditUser>> {
   try {
-    console.log("🔍 [GET-USER-INFO] Fetching Reddit user info")
-
-    const tokenResult = await getRedditAccessTokenAction()
-    if (!tokenResult.isSuccess || !tokenResult.data) {
-      return { isSuccess: false, message: "No Reddit access token available" }
+    console.log(`🔍 [GET-USER-INFO] Fetching Reddit user info for org: ${organizationId}`);
+    if (!organizationId) {
+      return { isSuccess: false, message: "Organization ID is required" };
     }
 
-    const response = await fetch("https://oauth.reddit.com/api/v1/me", {
-      headers: {
-        Authorization: `Bearer ${tokenResult.data}`,
-        "User-Agent": process.env.REDDIT_USER_AGENT || "reddit-warmup:v1.0.0"
-      }
-    })
+    const response = await makeRedditApiGet(organizationId, "/api/v1/me");
 
     if (!response.ok) {
-      console.error("❌ [GET-USER-INFO] Reddit API error:", response.status)
-      return { isSuccess: false, message: "Failed to fetch user info" }
+      const errorBody = await response.text();
+      console.error("❌ [GET-USER-INFO] Reddit API error:", response.status, errorBody);
+      return { isSuccess: false, message: `Failed to fetch user info: ${response.status}` };
     }
 
-    const userInfo = (await response.json()) as RedditUser
+    const userInfo = (await response.json()) as RedditUser;
+    console.log(`✅ [GET-USER-INFO] User info retrieved: ${userInfo.name}`);
+    return { isSuccess: true, message: "User info retrieved", data: userInfo };
 
-    console.log(`✅ [GET-USER-INFO] User info retrieved: ${userInfo.name}`)
-
-    return {
-      isSuccess: true,
-      message: "User info retrieved",
-      data: userInfo
-    }
   } catch (error) {
-    console.error("❌ [GET-USER-INFO] Error:", error)
-    return { isSuccess: false, message: "Failed to fetch user info" }
+    console.error("❌ [GET-USER-INFO] Error:", error);
+    return { 
+        isSuccess: false, 
+        message: `Failed to fetch user info: ${error instanceof Error ? error.message : "Unknown error"}` 
+    };
   }
 }
 
 export async function getPostCommentsAction(
+  organizationId: string,
   subreddit: string,
   postId: string
 ): Promise<ActionState<any[]>> {
   try {
     console.log(
-      `🔍 [GET-POST-COMMENTS] Fetching comments for post ${postId} in r/${subreddit}`
-    )
-
-    const tokenResult = await getRedditAccessTokenAction()
-    if (!tokenResult.isSuccess || !tokenResult.data) {
-      return { isSuccess: false, message: "No Reddit access token available" }
+      `🔍 [GET-POST-COMMENTS] Fetching comments for post ${postId} in r/${subreddit}, org: ${organizationId}`
+    );
+    if (!organizationId) {
+      return { isSuccess: false, message: "Organization ID is required" };
     }
 
-    const response = await fetch(
-      `https://oauth.reddit.com/r/${subreddit}/comments/${postId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${tokenResult.data}`,
-          "User-Agent": process.env.REDDIT_USER_AGENT || "reddit-warmup:v1.0.0"
-        }
-      }
-    )
+    const endpoint = `/r/${subreddit}/comments/${postId}.json?raw_json=1`;
+    const response = await makeRedditApiGet(organizationId, endpoint);
 
     if (!response.ok) {
-      console.error("❌ [GET-POST-COMMENTS] Reddit API error:", response.status)
-      return { isSuccess: false, message: "Failed to fetch comments" }
+      const errorBody = await response.text();
+      console.error("❌ [GET-POST-COMMENTS] Reddit API error:", response.status, errorBody);
+      return { isSuccess: false, message: `Failed to fetch comments: ${response.status}` };
     }
 
-    const data = await response.json()
-    // Reddit returns an array where [0] is the post and [1] is the comments
-    const comments = data[1]?.data?.children || []
+    const data = await response.json();
+    const comments = data[1]?.data?.children || [];
 
-    console.log(`✅ [GET-POST-COMMENTS] Found ${comments.length} comments`)
+    console.log(`✅ [GET-POST-COMMENTS] Found ${comments.length} comments`);
+    return { isSuccess: true, message: "Comments retrieved", data: comments };
 
-    return {
-      isSuccess: true,
-      message: "Comments retrieved",
-      data: comments
-    }
   } catch (error) {
-    console.error("❌ [GET-POST-COMMENTS] Error:", error)
-    return { isSuccess: false, message: "Failed to fetch comments" }
+    console.error("❌ [GET-POST-COMMENTS] Error:", error);
+    return { 
+        isSuccess: false, 
+        message: `Failed to fetch comments: ${error instanceof Error ? error.message : "Unknown error"}` 
+    };
   }
 }
 
 export async function submitRedditPostAction(
+  organizationId: string,
   subreddit: string,
   title: string,
   text: string
 ): Promise<ActionState<{ id: string; url: string }>> {
   try {
-    console.log(`🔧 [SUBMIT-POST] Submitting post to r/${subreddit}`)
-
-    const tokenResult = await getRedditAccessTokenAction()
-    if (!tokenResult.isSuccess || !tokenResult.data) {
-      return { isSuccess: false, message: "No Reddit access token available" }
+    console.log(`🔧 [SUBMIT-POST-WARMUP] Submitting post to r/${subreddit}, org: ${organizationId}`);
+    if (!organizationId) {
+      return { isSuccess: false, message: "Organization ID is required" };
     }
 
-    const formData = new URLSearchParams({
+    const body = {
       api_type: "json",
       kind: "self",
       sr: subreddit,
       title: title,
       text: text
-    })
+    };
 
-    const response = await fetch("https://oauth.reddit.com/api/submit", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${tokenResult.data}`,
-        "User-Agent": process.env.REDDIT_USER_AGENT || "reddit-warmup:v1.0.0",
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: formData
-    })
+    const response = await makeRedditApiPost(organizationId, "/api/submit", body);
 
     if (!response.ok) {
-      console.error("❌ [SUBMIT-POST] Reddit API error:", response.status)
-      return { isSuccess: false, message: "Failed to submit post" }
+      const errorBody = await response.text();
+      console.error("❌ [SUBMIT-POST-WARMUP] Reddit API error:", response.status, errorBody);
+      return { isSuccess: false, message: `Failed to submit post: ${response.status} - ${errorBody}` };
     }
 
-    const data = await response.json()
-
+    const data = await response.json();
     if (data.json?.errors?.length > 0) {
-      console.error("❌ [SUBMIT-POST] Reddit API errors:", data.json.errors)
+      console.error("❌ [SUBMIT-POST-WARMUP] Reddit API errors:", data.json.errors);
       return {
         isSuccess: false,
-        message: data.json.errors[0]?.[1] || "Failed to submit post"
-      }
+        message: data.json.errors[0]?.[1] || "Failed to submit post due to API error"
+      };
     }
 
-    const postData = data.json?.data
-    if (!postData) {
-      return { isSuccess: false, message: "No post data returned" }
+    const postData = data.json?.data;
+    if (!postData || !postData.id || !postData.url) {
+      console.error("❌ [SUBMIT-POST-WARMUP] No post data in response:", data);
+      return { isSuccess: false, message: "No post data returned from API" };
     }
 
-    console.log(`✅ [SUBMIT-POST] Post submitted successfully: ${postData.url}`)
-
+    console.log(`✅ [SUBMIT-POST-WARMUP] Post submitted successfully: ${postData.url}`);
     return {
       isSuccess: true,
       message: "Post submitted successfully",
-      data: {
-        id: postData.id,
-        url: postData.url
-      }
-    }
+      data: { id: postData.id, url: postData.url }
+    };
+
   } catch (error) {
-    console.error("❌ [SUBMIT-POST] Error:", error)
-    return { isSuccess: false, message: "Failed to submit post" }
+    console.error("❌ [SUBMIT-POST-WARMUP] Error:", error);
+    return { 
+        isSuccess: false, 
+        message: `Failed to submit post: ${error instanceof Error ? error.message : "Unknown error"}` 
+    };
   }
 }
 
 export async function submitRedditCommentAction(
+  organizationId: string,
   parentFullname: string,
   text: string
 ): Promise<ActionState<{ id: string }>> {
   try {
-    console.log(`🔧 [SUBMIT-COMMENT] Submitting comment to ${parentFullname}`)
-
-    const tokenResult = await getRedditAccessTokenAction()
-    if (!tokenResult.isSuccess || !tokenResult.data) {
-      return { isSuccess: false, message: "No Reddit access token available" }
+    console.log(`🔧 [SUBMIT-COMMENT-WARMUP] Submitting comment to ${parentFullname}, org: ${organizationId}`);
+    if (!organizationId) {
+      return { isSuccess: false, message: "Organization ID is required" };
     }
-
-    const formData = new URLSearchParams({
+    
+    const body = {
       api_type: "json",
       thing_id: parentFullname,
       text: text
-    })
+    };
 
-    const response = await fetch("https://oauth.reddit.com/api/comment", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${tokenResult.data}`,
-        "User-Agent": process.env.REDDIT_USER_AGENT || "reddit-warmup:v1.0.0",
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: formData
-    })
+    const commentBody = {
+        api_type: "json",
+        parent: parentFullname,
+        text: text
+    };
+
+    const response = await makeRedditApiPost(organizationId, "/api/comment", commentBody);
 
     if (!response.ok) {
-      console.error("❌ [SUBMIT-COMMENT] Reddit API error:", response.status)
-      return { isSuccess: false, message: "Failed to submit comment" }
+      const errorBody = await response.text();
+      console.error("❌ [SUBMIT-COMMENT-WARMUP] Reddit API error:", response.status, errorBody);
+      return { isSuccess: false, message: `Failed to submit comment: ${response.status} - ${errorBody}` };
     }
 
-    const data = await response.json()
-
+    const data = await response.json();
     if (data.json?.errors?.length > 0) {
-      console.error("❌ [SUBMIT-COMMENT] Reddit API errors:", data.json.errors)
+      console.error("❌ [SUBMIT-COMMENT-WARMUP] Reddit API errors:", data.json.errors);
       return {
         isSuccess: false,
-        message: data.json.errors[0]?.[1] || "Failed to submit comment"
-      }
+        message: data.json.errors[0]?.[1] || "Failed to submit comment due to API error"
+      };
     }
 
-    const commentData = data.json?.data?.things?.[0]?.data
-    if (!commentData) {
-      return { isSuccess: false, message: "No comment data returned" }
+    const commentData = data.json?.data?.things?.[0]?.data;
+    if (!commentData || !commentData.id) {
+      console.error("❌ [SUBMIT-COMMENT-WARMUP] No comment data in response:", data);
+      return { isSuccess: false, message: "No comment data returned from API" };
     }
 
     console.log(
-      `✅ [SUBMIT-COMMENT] Comment submitted successfully: ${commentData.id}`
-    )
-
+      `✅ [SUBMIT-COMMENT-WARMUP] Comment submitted successfully: ${commentData.id}`
+    );
     return {
       isSuccess: true,
       message: "Comment submitted successfully",
-      data: {
-        id: commentData.id
-      }
-    }
+      data: { id: commentData.id }
+    };
+
   } catch (error) {
-    console.error("❌ [SUBMIT-COMMENT] Error:", error)
-    return { isSuccess: false, message: "Failed to submit comment" }
+    console.error("❌ [SUBMIT-COMMENT-WARMUP] Error:", error);
+    return { 
+        isSuccess: false, 
+        message: `Failed to submit comment: ${error instanceof Error ? error.message : "Unknown error"}` 
+    };
   }
 }

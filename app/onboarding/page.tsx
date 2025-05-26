@@ -22,7 +22,9 @@ import {
   updateProfileAction,
   getProfileByUserIdAction
 } from "@/actions/db/profiles-actions"
-import { getRedditTokensFromProfileAction } from "@/actions/integrations/reddit/reddit-oauth-user-actions"
+import { createOrganizationAction } from "@/actions/db/organizations-actions"
+import { getCurrentOrganizationTokens } from "@/actions/integrations/reddit/reddit-auth-helpers"
+import { SerializedOrganizationDocument } from "@/db/firestore/organizations-collections"
 
 type OnboardingStep = "profile" | "website" | "keywords" | "reddit" | "complete"
 
@@ -40,8 +42,10 @@ export default function OnboardingPage() {
   const searchParams = useSearchParams()
   const [currentStep, setCurrentStep] = useState<OnboardingStep>("profile")
   const [onboardingData, setOnboardingData] = useState({
-    name: "",
+    profileName: "",
     profilePictureUrl: "",
+    organizationName: "",
+    organizationId: "",
     website: "",
     keywords: [] as string[],
     redditConnected: false
@@ -56,498 +60,316 @@ export default function OnboardingPage() {
   console.log("🔍 [ONBOARDING] isLoading:", isLoading)
   console.log("🔍 [ONBOARDING] currentStep:", currentStep)
 
-  // Check if Reddit is actually connected by verifying stored tokens
-  const checkRedditConnection = async () => {
-    console.log("🔍 [ONBOARDING] Checking Reddit connection status...")
+  const checkRedditConnection = async (organizationIdToCheck: string) => {
+    console.log(
+      "🔍 [ONBOARDING] Checking Reddit connection status for organization:",
+      organizationIdToCheck
+    )
+    if (!organizationIdToCheck) {
+      console.warn(
+        "🔍 [ONBOARDING] No organizationId provided to checkRedditConnection"
+      )
+      return false
+    }
     try {
-      const tokenResult = await getRedditTokensFromProfileAction()
-      const isConnected = tokenResult.isSuccess
-      console.log("🔍 [ONBOARDING] Reddit connection status:", isConnected)
+      const tokenResult = await getCurrentOrganizationTokens(
+        organizationIdToCheck
+      )
+      const isConnected = tokenResult.isSuccess && !!tokenResult.data.accessToken
+      console.log(
+        `🔍 [ONBOARDING] Reddit connection status for org ${organizationIdToCheck}:`,
+        isConnected
+      )
       return isConnected
     } catch (error) {
-      console.error("🔍 [ONBOARDING] Error checking Reddit connection:", error)
+      console.error(
+        `🔍 [ONBOARDING] Error checking Reddit connection for org ${organizationIdToCheck}:`,
+        error
+      )
       return false
     }
   }
 
-  // Load existing profile data when user is available
   useEffect(() => {
-    console.log("🔍 [ONBOARDING] useEffect for loading profile triggered")
-    console.log("🔍 [ONBOARDING] user?.id:", user?.id)
+    if (!isLoaded || !user?.id) return
 
-    // Wait until Clerk has finished loading before attempting to fetch a profile
-    if (!isLoaded) return
-
-    const loadExistingProfile = async () => {
-      if (!user?.id) {
-        console.log("🔍 [ONBOARDING] No user ID, setting isLoading to false")
-        setIsLoading(false)
-        return
-      }
-
-      console.log("🔍 [ONBOARDING] Loading existing profile for user:", user.id)
+    const loadData = async () => {
       setIsLoading(true)
-
       try {
         const profileResult = await getProfileByUserIdAction(user.id)
-        console.log("🔍 [ONBOARDING] Profile load result:", profileResult)
+        let initialOrganizationName = `${user.fullName || 'My'} Organization`
+        let initialWebsite = ""
+        let initialKeywords: string[] = []
+        let isRedditConnectedForCurrentOrg = false
+        let currentOrgId = onboardingData.organizationId // Persist if already set by a previous step
 
         if (profileResult.isSuccess && profileResult.data) {
-          console.log("🔍 [ONBOARDING] Profile loaded successfully")
-          console.log("🔍 [ONBOARDING] Profile data:", profileResult.data)
-          console.log(
-            "🔍 [ONBOARDING] Profile keywords:",
-            profileResult.data.keywords
-          )
-          console.log(
-            "🔍 [ONBOARDING] Profile keywords length:",
-            profileResult.data.keywords?.length || 0
-          )
-
-          // Update onboarding data with existing profile data
-          const loadedData = {
-            name: profileResult.data.name || user.fullName || "",
-            profilePictureUrl:
-              profileResult.data.profilePictureUrl || user.imageUrl || "",
-            website: profileResult.data.website || "",
-            keywords: profileResult.data.keywords || [],
-            redditConnected: false // Will be determined by checking Reddit tokens
-          }
-
-          console.log(
-            "🔍 [ONBOARDING] Setting onboarding data to loaded profile:"
-          )
-          console.log(
-            "🔍 [ONBOARDING] - keywords length:",
-            loadedData.keywords.length
-          )
-
-          setOnboardingData(loadedData)
-
-          // Check actual Reddit connection status
-          console.log("🔍 [ONBOARDING] Checking Reddit connection...")
-          const isRedditConnected = await checkRedditConnection()
-
-          // Update Reddit connection status
+          const profile = profileResult.data
           setOnboardingData(prev => ({
             ...prev,
-            redditConnected: isRedditConnected
+            profileName: profile.name || user.fullName || "",
+            profilePictureUrl: profile.profilePictureUrl || user.imageUrl || "",
           }))
+          // Note: profile.website and profile.keywords are legacy and removed.
+          // We use a default org name based on profile/user name if no org is yet created/focused.
+          initialOrganizationName = profile.name || user.fullName || initialOrganizationName;
+        }
 
-          console.log(
-            "🔍 [ONBOARDING] Final Reddit connection status:",
-            isRedditConnected
-          )
-
-          // SIMPLIFIED LOGIC: Skip onboarding if keywords > 1, otherwise start from profile
-          if (loadedData.keywords.length > 1) {
-            console.log(
-              "🔍 [ONBOARDING] Keywords exist (length > 1), skipping onboarding and redirecting to lead finder"
-            )
-            router.push("/reddit/lead-finder")
-            return
-          } else {
-            console.log(
-              "🔍 [ONBOARDING] No keywords or insufficient keywords, starting from profile step"
-            )
-            setCurrentStep("profile")
-          }
+        // Here, you might add logic to load an *existing* default/first organization for the user
+        // if they are returning to onboarding. For now, we assume a new/default setup.
+        // If an org ID is already in state (e.g. from previous step), use it.
+        if (currentOrgId) {
+             const orgRedditStatus = await checkRedditConnection(currentOrgId);
+             isRedditConnectedForCurrentOrg = orgRedditStatus;
         } else {
-          console.log(
-            "🔍 [ONBOARDING] No existing profile found, setting default data from Clerk user"
-          )
-          // Set default data from Clerk user
-          setOnboardingData({
-            name: user.fullName || "",
-            profilePictureUrl: user.imageUrl || "",
-            website: "",
-            keywords: [],
-            redditConnected: false
-          })
-          setCurrentStep("profile")
+            // If no org ID yet, it will be created after the profile step.
+            // Set default organization name if not already set (e.g. by website step)
+            if (!onboardingData.organizationName) {
+                 initialOrganizationName = onboardingData.profileName || initialOrganizationName;
+            }
+        }
+
+        setOnboardingData(prev => ({
+          ...prev,
+          organizationName: prev.organizationName || initialOrganizationName,
+          // website & keywords will be set by their respective steps
+          // organizationId will be set after profile step or if loaded
+          redditConnected: isRedditConnectedForCurrentOrg 
+        }))
+
+        if (profileResult.data?.onboardingCompleted && currentOrgId && isRedditConnectedForCurrentOrg) {
+          router.push("/reddit/lead-finder")
+        } else {
+          // Stay on current step or default to profile. CurrentStep is already managed.
         }
       } catch (error) {
-        console.error("🔍 [ONBOARDING] Error loading profile:", error)
-        // Set default data from Clerk user on error
-        setOnboardingData({
-          name: user.fullName || "",
+        console.error("🔍 [ONBOARDING] Error loading initial data:", error)
+        setOnboardingData(prev => ({
+          ...prev,
+          profileName: user.fullName || "",
           profilePictureUrl: user.imageUrl || "",
-          website: "",
-          keywords: [],
-          redditConnected: false
-        })
-        setCurrentStep("profile")
+          organizationName: `${user.fullName || 'My'} Organization` // Default if everything fails
+        }))
       } finally {
         setIsLoading(false)
-        console.log("🔍 [ONBOARDING] Profile loading completed")
-        console.log("🔍 [ONBOARDING] Final currentStep:", currentStep)
       }
     }
-
-    loadExistingProfile()
-  }, [user?.id, router, isLoaded])
+    loadData()
+  }, [user?.id, isLoaded, router]) // onboardingData removed from deps for now
 
   const currentStepIndex = stepOrder.indexOf(currentStep)
   const progress = ((currentStepIndex + 1) / stepOrder.length) * 100
 
-  console.log("🔍 [ONBOARDING] Current step index:", currentStepIndex)
-  console.log("🔍 [ONBOARDING] Progress:", progress)
-
   // Handle Reddit OAuth callback
   useEffect(() => {
-    console.log("🔍 [ONBOARDING] useEffect for Reddit OAuth callback triggered")
     const success = searchParams.get("success")
     const error = searchParams.get("error")
 
-    console.log(
-      "🔍 [ONBOARDING] URL params - success:",
-      success,
-      "error:",
-      error
-    )
-
-    if (!user?.id || isLoading) {
-      console.log(
-        "🔍 [ONBOARDING] Waiting for user and profile to load before processing Reddit callback"
-      )
+    if (!user?.id || isLoading || !onboardingData.organizationId) {
       return
     }
 
     if (success === "Reddit authentication successful") {
-      console.log("🔍 [ONBOARDING] Reddit auth successful, verifying tokens...")
-
-      // Verify Reddit connection with actual token check
       const handleRedditSuccess = async () => {
-        const isRedditConnected = await checkRedditConnection()
-        console.log(
-          "🔍 [ONBOARDING] Verified Reddit connection:",
-          isRedditConnected
+        const isRedditConnected = await checkRedditConnection(
+          onboardingData.organizationId
         )
-
         if (isRedditConnected) {
-          // Update Reddit connection status
-          setOnboardingData(prev => ({
-            ...prev,
-            redditConnected: true
-          }))
-
-          console.log(
-            "🔍 [ONBOARDING] Reddit connected, advancing to complete step"
-          )
+          setOnboardingData(prev => ({ ...prev, redditConnected: true }))
           setCurrentStep("complete")
         } else {
-          console.error("🔍 [ONBOARDING] Reddit connection verification failed")
+          console.error("🔍 [ONBOARDING] Reddit connection verification failed after callback")
         }
-
-        // Clean up URL parameters AFTER processing
         const url = new URL(window.location.href)
         url.searchParams.delete("success")
         window.history.replaceState({}, "", url.toString())
       }
-
       handleRedditSuccess()
     }
 
     if (error) {
       console.error("🔍 [ONBOARDING] Reddit authentication error:", error)
-      // Clean up URL parameters
       const url = new URL(window.location.href)
       url.searchParams.delete("error")
       window.history.replaceState({}, "", url.toString())
     }
-  }, [searchParams, user?.id, isLoading])
+  }, [searchParams, user?.id, isLoading, onboardingData.organizationId])
 
   const nextStep = async () => {
-    console.log("🔍 [ONBOARDING] nextStep() called")
-    console.log("🔍 [ONBOARDING] Current step:", currentStep)
-    console.log("🔍 [ONBOARDING] Current onboardingData:", onboardingData)
-
-    // Save progress before moving to next step
-    await saveProgress()
+    if (currentStep === "profile") {
+      // After profile step, ensure an organization is created
+      if (!onboardingData.organizationId && user?.id) {
+        const orgName = onboardingData.organizationName || onboardingData.profileName || `${user.fullName || 'User'}\'s Organization`
+        const orgResult = await createOrganizationAction({
+          ownerId: user.id,
+          name: orgName,
+          website: onboardingData.website, // Website collected in a later step, but can be set if available
+          // businessDescription can be added later
+        })
+        if (orgResult.isSuccess && orgResult.data) {
+          setOnboardingData(prev => ({
+            ...prev,
+            organizationId: orgResult.data.id,
+            organizationName: orgResult.data.name // Ensure org name is updated from created org
+          }))
+        } else {
+          console.error("Failed to create organization during onboarding")
+          // Handle error - perhaps show a toast
+          return
+        }
+      }
+    }
+    
+    // Save user profile (not org specific data here, that's handled by org actions)
+    await saveProfileProgress()
 
     const currentIndex = stepOrder.indexOf(currentStep)
     if (currentIndex < stepOrder.length - 1) {
-      const nextStepName = stepOrder[currentIndex + 1]
-      console.log("🔍 [ONBOARDING] Moving to next step:", nextStepName)
-      setCurrentStep(nextStepName)
+      setCurrentStep(stepOrder[currentIndex + 1])
     }
   }
 
   const previousStep = () => {
-    console.log("🔍 [ONBOARDING] previousStep() called")
-    console.log("🔍 [ONBOARDING] Current step:", currentStep)
-
     const currentIndex = stepOrder.indexOf(currentStep)
     if (currentIndex > 0) {
-      const prevStepName = stepOrder[currentIndex - 1]
-      console.log("🔍 [ONBOARDING] Moving to previous step:", prevStepName)
-      setCurrentStep(prevStepName)
-    } else {
-      console.log(
-        "🔍 [ONBOARDING] Cannot go back further (at beginning of onboarding)"
-      )
+      setCurrentStep(stepOrder[currentIndex - 1])
     }
   }
-
-  const [pendingAutoSave, setPendingAutoSave] = useState<{
-    data: Partial<typeof onboardingData>
-    shouldSave: boolean
-  } | null>(null)
-
-  // Handle auto-save in useEffect to avoid updating component during render
-  useEffect(() => {
-    if (pendingAutoSave?.shouldSave && user?.id) {
-      console.log("💾 [ONBOARDING] Processing auto-save...")
-      saveProgress(onboardingData)
-      setPendingAutoSave(null)
-    }
-  }, [pendingAutoSave, user?.id, onboardingData])
 
   const updateData = (
     data: Partial<typeof onboardingData>,
-    autoSave: boolean = false
+    autoSaveProfile: boolean = false
   ) => {
-    console.log("🔍 [ONBOARDING] updateData() called with:", data)
-    console.log("🔍 [ONBOARDING] Auto-save requested:", autoSave)
-
-    // Log specific updates
-    Object.keys(data).forEach(key => {
-      console.log(
-        `🔍 [ONBOARDING] Updating ${key}:`,
-        data[key as keyof typeof data]
-      )
-      if (key === "keywords") {
-        const keywords = data[key as keyof typeof data] as string[]
-        console.log(
-          `🔍 [ONBOARDING] Keywords array length:`,
-          keywords?.length || 0
-        )
-        console.log(`🔍 [ONBOARDING] Keywords content:`, keywords)
-      }
-    })
-
-    setOnboardingData(prev => {
-      const updated = { ...prev, ...data }
-      console.log("🔍 [ONBOARDING] Updated onboardingData:", updated)
-      console.log("🔍 [ONBOARDING] Keywords specifically:", updated.keywords)
-      console.log("🔍 [ONBOARDING] Keywords length:", updated.keywords.length)
-
-      return updated
-    })
-
-    // Schedule auto-save if requested
-    if (autoSave && user?.id) {
-      console.log("💾 [ONBOARDING] Scheduling auto-save...")
-      setPendingAutoSave({ data, shouldSave: true })
+    setOnboardingData(prev => ({ ...prev, ...data }))
+    if (autoSaveProfile) {
+      saveProfileProgress({ ...onboardingData, ...data })
     }
   }
 
-  // Progressive save function to save data after each step
-  const saveProgress = async (dataToSave?: Partial<typeof onboardingData>) => {
-    if (!user?.id) {
-      console.log("🔍 [ONBOARDING] No user ID available for saving progress")
-      return
-    }
-
-    // Use provided data or current onboarding data
+  const saveProfileProgress = async (dataToSave?: Partial<typeof onboardingData>) => {
+    if (!user?.id) return
     const currentData = dataToSave || onboardingData
-
-    console.log("💾 [ONBOARDING] Saving progress to Firebase...")
-    console.log("💾 [ONBOARDING] Data to save:", currentData)
-    console.log("💾 [ONBOARDING] Keywords to save:", currentData.keywords)
-    console.log(
-      "💾 [ONBOARDING] Keywords length:",
-      currentData.keywords?.length || 0
-    )
-
     try {
-      const savePayload = {
-        name: currentData.name || "",
-        profilePictureUrl: currentData.profilePictureUrl || "",
-        website: currentData.website || "",
-        keywords: currentData.keywords || [],
-        // DON'T mark as completed yet - this is just progress saving
-        onboardingCompleted: false
-      }
-
-      console.log("💾 [ONBOARDING] Save payload:", savePayload)
-      console.log("💾 [ONBOARDING] Payload keywords:", savePayload.keywords)
-
-      const result = await updateProfileAction(user.id, savePayload)
-
-      if (result.isSuccess) {
-        console.log("✅ [ONBOARDING] Progress saved successfully to Firebase")
-        console.log("✅ [ONBOARDING] Saved profile data:", result.data)
-      } else {
-        console.error(
-          "❌ [ONBOARDING] Failed to save progress:",
-          result.message
-        )
-      }
+      await updateProfileAction(user.id, {
+        name: currentData.profileName,
+        profilePictureUrl: currentData.profilePictureUrl,
+        // website and keywords are now org-specific
+        onboardingCompleted: false // Not fully completed until the end
+      })
+      console.log("✅ [ONBOARDING] Profile progress saved.")
     } catch (error) {
-      console.error("❌ [ONBOARDING] Error saving progress:", error)
+      console.error("❌ [ONBOARDING] Error saving profile progress:", error)
     }
   }
-
+  
   const completeOnboarding = async () => {
-    console.log("🔍 [ONBOARDING] completeOnboarding() called")
-    console.log("🔍 [ONBOARDING] Final onboardingData:", onboardingData)
-    console.log("🔍 [ONBOARDING] Final keywords:", onboardingData.keywords)
-    console.log(
-      "🔍 [ONBOARDING] Final keywords length:",
-      onboardingData.keywords.length
-    )
-
-    if (!user?.id) {
-      console.error("🔍 [ONBOARDING] No user ID found")
+    if (!user?.id || !onboardingData.organizationId) {
+      console.error(
+        "🔍 [ONBOARDING] No user ID or organizationId found for completing onboarding"
+      )
       return
     }
 
-    // Simple validation: just check if we have required data
     const hasRequiredData = !!(
-      onboardingData.name &&
-      onboardingData.name.trim() !== "" &&
+      onboardingData.organizationName &&
       onboardingData.website &&
-      onboardingData.website.trim() !== "" &&
       onboardingData.keywords &&
       onboardingData.keywords.length > 0 &&
       onboardingData.redditConnected === true
     )
 
-    console.log("🔍 [ONBOARDING] - hasRequiredData:", hasRequiredData)
-
     if (!hasRequiredData) {
       console.error(
-        "🔍 [ONBOARDING] Cannot complete onboarding - missing required data"
+        "🔍 [ONBOARDING] Cannot complete onboarding - missing required data for organization/campaign"
       )
       return
     }
 
     try {
-      console.log(
-        "🔍 [ONBOARDING] Calling updateProfileAction with user ID:",
-        user.id
-      )
-
-      const updatePayload = {
-        name: onboardingData.name,
+      // Update the user's profile as onboarding completed
+      await updateProfileAction(user.id, {
+        name: onboardingData.profileName,
         profilePictureUrl: onboardingData.profilePictureUrl,
-        website: onboardingData.website,
-        keywords: onboardingData.keywords,
         onboardingCompleted: true
-      }
+      })
+      console.log("✅ [ONBOARDING] User profile marked as onboarding completed.")
 
-      console.log("🔍 [ONBOARDING] Profile data being saved:", updatePayload)
-      console.log(
-        "🔍 [ONBOARDING] Keywords being saved:",
-        updatePayload.keywords
-      )
+      // Update the organization with final details (website, business description if collected)
+      // This assumes these might have been collected or refined in later steps.
+      // For simplicity, we use what's in onboardingData. This might need updating OrganizationAction.
+      const { updateOrganizationAction } = await import("@/actions/db/organizations-actions")
+      await updateOrganizationAction(onboardingData.organizationId, {
+          name: onboardingData.organizationName,
+          website: onboardingData.website,
+          // businessDescription: onboardingData.businessDescription, // If collected
+      });
+      console.log("✅ [ONBOARDING] Organization details updated.");
 
-      const profileResult = await updateProfileAction(user.id, updatePayload)
-
-      console.log("🔍 [ONBOARDING] Profile update result:", profileResult)
-
-      if (!profileResult.isSuccess) {
-        console.error(
-          "🔍 [ONBOARDING] Profile update failed:",
-          profileResult.message
-        )
-        throw new Error("Failed to update profile")
-      }
-
-      console.log("🔍 [ONBOARDING] Profile updated successfully")
-      console.log("🔍 [ONBOARDING] Updated profile data:", profileResult.data)
-
-      // Generate campaign name using AI
-      console.log("🔍 [ONBOARDING] Generating campaign name...")
+      // Create the first Lead Search (Campaign)
       const { generateCampaignNameAction } = await import(
         "@/actions/lead-generation/campaign-name-actions"
       )
-
       const nameResult = await generateCampaignNameAction({
         keywords: onboardingData.keywords,
         website: onboardingData.website,
-        businessName: onboardingData.name
+        businessName: onboardingData.organizationName
       })
-
       const campaignName = nameResult.isSuccess
         ? nameResult.data
-        : `${onboardingData.name} Campaign`
+        : `${onboardingData.organizationName} Lead Search`
 
-      console.log("🔍 [ONBOARDING] Generated campaign name:", campaignName)
-
-      // Create the first campaign
-      console.log("🔍 [ONBOARDING] Creating first campaign...")
       const { createCampaignAction } = await import(
         "@/actions/db/campaign-actions"
       )
-
-      const campaignResult = await createCampaignAction({
-        userId: user.id,
+      await createCampaignAction({
+        userId: user.id, // Still associate with user for ownership/filtering if needed
+        organizationId: onboardingData.organizationId,
         name: campaignName,
-        website: onboardingData.website,
         keywords: onboardingData.keywords
+        // website and businessDescription are now part of the organization
       })
+      console.log("✅ [ONBOARDING] First Lead Search (Campaign) created.")
 
-      if (!campaignResult.isSuccess) {
-        console.error(
-          "🔍 [ONBOARDING] Campaign creation failed:",
-          campaignResult.message
-        )
-        // Don't throw error - still redirect to lead finder
-      } else {
-        console.log(
-          "🔍 [ONBOARDING] Campaign created successfully:",
-          campaignResult.data
-        )
-      }
-
-      // Redirect to lead finder
-      const redirectUrl = `/reddit/lead-finder`
-      console.log(
-        "🔍 [ONBOARDING] Keywords saved to profile:",
-        onboardingData.keywords
-      )
-      console.log("🔍 [ONBOARDING] Redirect URL:", redirectUrl)
-
-      router.push(redirectUrl)
+      router.push("/reddit/lead-finder")
     } catch (error) {
-      console.error("🔍 [ONBOARDING] Error completing onboarding:", error)
+      console.error("❌ [ONBOARDING] Error completing onboarding:", error)
     }
   }
 
-  const renderCurrentStep = () => {
-    console.log(
-      "🔍 [ONBOARDING] renderCurrentStep() called for step:",
-      currentStep
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        Loading...
+      </div>
     )
-    console.log(
-      "🔍 [ONBOARDING] Current onboardingData in render:",
-      onboardingData
-    )
-    console.log(
-      "🔍 [ONBOARDING] Current keywords in render:",
-      onboardingData.keywords
-    )
-    console.log(
-      "🔍 [ONBOARDING] Current keywords length in render:",
-      onboardingData.keywords.length
-    )
+  }
 
+  const renderCurrentStep = () => {
     switch (currentStep) {
       case "profile":
         return (
           <ProfileStep
-            data={onboardingData}
-            onUpdate={updateData}
+            data={{
+              name: onboardingData.profileName,
+              profilePictureUrl: onboardingData.profilePictureUrl,
+            }}
+            onUpdate={(d) => updateData({ profileName: d.name, profilePictureUrl: d.profilePictureUrl }, true)}
             onNext={nextStep}
           />
         )
       case "website":
         return (
           <WebsiteStep
-            data={onboardingData}
-            onUpdate={updateData}
+            data={{ 
+                website: onboardingData.website, 
+                businessName: onboardingData.organizationName 
+            }}
+            onUpdate={(d) => 
+              updateData({
+                website: d.website,
+                organizationName: d.businessName || onboardingData.organizationName 
+              })
+            }
             onNext={nextStep}
             onPrevious={previousStep}
           />
@@ -555,12 +377,12 @@ export default function OnboardingPage() {
       case "keywords":
         return (
           <KeywordsStep
-            data={onboardingData}
-            onUpdate={data => {
-              // Auto-save when keywords are updated since they're AI-generated
-              const shouldAutoSave = data.keywords && data.keywords.length > 0
-              updateData(data, shouldAutoSave)
+            data={{
+              keywords: onboardingData.keywords,
+              website: onboardingData.website,
+              businessDescription: onboardingData.organizationName
             }}
+            onUpdate={(d) => updateData({ keywords: d.keywords })}
             onNext={nextStep}
             onPrevious={previousStep}
           />
@@ -568,18 +390,28 @@ export default function OnboardingPage() {
       case "reddit":
         return (
           <ConnectRedditStep
-            data={onboardingData}
-            onUpdate={updateData}
+            data={{
+              // Pass context data; profilePictureUrl is removed as it's not org-specific
+              name: onboardingData.organizationName, 
+              website: onboardingData.website,
+              keywords: onboardingData.keywords,
+              redditConnected: onboardingData.redditConnected
+            }}
+            onUpdate={(d) => updateData({ redditConnected: d.redditConnected })}
             onNext={nextStep}
             onPrevious={previousStep}
+            organizationId={onboardingData.organizationId} // Pass the current orgId
           />
         )
       case "complete":
         return (
           <CompleteStep
-            data={onboardingData}
+            profileName={onboardingData.profileName}
+            organizationName={onboardingData.organizationName}
+            website={onboardingData.website}
+            keywords={onboardingData.keywords}
+            redditConnected={onboardingData.redditConnected}
             onComplete={completeOnboarding}
-            onPrevious={previousStep}
           />
         )
       default:
@@ -587,81 +419,32 @@ export default function OnboardingPage() {
     }
   }
 
-  // Show loading state while loading profile
-  if (isLoading) {
-    console.log("🔍 [ONBOARDING] Rendering loading state")
-    return (
-      <div className="mx-auto w-full max-w-lg space-y-12">
-        <div className="flex flex-col items-center space-y-4 py-12">
-          <div className="relative">
-            <div className="size-8 animate-spin rounded-full border-2 border-gray-600 border-t-blue-600" />
-          </div>
-          <p className="text-gray-400">Loading your profile...</p>
-        </div>
-      </div>
-    )
-  }
-
-  console.log("🔍 [ONBOARDING] Rendering main component")
-  console.log("🔍 [ONBOARDING] Final render onboardingData:", onboardingData)
-  console.log("🔍 [ONBOARDING] Final render keywords:", onboardingData.keywords)
-  console.log("🔍 [ONBOARDING] Final render currentStep:", currentStep)
-
   return (
-    <div className="mx-auto w-full max-w-lg space-y-12">
-      {/* Progress Bar */}
-      <div className="space-y-3">
-        <div className="flex justify-between text-sm text-gray-400">
-          <span>Setup Progress</span>
-          <span>{Math.round(progress)}% Complete</span>
+    <div className="container mx-auto flex min-h-screen max-w-2xl flex-col items-center justify-center p-4">
+      <div className="w-full space-y-8">
+        <div>
+          <h1 className="text-center text-3xl font-bold">
+            Welcome to Leadify! Let's get you set up.
+          </h1>
+          <p className="mt-2 text-center text-muted-foreground">
+            Follow these simple steps to configure your first lead generation agent.
+          </p>
         </div>
-        <div className="h-2 w-full rounded-full bg-gray-800">
-          <div
-            className="h-2 rounded-full bg-gradient-to-r from-blue-600 to-blue-700 transition-all duration-300"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      </div>
 
-      {/* Step Content */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentStep}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.3 }}
-        >
-          {renderCurrentStep()}
-        </motion.div>
-      </AnimatePresence>
+        <Progress value={progress} className="w-full" />
 
-      {/* Step Indicators */}
-      <div className="flex flex-col items-center space-y-4">
-        <div className="flex justify-center space-x-2">
-          {stepOrder.map((step, index) => (
-            <div
-              key={step}
-              className={`size-3 rounded-full transition-colors ${
-                index <= currentStepIndex ? "bg-blue-600" : "bg-gray-600"
-              }`}
-            />
-          ))}
-        </div>
-        <div className="flex justify-center space-x-8 text-xs text-gray-500">
-          {["Profile", "Website", "Keywords", "Reddit", "Launch"].map(
-            (stepName, index) => (
-              <span
-                key={stepName}
-                className={`${
-                  index <= currentStepIndex ? "text-blue-400" : "text-gray-600"
-                }`}
-              >
-                {stepName}
-              </span>
-            )
-          )}
-        </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentStep}
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -50 }}
+            transition={{ duration: 0.3 }}
+            className="w-full"
+          >
+            {renderCurrentStep()}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   )

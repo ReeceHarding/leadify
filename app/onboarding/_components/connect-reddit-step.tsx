@@ -9,31 +9,33 @@ import { generateRedditAuthUrlAction } from "@/actions/integrations/reddit/reddi
 interface ConnectRedditStepProps {
   data: {
     name: string
-    profilePictureUrl: string
     website: string
     keywords: string[]
     redditConnected: boolean
   }
-  onUpdate: (data: Partial<ConnectRedditStepProps["data"]>) => void
+  onUpdate: (data: Partial<{ redditConnected: boolean }>) => void
   onNext: () => void
   onPrevious: () => void
+  organizationId: string
 }
 
 export default function ConnectRedditStep({
   data,
   onUpdate,
   onNext,
-  onPrevious
+  onPrevious,
+  organizationId
 }: ConnectRedditStepProps) {
   const [isConnecting, setIsConnecting] = useState(false)
   const [connectionStatus, setConnectionStatus] = useState<
     "idle" | "connecting" | "connected" | "error"
   >("idle")
 
-  // Update connection status based on data
   useEffect(() => {
     if (data.redditConnected) {
       setConnectionStatus("connected")
+    } else {
+      setConnectionStatus("idle")
     }
   }, [data.redditConnected])
 
@@ -41,11 +43,18 @@ export default function ConnectRedditStep({
     setIsConnecting(true)
     setConnectionStatus("connecting")
 
+    if (!organizationId) {
+        console.error("ConnectRedditStep: Missing organizationId!");
+        setConnectionStatus("error");
+        setIsConnecting(false);
+        alert("Error: Organization not identified. Cannot connect Reddit.");
+        return;
+    }
+
     try {
       const result = await generateRedditAuthUrlAction()
 
       if (result.isSuccess) {
-        // Redirect to Reddit OAuth
         window.location.href = result.data.authUrl
       } else {
         setConnectionStatus("error")
@@ -54,8 +63,6 @@ export default function ConnectRedditStep({
     } catch (error) {
       setConnectionStatus("error")
       console.error("Error connecting to Reddit:", error)
-    } finally {
-      setIsConnecting(false)
     }
   }
 

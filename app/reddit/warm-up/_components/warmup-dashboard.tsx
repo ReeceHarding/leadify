@@ -44,13 +44,16 @@ export default function WarmupDashboard({ userId, organizationId }: WarmupDashbo
   const { activeOrganization } = useOrganization()
 
   useEffect(() => {
-    loadWarmupAccount()
-    checkRedditConnection()
+    if (organizationId) {
+      loadWarmupAccount()
+      checkRedditConnection()
+    }
   }, [organizationId])
 
   const loadWarmupAccount = async () => {
+    if (!organizationId) return
     try {
-      console.log("🔍 [WARMUP-DASHBOARD] Loading warm-up account for organization")
+      console.log("🔍 [WARMUP-DASHBOARD] Loading warm-up account for organization:", organizationId)
       const result = await getWarmupAccountByOrganizationIdAction(organizationId)
       if (result.isSuccess && result.data) {
         setWarmupAccount(result.data)
@@ -71,13 +74,22 @@ export default function WarmupDashboard({ userId, organizationId }: WarmupDashbo
   }
 
   const checkRedditConnection = async () => {
+    if (!organizationId) {
+      setRedditUsername(null)
+      return
+    }
     try {
-      console.log("🔍 [WARMUP-DASHBOARD] Checking Reddit connection")
-      // Check organization's Reddit connection
-      if (activeOrganization?.redditUsername) {
-        setRedditUsername(activeOrganization.redditUsername)
+      console.log("🔍 [WARMUP-DASHBOARD] Checking Reddit connection for org:", organizationId)
+      const userInfoResult = await getRedditUserInfoAction(organizationId)
+      if (userInfoResult.isSuccess && userInfoResult.data?.name) {
+        setRedditUsername(userInfoResult.data.name)
+        console.log("✅ [WARMUP-DASHBOARD] Reddit connected as:", userInfoResult.data.name)
+      } else {
+        setRedditUsername(null)
+        console.warn("⚠️ [WARMUP-DASHBOARD] Reddit not connected for org or failed to get user info:", userInfoResult.message)
       }
     } catch (error) {
+      setRedditUsername(null)
       console.error(
         "❌ [WARMUP-DASHBOARD] Error checking Reddit connection:",
         error
@@ -86,12 +98,15 @@ export default function WarmupDashboard({ userId, organizationId }: WarmupDashbo
   }
 
   const handleConnectReddit = async () => {
+    if (!organizationId) {
+      toast({ title: "Error", description: "Organization context is missing.", variant: "destructive" })
+      return
+    }
     try {
       setIsConnecting(true)
-      console.log("🔗 [WARMUP-DASHBOARD] Connecting Reddit account")
+      console.log("🔗 [WARMUP-DASHBOARD] Connecting Reddit account for org:", organizationId)
 
-      // Store organization ID for the callback
-      sessionStorage.setItem("pendingRedditOrgId", organizationId)
+      document.cookie = `reddit_auth_org_id=${organizationId}; path=/; max-age=600; SameSite=Lax`
       
       const result = await generateRedditAuthUrlAction()
       if (result.isSuccess && result.data) {

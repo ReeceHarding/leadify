@@ -24,7 +24,7 @@ import {
   Rocket
 } from "lucide-react"
 import {
-  getWarmupPostsByUserIdAction,
+  getWarmupPostsByOrganizationIdAction,
   updateWarmupPostAction
 } from "@/actions/db/warmup-actions"
 import {
@@ -39,11 +39,13 @@ import { debounce } from "lodash"
 
 interface WarmupPostsListProps {
   userId: string
+  organizationId: string
   warmupAccount: SerializedWarmupAccountDocument
 }
 
 export default function WarmupPostsList({
   userId,
+  organizationId,
   warmupAccount
 }: WarmupPostsListProps) {
   const [posts, setPosts] = useState<SerializedWarmupPostDocument[]>([])
@@ -57,15 +59,21 @@ export default function WarmupPostsList({
   const { toast } = useToast()
 
   useEffect(() => {
-    loadPosts()
-  }, [userId])
+    if (organizationId) {
+      loadPosts()
+    }
+  }, [organizationId])
 
   const loadPosts = async () => {
+    if (!organizationId) return
     try {
-      console.log("🔍 [WARMUP-POSTS] Loading posts")
-      const result = await getWarmupPostsByUserIdAction(userId)
+      console.log("🔍 [WARMUP-POSTS] Loading posts for org:", organizationId)
+      const result = await getWarmupPostsByOrganizationIdAction(organizationId)
       if (result.isSuccess && result.data) {
         setPosts(result.data)
+      } else {
+        setPosts([]);
+        console.warn("⚠️ [WARMUP-POSTS] Failed to load posts or no posts found:", result.message);
       }
     } catch (error) {
       console.error("❌ [WARMUP-POSTS] Error loading posts:", error)
@@ -80,11 +88,14 @@ export default function WarmupPostsList({
   }
 
   const handleGeneratePosts = async () => {
+    if (!organizationId) {
+        toast({ title: "Error", description: "Organization not selected for generating posts.", variant: "destructive"});
+        return;
+    }
     try {
       setIsGenerating(true)
-      console.log("🤖 [WARMUP-POSTS] Generating new posts")
-
-      const result = await generateAndScheduleWarmupPostsAction(userId)
+      console.log("🤖 [WARMUP-POSTS] Generating new posts for org:", organizationId)
+      const result = await generateAndScheduleWarmupPostsAction(organizationId)
 
       if (result.isSuccess) {
         toast({
@@ -190,17 +201,19 @@ export default function WarmupPostsList({
   }
 
   const handlePostImmediately = async (postId: string) => {
+    if (!organizationId) {
+        toast({ title: "Error", description: "Organization not selected for posting.", variant: "destructive"});
+        return;
+    }
     try {
-      console.log("🚀 [WARMUP-POSTS] Posting immediately:", postId)
-
-      const result = await postWarmupImmediatelyAction(postId)
+      console.log("🚀 [WARMUP-POSTS] Posting immediately:", postId, "for org:", organizationId);
+      const result = await postWarmupImmediatelyAction(postId, organizationId);
 
       if (result.isSuccess && result.data?.url) {
         toast({
           title: "Success!",
           description: "Post submitted to Reddit successfully"
         })
-        // Open the Reddit post in a new tab
         window.open(result.data.url, "_blank")
         await loadPosts()
       } else {

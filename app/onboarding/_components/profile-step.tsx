@@ -13,11 +13,8 @@ interface ProfileStepProps {
   data: {
     name: string
     profilePictureUrl: string
-    website: string
-    keywords: string[]
-    redditConnected: boolean
   }
-  onUpdate: (data: Partial<ProfileStepProps["data"]>) => void
+  onUpdate: (data: Partial<{ name: string; profilePictureUrl: string }>) => void
   onNext: () => void
 }
 

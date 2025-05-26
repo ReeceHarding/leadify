@@ -22,13 +22,11 @@ import { generateKeywordsAction } from "@/actions/lead-generation/keywords-actio
 
 interface KeywordsStepProps {
   data: {
-    name: string
-    profilePictureUrl: string
     website: string
     keywords: string[]
-    redditConnected: boolean
+    businessDescription: string // This is the organizationName for context
   }
-  onUpdate: (data: Partial<KeywordsStepProps["data"]>) => void
+  onUpdate: (data: Partial<{ keywords: string[] }>) => void // Only keywords are updated by this step
   onNext: () => void
   onPrevious: () => void
 }
@@ -85,6 +83,7 @@ export default function KeywordsStep({
   const generateKeywords = async (refinement?: string) => {
     console.log("🔍 [KEYWORDS] generateKeywords() called with o3-mini")
     console.log("🔍 [KEYWORDS] Website:", data.website)
+    console.log("🔍 [KEYWORDS] Business Description (Org Name for context):", data.businessDescription)
     console.log("🔍 [KEYWORDS] Refinement:", refinement)
 
     setIsGenerating(true)
@@ -94,6 +93,7 @@ export default function KeywordsStep({
       )
       const result = await generateKeywordsAction({
         website: data.website,
+        businessDescription: data.businessDescription,
         refinement: refinement || undefined
       })
 

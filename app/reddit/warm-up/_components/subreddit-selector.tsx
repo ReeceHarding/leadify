@@ -35,14 +35,15 @@ import {
   createWarmupAccountAction,
   updateWarmupAccountAction
 } from "@/actions/db/warmup-actions"
-import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
 import { SerializedWarmupAccountDocument } from "@/db/firestore/warmup-collections"
+import { useOrganization } from "@/components/utilities/organization-provider"
 import { debounce } from "lodash"
 
 interface SubredditSelectorProps {
   userId: string
   warmupAccount: SerializedWarmupAccountDocument | null
   onUpdate: () => void
+  organizationId: string
 }
 
 interface SubredditSuggestion {
@@ -54,8 +55,14 @@ interface SubredditSuggestion {
 export default function SubredditSelector({
   userId,
   warmupAccount,
-  onUpdate
+  onUpdate,
+  organizationId
 }: SubredditSelectorProps) {
+  const { activeOrganization } = useOrganization()
+  const { toast } = useToast()
+
+  const currentOrganizationId = organizationId || warmupAccount?.organizationId || activeOrganization?.id
+
   const [selectedSubreddits, setSelectedSubreddits] = useState<string[]>(
     warmupAccount?.targetSubreddits || []
   )
@@ -65,20 +72,22 @@ export default function SubredditSelector({
   const [isOpen, setIsOpen] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
-  const { toast } = useToast()
 
-  // Debounced search function
   const debouncedSearch = useCallback(
     debounce(async (query: string) => {
       if (query.length < 2) {
         setSuggestions([])
         return
       }
+      if (!currentOrganizationId) {
+        toast({ title: "Error", description: "Organization not selected.", variant: "destructive" })
+        return
+      }
 
       setIsSearching(true)
       try {
-        console.log("🔍 [SUBREDDIT-SELECTOR] Searching for:", query)
-        const result = await searchSubredditsAction(query)
+        console.log(`🔍 [SUBREDDIT-SELECTOR] Searching for: "${query}" in org: ${currentOrganizationId}`)
+        const result = await searchSubredditsAction(currentOrganizationId, query)
 
         if (result.isSuccess && result.data) {
           setSuggestions(
@@ -95,7 +104,7 @@ export default function SubredditSelector({
         setIsSearching(false)
       }
     }, 300),
-    []
+    [currentOrganizationId, toast]
   )
 
   useEffect(() => {
@@ -115,106 +124,97 @@ export default function SubredditSelector({
   }
 
   const handleGenerateRecommendations = async () => {
+    if (!currentOrganizationId || !activeOrganization) {
+      toast({ title: "Error", description: "Organization not available for recommendations.", variant: "destructive" })
+      return
+    }
     try {
       setIsGenerating(true)
-      console.log("🤖 [SUBREDDIT-SELECTOR] Generating recommendations")
+      console.log("🤖 [SUBREDDIT-SELECTOR] Generating recommendations for org:", currentOrganizationId)
 
-      // Get user profile for keywords
-      const profileResult = await getProfileByUserIdAction(userId)
-      if (!profileResult.isSuccess || !profileResult.data) {
-        toast({
-          title: "Error",
-          description: "Please complete your profile first",
-          variant: "destructive"
-        })
-        return
+      let productDesc = activeOrganization.name || ""
+      if (activeOrganization.businessDescription) {
+        productDesc += ` - ${activeOrganization.businessDescription}`
+      }
+      if (activeOrganization.website) {
+        productDesc += ` (Website: ${activeOrganization.website})`
+      }
+      if (productDesc.trim() === "") {
+        productDesc = "General business providing services/products."
       }
 
-      const keywords = profileResult.data.keywords || []
-      const website = profileResult.data.website || ""
+      const keywordsForRecommendation = (activeOrganization as any).keywordsForAi || []
 
-      const result = await recommendSubredditsAction(keywords, website)
+      const result = await recommendSubredditsAction(
+        keywordsForRecommendation,
+        productDesc
+      )
 
       if (result.isSuccess && result.data) {
-        // Show recommendations in a dialog or add them directly
         const newSubreddits = result.data
           .filter(rec => !selectedSubreddits.includes(rec.subreddit))
           .map(rec => rec.subreddit)
-          .slice(0, 5) // Add top 5
+          .slice(0, 5)
 
-        setSelectedSubreddits([...selectedSubreddits, ...newSubreddits])
-
+        setSelectedSubreddits(prev => [...new Set([...prev, ...newSubreddits])])
         toast({
           title: "Recommendations Added",
           description: `Added ${newSubreddits.length} recommended subreddits`
         })
+      } else {
+        toast({ title: "AI Suggestion Error", description: result.message || "Could not generate suggestions.", variant: "destructive" })
       }
     } catch (error) {
-      console.error(
-        "❌ [SUBREDDIT-SELECTOR] Error generating recommendations:",
-        error
-      )
-      toast({
-        title: "Error",
-        description: "Failed to generate recommendations",
-        variant: "destructive"
-      })
+      console.error("❌ [SUBREDDIT-SELECTOR] Error generating recommendations:", error)
+      toast({ title: "Error", description: "Failed to generate recommendations", variant: "destructive" })
     } finally {
       setIsGenerating(false)
     }
   }
 
   const handleSave = async () => {
+    if (!currentOrganizationId) {
+      toast({ title: "Error", description: "Organization not identified for saving.", variant: "destructive" })
+      return
+    }
     try {
       setIsSaving(true)
-      console.log("💾 [SUBREDDIT-SELECTOR] Saving subreddits")
+      console.log("💾 [SUBREDDIT-SELECTOR] Saving subreddits for org:", currentOrganizationId)
 
-      if (warmupAccount) {
-        // Update existing account
+      if (warmupAccount && warmupAccount.organizationId === currentOrganizationId) {
         const result = await updateWarmupAccountAction(warmupAccount.id, {
           targetSubreddits: selectedSubreddits
         })
-
         if (result.isSuccess) {
-          toast({
-            title: "Success",
-            description: "Subreddits updated successfully"
-          })
+          toast({ title: "Success", description: "Subreddits updated successfully" })
           onUpdate()
+        } else {
+          toast({ title: "Error", description: result.message, variant: "destructive" })
         }
       } else {
-        // Create new account
-        const userResult = await getRedditUserInfoAction()
+        const userResult = await getRedditUserInfoAction(currentOrganizationId)
         if (!userResult.isSuccess || !userResult.data) {
-          toast({
-            title: "Error",
-            description: "Please connect your Reddit account first",
-            variant: "destructive"
-          })
+          toast({ title: "Error", description: userResult.message || "Please connect your organization\'s Reddit account first", variant: "destructive" })
+          setIsSaving(false)
           return
         }
 
         const result = await createWarmupAccountAction({
           userId,
+          organizationId: currentOrganizationId,
           redditUsername: userResult.data.name,
           targetSubreddits: selectedSubreddits
         })
-
         if (result.isSuccess) {
-          toast({
-            title: "Success",
-            description: "Warm-up account created successfully"
-          })
+          toast({ title: "Success", description: "Warm-up account created successfully" })
           onUpdate()
+        } else {
+          toast({ title: "Error", description: result.message, variant: "destructive" })
         }
       }
     } catch (error) {
       console.error("❌ [SUBREDDIT-SELECTOR] Error saving:", error)
-      toast({
-        title: "Error",
-        description: "Failed to save subreddits",
-        variant: "destructive"
-      })
+      toast({ title: "Error", description: "Failed to save subreddits", variant: "destructive" })
     } finally {
       setIsSaving(false)
     }
@@ -225,11 +225,10 @@ export default function SubredditSelector({
       <CardHeader>
         <CardTitle>Target Subreddits</CardTitle>
         <CardDescription>
-          Select subreddits where you want to build karma and authority
+          Select subreddits where your organization <span className="font-semibold">{activeOrganization?.name || "selected organization"}</span> wants to build karma and authority.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Search Input */}
         <div className="flex gap-2">
           <Popover open={isOpen} onOpenChange={setIsOpen}>
             <PopoverTrigger asChild>
@@ -238,6 +237,7 @@ export default function SubredditSelector({
                 role="combobox"
                 aria-expanded={isOpen}
                 className="flex-1 justify-start"
+                disabled={!currentOrganizationId}
               >
                 <Search className="mr-2 size-4" />
                 Search for subreddits...
@@ -249,6 +249,7 @@ export default function SubredditSelector({
                   placeholder="Search subreddits..."
                   value={searchQuery}
                   onValueChange={setSearchQuery}
+                  disabled={!currentOrganizationId}
                 />
                 <CommandList>
                   {isSearching ? (
@@ -284,7 +285,7 @@ export default function SubredditSelector({
           <Button
             variant="outline"
             onClick={handleGenerateRecommendations}
-            disabled={isGenerating}
+            disabled={isGenerating || !currentOrganizationId}
           >
             {isGenerating ? (
               <Loader2 className="size-4 animate-spin" />
@@ -295,7 +296,6 @@ export default function SubredditSelector({
           </Button>
         </div>
 
-        {/* Selected Subreddits */}
         <div className="space-y-2">
           <p className="text-sm font-medium">
             Selected Subreddits ({selectedSubreddits.length})
@@ -303,7 +303,7 @@ export default function SubredditSelector({
           <div className="flex flex-wrap gap-2">
             {selectedSubreddits.length === 0 ? (
               <p className="text-muted-foreground text-sm">
-                No subreddits selected
+                No subreddits selected. Search or use AI to suggest.
               </p>
             ) : (
               selectedSubreddits.map(subreddit => (
@@ -323,10 +323,9 @@ export default function SubredditSelector({
           </div>
         </div>
 
-        {/* Save Button */}
         <Button
           onClick={handleSave}
-          disabled={isSaving || selectedSubreddits.length === 0}
+          disabled={isSaving || selectedSubreddits.length === 0 || !currentOrganizationId}
           className="w-full"
         >
           {isSaving ? (

@@ -25,7 +25,7 @@ export async function generateKeywordsAction({
   website,
   businessDescription,
   refinement = ""
-}: GenerateKeywordsData): Promise<ActionState<{ keywords: string[] }>> {
+}: GenerateKeywordsData): Promise<ActionState<KeywordsResult>> {
   try {
     console.log("🔍 [KEYWORDS] Generating keywords")
     console.log("🔍 [KEYWORDS] Website:", website || "None")
@@ -35,44 +35,48 @@ export async function generateKeywordsAction({
     )
     console.log("🔍 [KEYWORDS] Refinement:", refinement)
 
-    // Extract keyword count from refinement if specified
-    const keywordCountMatch = refinement.match(
-      /Generate (?:exactly )?(\d+) (?:diverse )?keywords/i
-    )
-    const requestedCount = keywordCountMatch
-      ? parseInt(keywordCountMatch[1])
-      : 10
-
     const businessInfo = businessDescription
       ? `Business Description: ${businessDescription}`
       : website
         ? `Website: ${website}`
         : "No business information provided"
+        
+    const requestedCount = refinement?.match(/Generate (?:exactly )?(\d+) (?:diverse )?keywords/i)
+      ? parseInt(refinement.match(/Generate (?:exactly )?(\d+) (?:diverse )?keywords/i)![1])
+      : 10;
 
-    const prompt = `You are a Reddit keyword expert. Generate search keywords for finding potential customers on Reddit.
-
+    const prompt = `You are a Reddit keyword and business strategy expert. 
+Analyze the following business information:
 ${businessInfo}
 
-${refinement ? `Additional instructions: ${refinement}` : ""}
+Additional instructions or refinement: ${refinement}
 
-Generate ${requestedCount} specific, targeted keywords that:
-1. Are phrases people would actually use when asking for recommendations on Reddit
-2. Include both broad and specific terms
-3. Focus on problems/needs your business solves
-4. Include location-specific terms if relevant
+Tasks:
+1. Identify the core problem the business solves.
+2. Describe the primary customer groups.
+3. Define the Ideal Customer Profile (ICP).
+4. State the Unique Value Proposition (UVP).
+5. List key Target Pain Points the business addresses.
+6. Generate ${requestedCount} specific, targeted Reddit search keywords that people would use to find solutions or recommendations related to this business.
 
-Return ONLY a JSON array of keyword strings, no other text.
-Example format: ["keyword 1", "keyword 2", "keyword 3"]
-
-Make sure to generate exactly ${requestedCount} keywords.`
+Return ONLY a JSON object with the following structure, no other text:
+{
+  "keywords": ["keyword 1", "keyword 2", ...],
+  "coreProblem": "The core problem solved...",
+  "customerGroups": ["Group A", "Group B", ...],
+  "idealCustomerProfile": "Detailed ICP...",
+  "uniqueValueProposition": "The UVP is...",
+  "targetPainPoints": ["Pain point 1", "Pain point 2", ...]
+}
+Ensure the keywords array contains exactly ${requestedCount} keywords.`
 
     const result = await generateText({
-      model: openai("o3-mini"),
+      model: openai("gpt-4o-mini"),
       system:
-        "You are a Reddit keyword generation expert. Return only valid JSON arrays.",
+        "You are a Reddit keyword and business strategy expert. Return only valid JSON objects adhering to the specified schema.",
       prompt: prompt,
-      temperature: 0.7,
-      maxTokens: 1000
+      temperature: 0.5,
+      maxTokens: 1500
     })
 
     const response = result.text
@@ -80,36 +84,43 @@ Make sure to generate exactly ${requestedCount} keywords.`
       throw new Error("No response from OpenAI")
     }
 
-    // Parse the JSON response
-    let keywords: string[]
+    let parsedResponse: KeywordsResult
     try {
-      keywords = JSON.parse(response)
-      if (!Array.isArray(keywords)) {
-        throw new Error("Response is not an array")
+      const rawParsed = JSON.parse(response);
+      if (!rawParsed.keywords || !Array.isArray(rawParsed.keywords)) {
+        throw new Error("Keywords array is missing or not an array in AI response.")
       }
+      parsedResponse = rawParsed as KeywordsResult;
+      
+      if (parsedResponse.keywords.length > requestedCount) {
+        parsedResponse.keywords = parsedResponse.keywords.slice(0, requestedCount);
+      }
+      while (parsedResponse.keywords.length < requestedCount && parsedResponse.keywords.length > 0) {
+        parsedResponse.keywords.push(parsedResponse.keywords[parsedResponse.keywords.length - 1] + " variation"); 
+      }
+      if (parsedResponse.keywords.length === 0 && requestedCount > 0) {
+          parsedResponse.keywords = [`${businessDescription || website || 'general search'} help`];
+          while(parsedResponse.keywords.length < requestedCount) parsedResponse.keywords.push(`${parsedResponse.keywords[0]} ${parsedResponse.keywords.length+1}`) 
+      }
+
     } catch (parseError) {
-      console.error("🔍 [KEYWORDS] Failed to parse response:", response)
-      throw new Error("Invalid response format from AI")
+      console.error("🔍 [KEYWORDS] Failed to parse AI response:", response, parseError)
+      throw new Error("Invalid response format from AI. Could not parse strategic insights and keywords.")
     }
 
-    // Ensure we have the requested number of keywords
-    if (keywords.length > requestedCount) {
-      keywords = keywords.slice(0, requestedCount)
-    }
-
-    console.log(`🔍 [KEYWORDS] Generated ${keywords.length} keywords`)
+    console.log(`🔍 [KEYWORDS] Generated ${parsedResponse.keywords.length} keywords and strategic insights.`)
 
     return {
       isSuccess: true,
-      message: "Keywords generated successfully",
-      data: { keywords }
+      message: "Keywords and strategic insights generated successfully",
+      data: parsedResponse
     }
   } catch (error) {
     console.error("🔍 [KEYWORDS] Error:", error)
     return {
       isSuccess: false,
       message:
-        error instanceof Error ? error.message : "Failed to generate keywords"
+        error instanceof Error ? error.message : "Failed to generate keywords and insights"
     }
   }
 }

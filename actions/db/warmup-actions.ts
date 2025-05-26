@@ -119,32 +119,40 @@ export async function createWarmupAccountAction(
   try {
     console.log(
       "🔧 [CREATE-WARMUP-ACCOUNT] Creating warm-up account for user:",
-      data.userId
+      data.userId,
+      "and organization:",
+      data.organizationId
     )
 
-    // Check if user already has a warm-up account
+    if (!data.organizationId) {
+      console.error("❌ [CREATE-WARMUP-ACCOUNT] Organization ID is required.")
+      return { isSuccess: false, message: "Organization ID is required" }
+    }
+
+    // Check if this organization already has a warm-up account
     const existingQuery = query(
       collection(db, WARMUP_COLLECTIONS.WARMUP_ACCOUNTS),
-      where("userId", "==", data.userId)
+      where("organizationId", "==", data.organizationId)
     )
     const existingDocs = await getDocs(existingQuery)
 
     if (!existingDocs.empty) {
       console.log(
-        "⚠️ [CREATE-WARMUP-ACCOUNT] User already has a warm-up account"
+        "⚠️ [CREATE-WARMUP-ACCOUNT] Organization already has a warm-up account"
       )
       return {
         isSuccess: false,
-        message: "User already has a warm-up account"
+        message: "This organization already has a warm-up account"
       }
     }
 
     const accountRef = doc(collection(db, WARMUP_COLLECTIONS.WARMUP_ACCOUNTS))
     const now = Timestamp.now()
 
-    const accountData = {
+    const accountData: WarmupAccountDocument = {
       id: accountRef.id,
       userId: data.userId,
+      organizationId: data.organizationId,
       redditUsername: data.redditUsername,
       targetSubreddits: data.targetSubreddits,
       postingMode: data.postingMode || "manual",
@@ -154,21 +162,28 @@ export async function createWarmupAccountAction(
         new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
       ), // 7 days from now
       dailyPostLimit: data.dailyPostLimit || 3,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
+      currentDay: 1,
+      postsToday: 0,
+      commentsToday: 0,
+      totalPostsMade: 0,
+      totalCommentsMade: 0,
+      status: "active",
+      createdAt: serverTimestamp() as any,
+      updatedAt: serverTimestamp() as any
     }
 
     await setDoc(accountRef, accountData)
 
     const createdDoc = await getDoc(accountRef)
     console.log(
-      "✅ [CREATE-WARMUP-ACCOUNT] Warm-up account created successfully"
+      "✅ [CREATE-WARMUP-ACCOUNT] Warm-up account created successfully for organization:",
+      data.organizationId
     )
 
     return {
       isSuccess: true,
       message: "Warm-up account created successfully",
-      data: serializeWarmupAccount(createdDoc.data())
+      data: serializeWarmupAccount(createdDoc.data() as WarmupAccountDocument)
     }
   } catch (error) {
     console.error("❌ [CREATE-WARMUP-ACCOUNT] Error:", error)
@@ -363,7 +378,7 @@ export async function updateWarmupPostAction(
 
 export async function getSubredditAnalysisAction(
   subreddit: string
-): Promise<ActionState<SerializedSubredditAnalysisDocument | null>> {
+): Promise<ActionState<SubredditAnalysisDocument | null>> {
   try {
     console.log("🔍 [GET-SUBREDDIT-ANALYSIS] Fetching analysis for:", subreddit)
 
@@ -383,13 +398,13 @@ export async function getSubredditAnalysisAction(
       }
     }
 
-    const analysis = analysisDoc.data()
+    const analysis = analysisDoc.data() as SubredditAnalysisDocument
     console.log("✅ [GET-SUBREDDIT-ANALYSIS] Analysis found")
 
     return {
       isSuccess: true,
       message: "Subreddit analysis retrieved successfully",
-      data: serializeSubredditAnalysis(analysis)
+      data: analysis
     }
   } catch (error) {
     console.error("❌ [GET-SUBREDDIT-ANALYSIS] Error:", error)
@@ -442,17 +457,21 @@ export async function saveSubredditAnalysisAction(
 // Rate Limiting Actions
 
 export async function checkWarmupRateLimitAction(
-  userId: string,
+  organizationId: string,
   subreddit: string
 ): Promise<ActionState<{ canPost: boolean; nextPostTime?: Date }>> {
   try {
     console.log(
-      "🔍 [CHECK-RATE-LIMIT] Checking rate limit for:",
-      userId,
+      "🔍 [CHECK-RATE-LIMIT] Checking rate limit for organization:",
+      organizationId,
+      "subreddit:",
       subreddit
     )
+    if (!organizationId) {
+      return { isSuccess: false, message: "Organization ID is required for rate limit check." }
+    }
 
-    const rateLimitId = `${userId}_${subreddit}`
+    const rateLimitId = `${organizationId}_${subreddit}`
     const rateLimitRef = doc(
       db,
       WARMUP_COLLECTIONS.WARMUP_RATE_LIMITS,
@@ -471,18 +490,18 @@ export async function checkWarmupRateLimitAction(
 
     const rateLimit = rateLimitDoc.data() as WarmupRateLimitDocument
     const lastPostTime = rateLimit.lastPostTime.toDate()
+    const cooldownMs = 3 * 24 * 60 * 60 * 1000 // 3 days
     const timeSinceLastPost = Date.now() - lastPostTime.getTime()
-    const threeDaysInMs = 3 * 24 * 60 * 60 * 1000
 
-    if (timeSinceLastPost < threeDaysInMs) {
-      const nextPostTime = new Date(lastPostTime.getTime() + threeDaysInMs)
+    if (timeSinceLastPost < cooldownMs) {
+      const nextPostTime = new Date(lastPostTime.getTime() + cooldownMs)
       console.log(
         "⚠️ [CHECK-RATE-LIMIT] Rate limit active, next post:",
         nextPostTime
       )
       return {
         isSuccess: true,
-        message: "Rate limit active",
+        message: "Rate limit active for this organization in this subreddit",
         data: { canPost: false, nextPostTime }
       }
     }
@@ -500,17 +519,21 @@ export async function checkWarmupRateLimitAction(
 }
 
 export async function updateWarmupRateLimitAction(
-  userId: string,
+  organizationId: string,
   subreddit: string
 ): Promise<ActionState<void>> {
   try {
     console.log(
-      "🔧 [UPDATE-RATE-LIMIT] Updating rate limit for:",
-      userId,
+      "🔧 [UPDATE-RATE-LIMIT] Updating rate limit for organization:",
+      organizationId,
+      "subreddit:",
       subreddit
     )
+    if (!organizationId) {
+      return { isSuccess: false, message: "Organization ID is required for rate limit update." }
+    }
 
-    const rateLimitId = `${userId}_${subreddit}`
+    const rateLimitId = `${organizationId}_${subreddit}`
     const rateLimitRef = doc(
       db,
       WARMUP_COLLECTIONS.WARMUP_RATE_LIMITS,
@@ -518,24 +541,22 @@ export async function updateWarmupRateLimitAction(
     )
 
     const rateLimitData = {
-      id: rateLimitId,
-      userId,
+      organizationId,
       subreddit,
-      lastPostTime: serverTimestamp(),
+      lastPostTime: serverTimestamp() as any,
       postsInLast3Days: 1,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp() as any,
     }
 
     await setDoc(rateLimitRef, rateLimitData, { merge: true })
-
-    console.log("✅ [UPDATE-RATE-LIMIT] Rate limit updated successfully")
-
-    return {
-      isSuccess: true,
-      message: "Rate limit updated successfully",
-      data: undefined
+    
+    const docSnap = await getDoc(rateLimitRef)
+    if (docSnap.exists() && !docSnap.data().createdAt) {
+      await updateDoc(rateLimitRef, { createdAt: serverTimestamp() as any })
     }
+
+    console.log("✅ [UPDATE-RATE-LIMIT] Rate limit updated")
+    return { isSuccess: true, message: "Rate limit updated", data: undefined }
   } catch (error) {
     console.error("❌ [UPDATE-RATE-LIMIT] Error:", error)
     return { isSuccess: false, message: "Failed to update rate limit" }

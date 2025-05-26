@@ -9,13 +9,10 @@ import { Label } from "@/components/ui/label"
 
 interface WebsiteStepProps {
   data: {
-    name: string
-    profilePictureUrl: string
     website: string
-    keywords: string[]
-    redditConnected: boolean
+    businessName: string // This will be the organizationName
   }
-  onUpdate: (data: Partial<WebsiteStepProps["data"]>) => void
+  onUpdate: (data: Partial<{ website: string; businessName?: string }>) => void
   onNext: () => void
   onPrevious: () => void
 }
@@ -59,7 +56,9 @@ export default function WebsiteStep({
     e.preventDefault()
 
     if (!data.website.trim()) {
-      onNext() // Allow skipping website
+      // If website is empty, but business name might have been updated
+      onUpdate({ website: "", businessName: data.businessName }) 
+      onNext()
       return
     }
 
@@ -72,8 +71,8 @@ export default function WebsiteStep({
 
     setIsValidating(true)
 
-    // Update the website URL and proceed
-    onUpdate({ website: normalizedUrl })
+    // Update the website URL and potentially businessName if it was editable here
+    onUpdate({ website: normalizedUrl, businessName: data.businessName })
 
     // Simulate validation delay
     setTimeout(() => {
@@ -83,7 +82,7 @@ export default function WebsiteStep({
   }
 
   const handleSkip = () => {
-    onUpdate({ website: "" })
+    onUpdate({ website: "", businessName: data.businessName }) // Pass businessName if it was changed
     onNext()
   }
 
@@ -119,7 +118,7 @@ export default function WebsiteStep({
               id="website"
               type="text"
               value={data.website}
-              onChange={e => onUpdate({ website: e.target.value })}
+              onChange={e => onUpdate({ website: e.target.value, businessName: data.businessName })}
               placeholder="Enter your website URL (e.g., https://mycompany.com)"
               className="rounded-lg border-gray-600 bg-gray-900 py-3 pl-12 text-center text-base text-white placeholder:text-gray-500"
             />
