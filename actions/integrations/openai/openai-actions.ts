@@ -1134,44 +1134,63 @@ If the score is 40 or above, generate three comments:
    - Use "so for a little background:" as transition
    - Share 7+ years of specific experience
    - List multiple failed ventures before success
-   - Be vulnerable about failures
+   - Be vulnerable about failures with SPECIFIC, UNIQUE details
+   - Include random tangents and irrelevant details
    
    MAIN LESSON:
    - State core lesson about time vs money tradeoff
    - Frame as two paths to choose from
+   - Don't make it too neat or perfect
    
    PATH EXPLANATIONS:
    - Reference what others in thread are recommending
    - Share 3-5 numbered personal examples with specific details
    - Include exact time/money amounts wasted
-   - Transition to current thinking
+   - Make stories messy - include failures, tangents, incomplete thoughts
+   - Mention 5-7 OTHER specific tools/companies throughout
    
    DETAILED SCENARIOS:
    - Break down by user type (college student, professional, etc)
    - Give specific actionable advice for each
    - Include warnings from personal experience
    - Use specific numbers and timeframes
+   - Jump between topics without smooth transitions
    
    CONCLUSION:
    - Clear TL;DR summary
    - List all options in order
    - End with "dm me" or "lmk if you want more details"
+   - Add an "edit:" with something you forgot
+   
+   CRITICAL AUTHENTICITY RULES:
+   - Make failures more prominent than successes
+   - Include embarrassing or petty details
+   - Reference our solution casually, sometimes forgetting exact name
+   - Mention when our solution DIDN'T work for something
+   - Present all options with EQUAL enthusiasm
+   - Include random asides in parentheses
+   - Express uncertainty ("i think it was..." "maybe 2019?")
+   - Reference other subreddits or your comment history
+   - Add one completely unrelated recommendation
+   - Sometimes contradict yourself slightly
    
    STYLE REQUIREMENTS:
    - ALL lowercase (no capitals)
-   - 2-3 blank lines between sections
-   - Casual abbreviations: bc, w/, lmk, tbh
-   - 1-2 spelling mistakes: experince, proabbly, definately, thier
+   - 2-3 blank lines between major thoughts (not neat sections)
+   - Casual abbreviations: bc, w/, lmk, tbh, ngl, imo, fwiw
+   - 2-3 spelling mistakes: experince, proabbly, definately, thier, reccomend
    - Personal pronouns: heavy use of i, my, you
    - No hyphens anywhere
+   - Use "..." for trailing thoughts
+   - Use multiple question marks sometimes???
 
    CRITICAL: You MUST mention THREE different solutions in each comment:
    1. A FREE tool/solution (be specific and honest about limitations)
-   2. ${businessName} (our solution - be honest about pros AND cons)
+   2. ${businessName} (our solution - mention casually, include real downsides, sometimes forget exact name)
    3. A PREMIUM/EXPENSIVE tool (be fair about when it's actually worth it)
    
-   Present all three with genuine pros and cons. Include real downsides for our solution too.
-   Remember: all lowercase, 1-2 spelling mistakes, super casual tone.
+   Present all three with genuine pros and cons. Make the comment feel like a real person's messy experience, not a structured pitch.
+   Remember: all lowercase, 2-3 spelling mistakes, super casual tone, random tangents.
 
 2. Identify and list 3-5 specific keyword phrases (3-5 words each) from the thread itself that are highly relevant to the business and the campaign's focus keywords (${campaignKeywords.join(", ")}). These phrases should capture the core problem or specific interest expressed by the Reddit user.
 

@@ -9607,3 +9607,589 @@
 [2025-05-27T21:48:49.938Z] ==================================================
 [2025-05-27T21:48:49.938Z] COMMAND FINISHED: prettier --write {app,lib,components}/**/*.{ts,tsx} db/**/*.ts types/**/*.ts --cache --ignore-unknown (exit code: 0)
 [2025-05-27T21:48:49.938Z] ==================================================
+[2025-05-27T21:49:30.986Z] NEXTJS_STDOUT: ✓ Compiled in 528ms (3537 modules)
+[2025-05-27T21:49:44.021Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/lead-finder
+[2025-05-27T21:49:44.021Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/lead-finder
+[2025-05-27T21:49:44.022Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Skipping auth for /reddit/lead-finder (testing)
+[2025-05-27T21:49:44.173Z] NEXTJS_STDOUT: 🔥🔥🔥 [LEAD-FINDER-PAGE] Rendering LeadFinderPage
+[2025-05-27T21:49:44.173Z] NEXTJS_STDOUT: 🔥🔥🔥 [LEAD-FINDER-PAGE] Environment: development
+[2025-05-27T21:49:44.174Z] NEXTJS_STDOUT: 🔥🔥🔥 [LEAD-FINDER-PAGE] Time: 2025-05-27T21:49:44.173Z
+[2025-05-27T21:49:44.174Z] NEXTJS_STDOUT: 🔥🔥🔥 [LEAD-FINDER-PAGE] Rendering LeadFinderDashboard inside Suspense
+[2025-05-27T21:49:44.205Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Action called
+[2025-05-27T21:49:44.205Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Input data: {
+[2025-05-27T21:49:44.205Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy"
+[2025-05-27T21:49:44.205Z] NEXTJS_STDOUT: }
+[2025-05-27T21:49:44.205Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Input data keys: [ 'userId' ]
+[2025-05-27T21:49:44.205Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] User ID: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-27T21:49:44.205Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Created Firestore document reference
+[2025-05-27T21:49:44.205Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Collection: profiles
+[2025-05-27T21:49:44.205Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Document path: profiles/user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-27T21:49:44.205Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw profile data before filtering: {
+[2025-05-27T21:49:44.205Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-27T21:49:44.205Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-27T21:49:44.205Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-27T21:49:44.205Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-27T21:49:44.206Z] NEXTJS_STDOUT: },
+[2025-05-27T21:49:44.206Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-27T21:49:44.206Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-27T21:49:44.206Z] NEXTJS_STDOUT: }
+[2025-05-27T21:49:44.206Z] NEXTJS_STDOUT: }
+[2025-05-27T21:49:44.206Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw profile data keys: [
+[2025-05-27T21:49:44.206Z] NEXTJS_STDOUT: 'userId',
+[2025-05-27T21:49:44.206Z] NEXTJS_STDOUT: 'membership',
+[2025-05-27T21:49:44.206Z] NEXTJS_STDOUT: 'stripeCustomerId',
+[2025-05-27T21:49:44.206Z] NEXTJS_STDOUT: 'stripeSubscriptionId',
+[2025-05-27T21:49:44.206Z] NEXTJS_STDOUT: 'createdAt',
+[2025-05-27T21:49:44.206Z] NEXTJS_STDOUT: 'updatedAt'
+[2025-05-27T21:49:44.206Z] NEXTJS_STDOUT: ]
+[2025-05-27T21:49:44.206Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] serverTimestamp() type: object
+[2025-05-27T21:49:44.206Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Profile data after filtering undefined values: {
+[2025-05-27T21:49:44.206Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-27T21:49:44.206Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-27T21:49:44.206Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-27T21:49:44.206Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-27T21:49:44.206Z] NEXTJS_STDOUT: },
+[2025-05-27T21:49:44.206Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-27T21:49:44.206Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-27T21:49:44.206Z] NEXTJS_STDOUT: }
+[2025-05-27T21:49:44.206Z] NEXTJS_STDOUT: }
+[2025-05-27T21:49:44.206Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Filtered profile data keys: [ 'userId', 'membership', 'createdAt', 'updatedAt' ]
+[2025-05-27T21:49:44.206Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Writing to Firestore...
+[2025-05-27T21:49:44.401Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Successfully wrote to Firestore
+[2025-05-27T21:49:44.401Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Reading back created document...
+[2025-05-27T21:49:44.582Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Document exists: true
+[2025-05-27T21:49:44.582Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Document id: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-27T21:49:44.582Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw data from Firestore: {
+[2025-05-27T21:49:44.582Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-27T21:49:44.582Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-27T21:49:44.582Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-27T21:49:44.582Z] NEXTJS_STDOUT: "seconds": 1748382584,
+[2025-05-27T21:49:44.582Z] NEXTJS_STDOUT: "nanoseconds": 359000000
+[2025-05-27T21:49:44.583Z] NEXTJS_STDOUT: },
+[2025-05-27T21:49:44.583Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-27T21:49:44.583Z] NEXTJS_STDOUT: "seconds": 1748382584,
+[2025-05-27T21:49:44.583Z] NEXTJS_STDOUT: "nanoseconds": 359000000
+[2025-05-27T21:49:44.583Z] NEXTJS_STDOUT: }
+[2025-05-27T21:49:44.583Z] NEXTJS_STDOUT: }
+[2025-05-27T21:49:44.583Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw data keys: [ 'userId', 'membership', 'createdAt', 'updatedAt' ]
+[2025-05-27T21:49:44.583Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw createdAt from Firestore: Timestamp { seconds: 1748382584, nanoseconds: 359000000 }
+[2025-05-27T21:49:44.583Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw updatedAt from Firestore: Timestamp { seconds: 1748382584, nanoseconds: 359000000 }
+[2025-05-27T21:49:44.583Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Casting to ProfileDocument
+[2025-05-27T21:49:44.583Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] ProfileDocument createdAt: Timestamp { seconds: 1748382584, nanoseconds: 359000000 }
+[2025-05-27T21:49:44.583Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] ProfileDocument updatedAt: Timestamp { seconds: 1748382584, nanoseconds: 359000000 }
+[2025-05-27T21:49:44.583Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Starting serialization...
+[2025-05-27T21:49:44.583Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Starting serialization
+[2025-05-27T21:49:44.583Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Input profile keys: [ 'userId', 'membership', 'createdAt', 'updatedAt' ]
+[2025-05-27T21:49:44.583Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Raw profile data: {
+[2025-05-27T21:49:44.583Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-27T21:49:44.584Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-27T21:49:44.584Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-27T21:49:44.584Z] NEXTJS_STDOUT: "seconds": 1748382584,
+[2025-05-27T21:49:44.584Z] NEXTJS_STDOUT: "nanoseconds": 359000000
+[2025-05-27T21:49:44.584Z] NEXTJS_STDOUT: },
+[2025-05-27T21:49:44.584Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-27T21:49:44.584Z] NEXTJS_STDOUT: "seconds": 1748382584,
+[2025-05-27T21:49:44.584Z] NEXTJS_STDOUT: "nanoseconds": 359000000
+[2025-05-27T21:49:44.584Z] NEXTJS_STDOUT: }
+[2025-05-27T21:49:44.584Z] NEXTJS_STDOUT: }
+[2025-05-27T21:49:44.584Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt type: object
+[2025-05-27T21:49:44.584Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt instanceof Timestamp: true
+[2025-05-27T21:49:44.584Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt value: Timestamp { seconds: 1748382584, nanoseconds: 359000000 }
+[2025-05-27T21:49:44.584Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt type: object
+[2025-05-27T21:49:44.584Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt instanceof Timestamp: true
+[2025-05-27T21:49:44.584Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt value: Timestamp { seconds: 1748382584, nanoseconds: 359000000 }
+[2025-05-27T21:49:44.584Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized profile: {
+[2025-05-27T21:49:44.584Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-27T21:49:44.584Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-27T21:49:44.584Z] NEXTJS_STDOUT: "createdAt": "2025-05-27T21:49:44.359Z",
+[2025-05-27T21:49:44.584Z] NEXTJS_STDOUT: "updatedAt": "2025-05-27T21:49:44.359Z"
+[2025-05-27T21:49:44.584Z] NEXTJS_STDOUT: }
+[2025-05-27T21:49:44.584Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized createdAt: 2025-05-27T21:49:44.359Z
+[2025-05-27T21:49:44.585Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized updatedAt: 2025-05-27T21:49:44.359Z
+[2025-05-27T21:49:44.585Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialization complete
+[2025-05-27T21:49:44.585Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Final result: {
+[2025-05-27T21:49:44.585Z] NEXTJS_STDOUT: "isSuccess": true,
+[2025-05-27T21:49:44.585Z] NEXTJS_STDOUT: "message": "Profile created successfully",
+[2025-05-27T21:49:44.585Z] NEXTJS_STDOUT: "data": {
+[2025-05-27T21:49:44.585Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-27T21:49:44.585Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-27T21:49:44.585Z] NEXTJS_STDOUT: "createdAt": "2025-05-27T21:49:44.359Z",
+[2025-05-27T21:49:44.585Z] NEXTJS_STDOUT: "updatedAt": "2025-05-27T21:49:44.359Z"
+[2025-05-27T21:49:44.585Z] NEXTJS_STDOUT: }
+[2025-05-27T21:49:44.585Z] NEXTJS_STDOUT: }
+[2025-05-27T21:49:44.585Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Action completed successfully
+[2025-05-27T21:49:44.687Z] NEXTJS_STDOUT: 🍞 [REDDIT-HEADER] Current pathname: /reddit/lead-finder
+[2025-05-27T21:49:44.688Z] NEXTJS_STDOUT: 🍞 [REDDIT-HEADER] Generating breadcrumbs for: /reddit/lead-finder
+[2025-05-27T21:49:44.688Z] NEXTJS_STDOUT: 🍞 [REDDIT-HEADER] Generated breadcrumbs: [
+[2025-05-27T21:49:44.688Z] NEXTJS_STDOUT: { label: 'Dashboard', href: '/dashboard', isActive: false },
+[2025-05-27T21:49:44.688Z] NEXTJS_STDOUT: { label: 'Reddit', href: '/reddit', isActive: false },
+[2025-05-27T21:49:44.688Z] NEXTJS_STDOUT: { label: 'Lead Finder', href: '/reddit/lead-finder', isActive: true }
+[2025-05-27T21:49:44.688Z] NEXTJS_STDOUT: ]
+[2025-05-27T21:49:44.902Z] NEXTJS_STDOUT: GET /reddit/lead-finder 200 in 879ms
+[2025-05-27T21:49:45.326Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/lead-finder
+[2025-05-27T21:49:45.326Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/lead-finder
+[2025-05-27T21:49:45.326Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Skipping auth for /reddit/lead-finder (testing)
+[2025-05-27T21:49:45.438Z] NEXTJS_STDOUT: ✓ Compiled /icon.png in 194ms (2370 modules)
+[2025-05-27T21:49:45.711Z] NEXTJS_STDOUT: GET /icon.png?6cfa51926824cb4f 200 in 485ms
+[2025-05-27T21:49:45.942Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] ========== ACTION START ==========
+[2025-05-27T21:49:45.942Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] Timestamp: 2025-05-27T21:49:45.942Z
+[2025-05-27T21:49:45.942Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] User ID: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-27T21:49:45.948Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] Fetching organization memberships...
+[2025-05-27T21:49:46.000Z] NEXTJS_STDOUT: GET /icon.png?6cfa51926824cb4f 200 in 287ms
+[2025-05-27T21:49:46.153Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] Found memberships: 3
+[2025-05-27T21:49:46.154Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] Organization IDs: [
+[2025-05-27T21:49:46.154Z] NEXTJS_STDOUT: 'PH1HuLm3o00D4wvoZ2lr',
+[2025-05-27T21:49:46.154Z] NEXTJS_STDOUT: 'k0V9nQJ6BPAO9gVkdaOR',
+[2025-05-27T21:49:46.155Z] NEXTJS_STDOUT: 'Ofa9s59KFG9e3teB8xTT'
+[2025-05-27T21:49:46.155Z] NEXTJS_STDOUT: ]
+[2025-05-27T21:49:46.216Z] NEXTJS_STDOUT: 🏢 [SERIALIZE-ORG] Starting serialization
+[2025-05-27T21:49:46.270Z] NEXTJS_STDOUT: 🏢 [SERIALIZE-ORG] Starting serialization
+[2025-05-27T21:49:46.339Z] NEXTJS_STDOUT: 🏢 [SERIALIZE-ORG] Starting serialization
+[2025-05-27T21:49:46.339Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] Total organizations found: 3
+[2025-05-27T21:49:46.339Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] ✅ Organizations retrieved successfully
+[2025-05-27T21:49:46.339Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORGS-BY-USER] ========== ACTION END (SUCCESS) ==========
+[2025-05-27T21:49:46.341Z] NEXTJS_STDOUT: POST /reddit/lead-finder 200 in 1014ms
+[2025-05-27T21:49:46.361Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/lead-finder
+[2025-05-27T21:49:46.361Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/lead-finder
+[2025-05-27T21:49:46.361Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Skipping auth for /reddit/lead-finder (testing)
+[2025-05-27T21:49:46.365Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] ========== ACTION START ==========
+[2025-05-27T21:49:46.365Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Timestamp: 2025-05-27T21:49:46.365Z
+[2025-05-27T21:49:46.365Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Organization ID: Ofa9s59KFG9e3teB8xTT
+[2025-05-27T21:49:46.365Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Creating query...
+[2025-05-27T21:49:46.365Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Executing query...
+[2025-05-27T21:49:46.437Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Query returned documents: 3
+[2025-05-27T21:49:46.437Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Query empty: false
+[2025-05-27T21:49:46.437Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Campaign 1: {
+[2025-05-27T21:49:46.437Z] NEXTJS_STDOUT: id: '07obMuAEJ6nuodFkDB7q',
+[2025-05-27T21:49:46.437Z] NEXTJS_STDOUT: name: 'Rostam Demo',
+[2025-05-27T21:49:46.437Z] NEXTJS_STDOUT: organizationId: 'Ofa9s59KFG9e3teB8xTT',
+[2025-05-27T21:49:46.437Z] NEXTJS_STDOUT: keywordCount: 4,
+[2025-05-27T21:49:46.437Z] NEXTJS_STDOUT: status: 'completed',
+[2025-05-27T21:49:46.437Z] NEXTJS_STDOUT: totalCommentsGenerated: 35
+[2025-05-27T21:49:46.437Z] NEXTJS_STDOUT: }
+[2025-05-27T21:49:46.437Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Campaign 2: {
+[2025-05-27T21:49:46.437Z] NEXTJS_STDOUT: id: 'dbaEDhzFgKX5Rz68Rq44',
+[2025-05-27T21:49:46.437Z] NEXTJS_STDOUT: name: '#1',
+[2025-05-27T21:49:46.438Z] NEXTJS_STDOUT: organizationId: 'Ofa9s59KFG9e3teB8xTT',
+[2025-05-27T21:49:46.438Z] NEXTJS_STDOUT: keywordCount: 1,
+[2025-05-27T21:49:46.438Z] NEXTJS_STDOUT: status: 'error',
+[2025-05-27T21:49:46.438Z] NEXTJS_STDOUT: totalCommentsGenerated: 0
+[2025-05-27T21:49:46.438Z] NEXTJS_STDOUT: }
+[2025-05-27T21:49:46.438Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Campaign 3: {
+[2025-05-27T21:49:46.438Z] NEXTJS_STDOUT: id: 'jCV2zfUArMJyXHk9ve7j',
+[2025-05-27T21:49:46.438Z] NEXTJS_STDOUT: name: 'new comment gen prompt',
+[2025-05-27T21:49:46.438Z] NEXTJS_STDOUT: organizationId: 'Ofa9s59KFG9e3teB8xTT',
+[2025-05-27T21:49:46.438Z] NEXTJS_STDOUT: keywordCount: 1,
+[2025-05-27T21:49:46.438Z] NEXTJS_STDOUT: status: 'completed',
+[2025-05-27T21:49:46.438Z] NEXTJS_STDOUT: totalCommentsGenerated: 10
+[2025-05-27T21:49:46.438Z] NEXTJS_STDOUT: }
+[2025-05-27T21:49:46.438Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Total campaigns found: 3
+[2025-05-27T21:49:46.438Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Campaign IDs: [
+[2025-05-27T21:49:46.438Z] NEXTJS_STDOUT: '07obMuAEJ6nuodFkDB7q',
+[2025-05-27T21:49:46.438Z] NEXTJS_STDOUT: 'dbaEDhzFgKX5Rz68Rq44',
+[2025-05-27T21:49:46.438Z] NEXTJS_STDOUT: 'jCV2zfUArMJyXHk9ve7j'
+[2025-05-27T21:49:46.438Z] NEXTJS_STDOUT: ]
+[2025-05-27T21:49:46.438Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] ✅ Campaigns retrieved successfully
+[2025-05-27T21:49:46.438Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] ========== ACTION END (SUCCESS) ==========
+[2025-05-27T21:49:46.440Z] NEXTJS_STDOUT: POST /reddit/lead-finder 200 in 78ms
+[2025-05-27T21:49:46.445Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/lead-finder
+[2025-05-27T21:49:46.445Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/lead-finder
+[2025-05-27T21:49:46.445Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Skipping auth for /reddit/lead-finder (testing)
+[2025-05-27T21:49:46.449Z] NEXTJS_STDOUT: 🔑 [REDDIT-AUTH-HELPER] Getting tokens for organization: Ofa9s59KFG9e3teB8xTT
+[2025-05-27T21:49:46.449Z] NEXTJS_STDOUT: 🔧 [GET-REDDIT-TOKENS-ORG] Getting Reddit tokens from organization...
+[2025-05-27T21:49:46.450Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORG-BY-ID] ========== ACTION START ==========
+[2025-05-27T21:49:46.450Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORG-BY-ID] Timestamp: 2025-05-27T21:49:46.450Z
+[2025-05-27T21:49:46.450Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORG-BY-ID] Organization ID: Ofa9s59KFG9e3teB8xTT
+[2025-05-27T21:49:46.450Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORG-BY-ID] Checking membership...
+[2025-05-27T21:49:46.525Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORG-BY-ID] Fetching organization document...
+[2025-05-27T21:49:46.586Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORG-BY-ID] ✅ Organization retrieved successfully
+[2025-05-27T21:49:46.586Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORG-BY-ID] ========== ACTION END (SUCCESS) ==========
+[2025-05-27T21:49:46.586Z] NEXTJS_STDOUT: 🏢 [SERIALIZE-ORG] Starting serialization
+[2025-05-27T21:49:46.586Z] NEXTJS_STDOUT: ✅ [GET-REDDIT-TOKENS-ORG] Reddit tokens retrieved from organization
+[2025-05-27T21:49:46.586Z] NEXTJS_STDOUT: ✅ [REDDIT-AUTH-HELPER] Token is valid
+[2025-05-27T21:49:46.587Z] NEXTJS_STDOUT: POST /reddit/lead-finder 200 in 141ms
+[2025-05-27T21:49:46.594Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/lead-finder
+[2025-05-27T21:49:46.594Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/lead-finder
+[2025-05-27T21:49:46.594Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Skipping auth for /reddit/lead-finder (testing)
+[2025-05-27T21:49:46.602Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] ========== ACTION START ==========
+[2025-05-27T21:49:46.602Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] Timestamp: 2025-05-27T21:49:46.601Z
+[2025-05-27T21:49:46.602Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] Campaign ID: jCV2zfUArMJyXHk9ve7j
+[2025-05-27T21:49:46.602Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] Creating document reference...
+[2025-05-27T21:49:46.602Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] Fetching document from Firestore...
+[2025-05-27T21:49:46.667Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] Document exists: true
+[2025-05-27T21:49:46.668Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] Campaign data retrieved: {
+[2025-05-27T21:49:46.668Z] NEXTJS_STDOUT: id: 'jCV2zfUArMJyXHk9ve7j',
+[2025-05-27T21:49:46.668Z] NEXTJS_STDOUT: name: 'new comment gen prompt',
+[2025-05-27T21:49:46.668Z] NEXTJS_STDOUT: userId: 'user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy',
+[2025-05-27T21:49:46.668Z] NEXTJS_STDOUT: keywordCount: 1,
+[2025-05-27T21:49:46.669Z] NEXTJS_STDOUT: keywords: [ 'looking for affordable software development services' ],
+[2025-05-27T21:49:46.669Z] NEXTJS_STDOUT: status: 'completed',
+[2025-05-27T21:49:46.669Z] NEXTJS_STDOUT: totalSearchResults: 10,
+[2025-05-27T21:49:46.669Z] NEXTJS_STDOUT: totalThreadsAnalyzed: 10,
+[2025-05-27T21:49:46.669Z] NEXTJS_STDOUT: totalCommentsGenerated: 10,
+[2025-05-27T21:49:46.669Z] NEXTJS_STDOUT: hasWebsite: false,
+[2025-05-27T21:49:46.669Z] NEXTJS_STDOUT: hasWebsiteContent: true,
+[2025-05-27T21:49:46.670Z] NEXTJS_STDOUT: websiteContentLength: 3124
+[2025-05-27T21:49:46.670Z] NEXTJS_STDOUT: }
+[2025-05-27T21:49:46.670Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] ✅ Campaign retrieved successfully
+[2025-05-27T21:49:46.670Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] ========== ACTION END (SUCCESS) ==========
+[2025-05-27T21:49:46.678Z] NEXTJS_STDOUT: POST /reddit/lead-finder 200 in 81ms
+[2025-05-27T21:49:46.741Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/lead-finder
+[2025-05-27T21:49:46.741Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/lead-finder
+[2025-05-27T21:49:46.741Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Skipping auth for /reddit/lead-finder (testing)
+[2025-05-27T21:49:46.745Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] ========== ACTION START ==========
+[2025-05-27T21:49:46.745Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] Timestamp: 2025-05-27T21:49:46.745Z
+[2025-05-27T21:49:46.745Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] Campaign ID: jCV2zfUArMJyXHk9ve7j
+[2025-05-27T21:49:46.745Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] Creating document reference...
+[2025-05-27T21:49:46.745Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] Fetching document from Firestore...
+[2025-05-27T21:49:46.778Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] Document exists: true
+[2025-05-27T21:49:46.778Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] Campaign data retrieved: {
+[2025-05-27T21:49:46.778Z] NEXTJS_STDOUT: id: 'jCV2zfUArMJyXHk9ve7j',
+[2025-05-27T21:49:46.778Z] NEXTJS_STDOUT: name: 'new comment gen prompt',
+[2025-05-27T21:49:46.778Z] NEXTJS_STDOUT: userId: 'user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy',
+[2025-05-27T21:49:46.778Z] NEXTJS_STDOUT: keywordCount: 1,
+[2025-05-27T21:49:46.778Z] NEXTJS_STDOUT: keywords: [ 'looking for affordable software development services' ],
+[2025-05-27T21:49:46.778Z] NEXTJS_STDOUT: status: 'completed',
+[2025-05-27T21:49:46.779Z] NEXTJS_STDOUT: totalSearchResults: 10,
+[2025-05-27T21:49:46.779Z] NEXTJS_STDOUT: totalThreadsAnalyzed: 10,
+[2025-05-27T21:49:46.779Z] NEXTJS_STDOUT: totalCommentsGenerated: 10,
+[2025-05-27T21:49:46.779Z] NEXTJS_STDOUT: hasWebsite: false,
+[2025-05-27T21:49:46.779Z] NEXTJS_STDOUT: hasWebsiteContent: true,
+[2025-05-27T21:49:46.779Z] NEXTJS_STDOUT: websiteContentLength: 3124
+[2025-05-27T21:49:46.779Z] NEXTJS_STDOUT: }
+[2025-05-27T21:49:46.779Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] ✅ Campaign retrieved successfully
+[2025-05-27T21:49:46.779Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] ========== ACTION END (SUCCESS) ==========
+[2025-05-27T21:49:46.780Z] NEXTJS_STDOUT: POST /reddit/lead-finder 200 in 38ms
+[2025-05-27T21:49:46.786Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/lead-finder
+[2025-05-27T21:49:46.786Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/lead-finder
+[2025-05-27T21:49:46.786Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Skipping auth for /reddit/lead-finder (testing)
+[2025-05-27T21:49:46.788Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] ========== ACTION START ==========
+[2025-05-27T21:49:46.788Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] Timestamp: 2025-05-27T21:49:46.788Z
+[2025-05-27T21:49:46.788Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] Campaign ID: jCV2zfUArMJyXHk9ve7j
+[2025-05-27T21:49:46.788Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] Creating document reference...
+[2025-05-27T21:49:46.788Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] Fetching document from Firestore...
+[2025-05-27T21:49:46.809Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] Document exists: true
+[2025-05-27T21:49:46.809Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] Campaign data retrieved: {
+[2025-05-27T21:49:46.809Z] NEXTJS_STDOUT: id: 'jCV2zfUArMJyXHk9ve7j',
+[2025-05-27T21:49:46.809Z] NEXTJS_STDOUT: name: 'new comment gen prompt',
+[2025-05-27T21:49:46.809Z] NEXTJS_STDOUT: userId: 'user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy',
+[2025-05-27T21:49:46.809Z] NEXTJS_STDOUT: keywordCount: 1,
+[2025-05-27T21:49:46.809Z] NEXTJS_STDOUT: keywords: [ 'looking for affordable software development services' ],
+[2025-05-27T21:49:46.809Z] NEXTJS_STDOUT: status: 'completed',
+[2025-05-27T21:49:46.809Z] NEXTJS_STDOUT: totalSearchResults: 10,
+[2025-05-27T21:49:46.809Z] NEXTJS_STDOUT: totalThreadsAnalyzed: 10,
+[2025-05-27T21:49:46.809Z] NEXTJS_STDOUT: totalCommentsGenerated: 10,
+[2025-05-27T21:49:46.809Z] NEXTJS_STDOUT: hasWebsite: false,
+[2025-05-27T21:49:46.809Z] NEXTJS_STDOUT: hasWebsiteContent: true,
+[2025-05-27T21:49:46.809Z] NEXTJS_STDOUT: websiteContentLength: 3124
+[2025-05-27T21:49:46.809Z] NEXTJS_STDOUT: }
+[2025-05-27T21:49:46.809Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] ✅ Campaign retrieved successfully
+[2025-05-27T21:49:46.809Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] ========== ACTION END (SUCCESS) ==========
+[2025-05-27T21:49:46.811Z] NEXTJS_STDOUT: POST /reddit/lead-finder 200 in 25ms
+[2025-05-27T21:49:46.816Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/lead-finder
+[2025-05-27T21:49:46.816Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/lead-finder
+[2025-05-27T21:49:46.816Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Skipping auth for /reddit/lead-finder (testing)
+[2025-05-27T21:49:46.821Z] NEXTJS_STDOUT: 📖 [LEAD-GEN-GET] ====== FETCHING COMMENTS ======
+[2025-05-27T21:49:46.821Z] NEXTJS_STDOUT: 📖 [LEAD-GEN-GET] Campaign ID: jCV2zfUArMJyXHk9ve7j
+[2025-05-27T21:49:46.822Z] NEXTJS_STDOUT: 📖 [LEAD-GEN-GET] Collection: generated_comments
+[2025-05-27T21:49:46.822Z] NEXTJS_STDOUT: 📖 [LEAD-GEN-GET] Time: 2025-05-27T21:49:46.821Z
+[2025-05-27T21:49:46.822Z] NEXTJS_STDOUT: 📖 [LEAD-GEN-GET] Executing Firestore query...
+[2025-05-27T21:49:46.880Z] NEXTJS_STDOUT: 📖 [LEAD-GEN-GET] Query returned 10 documents
+[2025-05-27T21:49:47.052Z] NEXTJS_STDOUT: 📖 [LEAD-GEN-GET] Comment 1: {
+[2025-05-27T21:49:47.052Z] NEXTJS_STDOUT: id: 'KeA3yDI36MT3HzKxxCGE',
+[2025-05-27T21:49:47.052Z] NEXTJS_STDOUT: campaignId: 'jCV2zfUArMJyXHk9ve7j',
+[2025-05-27T21:49:47.052Z] NEXTJS_STDOUT: postTitle: 'Looking for affordable game development software f...',
+[2025-05-27T21:49:47.052Z] NEXTJS_STDOUT: relevanceScore: 45,
+[2025-05-27T21:49:47.052Z] NEXTJS_STDOUT: status: 'new',
+[2025-05-27T21:49:47.052Z] NEXTJS_STDOUT: createdAt: Timestamp { seconds: 1748382320, nanoseconds: 199000000 },
+[2025-05-27T21:49:47.052Z] NEXTJS_STDOUT: microCommentLength: 31,
+[2025-05-27T21:49:47.052Z] NEXTJS_STDOUT: mediumCommentLength: 360,
+[2025-05-27T21:49:47.052Z] NEXTJS_STDOUT: verboseCommentLength: 1693
+[2025-05-27T21:49:47.053Z] NEXTJS_STDOUT: }
+[2025-05-27T21:49:47.053Z] NEXTJS_STDOUT: 📖 [LEAD-GEN-GET] Comment 2: {
+[2025-05-27T21:49:47.053Z] NEXTJS_STDOUT: id: 'NC7qr3VEjJB1x7PRNtvC',
+[2025-05-27T21:49:47.053Z] NEXTJS_STDOUT: campaignId: 'jCV2zfUArMJyXHk9ve7j',
+[2025-05-27T21:49:47.053Z] NEXTJS_STDOUT: postTitle: 'How do I find the right app development agency to ...',
+[2025-05-27T21:49:47.053Z] NEXTJS_STDOUT: relevanceScore: 85,
+[2025-05-27T21:49:47.053Z] NEXTJS_STDOUT: status: 'new',
+[2025-05-27T21:49:47.053Z] NEXTJS_STDOUT: createdAt: Timestamp { seconds: 1748382433, nanoseconds: 653000000 },
+[2025-05-27T21:49:47.053Z] NEXTJS_STDOUT: microCommentLength: 47,
+[2025-05-27T21:49:47.053Z] NEXTJS_STDOUT: mediumCommentLength: 385,
+[2025-05-27T21:49:47.053Z] NEXTJS_STDOUT: verboseCommentLength: 1612
+[2025-05-27T21:49:47.053Z] NEXTJS_STDOUT: }
+[2025-05-27T21:49:47.053Z] NEXTJS_STDOUT: 📖 [LEAD-GEN-GET] Comment 3: {
+[2025-05-27T21:49:47.053Z] NEXTJS_STDOUT: id: 'NOR6kqSczV9tlKnXnqIx',
+[2025-05-27T21:49:47.053Z] NEXTJS_STDOUT: campaignId: 'jCV2zfUArMJyXHk9ve7j',
+[2025-05-27T21:49:47.053Z] NEXTJS_STDOUT: postTitle: 'Is hiring a cheap developer from another country a...',
+[2025-05-27T21:49:47.053Z] NEXTJS_STDOUT: relevanceScore: 85,
+[2025-05-27T21:49:47.053Z] NEXTJS_STDOUT: status: 'new',
+[2025-05-27T21:49:47.053Z] NEXTJS_STDOUT: createdAt: Timestamp { seconds: 1748382299, nanoseconds: 255000000 },
+[2025-05-27T21:49:47.053Z] NEXTJS_STDOUT: microCommentLength: 33,
+[2025-05-27T21:49:47.053Z] NEXTJS_STDOUT: mediumCommentLength: 322,
+[2025-05-27T21:49:47.053Z] NEXTJS_STDOUT: verboseCommentLength: 1862
+[2025-05-27T21:49:47.053Z] NEXTJS_STDOUT: }
+[2025-05-27T21:49:47.053Z] NEXTJS_STDOUT: 📖 [LEAD-GEN-GET] Found 10 comments with enriched data
+[2025-05-27T21:49:47.053Z] NEXTJS_STDOUT: 📖 [LEAD-GEN-GET] ====== FETCH COMPLETE ======
+[2025-05-27T21:49:47.056Z] NEXTJS_STDOUT: POST /reddit/lead-finder 200 in 240ms
+[2025-05-27T21:49:47.060Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/lead-finder
+[2025-05-27T21:49:47.060Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/lead-finder
+[2025-05-27T21:49:47.060Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Skipping auth for /reddit/lead-finder (testing)
+[2025-05-27T21:49:47.064Z] NEXTJS_STDOUT: 📖 [LEAD-GEN-GET] ====== FETCHING COMMENTS ======
+[2025-05-27T21:49:47.064Z] NEXTJS_STDOUT: 📖 [LEAD-GEN-GET] Campaign ID: jCV2zfUArMJyXHk9ve7j
+[2025-05-27T21:49:47.064Z] NEXTJS_STDOUT: 📖 [LEAD-GEN-GET] Collection: generated_comments
+[2025-05-27T21:49:47.064Z] NEXTJS_STDOUT: 📖 [LEAD-GEN-GET] Time: 2025-05-27T21:49:47.064Z
+[2025-05-27T21:49:47.064Z] NEXTJS_STDOUT: 📖 [LEAD-GEN-GET] Executing Firestore query...
+[2025-05-27T21:49:47.167Z] NEXTJS_STDOUT: 📖 [LEAD-GEN-GET] Query returned 10 documents
+[2025-05-27T21:49:47.306Z] NEXTJS_STDOUT: 📖 [LEAD-GEN-GET] Comment 1: {
+[2025-05-27T21:49:47.306Z] NEXTJS_STDOUT: id: 'KeA3yDI36MT3HzKxxCGE',
+[2025-05-27T21:49:47.306Z] NEXTJS_STDOUT: campaignId: 'jCV2zfUArMJyXHk9ve7j',
+[2025-05-27T21:49:47.306Z] NEXTJS_STDOUT: postTitle: 'Looking for affordable game development software f...',
+[2025-05-27T21:49:47.306Z] NEXTJS_STDOUT: relevanceScore: 45,
+[2025-05-27T21:49:47.306Z] NEXTJS_STDOUT: status: 'new',
+[2025-05-27T21:49:47.306Z] NEXTJS_STDOUT: createdAt: Timestamp { seconds: 1748382320, nanoseconds: 199000000 },
+[2025-05-27T21:49:47.306Z] NEXTJS_STDOUT: microCommentLength: 31,
+[2025-05-27T21:49:47.306Z] NEXTJS_STDOUT: mediumCommentLength: 360,
+[2025-05-27T21:49:47.306Z] NEXTJS_STDOUT: verboseCommentLength: 1693
+[2025-05-27T21:49:47.306Z] NEXTJS_STDOUT: }
+[2025-05-27T21:49:47.306Z] NEXTJS_STDOUT: 📖 [LEAD-GEN-GET] Comment 2: {
+[2025-05-27T21:49:47.306Z] NEXTJS_STDOUT: id: 'NC7qr3VEjJB1x7PRNtvC',
+[2025-05-27T21:49:47.306Z] NEXTJS_STDOUT: campaignId: 'jCV2zfUArMJyXHk9ve7j',
+[2025-05-27T21:49:47.306Z] NEXTJS_STDOUT: postTitle: 'How do I find the right app development agency to ...',
+[2025-05-27T21:49:47.306Z] NEXTJS_STDOUT: relevanceScore: 85,
+[2025-05-27T21:49:47.307Z] NEXTJS_STDOUT: status: 'new',
+[2025-05-27T21:49:47.307Z] NEXTJS_STDOUT: createdAt: Timestamp { seconds: 1748382433, nanoseconds: 653000000 },
+[2025-05-27T21:49:47.307Z] NEXTJS_STDOUT: microCommentLength: 47,
+[2025-05-27T21:49:47.307Z] NEXTJS_STDOUT: mediumCommentLength: 385,
+[2025-05-27T21:49:47.307Z] NEXTJS_STDOUT: verboseCommentLength: 1612
+[2025-05-27T21:49:47.307Z] NEXTJS_STDOUT: }
+[2025-05-27T21:49:47.307Z] NEXTJS_STDOUT: 📖 [LEAD-GEN-GET] Comment 3: {
+[2025-05-27T21:49:47.307Z] NEXTJS_STDOUT: id: 'NOR6kqSczV9tlKnXnqIx',
+[2025-05-27T21:49:47.307Z] NEXTJS_STDOUT: campaignId: 'jCV2zfUArMJyXHk9ve7j',
+[2025-05-27T21:49:47.307Z] NEXTJS_STDOUT: postTitle: 'Is hiring a cheap developer from another country a...',
+[2025-05-27T21:49:47.307Z] NEXTJS_STDOUT: relevanceScore: 85,
+[2025-05-27T21:49:47.307Z] NEXTJS_STDOUT: status: 'new',
+[2025-05-27T21:49:47.307Z] NEXTJS_STDOUT: createdAt: Timestamp { seconds: 1748382299, nanoseconds: 255000000 },
+[2025-05-27T21:49:47.307Z] NEXTJS_STDOUT: microCommentLength: 33,
+[2025-05-27T21:49:47.307Z] NEXTJS_STDOUT: mediumCommentLength: 322,
+[2025-05-27T21:49:47.307Z] NEXTJS_STDOUT: verboseCommentLength: 1862
+[2025-05-27T21:49:47.307Z] NEXTJS_STDOUT: }
+[2025-05-27T21:49:47.307Z] NEXTJS_STDOUT: 📖 [LEAD-GEN-GET] Found 10 comments with enriched data
+[2025-05-27T21:49:47.307Z] NEXTJS_STDOUT: 📖 [LEAD-GEN-GET] ====== FETCH COMPLETE ======
+[2025-05-27T21:49:47.308Z] NEXTJS_STDOUT: POST /reddit/lead-finder 200 in 247ms
+[2025-05-27T21:58:05.313Z] NEXTJS_STDOUT: ✓ Compiled in 714ms (3537 modules)
+[2025-05-27T21:58:05.912Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/lead-finder
+[2025-05-27T21:58:05.912Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/lead-finder
+[2025-05-27T21:58:05.912Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Skipping auth for /reddit/lead-finder (testing)
+[2025-05-27T21:58:06.188Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] ========== ACTION START ==========
+[2025-05-27T21:58:06.188Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Timestamp: 2025-05-27T21:58:06.188Z
+[2025-05-27T21:58:06.188Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Organization ID: Ofa9s59KFG9e3teB8xTT
+[2025-05-27T21:58:06.188Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Creating query...
+[2025-05-27T21:58:06.189Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Executing query...
+[2025-05-27T21:58:06.378Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Query returned documents: 3
+[2025-05-27T21:58:06.379Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Query empty: false
+[2025-05-27T21:58:06.379Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Campaign 1: {
+[2025-05-27T21:58:06.379Z] NEXTJS_STDOUT: id: '07obMuAEJ6nuodFkDB7q',
+[2025-05-27T21:58:06.379Z] NEXTJS_STDOUT: name: 'Rostam Demo',
+[2025-05-27T21:58:06.379Z] NEXTJS_STDOUT: organizationId: 'Ofa9s59KFG9e3teB8xTT',
+[2025-05-27T21:58:06.379Z] NEXTJS_STDOUT: keywordCount: 4,
+[2025-05-27T21:58:06.379Z] NEXTJS_STDOUT: status: 'completed',
+[2025-05-27T21:58:06.379Z] NEXTJS_STDOUT: totalCommentsGenerated: 35
+[2025-05-27T21:58:06.379Z] NEXTJS_STDOUT: }
+[2025-05-27T21:58:06.379Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Campaign 2: {
+[2025-05-27T21:58:06.379Z] NEXTJS_STDOUT: id: 'dbaEDhzFgKX5Rz68Rq44',
+[2025-05-27T21:58:06.379Z] NEXTJS_STDOUT: name: '#1',
+[2025-05-27T21:58:06.379Z] NEXTJS_STDOUT: organizationId: 'Ofa9s59KFG9e3teB8xTT',
+[2025-05-27T21:58:06.379Z] NEXTJS_STDOUT: keywordCount: 1,
+[2025-05-27T21:58:06.379Z] NEXTJS_STDOUT: status: 'error',
+[2025-05-27T21:58:06.379Z] NEXTJS_STDOUT: totalCommentsGenerated: 0
+[2025-05-27T21:58:06.379Z] NEXTJS_STDOUT: }
+[2025-05-27T21:58:06.379Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Campaign 3: {
+[2025-05-27T21:58:06.379Z] NEXTJS_STDOUT: id: 'jCV2zfUArMJyXHk9ve7j',
+[2025-05-27T21:58:06.379Z] NEXTJS_STDOUT: name: 'new comment gen prompt',
+[2025-05-27T21:58:06.379Z] NEXTJS_STDOUT: organizationId: 'Ofa9s59KFG9e3teB8xTT',
+[2025-05-27T21:58:06.379Z] NEXTJS_STDOUT: keywordCount: 1,
+[2025-05-27T21:58:06.379Z] NEXTJS_STDOUT: status: 'completed',
+[2025-05-27T21:58:06.379Z] NEXTJS_STDOUT: totalCommentsGenerated: 10
+[2025-05-27T21:58:06.379Z] NEXTJS_STDOUT: }
+[2025-05-27T21:58:06.379Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Total campaigns found: 3
+[2025-05-27T21:58:06.379Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Campaign IDs: [
+[2025-05-27T21:58:06.379Z] NEXTJS_STDOUT: '07obMuAEJ6nuodFkDB7q',
+[2025-05-27T21:58:06.379Z] NEXTJS_STDOUT: 'dbaEDhzFgKX5Rz68Rq44',
+[2025-05-27T21:58:06.380Z] NEXTJS_STDOUT: 'jCV2zfUArMJyXHk9ve7j'
+[2025-05-27T21:58:06.380Z] NEXTJS_STDOUT: ]
+[2025-05-27T21:58:06.380Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] ✅ Campaigns retrieved successfully
+[2025-05-27T21:58:06.380Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] ========== ACTION END (SUCCESS) ==========
+[2025-05-27T21:58:06.381Z] NEXTJS_STDOUT: POST /reddit/lead-finder 200 in 469ms
+[2025-05-27T21:58:06.468Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/lead-finder
+[2025-05-27T21:58:06.468Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/lead-finder
+[2025-05-27T21:58:06.468Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Skipping auth for /reddit/lead-finder (testing)
+[2025-05-27T21:58:06.472Z] NEXTJS_STDOUT: 🔑 [REDDIT-AUTH-HELPER] Getting tokens for organization: Ofa9s59KFG9e3teB8xTT
+[2025-05-27T21:58:06.472Z] NEXTJS_STDOUT: 🔧 [GET-REDDIT-TOKENS-ORG] Getting Reddit tokens from organization...
+[2025-05-27T21:58:06.476Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORG-BY-ID] ========== ACTION START ==========
+[2025-05-27T21:58:06.476Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORG-BY-ID] Timestamp: 2025-05-27T21:58:06.476Z
+[2025-05-27T21:58:06.476Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORG-BY-ID] Organization ID: Ofa9s59KFG9e3teB8xTT
+[2025-05-27T21:58:06.477Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORG-BY-ID] Checking membership...
+[2025-05-27T21:58:06.544Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORG-BY-ID] Fetching organization document...
+[2025-05-27T21:58:06.611Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORG-BY-ID] ✅ Organization retrieved successfully
+[2025-05-27T21:58:06.611Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORG-BY-ID] ========== ACTION END (SUCCESS) ==========
+[2025-05-27T21:58:06.612Z] NEXTJS_STDOUT: 🏢 [SERIALIZE-ORG] Starting serialization
+[2025-05-27T21:58:06.612Z] NEXTJS_STDOUT: ✅ [GET-REDDIT-TOKENS-ORG] Reddit tokens retrieved from organization
+[2025-05-27T21:58:06.612Z] NEXTJS_STDOUT: ✅ [REDDIT-AUTH-HELPER] Token is valid
+[2025-05-27T21:58:06.614Z] NEXTJS_STDOUT: POST /reddit/lead-finder 200 in 145ms
+[2025-05-27T21:58:06.621Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/lead-finder
+[2025-05-27T21:58:06.621Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/lead-finder
+[2025-05-27T21:58:06.621Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Skipping auth for /reddit/lead-finder (testing)
+[2025-05-27T21:58:06.627Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] ========== ACTION START ==========
+[2025-05-27T21:58:06.627Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] Timestamp: 2025-05-27T21:58:06.627Z
+[2025-05-27T21:58:06.627Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] Campaign ID: jCV2zfUArMJyXHk9ve7j
+[2025-05-27T21:58:06.627Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] Creating document reference...
+[2025-05-27T21:58:06.627Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] Fetching document from Firestore...
+[2025-05-27T21:58:06.687Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] Document exists: true
+[2025-05-27T21:58:06.687Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] Campaign data retrieved: {
+[2025-05-27T21:58:06.687Z] NEXTJS_STDOUT: id: 'jCV2zfUArMJyXHk9ve7j',
+[2025-05-27T21:58:06.687Z] NEXTJS_STDOUT: name: 'new comment gen prompt',
+[2025-05-27T21:58:06.687Z] NEXTJS_STDOUT: userId: 'user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy',
+[2025-05-27T21:58:06.687Z] NEXTJS_STDOUT: keywordCount: 1,
+[2025-05-27T21:58:06.687Z] NEXTJS_STDOUT: keywords: [ 'looking for affordable software development services' ],
+[2025-05-27T21:58:06.687Z] NEXTJS_STDOUT: status: 'completed',
+[2025-05-27T21:58:06.687Z] NEXTJS_STDOUT: totalSearchResults: 10,
+[2025-05-27T21:58:06.687Z] NEXTJS_STDOUT: totalThreadsAnalyzed: 10,
+[2025-05-27T21:58:06.687Z] NEXTJS_STDOUT: totalCommentsGenerated: 10,
+[2025-05-27T21:58:06.687Z] NEXTJS_STDOUT: hasWebsite: false,
+[2025-05-27T21:58:06.687Z] NEXTJS_STDOUT: hasWebsiteContent: true,
+[2025-05-27T21:58:06.687Z] NEXTJS_STDOUT: websiteContentLength: 3124
+[2025-05-27T21:58:06.687Z] NEXTJS_STDOUT: }
+[2025-05-27T21:58:06.688Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] ✅ Campaign retrieved successfully
+[2025-05-27T21:58:06.688Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] ========== ACTION END (SUCCESS) ==========
+[2025-05-27T21:58:06.689Z] NEXTJS_STDOUT: POST /reddit/lead-finder 200 in 67ms
+[2025-05-27T21:58:19.360Z] ==================================================
+[2025-05-27T21:58:19.361Z] COMMAND STARTED: next lint --fix
+[2025-05-27T21:58:19.361Z] ==================================================
+[2025-05-27T21:58:20.594Z] STDOUT: ✔ No ESLint warnings or errors
+[2025-05-27T21:58:20.648Z] ==================================================
+[2025-05-27T21:58:20.648Z] COMMAND FINISHED: next lint --fix (exit code: 0)
+[2025-05-27T21:58:20.648Z] ==================================================
+[2025-05-27T21:58:20.834Z] ==================================================
+[2025-05-27T21:58:20.835Z] COMMAND STARTED: prettier --write {app,lib,components}/**/*.{ts,tsx} db/**/*.ts types/**/*.ts --cache --ignore-unknown
+[2025-05-27T21:58:20.835Z] ==================================================
+[2025-05-27T21:58:20.910Z] STDOUT: app/api/lead-generation/start/route.ts 1ms (unchanged) (cached)
+[2025-05-27T21:58:20.912Z] STDOUT: app/api/queue/check-warmup-comments/route.ts 1ms (unchanged) (cached)
+[2025-05-27T21:58:20.913Z] STDOUT: app/api/queue/process-dm-automations/route.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.914Z] STDOUT: app/api/queue/process-posts/route.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.916Z] STDOUT: app/api/queue/process-warmup/route.ts 1ms (unchanged) (cached)
+[2025-05-27T21:58:20.917Z] STDOUT: app/api/reddit/auth/route.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.918Z] STDOUT: app/api/reddit/callback/route.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.920Z] STDOUT: app/api/reddit/comments/[commentId]/replies/route.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.921Z] STDOUT: app/api/reddit/comments/route.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.923Z] STDOUT: app/api/stripe/webhooks/route.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.924Z] STDOUT: app/api/test-twitter-analysis/route.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.925Z] STDOUT: app/api/test-twitter-direct/route.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.926Z] STDOUT: app/api/warmup/generate-posts/route.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.928Z] STDOUT: app/api/warmup/reset-daily-counters/route.ts 1ms (unchanged) (cached)
+[2025-05-27T21:58:20.929Z] STDOUT: app/reddit/lead-finder/_components/dashboard/types.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.930Z] STDOUT: app/reddit/lead-finder/_components/dashboard/utils.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.932Z] STDOUT: app/(auth)/layout.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.934Z] STDOUT: app/(marketing)/layout.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.935Z] STDOUT: app/(marketing)/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.937Z] STDOUT: app/dashboard/layout.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.939Z] STDOUT: app/dashboard/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.940Z] STDOUT: app/firebase-test/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.942Z] STDOUT: app/onboarding/layout.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.943Z] STDOUT: app/onboarding/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.944Z] STDOUT: app/reddit-auth/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.946Z] STDOUT: app/reddit-test/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.947Z] STDOUT: app/reddit/layout.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.948Z] STDOUT: lib/config/keyword-config.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.949Z] STDOUT: lib/config/reddit-config.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.951Z] STDOUT: lib/hooks/use-toast.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.952Z] STDOUT: lib/reddit/reddit-api-client.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.954Z] STDOUT: lib/utils/firestore-batch-utils.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.957Z] STDOUT: lib/utils/organization-utils.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.958Z] STDOUT: lib/utils/theme-utils.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.959Z] STDOUT: lib/utils/timestamp-utils.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.960Z] STDOUT: lib/hooks/use-copy-to-clipboard.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.961Z] STDOUT: lib/hooks/use-mobile.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.962Z] STDOUT: components/ui/use-toast.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.964Z] STDOUT: components/landing/hero.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.965Z] STDOUT: components/landing/logo-carousel.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.966Z] STDOUT: components/landing/testimonials.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.967Z] STDOUT: components/magicui/animated-gradient-text.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.968Z] STDOUT: components/magicui/hero-video-dialog.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.969Z] STDOUT: components/sidebar/app-sidebar.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.971Z] STDOUT: components/sidebar/create-organization-dialog.tsx 1ms (unchanged) (cached)
+[2025-05-27T21:58:20.971Z] STDOUT: components/sidebar/nav-main.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.972Z] STDOUT: components/sidebar/nav-projects.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.973Z] STDOUT: components/sidebar/nav-user.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.974Z] STDOUT: components/sidebar/team-switcher.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.974Z] STDOUT: components/ui/accordion.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.975Z] STDOUT: components/ui/alert-dialog.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.976Z] STDOUT: components/ui/alert.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.977Z] STDOUT: components/ui/aspect-ratio.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.978Z] STDOUT: components/ui/avatar.tsx 1ms (unchanged) (cached)
+[2025-05-27T21:58:20.979Z] STDOUT: components/ui/badge.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.979Z] STDOUT: components/ui/breadcrumb.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.980Z] STDOUT: components/ui/button.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.981Z] STDOUT: components/ui/calendar.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.982Z] STDOUT: components/ui/card.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.983Z] STDOUT: components/ui/carousel.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.984Z] STDOUT: components/ui/chart.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.985Z] STDOUT: components/ui/checkbox.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.986Z] STDOUT: components/ui/collapsible.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.987Z] STDOUT: components/ui/command.tsx 1ms (unchanged) (cached)
+[2025-05-27T21:58:20.987Z] STDOUT: components/ui/context-menu.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.988Z] STDOUT: components/ui/dialog.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.989Z] STDOUT: components/ui/drawer.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.990Z] STDOUT: components/ui/dropdown-menu.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.990Z] STDOUT: components/ui/form.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.991Z] STDOUT: components/ui/hover-card.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.992Z] STDOUT: components/ui/input-otp.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.993Z] STDOUT: components/ui/input.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.994Z] STDOUT: components/ui/label.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.995Z] STDOUT: components/ui/loading-skeleton.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.996Z] STDOUT: components/ui/menubar.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.996Z] STDOUT: components/ui/navigation-menu.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.997Z] STDOUT: components/ui/pagination.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.998Z] STDOUT: components/ui/popover.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.998Z] STDOUT: components/ui/progress.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:20.999Z] STDOUT: components/ui/radio-group.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.000Z] STDOUT: components/ui/resizable.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.001Z] STDOUT: components/ui/scroll-area.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.001Z] STDOUT: components/ui/select.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.002Z] STDOUT: components/ui/separator.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.003Z] STDOUT: components/ui/sheet.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.004Z] STDOUT: components/ui/sidebar.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.005Z] STDOUT: components/ui/skeleton.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.005Z] STDOUT: components/ui/slider.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.006Z] STDOUT: components/ui/sonner.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.007Z] STDOUT: components/ui/switch.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.007Z] STDOUT: components/ui/table.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.008Z] STDOUT: components/ui/tabs.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.009Z] STDOUT: components/ui/textarea.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.009Z] STDOUT: components/ui/toast.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.010Z] STDOUT: components/ui/toaster.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.011Z] STDOUT: components/ui/toggle-group.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.012Z] STDOUT: components/ui/toggle.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.013Z] STDOUT: components/ui/tooltip.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.015Z] STDOUT: components/utilities/organization-provider.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.016Z] STDOUT: components/utilities/organization-selector.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.017Z] STDOUT: components/utilities/providers.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.018Z] STDOUT: components/utilities/tailwind-indicator.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.019Z] STDOUT: components/utilities/theme-switcher.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.021Z] STDOUT: db/firestore/collections.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.022Z] STDOUT: db/firestore/dm-collections.ts 1ms (unchanged) (cached)
+[2025-05-27T21:58:21.023Z] STDOUT: db/firestore/keyword-performance-collections.ts 1ms (unchanged) (cached)
+[2025-05-27T21:58:21.023Z] STDOUT: db/firestore/lead-generation-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.024Z] STDOUT: db/firestore/organizations-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.026Z] STDOUT: db/firestore/personalization-collections.ts 1ms (unchanged) (cached)
+[2025-05-27T21:58:21.027Z] STDOUT: db/firestore/posting-queue-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.028Z] STDOUT: db/firestore/warmup-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.030Z] STDOUT: db/schema/index.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.032Z] STDOUT: types/action-interfaces.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.033Z] STDOUT: types/index.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.033Z] STDOUT: types/lead-generation-types.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.034Z] STDOUT: types/organization-types.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.035Z] STDOUT: types/profile-types.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.036Z] STDOUT: types/server-action-types.ts 0ms (unchanged) (cached)
+[2025-05-27T21:58:21.044Z] ==================================================
+[2025-05-27T21:58:21.044Z] COMMAND FINISHED: prettier --write {app,lib,components}/**/*.{ts,tsx} db/**/*.ts types/**/*.ts --cache --ignore-unknown (exit code: 0)
+[2025-05-27T21:58:21.045Z] ==================================================
