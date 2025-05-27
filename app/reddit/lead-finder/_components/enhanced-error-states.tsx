@@ -51,6 +51,24 @@ function getErrorInfo(error: string): {
   actions: ErrorAction[]
   type: "warning" | "error" | "info"
 } {
+  if (error.includes("No valid Reddit access token") || error.includes("Please reconnect your Reddit account")) {
+    return {
+      title: "Reddit Connection Required",
+      description:
+        "To find and generate leads, you need to connect your Reddit account. This allows us to search Reddit and analyze discussions on your behalf.",
+      icon: <ShieldAlert className="size-6" />,
+      actions: [
+        {
+          label: "Connect Reddit Account",
+          action: () => (window.location.href = "/reddit/settings"),
+          icon: <ExternalLink className="size-4" />,
+          variant: "default"
+        }
+      ],
+      type: "warning"
+    }
+  }
+
   if (error.includes("No keywords found")) {
     return {
       title: "No Keywords Found",

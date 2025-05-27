@@ -1746,6 +1746,9 @@ export default function LeadFinderDashboard() {
           newLeadIds={newLeadIds.current}
           activeTab={state.activeTab}
           campaignId={state.campaignId}
+          campaignStatus={
+            state.campaigns.find(c => c.id === state.campaignId)?.status
+          }
           isWorkflowRunning={
             state.workflowRunning ||
             liveFirestoreProgress?.status === "in_progress"

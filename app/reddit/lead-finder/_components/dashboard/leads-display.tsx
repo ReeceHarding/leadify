@@ -13,7 +13,7 @@ import {
   GenerationProgress
 } from "@/app/reddit/lead-finder/_components/enhanced-loading-states"
 import { EnhancedErrorState, EmptyState } from "@/app/reddit/lead-finder/_components/enhanced-error-states"
-import { MessageSquare, Search, Filter } from "lucide-react"
+import { MessageSquare, Search, Filter, ShieldAlert, AlertCircle } from "lucide-react"
 
 interface LeadsDisplayProps {
   // Add workflowProgress back as we need it to show the progress
@@ -24,6 +24,7 @@ interface LeadsDisplayProps {
   newLeadIds: Set<string>
   activeTab: "all" | "queue"
   campaignId: string | null
+  campaignStatus?: "draft" | "running" | "completed" | "paused" | "error" // Add campaign status
   isWorkflowRunning?: boolean // Add this prop to know if workflow is running
 
   // Props for child components
@@ -70,6 +71,7 @@ export default function LeadsDisplay({
   newLeadIds,
   activeTab,
   campaignId,
+  campaignStatus,
   isWorkflowRunning = false, // Add with default value
   selectedLength,
   onEditComment,
@@ -110,6 +112,39 @@ export default function LeadsDisplay({
       workflowProgress.status !== "error"
     ) {
       return <GenerationProgress progress={workflowProgress} className="" />
+    }
+
+    // Check if there was an error in the workflow or campaign has error status
+    if (workflowProgress?.status === "error" || campaignStatus === "error") {
+      const errorMessage = workflowProgress?.error || "Lead generation failed"
+      
+      // Check specifically for Reddit auth error
+      if (errorMessage.includes("No valid Reddit access token")) {
+        return (
+          <EmptyState
+            title="Reddit Connection Required"
+            description="Connect your Reddit account to start finding leads. This allows us to search Reddit discussions and generate personalized responses."
+            icon={<ShieldAlert className="size-12" />}
+            action={{
+              label: "Connect Reddit Account",
+              onClick: () => window.location.href = "/reddit/settings"
+            }}
+          />
+        )
+      }
+      
+      // Generic error state
+      return (
+        <EmptyState
+          title="Lead generation failed"
+          description={errorMessage || "An error occurred while generating leads. Please try again."}
+          icon={<AlertCircle className="size-12" />}
+          action={{
+            label: "Try Again",
+            onClick: () => window.location.reload()
+          }}
+        />
+      )
     }
 
     // Otherwise show empty state
