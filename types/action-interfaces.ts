@@ -163,6 +163,7 @@ export interface SerializedGeneratedCommentDocument {
   postTitle: string
   postAuthor: string
   postContentSnippet: string
+  postContent?: string
   relevanceScore: number
   reasoning: string
   microComment: string

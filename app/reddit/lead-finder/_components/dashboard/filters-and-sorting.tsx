@@ -17,8 +17,8 @@ interface FiltersAndSortingProps {
   onFilterKeywordChange: (value: string) => void
   filterScore: number
   onFilterScoreChange: (value: number) => void
-  sortBy: "relevance" | "upvotes" | "time"
-  onSortByChange: (value: "relevance" | "upvotes" | "time") => void
+  sortBy: "relevance" | "upvotes" | "time" | "fetched" | "posted"
+  onSortByChange: (value: "relevance" | "upvotes" | "time" | "fetched" | "posted") => void
   paginatedLeadsCount: number
   totalFilteredLeadsCount: number
   disabled: boolean // Overall disable state (e.g., no leads)
@@ -111,6 +111,8 @@ export default function FiltersAndSorting({
                 <SelectItem value="relevance">Relevance</SelectItem>
                 <SelectItem value="upvotes">Upvotes</SelectItem>
                 <SelectItem value="time">Time</SelectItem>
+                <SelectItem value="fetched">Fetched</SelectItem>
+                <SelectItem value="posted">Posted</SelectItem>
               </SelectContent>
             </Select>
           </div>

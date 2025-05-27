@@ -133,6 +133,7 @@ export interface GeneratedCommentDocument {
   postTitle: string
   postAuthor: string
   postContentSnippet: string // Short snippet of the original post for context
+  postContent?: string // Full post content (added to avoid API calls when viewing)
   relevanceScore: number // 1-100 score (critical scoring)
   reasoning: string // AI reasoning for the score
 
@@ -171,6 +172,7 @@ export interface CreateGeneratedCommentData {
   postTitle: string
   postAuthor: string
   postContentSnippet: string
+  postContent?: string // Full post content
   relevanceScore: number
   reasoning: string
   microComment: string

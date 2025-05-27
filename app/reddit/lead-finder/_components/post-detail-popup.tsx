@@ -42,6 +42,7 @@ interface PostDetailPopupProps {
     postTitle: string
     postAuthor: string
     postContentSnippet: string
+    postContent?: string
     subreddit: string
     relevanceScore: number
     timeAgo: string
@@ -55,6 +56,7 @@ interface PostDetailPopupProps {
     reasoning?: string
     originalData?: {
       postContentSnippet: string
+      postContent?: string
       threadId?: string
     }
   }
@@ -91,6 +93,14 @@ export default function PostDetailPopup({
   }, [open, lead.postUrl])
 
   const fetchFullContent = async () => {
+    // Check if we already have full content stored
+    if (lead.postContent || lead.originalData?.postContent) {
+      console.log(`📄 Using stored full content for post`)
+      setFullContent(lead.postContent || lead.originalData?.postContent || lead.postContentSnippet)
+      setIsLoading(false)
+      return
+    }
+
     setIsLoading(true)
     setError(null)
 

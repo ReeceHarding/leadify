@@ -32,7 +32,8 @@ import {
   Plus,
   Sparkles,
   ChevronDown,
-  Edit2
+  Edit2,
+  Square
 } from "lucide-react"
 
 interface Campaign {
@@ -57,6 +58,7 @@ interface DashboardHeaderProps {
   onEditCampaign?: (campaignId: string) => void
   isWorkflowRunning: boolean
   onMassPost?: () => void
+  onStopWorkflow?: () => void
 }
 
 export default function DashboardHeader({
@@ -71,7 +73,8 @@ export default function DashboardHeader({
   onSelectCampaign,
   onEditCampaign,
   isWorkflowRunning,
-  onMassPost
+  onMassPost,
+  onStopWorkflow
 }: DashboardHeaderProps) {
   return (
     <div className="space-y-6">
@@ -166,14 +169,25 @@ export default function DashboardHeader({
               Mass Post
             </Button>
           )}
-          <Button
-            onClick={onRunWorkflow}
-            disabled={!campaignId || isWorkflowRunning}
-            className="gap-2"
-          >
-            <Play className="size-4" />
-            {isWorkflowRunning ? "Running..." : "Find New Leads"}
-          </Button>
+          {isWorkflowRunning && onStopWorkflow ? (
+            <Button
+              onClick={onStopWorkflow}
+              variant="destructive"
+              className="gap-2"
+            >
+              <Square className="size-4" />
+              Stop Finding Leads
+            </Button>
+          ) : (
+            <Button
+              onClick={onRunWorkflow}
+              disabled={!campaignId || isWorkflowRunning}
+              className="gap-2"
+            >
+              <Play className="size-4" />
+              Find New Leads
+            </Button>
+          )}
           <Button
             onClick={onCreateCampaign}
             variant="outline"

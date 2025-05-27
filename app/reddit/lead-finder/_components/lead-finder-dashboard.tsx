@@ -93,6 +93,7 @@ import {
   EmptyState
 } from "./enhanced-error-states"
 import { runFullLeadGenerationWorkflowAction } from "@/actions/lead-generation/workflow-actions"
+import { stopLeadGenerationWorkflowAction } from "@/actions/lead-generation/workflow-actions"
 import {
   getGeneratedCommentsByCampaignAction,
   updateGeneratedCommentAction,
@@ -157,7 +158,7 @@ import {
 } from "@/types"
 import LeadGenerationProgressBar from "./dashboard/lead-generation-progress-bar"
 
-const ITEMS_PER_PAGE = 10
+const ITEMS_PER_PAGE = 20
 const POLLING_INTERVAL = 5000 // 5 seconds
 
 interface Campaign {
@@ -182,7 +183,7 @@ interface DashboardState {
   // UI state
   selectedLength: "micro" | "medium" | "verbose"
   currentPage: number
-  sortBy: "relevance" | "upvotes" | "time"
+  sortBy: "relevance" | "upvotes" | "time" | "fetched" | "posted"
   filterKeyword: string
   filterScore: number
   activeTab: "all" | "queue"
@@ -829,12 +830,41 @@ export default function LeadFinderDashboard() {
 
   // Manual workflow trigger - now opens the dialog
   const manualRunWorkflow = async () => {
-    if (!user) {
-      toast.error("User not available")
+    if (!state.campaignId) {
+      toast.error("Please select a campaign first")
       return
     }
 
-    setFindNewLeadsOpen(true)
+    await runFullLeadGenerationWorkflowAction(state.campaignId)
+  }
+
+  const handleStopWorkflow = async () => {
+    if (!state.campaignId) {
+      toast.error("No active campaign to stop")
+      return
+    }
+
+    addDebugLog("Stopping workflow", { campaignId: state.campaignId })
+
+    try {
+      const result = await stopLeadGenerationWorkflowAction(state.campaignId)
+      
+      if (result.isSuccess) {
+        toast.success("Lead generation stopped successfully")
+        setState(prev => ({
+          ...prev,
+          workflowRunning: false
+        }))
+        addDebugLog("Workflow stopped successfully")
+      } else {
+        toast.error(result.message)
+        addDebugLog("Failed to stop workflow", { error: result.message })
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to stop workflow"
+      toast.error(errorMessage)
+      addDebugLog("Error stopping workflow", { error: errorMessage })
+    }
   }
 
   // Helper to update state
@@ -1460,6 +1490,30 @@ export default function LeadFinderDashboard() {
           return dateB - dateA
         })
         break
+      case "posted":
+        // Sort by Reddit post creation date (newest first)
+        filtered.sort((a, b) => {
+          const dateA = a.postCreatedAt
+            ? new Date(a.postCreatedAt).getTime()
+            : 0
+          const dateB = b.postCreatedAt
+            ? new Date(b.postCreatedAt).getTime()
+            : 0
+          return dateB - dateA
+        })
+        break
+      case "fetched":
+        // Sort by when we found the lead (newest first)
+        filtered.sort((a, b) => {
+          const dateA = a.createdAt
+            ? new Date(a.createdAt).getTime()
+            : 0
+          const dateB = b.createdAt
+            ? new Date(b.createdAt).getTime()
+            : 0
+          return dateB - dateA
+        })
+        break
     }
 
     return filtered
@@ -1692,6 +1746,7 @@ export default function LeadFinderDashboard() {
         }}
         isWorkflowRunning={state.workflowRunning}
         onMassPost={handleMassPost}
+        onStopWorkflow={handleStopWorkflow}
       />
 
       {/* Filters Section */}
@@ -1786,17 +1841,19 @@ export default function LeadFinderDashboard() {
               <ArrowUpDown className="size-4 shrink-0 text-gray-500 dark:text-gray-400" />
               <Select
                 value={state.sortBy}
-                onValueChange={(value: any) =>
+                onValueChange={(value: "relevance" | "upvotes" | "time" | "fetched" | "posted") =>
                   setState(prev => ({ ...prev, sortBy: value }))
                 }
               >
-                <SelectTrigger className="h-9 w-[130px]">
+                <SelectTrigger className="h-9 w-[180px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="relevance">Relevance</SelectItem>
-                  <SelectItem value="upvotes">Upvotes</SelectItem>
-                  <SelectItem value="time">Recent</SelectItem>
+                  <SelectItem value="relevance">Best Match</SelectItem>
+                  <SelectItem value="upvotes">Highest Score</SelectItem>
+                  <SelectItem value="posted">Most Recently Posted</SelectItem>
+                  <SelectItem value="fetched">Most Recently Fetched</SelectItem>
+                  <SelectItem value="time">Recent Activity</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -1902,7 +1959,7 @@ export default function LeadFinderDashboard() {
             updateState({ filterScore: value })
           }
           sortBy={state.sortBy}
-          onSortByChange={(value: "relevance" | "upvotes" | "time") =>
+          onSortByChange={(value: "relevance" | "upvotes" | "time" | "fetched" | "posted") =>
             updateState({ sortBy: value })
           }
           approvedLeadsCount={

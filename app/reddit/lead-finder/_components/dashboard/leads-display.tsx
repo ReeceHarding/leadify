@@ -49,8 +49,8 @@ interface LeadsDisplayProps {
   onFilterKeywordChange: (value: string) => void
   filterScore: number
   onFilterScoreChange: (value: number) => void
-  sortBy: "relevance" | "upvotes" | "time"
-  onSortByChange: (value: "relevance" | "upvotes" | "time") => void
+  sortBy: "relevance" | "upvotes" | "time" | "fetched" | "posted"
+  onSortByChange: (value: "relevance" | "upvotes" | "time" | "fetched" | "posted") => void
 
   approvedLeadsCount: number
   onBatchPostQueue: () => void

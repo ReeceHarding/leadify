@@ -9,6 +9,7 @@ export interface LeadResult {
   postTitle: string
   postAuthor: string
   postContentSnippet: string
+  postContent?: string // Full post content
   subreddit: string
   relevanceScore: number
   reasoning: string

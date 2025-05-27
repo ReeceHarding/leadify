@@ -707,6 +707,7 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
             postTitle: apiThread.title,
             postAuthor: apiThread.author,
             postContentSnippet: apiThread.content.substring(0, 200),
+            postContent: apiThread.content, // Save full post content
             relevanceScore: scoringData.score,
             reasoning: scoringData.reasoning,
             microComment: scoringData.microComment,
@@ -970,6 +971,44 @@ export async function testAllIntegrationsAction(): Promise<
     return {
       isSuccess: false,
       message: `Integration test failed: ${error instanceof Error ? error.message : "Unknown error"}`
+    }
+  }
+}
+
+export async function stopLeadGenerationWorkflowAction(
+  campaignId: string
+): Promise<ActionState<void>> {
+  try {
+    logger.info(`🛑 Stopping workflow for campaign: ${campaignId}`)
+
+    // Update the progress status to "stopped"
+    await updateLeadGenerationProgressAction(campaignId, {
+      status: "completed",
+      stageUpdate: {
+        stageName: "User Stopped",
+        status: "completed",
+        message: "Workflow stopped by user"
+      },
+      error: "Workflow stopped by user"
+    })
+
+    // Update campaign status to completed
+    await updateCampaignAction(campaignId, {
+      status: "completed"
+    })
+
+    logger.info(`✅ Workflow stopped successfully for campaign: ${campaignId}`)
+
+    return {
+      isSuccess: true,
+      message: "Workflow stopped successfully",
+      data: undefined
+    }
+  } catch (error) {
+    logger.error("Error stopping workflow:", error)
+    return {
+      isSuccess: false,
+      message: `Failed to stop workflow: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }
