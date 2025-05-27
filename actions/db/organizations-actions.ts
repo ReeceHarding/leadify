@@ -116,8 +116,18 @@ export async function createOrganizationAction(
       "🏢🏢🏢 [CREATE-ORG] ✅ Organization and member created successfully"
     )
 
-    // Create a knowledge base for the organization
-    console.log("🏢🏢🏢 [CREATE-ORG] Creating knowledge base for organization...")
+    // Get the created document to return with actual timestamps
+    const createdDoc = await getDoc(orgRef)
+    const createdData = {
+      id: orgRef.id,
+      ...createdDoc.data()
+    } as OrganizationDocument
+
+    // Create all necessary components for the organization
+    console.log("🏢🏢🏢 [CREATE-ORG] Creating organization components...")
+    
+    // 1. Create Knowledge Base
+    console.log("🏢🏢🏢 [CREATE-ORG] Creating knowledge base...")
     try {
       const { createKnowledgeBaseAction } = await import("@/actions/db/personalization-actions")
       const kbResult = await createKnowledgeBaseAction({
@@ -133,19 +143,71 @@ export async function createOrganizationAction(
         console.log("🏢🏢🏢 [CREATE-ORG] ✅ Knowledge base created successfully")
       } else {
         console.warn("🏢🏢🏢 [CREATE-ORG] ⚠️ Failed to create knowledge base:", kbResult.message)
-        // Don't fail the organization creation if KB creation fails
       }
     } catch (kbError) {
       console.error("🏢🏢🏢 [CREATE-ORG] ❌ Error creating knowledge base:", kbError)
-      // Don't fail the organization creation if KB creation fails
     }
 
-    // Get the created document to return with actual timestamps
-    const createdDoc = await getDoc(orgRef)
-    const createdData = {
-      id: orgRef.id,
-      ...createdDoc.data()
-    } as OrganizationDocument
+    // 2. Create Voice Settings
+    console.log("🏢🏢🏢 [CREATE-ORG] Creating voice settings...")
+    try {
+      const { createVoiceSettingsAction } = await import("@/actions/db/personalization-actions")
+      const voiceResult = await createVoiceSettingsAction({
+        userId: data.ownerId,
+        organizationId: orgRef.id,
+        writingStyle: "casual",
+        personaType: "user",
+        useCasualTone: true,
+        useEmojis: false,
+        useAllLowercase: false,
+        useFirstPerson: false
+      })
+      
+      if (voiceResult.isSuccess) {
+        console.log("🏢🏢🏢 [CREATE-ORG] ✅ Voice settings created successfully")
+      } else {
+        console.warn("🏢🏢🏢 [CREATE-ORG] ⚠️ Failed to create voice settings:", voiceResult.message)
+      }
+    } catch (voiceError) {
+      console.error("🏢🏢🏢 [CREATE-ORG] ❌ Error creating voice settings:", voiceError)
+    }
+
+    // 3. Create Default Campaign (if website is provided)
+    if (data.website) {
+      console.log("🏢🏢🏢 [CREATE-ORG] Creating default campaign...")
+      try {
+        const { createCampaignAction } = await import("@/actions/db/campaign-actions")
+        const { generateCampaignNameAction } = await import("@/actions/lead-generation/campaign-name-actions")
+        
+        // Generate a campaign name
+        const nameResult = await generateCampaignNameAction({
+          businessName: data.name,
+          website: data.website,
+          keywords: [] // Empty keywords for initial campaign
+        })
+        
+        const campaignName = nameResult.isSuccess 
+          ? nameResult.data 
+          : `${data.name} - Initial Lead Search`
+        
+        const campaignResult = await createCampaignAction({
+          userId: data.ownerId,
+          organizationId: orgRef.id,
+          name: campaignName,
+          website: data.website,
+          businessDescription: data.businessDescription || "",
+          keywords: [] // User will add keywords later
+        })
+        
+        if (campaignResult.isSuccess) {
+          console.log("🏢🏢🏢 [CREATE-ORG] ✅ Default campaign created successfully")
+        } else {
+          console.warn("🏢🏢🏢 [CREATE-ORG] ⚠️ Failed to create default campaign:", campaignResult.message)
+        }
+      } catch (campaignError) {
+        console.error("🏢🏢🏢 [CREATE-ORG] ❌ Error creating default campaign:", campaignError)
+      }
+    }
 
     console.log(
       "🏢🏢🏢 [CREATE-ORG] ========== ACTION END (SUCCESS) =========="
