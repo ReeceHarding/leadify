@@ -141,27 +141,41 @@ export default function LeadCard({
         setCardError(null)
         try {
           const urlMatch = lead.postUrl.match(/\/comments\/([a-zA-Z0-9]+)/)
-          const threadId = urlMatch ? urlMatch[1] : lead.originalData?.threadId
+          const postThreadId = lead.threadId || (urlMatch ? urlMatch[1] : null)
 
-          if (!threadId) {
-            setFullCardContent(lead.postContentSnippet) // Fallback to snippet if no ID
+          if (!postThreadId) {
+            console.warn(`[LeadCard] No threadId available for fetching full content. Lead ID: ${lead.id}`)
+            setFullCardContent(lead.postContentSnippet || "Full content not available (no thread ID).")
             setIsCardLoading(false)
             return
           }
 
-          console.log(`🔍 [LeadCard] Fetching full content for thread: ${threadId}`)
-          const result = await fetchRedditThreadAction(threadId, lead.subreddit)
+          if (!lead.organizationId) {
+            console.error(`[LeadCard] organizationId is missing on lead object. Lead ID: ${lead.id}`)
+            setCardError("Configuration error: Organization ID missing for this lead.")
+            setFullCardContent(lead.postContentSnippet || "Full content not available due to configuration error.")
+            setIsCardLoading(false)
+            return
+          }
+          
+          console.log(`🔍 [LeadCard] Fetching full content for org: ${lead.organizationId}, thread: ${postThreadId}, sub: ${lead.subreddit}`)
+          const result = await fetchRedditThreadAction(
+            lead.organizationId,
+            postThreadId,
+            lead.subreddit
+          )
 
           if (result.isSuccess) {
-            setFullCardContent(result.data.content || result.data.title)
+            setFullCardContent(result.data.content || result.data.title || "Content not found in fetched data.")
           } else {
-            setCardError(result.message)
-            setFullCardContent(lead.postContentSnippet) // Fallback to snippet on error
+            setCardError(result.message || "Failed to load full post content from action.")
+            console.error(`[LeadCard] Error fetching full content via action: ${result.message}. Lead ID: ${lead.id}, Thread ID: ${postThreadId}`)
+            setFullCardContent(lead.postContentSnippet || "Snippet (full content fetch failed).")
           }
-        } catch (err) {
-          console.error("Error fetching full content for card:", err)
-          setCardError("Failed to load full post content.")
-          setFullCardContent(lead.postContentSnippet) // Fallback to snippet on error
+        } catch (err: any) {
+          console.error("[LeadCard] Exception fetching full content for card:", err)
+          setCardError(`Client-side error: ${err.message || "Unknown error"}`)
+          setFullCardContent(lead.postContentSnippet || "Snippet (full content fetch failed due to client exception).")
         } finally {
           setIsCardLoading(false)
         }
@@ -169,7 +183,7 @@ export default function LeadCard({
     }
 
     fetchFullContentForCard()
-  }, [isPostBodyOpen, fullCardContent, lead.postUrl, lead.postContentSnippet, lead.originalData?.threadId, lead.subreddit])
+  }, [isPostBodyOpen, fullCardContent, lead.postUrl, lead.postContentSnippet, lead.threadId, lead.subreddit, lead.organizationId, lead.id])
 
   const handleStartEdit = () => {
     setEditedComment(comment)
