@@ -437,6 +437,14 @@ export async function regenerateCommentsWithToneAction(
       }
     }
 
+    // Check if tone instruction is extremely long (likely contains full examples)
+    const isVeryLongInstruction = toneInstruction.length > 2000
+    if (isVeryLongInstruction) {
+      console.log(
+        "🎨 [TONE-REGENERATE] Detected very long tone instruction (" + toneInstruction.length + " chars). Will use simplified approach."
+      )
+    }
+
     // Try to fetch existing comments if we have a post URL
     let existingComments: string[] = []
     if (postUrl) {
@@ -522,9 +530,65 @@ CRITICAL STYLE RULES (apply these unless user's tone instruction says otherwise)
 - write like someone who's actually tried all 3 solutions
 - be honest about downsides of our solution too
 - never sound like marketing
-- NEVER USE HYPHENS (-) anywhere in comments`
+- NEVER USE HYPHENS (-) anywhere in comments
 
-    const userPrompt = `Thread Title: ${threadTitle}
+IMPORTANT: You must return your response as valid JSON with this exact structure:
+{
+  "microComment": "your micro comment here",
+  "mediumComment": "your medium comment here",
+  "verboseComment": "your verbose comment here"
+}
+
+Do not include any text before or after the JSON object.`
+
+    let userPrompt = ""
+    
+    // If tone instruction is very long, extract key patterns from it
+    if (isVeryLongInstruction) {
+      console.log("🎨 [TONE-REGENERATE] Extracting key patterns from long instruction...")
+      
+      // Extract key patterns from the tone instruction
+      const hasVerboseExample = toneInstruction.includes("hey man!") && toneInstruction.includes("so for a little background:")
+      const hasMicroExample = toneInstruction.includes("just saw your post") || toneInstruction.includes("assume you've figure")
+      
+      userPrompt = `Thread Title: ${threadTitle}
+Thread Content: ${threadContent}
+Subreddit: r/${subreddit}
+
+${existingComments.length > 0 ? `\nExample comments from this thread:\n${existingComments.slice(0, 3).join("\n---\n")}` : ""}
+
+The user has provided a very detailed tone instruction with examples. Based on their instruction, generate three comments:
+
+1. Micro Comment (5-15 words):
+${hasMicroExample ? "- Follow the casual, helpful style from their example" : "- Super brief and casual"}
+- Mention trying different solutions
+- All lowercase, casual tone
+
+2. Medium Comment (30-80 words):
+- Start casually ("hey man", "tbh", etc)
+- Mention 3 solutions: free tool, our solution (${websiteContent.substring(0, 100)}...), premium tool
+- Include honest pros/cons for each
+- 1 spelling mistake
+- All lowercase
+
+3. Verbose Comment (800-1200 words):
+${hasVerboseExample ? `Follow the EXACT structure from their example:
+- Opening: "hey man!" + acknowledge time + intent to help
+- Background: "so for a little background:" + 7 years experience + failures
+- Main lesson: time vs money tradeoff
+- Detailed paths with numbered examples
+- Scenarios for different users
+- TL;DR conclusion` : `Standard verbose structure with personal story`}
+- All lowercase
+- 2-3 line breaks between sections
+- Casual abbreviations (bc, w/, lmk)
+- 1-2 spelling mistakes
+- No hyphens
+
+Return ONLY a JSON object with microComment, mediumComment, and verboseComment fields.`
+    } else {
+      // Original prompt for normal tone instructions
+      userPrompt = `Thread Title: ${threadTitle}
 Thread Content: ${threadContent}
 Subreddit: r/${subreddit}
 
@@ -586,6 +650,7 @@ Return as JSON:
   "mediumComment": "comment text",
   "verboseComment": "comment text"
 }`
+    }
 
     console.log("🎨 [TONE-REGENERATE] Generating comments with custom tone...")
     const result = await generateText({
@@ -593,28 +658,93 @@ Return as JSON:
       system: systemPrompt,
       prompt: userPrompt,
       temperature: 0.8, // Higher temperature for more creative variation
-      maxTokens: 1200
+      maxTokens: 3000 // Increased from 1200 to handle verbose comments
     })
 
     // Parse the response
     const text = result.text.trim()
+    console.log("🎨 [TONE-REGENERATE] Raw response length:", text.length)
+    console.log("🎨 [TONE-REGENERATE] First 200 chars:", text.substring(0, 200))
+    
+    // Try to find JSON in the response
+    let parsed: any
+    
+    // First try: Look for JSON object
     const jsonMatch = text.match(/\{[\s\S]*\}/)
-    if (!jsonMatch) {
-      throw new Error("Failed to extract JSON from response")
+    if (jsonMatch) {
+      try {
+        parsed = JSON.parse(jsonMatch[0])
+        console.log("✅ [TONE-REGENERATE] Successfully parsed JSON from response")
+      } catch (parseError) {
+        console.error("❌ [TONE-REGENERATE] Failed to parse JSON:", parseError)
+        console.log("❌ [TONE-REGENERATE] Attempted to parse:", jsonMatch[0].substring(0, 200))
+      }
+    }
+    
+    // Second try: Look for code block with JSON
+    if (!parsed) {
+      const codeBlockMatch = text.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/)
+      if (codeBlockMatch) {
+        try {
+          parsed = JSON.parse(codeBlockMatch[1])
+          console.log("✅ [TONE-REGENERATE] Successfully parsed JSON from code block")
+        } catch (parseError) {
+          console.error("❌ [TONE-REGENERATE] Failed to parse JSON from code block:", parseError)
+        }
+      }
+    }
+    
+    // Third try: If still no JSON, try to extract comments manually
+    if (!parsed) {
+      console.log("⚠️ [TONE-REGENERATE] No JSON found, attempting manual extraction")
+      
+      // Try to extract comments using markers
+      const microMatch = text.match(/microComment["\s:]+([^"]*?)(?:"|$)/i)
+      const mediumMatch = text.match(/mediumComment["\s:]+([^"]*?)(?:"|$)/i)
+      const verboseMatch = text.match(/verboseComment["\s:]+([^"]*?)(?:"|$)/i)
+      
+      if (microMatch || mediumMatch || verboseMatch) {
+        parsed = {
+          microComment: microMatch?.[1] || existingMicroComment || "",
+          mediumComment: mediumMatch?.[1] || existingMediumComment || "",
+          verboseComment: verboseMatch?.[1] || existingVerboseComment || ""
+        }
+        console.log("✅ [TONE-REGENERATE] Manually extracted comments from response")
+      } else {
+        // Last resort: return existing comments
+        console.error("❌ [TONE-REGENERATE] Could not extract any comments from response")
+        console.log("❌ [TONE-REGENERATE] Full response:", text)
+        
+        return {
+          isSuccess: false,
+          message: "Failed to parse AI response. The tone instruction might be too complex. Try simplifying it."
+        }
+      }
+    }
+    
+    // Validate parsed data
+    if (!parsed.microComment && !parsed.mediumComment && !parsed.verboseComment) {
+      console.error("❌ [TONE-REGENERATE] Parsed object has no comments")
+      return {
+        isSuccess: false,
+        message: "AI response did not contain any comments. Try a simpler tone instruction."
+      }
     }
 
-    const parsed = JSON.parse(jsonMatch[0])
     console.log(
       "✅ [TONE-REGENERATE] Successfully regenerated comments with custom tone"
     )
+    console.log("✅ [TONE-REGENERATE] Micro length:", parsed.microComment?.length || 0)
+    console.log("✅ [TONE-REGENERATE] Medium length:", parsed.mediumComment?.length || 0)
+    console.log("✅ [TONE-REGENERATE] Verbose length:", parsed.verboseComment?.length || 0)
 
     return {
       isSuccess: true,
       message: "Comments regenerated with custom tone",
       data: {
-        microComment: parsed.microComment,
-        mediumComment: parsed.mediumComment,
-        verboseComment: parsed.verboseComment
+        microComment: parsed.microComment || "",
+        mediumComment: parsed.mediumComment || "",
+        verboseComment: parsed.verboseComment || ""
       }
     }
   } catch (error) {
