@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import {
   Card,
   CardContent,
@@ -58,6 +58,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from "@/components/ui/tooltip"
+import { fetchRedditThreadAction } from "@/actions/integrations/reddit/reddit-actions"
 
 interface LeadCardProps {
   lead: any
@@ -126,7 +127,49 @@ export default function LeadCard({
   const [isRegenerating, setIsRegenerating] = useState(false)
   const [isPostBodyOpen, setIsPostBodyOpen] = useState(false)
 
+  // New state for full content in LeadCard
+  const [fullCardContent, setFullCardContent] = useState<string>("")
+  const [isCardLoading, setIsCardLoading] = useState(false)
+  const [cardError, setCardError] = useState<string | null>(null)
+
   const comment = lead[`${selectedLength}Comment`] || lead.mediumComment || ""
+
+  useEffect(() => {
+    const fetchFullContentForCard = async () => {
+      if (isPostBodyOpen && !fullCardContent && lead.postUrl) {
+        setIsCardLoading(true)
+        setCardError(null)
+        try {
+          const urlMatch = lead.postUrl.match(/\/comments\/([a-zA-Z0-9]+)/)
+          const threadId = urlMatch ? urlMatch[1] : lead.originalData?.threadId
+
+          if (!threadId) {
+            setFullCardContent(lead.postContentSnippet) // Fallback to snippet if no ID
+            setIsCardLoading(false)
+            return
+          }
+
+          console.log(`🔍 [LeadCard] Fetching full content for thread: ${threadId}`)
+          const result = await fetchRedditThreadAction(threadId, lead.subreddit)
+
+          if (result.isSuccess) {
+            setFullCardContent(result.data.content || result.data.title)
+          } else {
+            setCardError(result.message)
+            setFullCardContent(lead.postContentSnippet) // Fallback to snippet on error
+          }
+        } catch (err) {
+          console.error("Error fetching full content for card:", err)
+          setCardError("Failed to load full post content.")
+          setFullCardContent(lead.postContentSnippet) // Fallback to snippet on error
+        } finally {
+          setIsCardLoading(false)
+        }
+      }
+    }
+
+    fetchFullContentForCard()
+  }, [isPostBodyOpen, fullCardContent, lead.postUrl, lead.postContentSnippet, lead.originalData?.threadId, lead.subreddit])
 
   const handleStartEdit = () => {
     setEditedComment(comment)
@@ -251,9 +294,22 @@ export default function LeadCard({
               </CollapsibleTrigger>
               <CollapsibleContent className="mt-2">
                 <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700 dark:border-gray-700 dark:bg-gray-900/50 dark:text-gray-300">
-                  <p className="whitespace-pre-wrap">
-                    {lead.postContentSnippet}
-                  </p>
+                  {isCardLoading ? (
+                    <div className="flex items-center justify-center py-4">
+                      <Loader2 className="size-5 animate-spin text-gray-400" />
+                    </div>
+                  ) : cardError ? (
+                    <div className="text-red-600 dark:text-red-400">
+                      <p>Error loading full content: {cardError}</p>
+                      <p className="mt-2 whitespace-pre-wrap">
+                        Showing snippet: {lead.postContentSnippet}
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="whitespace-pre-wrap">
+                      {fullCardContent || lead.postContentSnippet}
+                    </p>
+                  )}
                 </div>
               </CollapsibleContent>
             </Collapsible>

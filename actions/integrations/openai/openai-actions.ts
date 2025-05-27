@@ -55,19 +55,19 @@ export async function scoreThreadAndGenerateThreeTierCommentsAction(
       websiteContent.length
     )
     console.log("🔍🔍🔍 [SCORING-PROMPT] ========== WEBSITE CONTENT ==========")
-    console.log(websiteContent.slice(0, 2000))
-    console.log("🔍🔍🔍 [SCORING-PROMPT] ========== THREAD CONTENT ==========")
-    console.log(threadContent.slice(0, 2000))
+    console.log(websiteContent)
+    console.log("🔍��🔍 [SCORING-PROMPT] ========== THREAD CONTENT ==========")
+    console.log(threadContent)
 
     const prompt = `You are a lead qualification expert for Reddit threads. Evaluate how relevant this Reddit thread is for the business described below.
 
 BUSINESS CONTEXT:
-${websiteContent.slice(0, 2000)}
+${websiteContent}
 
 REDDIT THREAD:
 Subreddit: r/${subreddit}
 Title: ${threadTitle}
-Content: ${threadContent.slice(0, 2000)}
+Content: ${threadContent}
 
 YOUR TASK:
 1. First, understand what company/service/product the business represents and what problems it solves
@@ -110,9 +110,9 @@ If the score is 40 or above, generate three authentic Reddit comments as someone
    - "Happy to share more details if you want"
 
 CRITICAL: You MUST mention THREE different solutions in each comment:
-1. A FREE tool/solution (name it specifically based on the problem, e.g., "Google Sheets", "Notion free plan", etc.)
+1. A FREE tool/solution (name it specifically based on the problem, e.g., "Google Sheets" for a data management problem, or "Canva free plan" for a design problem. Choose a tool relevant to the thread.)
 2. The business from the website content (present as the reasonable middle option)
-3. A PREMIUM/EXPENSIVE tool (name it specifically, e.g., "Salesforce", "Monday.com Enterprise", etc.)
+3. A PREMIUM/EXPENSIVE tool (name it specifically based on the problem, e.g., "Salesforce" for CRM, or "Adobe Creative Cloud" for design. Choose a tool relevant to the thread.)
 
 CRITICAL RULES:
 - Extract the company name from the website content
@@ -793,7 +793,7 @@ Provide a brief analysis of:
     console.log(
       "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== BUSINESS CONTENT =========="
     )
-    console.log(primaryBusinessContent.substring(0, 1500))
+    console.log(primaryBusinessContent)
 
     console.log(
       "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== VOICE PROMPT =========="
@@ -808,7 +808,7 @@ Provide a brief analysis of:
     console.log(
       "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== THREAD CONTENT =========="
     )
-    console.log(threadContent.slice(0, 2000))
+    console.log(threadContent)
 
     if (existingComments && existingComments.length > 0) {
       console.log(
@@ -823,7 +823,7 @@ Provide a brief analysis of:
 1. Score how relevant a Reddit thread is for the business
 2. Generate natural, authentic Reddit comments if relevant
 
-${primaryBusinessContent ? `Business Context: ${primaryBusinessContent.substring(0, 1500)}` : "The business offers general solutions."}
+${primaryBusinessContent ? `Business Context: ${primaryBusinessContent}` : "The business offers general solutions."}
 
 ${voicePrompt ? `\nVoice Instructions:\n${voicePrompt}\n` : ""}
 
@@ -874,9 +874,9 @@ Then, if the score is 40 or above, generate three comments as someone who has tr
    - "Happy to share more details if you want"
 
 CRITICAL: You MUST mention THREE different solutions in each comment:
-1. A FREE tool/solution (name it specifically based on the problem, e.g., "Google Sheets", "Notion free plan", etc.)
-2. The business from the website content (present as the reasonable middle option)
-3. A PREMIUM/EXPENSIVE tool (name it specifically, e.g., "Salesforce", "Monday.com Enterprise", etc.)
+1. A FREE tool/solution (name it specifically, e.g., "Google Sheets" for a data management problem, or "Canva free plan" for a design problem. Choose a tool relevant to the thread.)
+2. ${businessName} (our solution - present as the reasonable middle option)
+3. A PREMIUM/EXPENSIVE tool (name it specifically, e.g., "Salesforce" for CRM, or "Adobe Creative Cloud" for design. Choose a tool relevant to the thread.)
 
 Present all three neutrally - you're sharing your experience, not selling.
 
