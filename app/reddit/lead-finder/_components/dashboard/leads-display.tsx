@@ -105,13 +105,22 @@ export default function LeadsDisplay({
   // If there's a campaign selected but no leads, show appropriate state
   if (leads.length === 0 && campaignId) {
     // If workflow is running and we have progress data, show the progress
+    // NOTE: We're not showing GenerationProgress here anymore since the progress bar
+    // is now shown in the parent component above the leads display
     if (
       isWorkflowRunning &&
       workflowProgress &&
       workflowProgress.status !== "completed" &&
       workflowProgress.status !== "error"
     ) {
-      return <GenerationProgress progress={workflowProgress} className="" />
+      // Return empty state with a message that leads are being generated
+      return (
+        <EmptyState
+          title="Finding leads for you..."
+          description="We're searching Reddit for relevant discussions and generating personalized responses. New leads will appear here as they're found."
+          icon={<Search className="size-12 animate-pulse" />}
+        />
+      )
     }
 
     // Check if there was an error in the workflow or campaign has error status

@@ -154,6 +154,7 @@ import {
   LeadGenerationProgress as WorkflowProgress,
   LEAD_GENERATION_STAGES
 } from "@/types"
+import LeadGenerationProgressBar from "./dashboard/lead-generation-progress-bar"
 
 const ITEMS_PER_PAGE = 10
 const POLLING_INTERVAL = 5000 // 5 seconds
@@ -1797,6 +1798,15 @@ export default function LeadFinderDashboard() {
       </div>
 
       <div className="grid gap-4">
+        {/* Progress Bar - Show when workflow is running */}
+        {liveFirestoreProgress && liveFirestoreProgress.status === "in_progress" && (
+          <LeadGenerationProgressBar
+            progress={liveFirestoreProgress}
+            existingLeadsCount={state.leads.length}
+            className="mb-4"
+          />
+        )}
+
         {/* Find More Leads - Show when campaign is selected */}
         {state.campaignId && (
           <FindMoreLeads
