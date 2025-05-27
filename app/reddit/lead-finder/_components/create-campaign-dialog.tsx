@@ -37,7 +37,7 @@ import {
   Info
 } from "lucide-react"
 import { createCampaignAction } from "@/actions/db/campaign-actions"
-import { runFullLeadGenerationWorkflowAction } from "@/actions/lead-generation/workflow-actions"
+import { runLeadGenerationWorkflowWithLimitsAction } from "@/actions/lead-generation/workflow-actions"
 import { generateCampaignNameAction } from "@/actions/lead-generation/campaign-name-actions"
 import { toast } from "sonner"
 import { useUser } from "@clerk/nextjs"
@@ -86,6 +86,8 @@ export default function CreateCampaignDialog({
   const [organizationDescription, setOrganizationDescription] =
     useState<string>("")
   const [hasLoadedOrgData, setHasLoadedOrgData] = useState(false)
+  const [keywordCount, setKeywordCount] = useState(5)
+  const [threadsPerKeyword, setThreadsPerKeyword] = useState(10)
 
   const form = useForm<CampaignForm>({
     resolver: zodResolver(campaignSchema),
@@ -255,7 +257,7 @@ export default function CreateCampaignDialog({
         website: website || undefined,
         businessDescription: contentForKeywords || effectiveDescription,
         refinement:
-          "Generate 10 diverse keywords for finding potential customers on Reddit"
+          `Generate ${keywordCount} diverse keywords for finding potential customers on Reddit`
       })
 
       if (keywordsResult.isSuccess) {
@@ -264,7 +266,7 @@ export default function CreateCampaignDialog({
         const remainingSlots = 10 - currentKeywords.length
         const newKeywords = keywordsResult.data.keywords.slice(
           0,
-          remainingSlots
+          Math.min(remainingSlots, keywordCount)
         )
         form.setValue("keywords", [...currentKeywords, ...newKeywords])
         toast.success(`Generated ${newKeywords.length} keywords!`)
@@ -326,7 +328,14 @@ export default function CreateCampaignDialog({
       form.reset()
 
       // Run the lead generation workflow in the background
-      runFullLeadGenerationWorkflowAction(campaignResult.data.id)
+      runLeadGenerationWorkflowWithLimitsAction(
+        campaignResult.data.id,
+        // Create keyword limits object with the same limit for all keywords
+        data.keywords.reduce((acc, keyword) => {
+          acc[keyword] = threadsPerKeyword
+          return acc
+        }, {} as Record<string, number>)
+      )
         .then(workflowResult => {
           if (workflowResult.isSuccess) {
             const progress = workflowResult.data
@@ -364,7 +373,7 @@ export default function CreateCampaignDialog({
   }
 
   const keywords = form.watch("keywords")
-  const estimatedThreads = keywords.length * 10
+  const estimatedThreads = keywords.length * threadsPerKeyword
 
   // Debug form state
   useEffect(() => {
@@ -516,40 +525,61 @@ export default function CreateCampaignDialog({
                       </div>
 
                       {/* AI Generation Button */}
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={handleGenerateWithAI}
-                        disabled={
-                          !organizationDescription ||
-                          field.value.length >= 10 ||
-                          isGeneratingKeywords ||
-                          isCreating
-                        }
-                        className="w-full"
-                      >
-                        {isGeneratingKeywords ? (
-                          <>
-                            <Loader2 className="mr-2 size-4 animate-spin" />
-                            {generationStep === "scraping" ? (
-                              <>
-                                <Globe className="mr-2 size-4" />
-                                Scraping homepage...
-                              </>
-                            ) : (
-                              <>
-                                <Sparkles className="mr-2 size-4" />
-                                Generating keywords...
-                              </>
-                            )}
-                          </>
-                        ) : (
-                          <>
-                            <Sparkles className="mr-2 size-4" />
-                            Generate with AI
-                          </>
-                        )}
-                      </Button>
+                      <div className="flex gap-2">
+                        <Input
+                          type="number"
+                          min={1}
+                          max={10}
+                          value={keywordCount}
+                          onChange={e => {
+                            const value = parseInt(e.target.value)
+                            if (!isNaN(value) && value >= 1 && value <= 10) {
+                              setKeywordCount(value)
+                            }
+                          }}
+                          disabled={
+                            field.value.length >= 10 ||
+                            isGeneratingKeywords ||
+                            isCreating
+                          }
+                          className="w-20"
+                          placeholder="5"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={handleGenerateWithAI}
+                          disabled={
+                            !organizationDescription ||
+                            field.value.length >= 10 ||
+                            isGeneratingKeywords ||
+                            isCreating
+                          }
+                          className="flex-1"
+                        >
+                          {isGeneratingKeywords ? (
+                            <>
+                              <Loader2 className="mr-2 size-4 animate-spin" />
+                              {generationStep === "scraping" ? (
+                                <>
+                                  <Globe className="mr-2 size-4" />
+                                  Scraping homepage...
+                                </>
+                              ) : (
+                                <>
+                                  <Sparkles className="mr-2 size-4" />
+                                  Generating keywords...
+                                </>
+                              )}
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="mr-2 size-4" />
+                              Generate {keywordCount} with AI
+                            </>
+                          )}
+                        </Button>
+                      </div>
                     </div>
                     <FormDescription>
                       Keywords to search for on Reddit. We'll score threads
@@ -584,13 +614,34 @@ export default function CreateCampaignDialog({
               {keywords.length > 0 && (
                 <div className="space-y-2">
                   <FormLabel>Estimated Threads</FormLabel>
-                  <div className="flex items-center gap-3">
-                    <p className="text-muted-foreground text-sm">
-                      {estimatedThreads} threads
-                    </p>
-                    <p className="text-muted-foreground text-sm">
-                      across {keywords.length} keywords
-                    </p>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <p className="text-muted-foreground text-sm">
+                        {estimatedThreads} threads
+                      </p>
+                      <p className="text-muted-foreground text-sm">
+                        across {keywords.length} keywords
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm text-muted-foreground">
+                        Threads per keyword:
+                      </label>
+                      <Input
+                        type="number"
+                        min={1}
+                        max={20}
+                        value={threadsPerKeyword}
+                        onChange={e => {
+                          const value = parseInt(e.target.value)
+                          if (!isNaN(value) && value >= 1 && value <= 20) {
+                            setThreadsPerKeyword(value)
+                          }
+                        }}
+                        disabled={isCreating}
+                        className="w-20"
+                      />
+                    </div>
                   </div>
                 </div>
               )}
