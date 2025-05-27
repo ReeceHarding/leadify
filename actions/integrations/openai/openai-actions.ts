@@ -507,7 +507,7 @@ Provide a brief analysis of:
         model: openai("gpt-4o-mini"),
         prompt: tonePrompt,
         temperature: 0.3,
-        maxTokens: 300
+        // maxTokens: 300 // Removed token limit
       })
 
       toneAnalysis = toneResult.text
@@ -658,7 +658,7 @@ Return as JSON:
       system: systemPrompt,
       prompt: userPrompt,
       temperature: 0.8, // Higher temperature for more creative variation
-      maxTokens: 3000 // Increased from 1200 to handle verbose comments
+      // maxTokens: 3000 // Removed token limit - no restrictions
     })
 
     // Parse the response
@@ -1002,7 +1002,7 @@ Provide a brief analysis of:
         model: openai("gpt-4o-mini"),
         prompt: tonePrompt,
         temperature: 0.3,
-        maxTokens: 300
+        // maxTokens: 300 // Removed token limit
       })
 
       toneAnalysis = toneResult.text
@@ -1204,7 +1204,7 @@ Return as JSON:
       system: systemPrompt,
       prompt: userPrompt,
       temperature: 0.7,
-      maxTokens: 1500
+      // maxTokens: 1500 // Removed token limit
     })
 
     console.log("🤖 [OPENAI-PERSONALIZED] Raw response received")

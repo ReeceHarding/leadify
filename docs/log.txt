@@ -1684,3 +1684,215 @@
 [2025-05-27T21:37:08.393Z] ==================================================
 [2025-05-27T21:37:08.393Z] COMMAND FINISHED: prettier --write {app,lib,components}/**/*.{ts,tsx} db/**/*.ts types/**/*.ts --cache --ignore-unknown (exit code: 0)
 [2025-05-27T21:37:08.393Z] ==================================================
+[2025-05-27T21:37:57.065Z] NEXTJS_STDOUT: ✓ Compiled in 474ms (3537 modules)
+[2025-05-27T21:37:57.231Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/lead-finder
+[2025-05-27T21:37:57.231Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/lead-finder
+[2025-05-27T21:37:57.232Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Skipping auth for /reddit/lead-finder (testing)
+[2025-05-27T21:37:57.396Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] ========== ACTION START ==========
+[2025-05-27T21:37:57.396Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Timestamp: 2025-05-27T21:37:57.396Z
+[2025-05-27T21:37:57.396Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Organization ID: Ofa9s59KFG9e3teB8xTT
+[2025-05-27T21:37:57.396Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Creating query...
+[2025-05-27T21:37:57.396Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Executing query...
+[2025-05-27T21:37:57.607Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Query returned documents: 2
+[2025-05-27T21:37:57.607Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Query empty: false
+[2025-05-27T21:37:57.608Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Campaign 1: {
+[2025-05-27T21:37:57.608Z] NEXTJS_STDOUT: id: '07obMuAEJ6nuodFkDB7q',
+[2025-05-27T21:37:57.608Z] NEXTJS_STDOUT: name: 'Rostam Demo',
+[2025-05-27T21:37:57.608Z] NEXTJS_STDOUT: organizationId: 'Ofa9s59KFG9e3teB8xTT',
+[2025-05-27T21:37:57.608Z] NEXTJS_STDOUT: keywordCount: 4,
+[2025-05-27T21:37:57.608Z] NEXTJS_STDOUT: status: 'completed',
+[2025-05-27T21:37:57.608Z] NEXTJS_STDOUT: totalCommentsGenerated: 35
+[2025-05-27T21:37:57.608Z] NEXTJS_STDOUT: }
+[2025-05-27T21:37:57.609Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Campaign 2: {
+[2025-05-27T21:37:57.609Z] NEXTJS_STDOUT: id: 'dbaEDhzFgKX5Rz68Rq44',
+[2025-05-27T21:37:57.610Z] NEXTJS_STDOUT: name: '#1',
+[2025-05-27T21:37:57.611Z] NEXTJS_STDOUT: organizationId: 'Ofa9s59KFG9e3teB8xTT',
+[2025-05-27T21:37:57.611Z] NEXTJS_STDOUT: keywordCount: 1,
+[2025-05-27T21:37:57.611Z] NEXTJS_STDOUT: status: 'error',
+[2025-05-27T21:37:57.611Z] NEXTJS_STDOUT: totalCommentsGenerated: 0
+[2025-05-27T21:37:57.611Z] NEXTJS_STDOUT: }
+[2025-05-27T21:37:57.611Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Total campaigns found: 2
+[2025-05-27T21:37:57.612Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] Campaign IDs: [ '07obMuAEJ6nuodFkDB7q', 'dbaEDhzFgKX5Rz68Rq44' ]
+[2025-05-27T21:37:57.613Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] ✅ Campaigns retrieved successfully
+[2025-05-27T21:37:57.613Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGNS-BY-ORG] ========== ACTION END (SUCCESS) ==========
+[2025-05-27T21:37:57.619Z] NEXTJS_STDOUT: POST /reddit/lead-finder 200 in 387ms
+[2025-05-27T21:37:57.626Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/lead-finder
+[2025-05-27T21:37:57.627Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/lead-finder
+[2025-05-27T21:37:57.627Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Skipping auth for /reddit/lead-finder (testing)
+[2025-05-27T21:37:57.635Z] NEXTJS_STDOUT: 🔑 [REDDIT-AUTH-HELPER] Getting tokens for organization: Ofa9s59KFG9e3teB8xTT
+[2025-05-27T21:37:57.635Z] NEXTJS_STDOUT: 🔧 [GET-REDDIT-TOKENS-ORG] Getting Reddit tokens from organization...
+[2025-05-27T21:37:57.639Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORG-BY-ID] ========== ACTION START ==========
+[2025-05-27T21:37:57.639Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORG-BY-ID] Timestamp: 2025-05-27T21:37:57.639Z
+[2025-05-27T21:37:57.639Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORG-BY-ID] Organization ID: Ofa9s59KFG9e3teB8xTT
+[2025-05-27T21:37:57.641Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORG-BY-ID] Checking membership...
+[2025-05-27T21:37:57.705Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORG-BY-ID] Fetching organization document...
+[2025-05-27T21:37:57.770Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORG-BY-ID] ✅ Organization retrieved successfully
+[2025-05-27T21:37:57.770Z] NEXTJS_STDOUT: 🏢🏢🏢 [GET-ORG-BY-ID] ========== ACTION END (SUCCESS) ==========
+[2025-05-27T21:37:57.770Z] NEXTJS_STDOUT: 🏢 [SERIALIZE-ORG] Starting serialization
+[2025-05-27T21:37:57.770Z] NEXTJS_STDOUT: ✅ [GET-REDDIT-TOKENS-ORG] Reddit tokens retrieved from organization
+[2025-05-27T21:37:57.770Z] NEXTJS_STDOUT: ✅ [REDDIT-AUTH-HELPER] Token is valid
+[2025-05-27T21:37:57.771Z] NEXTJS_STDOUT: POST /reddit/lead-finder 200 in 143ms
+[2025-05-27T21:37:57.777Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/lead-finder
+[2025-05-27T21:37:57.777Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/lead-finder
+[2025-05-27T21:37:57.777Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Skipping auth for /reddit/lead-finder (testing)
+[2025-05-27T21:37:57.781Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] ========== ACTION START ==========
+[2025-05-27T21:37:57.781Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] Timestamp: 2025-05-27T21:37:57.781Z
+[2025-05-27T21:37:57.781Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] Campaign ID: 07obMuAEJ6nuodFkDB7q
+[2025-05-27T21:37:57.781Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] Creating document reference...
+[2025-05-27T21:37:57.781Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] Fetching document from Firestore...
+[2025-05-27T21:37:57.842Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] Document exists: true
+[2025-05-27T21:37:57.843Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] Campaign data retrieved: {
+[2025-05-27T21:37:57.843Z] NEXTJS_STDOUT: id: '07obMuAEJ6nuodFkDB7q',
+[2025-05-27T21:37:57.843Z] NEXTJS_STDOUT: name: 'Rostam Demo',
+[2025-05-27T21:37:57.843Z] NEXTJS_STDOUT: userId: 'user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy',
+[2025-05-27T21:37:57.843Z] NEXTJS_STDOUT: keywordCount: 4,
+[2025-05-27T21:37:57.843Z] NEXTJS_STDOUT: keywords: [
+[2025-05-27T21:37:57.843Z] NEXTJS_STDOUT: 'where to find software developer to build internal tools',
+[2025-05-27T21:37:57.843Z] NEXTJS_STDOUT: 'where to find software developers to hire',
+[2025-05-27T21:37:57.843Z] NEXTJS_STDOUT: 'tips for hiring software engineers',
+[2025-05-27T21:37:57.843Z] NEXTJS_STDOUT: 'where to hire contract software developers'
+[2025-05-27T21:37:57.843Z] NEXTJS_STDOUT: ],
+[2025-05-27T21:37:57.843Z] NEXTJS_STDOUT: status: 'completed',
+[2025-05-27T21:37:57.843Z] NEXTJS_STDOUT: totalSearchResults: 35,
+[2025-05-27T21:37:57.843Z] NEXTJS_STDOUT: totalThreadsAnalyzed: 35,
+[2025-05-27T21:37:57.843Z] NEXTJS_STDOUT: totalCommentsGenerated: 35,
+[2025-05-27T21:37:57.843Z] NEXTJS_STDOUT: hasWebsite: false,
+[2025-05-27T21:37:57.843Z] NEXTJS_STDOUT: hasWebsiteContent: true,
+[2025-05-27T21:37:57.843Z] NEXTJS_STDOUT: websiteContentLength: 3123
+[2025-05-27T21:37:57.843Z] NEXTJS_STDOUT: }
+[2025-05-27T21:37:57.843Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] ✅ Campaign retrieved successfully
+[2025-05-27T21:37:57.843Z] NEXTJS_STDOUT: 📋📋📋 [GET-CAMPAIGN-BY-ID] ========== ACTION END (SUCCESS) ==========
+[2025-05-27T21:37:57.844Z] NEXTJS_STDOUT: POST /reddit/lead-finder 200 in 66ms
+[2025-05-27T21:38:08.948Z] NEXTJS_STDOUT: ✓ Compiled in 374ms (3537 modules)
+[2025-05-27T21:38:19.866Z] NEXTJS_STDOUT: ✓ Compiled in 254ms (3537 modules)
+[2025-05-27T21:38:31.492Z] ==================================================
+[2025-05-27T21:38:31.493Z] COMMAND STARTED: next lint --fix
+[2025-05-27T21:38:31.493Z] ==================================================
+[2025-05-27T21:38:32.602Z] STDOUT: ✔ No ESLint warnings or errors
+[2025-05-27T21:38:32.647Z] ==================================================
+[2025-05-27T21:38:32.647Z] COMMAND FINISHED: next lint --fix (exit code: 0)
+[2025-05-27T21:38:32.647Z] ==================================================
+[2025-05-27T21:38:32.823Z] ==================================================
+[2025-05-27T21:38:32.824Z] COMMAND STARTED: prettier --write {app,lib,components}/**/*.{ts,tsx} db/**/*.ts types/**/*.ts --cache --ignore-unknown
+[2025-05-27T21:38:32.825Z] ==================================================
+[2025-05-27T21:38:32.906Z] STDOUT: app/api/lead-generation/start/route.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.907Z] STDOUT: app/api/queue/check-warmup-comments/route.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.909Z] STDOUT: app/api/queue/process-dm-automations/route.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.911Z] STDOUT: app/api/queue/process-posts/route.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.912Z] STDOUT: app/api/queue/process-warmup/route.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.914Z] STDOUT: app/api/reddit/auth/route.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.915Z] STDOUT: app/api/reddit/callback/route.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.918Z] STDOUT: app/api/reddit/comments/[commentId]/replies/route.ts 1ms (unchanged) (cached)
+[2025-05-27T21:38:32.919Z] STDOUT: app/api/reddit/comments/route.ts 1ms (unchanged) (cached)
+[2025-05-27T21:38:32.920Z] STDOUT: app/api/stripe/webhooks/route.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.922Z] STDOUT: app/api/test-twitter-analysis/route.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.923Z] STDOUT: app/api/test-twitter-direct/route.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.924Z] STDOUT: app/api/warmup/generate-posts/route.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.926Z] STDOUT: app/api/warmup/reset-daily-counters/route.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.928Z] STDOUT: app/reddit/lead-finder/_components/dashboard/types.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.929Z] STDOUT: app/reddit/lead-finder/_components/dashboard/utils.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.931Z] STDOUT: app/(auth)/layout.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.933Z] STDOUT: app/(marketing)/layout.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.935Z] STDOUT: app/(marketing)/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.938Z] STDOUT: app/dashboard/layout.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.940Z] STDOUT: app/dashboard/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.942Z] STDOUT: app/firebase-test/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.943Z] STDOUT: app/onboarding/layout.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.945Z] STDOUT: app/onboarding/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.947Z] STDOUT: app/reddit-auth/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.949Z] STDOUT: app/reddit-test/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.950Z] STDOUT: app/reddit/layout.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.952Z] STDOUT: lib/config/keyword-config.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.953Z] STDOUT: lib/config/reddit-config.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.955Z] STDOUT: lib/hooks/use-toast.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.957Z] STDOUT: lib/reddit/reddit-api-client.ts 1ms (unchanged) (cached)
+[2025-05-27T21:38:32.958Z] STDOUT: lib/utils/firestore-batch-utils.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.959Z] STDOUT: lib/utils/organization-utils.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.960Z] STDOUT: lib/utils/theme-utils.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.961Z] STDOUT: lib/utils/timestamp-utils.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.964Z] STDOUT: lib/hooks/use-copy-to-clipboard.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.966Z] STDOUT: lib/hooks/use-mobile.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.968Z] STDOUT: components/ui/use-toast.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.969Z] STDOUT: components/landing/hero.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.970Z] STDOUT: components/landing/logo-carousel.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.971Z] STDOUT: components/landing/testimonials.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.973Z] STDOUT: components/magicui/animated-gradient-text.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.974Z] STDOUT: components/magicui/hero-video-dialog.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.975Z] STDOUT: components/sidebar/app-sidebar.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.976Z] STDOUT: components/sidebar/create-organization-dialog.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.977Z] STDOUT: components/sidebar/nav-main.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.978Z] STDOUT: components/sidebar/nav-projects.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.979Z] STDOUT: components/sidebar/nav-user.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.980Z] STDOUT: components/sidebar/team-switcher.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.981Z] STDOUT: components/ui/accordion.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.982Z] STDOUT: components/ui/alert-dialog.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.983Z] STDOUT: components/ui/alert.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.984Z] STDOUT: components/ui/aspect-ratio.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.985Z] STDOUT: components/ui/avatar.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.986Z] STDOUT: components/ui/badge.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:32.987Z] STDOUT: components/ui/breadcrumb.tsx 1ms (unchanged) (cached)
+[2025-05-27T21:38:32.988Z] STDOUT: components/ui/button.tsx 1ms (unchanged) (cached)
+[2025-05-27T21:38:33.000Z] STDOUT: components/ui/calendar.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.006Z] STDOUT: components/ui/card.tsx 1ms (unchanged) (cached)
+[2025-05-27T21:38:33.013Z] STDOUT: components/ui/carousel.tsx 1ms (unchanged) (cached)
+[2025-05-27T21:38:33.018Z] STDOUT: components/ui/chart.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.024Z] STDOUT: components/ui/checkbox.tsx 1ms (unchanged) (cached)
+[2025-05-27T21:38:33.033Z] STDOUT: components/ui/collapsible.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.042Z] STDOUT: components/ui/command.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.045Z] STDOUT: components/ui/context-menu.tsx 1ms (unchanged) (cached)
+[2025-05-27T21:38:33.050Z] STDOUT: components/ui/dialog.tsx 1ms (unchanged) (cached)
+[2025-05-27T21:38:33.054Z] STDOUT: components/ui/drawer.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.055Z] STDOUT: components/ui/dropdown-menu.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.056Z] STDOUT: components/ui/form.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.056Z] STDOUT: components/ui/hover-card.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.057Z] STDOUT: components/ui/input-otp.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.058Z] STDOUT: components/ui/input.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.059Z] STDOUT: components/ui/label.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.062Z] STDOUT: components/ui/loading-skeleton.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.063Z] STDOUT: components/ui/menubar.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.064Z] STDOUT: components/ui/navigation-menu.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.065Z] STDOUT: components/ui/pagination.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.066Z] STDOUT: components/ui/popover.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.067Z] STDOUT: components/ui/progress.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.067Z] STDOUT: components/ui/radio-group.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.068Z] STDOUT: components/ui/resizable.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.069Z] STDOUT: components/ui/scroll-area.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.070Z] STDOUT: components/ui/select.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.071Z] STDOUT: components/ui/separator.tsx 1ms (unchanged) (cached)
+[2025-05-27T21:38:33.071Z] STDOUT: components/ui/sheet.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.072Z] STDOUT: components/ui/sidebar.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.073Z] STDOUT: components/ui/skeleton.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.074Z] STDOUT: components/ui/slider.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.075Z] STDOUT: components/ui/sonner.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.076Z] STDOUT: components/ui/switch.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.077Z] STDOUT: components/ui/table.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.079Z] STDOUT: components/ui/tabs.tsx 1ms (unchanged) (cached)
+[2025-05-27T21:38:33.080Z] STDOUT: components/ui/textarea.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.081Z] STDOUT: components/ui/toast.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.082Z] STDOUT: components/ui/toaster.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.083Z] STDOUT: components/ui/toggle-group.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.084Z] STDOUT: components/ui/toggle.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.085Z] STDOUT: components/ui/tooltip.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.088Z] STDOUT: components/utilities/organization-provider.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.089Z] STDOUT: components/utilities/organization-selector.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.091Z] STDOUT: components/utilities/providers.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.092Z] STDOUT: components/utilities/tailwind-indicator.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.093Z] STDOUT: components/utilities/theme-switcher.tsx 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.095Z] STDOUT: db/firestore/collections.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.096Z] STDOUT: db/firestore/dm-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.097Z] STDOUT: db/firestore/keyword-performance-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.098Z] STDOUT: db/firestore/lead-generation-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.099Z] STDOUT: db/firestore/organizations-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.100Z] STDOUT: db/firestore/personalization-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.101Z] STDOUT: db/firestore/posting-queue-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.102Z] STDOUT: db/firestore/warmup-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.103Z] STDOUT: db/schema/index.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.104Z] STDOUT: types/action-interfaces.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.105Z] STDOUT: types/index.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.106Z] STDOUT: types/lead-generation-types.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.107Z] STDOUT: types/organization-types.ts 1ms (unchanged) (cached)
+[2025-05-27T21:38:33.107Z] STDOUT: types/profile-types.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.108Z] STDOUT: types/server-action-types.ts 0ms (unchanged) (cached)
+[2025-05-27T21:38:33.116Z] ==================================================
+[2025-05-27T21:38:33.116Z] COMMAND FINISHED: prettier --write {app,lib,components}/**/*.{ts,tsx} db/**/*.ts types/**/*.ts --cache --ignore-unknown (exit code: 0)
+[2025-05-27T21:38:33.116Z] ==================================================

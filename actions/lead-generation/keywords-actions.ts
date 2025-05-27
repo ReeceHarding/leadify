@@ -83,8 +83,7 @@ export async function generateKeywordsAction({
       system:
         "You are a Reddit search query expert. Generate natural language search queries that will find Reddit posts from people seeking help. NEVER use quotes or OR operators as they limit results. Focus on how people actually write on Reddit. Return only valid JSON objects.",
       prompt: prompt,
-      temperature: 0.5,
-      maxTokens: 1500
+      temperature: 0.7,
     })
 
     const response = result.text

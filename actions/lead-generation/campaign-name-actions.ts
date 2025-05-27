@@ -41,7 +41,6 @@ Return ONLY the campaign name, nothing else.`
       model: openai("gpt-4o-mini"),
       prompt,
       temperature: 0.7,
-      maxTokens: 20
     })
 
     const campaignName = result.text.trim()
