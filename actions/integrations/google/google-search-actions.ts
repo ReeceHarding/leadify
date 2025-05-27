@@ -46,19 +46,30 @@ export async function searchRedditThreadsAction(
     }
   }
 
-  // Helper function to perform the actual search
-  async function performSearch(query: string): Promise<any> {
+  /**
+   * Google Custom Search returns a maximum of 10 results per request.
+   * If the caller requests more, we need to paginate using the `start` param.
+   * This helper performs a single page request (up to 10 results).
+   */
+  async function performSearchPage(
+    query: string,
+    startIndex: number,
+    perPage: number
+  ): Promise<any> {
     const url = new URL("https://www.googleapis.com/customsearch/v1")
     url.searchParams.append("key", GOOGLE_API_KEY!)
     url.searchParams.append("cx", GOOGLE_SEARCH_ENGINE_ID!)
     url.searchParams.append("q", query)
-    url.searchParams.append("num", numResults.toString())
+    url.searchParams.append("num", perPage.toString()) // 1-10 only
+    if (startIndex > 1) {
+      url.searchParams.append("start", startIndex.toString())
+    }
 
     console.log(
       "🔍🔍🔍 [GOOGLE-SEARCH] API URL:",
       url.toString().replace(GOOGLE_API_KEY!, "***API_KEY***")
     )
-    console.log("🔍🔍🔍 [GOOGLE-SEARCH] Making API request...")
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH] Making API request (start", startIndex, ") ...")
 
     const response = await fetch(url.toString())
     console.log("🔍🔍🔍 [GOOGLE-SEARCH] Response status:", response.status)
@@ -79,41 +90,53 @@ export async function searchRedditThreadsAction(
     const hasQuotesOrOperators = keyword.includes('"') || keyword.includes(' OR ')
     
     let searchQuery: string
-    let data: any
+    let data: any // Will hold first page for logging – we still aggregate below
     
     if (hasQuotesOrOperators) {
       // Old format with quotes/OR - try it first for precision
       searchQuery = `${keyword} reddit`
-      console.log("🔍🔍🔍 [GOOGLE-SEARCH] Trying quoted search first:", searchQuery)
-      
-      data = await performSearch(searchQuery)
-      
-      // If no results with quoted search, try without quotes
-      if (!data.items || data.items.length < KEYWORD_CONFIG.MIN_RESULTS) {
-        console.log("🔍🔍🔍 [GOOGLE-SEARCH] No results with quotes, trying without quotes...")
-        
-        // Remove quotes and OR operators, keep the meaningful words
-        const unquotedKeyword = keyword
-          .replace(/"/g, '') // Remove quotes
-          .replace(/\s+OR\s+/g, ' ') // Replace OR with space
-          .replace(/\s+/g, ' ') // Normalize spaces
-          .trim()
-        
-        searchQuery = `${unquotedKeyword} site:reddit.com`
-        console.log("🔍🔍🔍 [GOOGLE-SEARCH] Fallback search query:", searchQuery)
-        
-        data = await performSearch(searchQuery)
-      }
     } else {
-      // New format or simple keyword
-      const includesReddit = keyword.toLowerCase().includes('reddit')
-      searchQuery = includesReddit 
-        ? keyword  // New format: keyword already includes reddit
-        : `${keyword} site:reddit.com`  // Old format: add site restriction
-      
-      console.log("🔍🔍🔍 [GOOGLE-SEARCH] Full search query:", searchQuery)
-      data = await performSearch(searchQuery)
+      const includesReddit = keyword.toLowerCase().includes("reddit")
+      searchQuery = includesReddit
+        ? keyword
+        : `${keyword} site:reddit.com`
     }
+
+    console.log("🔍🔍🔍 [GOOGLE-SEARCH] Search query:", searchQuery)
+
+    // ---- PAGINATED FETCH -------------------------------------------------
+    const aggregatedItems: any[] = []
+    const pagesNeeded = Math.ceil(numResults / 10)
+
+    for (let page = 0; page < pagesNeeded; page++) {
+      const start = page * 10 + 1 // Google CSE is 1-indexed
+      const perPage = Math.min(10, numResults - aggregatedItems.length)
+      if (perPage <= 0) break
+
+      try {
+        const pageData = await performSearchPage(searchQuery, start, perPage)
+        if (page === 0) data = pageData // Save first page for logging below
+        if (pageData.items && pageData.items.length > 0) {
+          aggregatedItems.push(...pageData.items)
+        } else {
+          // No more results – stop early
+          break
+        }
+      } catch (err) {
+        // If any page fails we break to avoid spamming errors but still return what we have
+        console.error("🔍🔍🔍 [GOOGLE-SEARCH] Page fetch failed:", err)
+        if (aggregatedItems.length === 0) throw err
+        break
+      }
+    }
+
+    // Replace data.items with aggregated list trimmed to requested size
+    if (data) {
+      data.items = aggregatedItems.slice(0, numResults)
+    } else {
+      data = { items: aggregatedItems.slice(0, numResults) }
+    }
+    // ---------------------------------------------------------------------
 
     console.log("🔍🔍🔍 [GOOGLE-SEARCH] Response data received")
     console.log(

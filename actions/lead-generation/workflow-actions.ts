@@ -764,6 +764,22 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
       }
     }
 
+    // Mark intermediate stages as completed if they haven't been yet so that
+    // the frontend progress bar shows the correct step count.
+    await updateLeadGenerationProgressAction(campaignId, {
+      stageUpdate: {
+        stageName: "Retrieving Threads",
+        status: "completed"
+      }
+    })
+
+    await updateLeadGenerationProgressAction(campaignId, {
+      stageUpdate: {
+        stageName: "Analyzing Relevance",
+        status: "completed"
+      }
+    })
+
     // Complete the generating comments stage
     await updateLeadGenerationProgressAction(campaignId, {
       stageUpdate: {
