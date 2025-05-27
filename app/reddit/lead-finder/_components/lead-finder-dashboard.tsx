@@ -1798,11 +1798,15 @@ export default function LeadFinderDashboard() {
       </div>
 
       <div className="grid gap-4">
-        {/* Progress Bar - Show when workflow is running */}
-        {liveFirestoreProgress && liveFirestoreProgress.status === "in_progress" && (
+        {/* Progress Bar - Show when workflow is running or recently completed */}
+        {liveFirestoreProgress && (
+          liveFirestoreProgress.status === "in_progress" || 
+          (liveFirestoreProgress.status === "completed" && liveFirestoreProgress.completedAt && 
+           new Date().getTime() - (liveFirestoreProgress.completedAt as any).toDate().getTime() < 10000) // Show for 10 seconds after completion
+        ) && (
           <LeadGenerationProgressBar
             progress={liveFirestoreProgress}
-            existingLeadsCount={state.leads.length}
+            existingLeadsCount={state.leads.length - (liveFirestoreProgress.results?.totalCommentsGenerated || 0)}
             className="mb-4"
           />
         )}
