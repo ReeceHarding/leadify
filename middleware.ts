@@ -8,6 +8,7 @@ Using clerkMiddleware to handle authentication across the app.
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
+import { getOrganizationsByUserIdAction } from "@/actions/db/organizations-actions"
 
 const isProtectedRoute = createRouteMatcher([
   "/dashboard(.*)",
@@ -29,6 +30,20 @@ const isTestApiRoute = createRouteMatcher([
   "/api/test-twitter-direct",
   "/api/test-keywords",
   "/api/test-personalized-comments"
+])
+
+// Routes that require organization context
+const requiresOrganization = createRouteMatcher([
+  "/dashboard(.*)",
+  "/reddit(.*)",
+  "/api/lead-generation/(.*)",
+  "/api/reddit/(.*)"
+])
+
+// Routes that should redirect to onboarding if no organization
+const shouldRedirectToOnboarding = createRouteMatcher([
+  "/dashboard(.*)",
+  "/reddit(.*)"
 ])
 
 // Create a custom middleware that checks for public API routes first
@@ -77,6 +92,38 @@ export default clerkMiddleware(async (auth, req) => {
 
   if (isProtectedRoute(req) && !isPublicApiRoute(req) && !isTestApiRoute(req)) {
     await auth.protect()
+    
+    // Check organization context for routes that require it
+    if (userId && requiresOrganization(req)) {
+      console.log("🔥🔥🔥 [MIDDLEWARE] Checking organization context for user:", userId)
+      
+      try {
+        const orgsResult = await getOrganizationsByUserIdAction(userId)
+        
+        if (!orgsResult.isSuccess || !orgsResult.data || orgsResult.data.length === 0) {
+          console.log("🔥🔥🔥 [MIDDLEWARE] No organizations found for user")
+          
+          // Redirect to onboarding if this is a page that requires organization
+          if (shouldRedirectToOnboarding(req) && pathname !== "/onboarding") {
+            console.log("🔥🔥🔥 [MIDDLEWARE] Redirecting to onboarding")
+            return NextResponse.redirect(new URL("/onboarding", req.url))
+          }
+          
+          // For API routes, return error
+          if (pathname.startsWith("/api/")) {
+            return NextResponse.json(
+              { error: "No organization found. Please complete onboarding." },
+              { status: 403 }
+            )
+          }
+        }
+        
+        console.log("🔥🔥🔥 [MIDDLEWARE] User has", orgsResult.data?.length || 0, "organizations")
+      } catch (error) {
+        console.error("🔥🔥🔥 [MIDDLEWARE] Error checking organizations:", error)
+        // Allow request to continue - let the page/API handle the error
+      }
+    }
   }
 })
 

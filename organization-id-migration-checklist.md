@@ -22,21 +22,21 @@
 - [x] Update queries to filter by organizationId
 
 ### Profile Actions
-- [ ] Review `profiles-actions.ts` for any organization-specific data that should be moved
-- [ ] Ensure profile is user-specific, not organization-specific
+- [x] Review `profiles-actions.ts` for any organization-specific data that should be moved
+- [x] Ensure profile is user-specific, not organization-specific
 
 ## API Routes to Update
 
 ### Lead Generation API
 - [x] `/api/lead-generation/start/route.ts` - Already uses organizationId from campaign
-- [ ] `/api/test-keywords/route.ts` - Add organizationId support (doesn't exist)
-- [ ] `/api/test-personalized-comments/route.ts` - Add organizationId support (doesn't exist)
-- [ ] `/api/test-warmup/route.ts` - Add organizationId support (doesn't exist)
+- [x] `/api/test-keywords/route.ts` - Add organizationId support (doesn't exist - empty directory)
+- [x] `/api/test-personalized-comments/route.ts` - Add organizationId support (doesn't exist - empty directory)
+- [x] `/api/test-warmup/route.ts` - Add organizationId support (doesn't exist - empty directory)
 
 ### Queue Processing APIs
 - [x] `/api/queue/process-posts/route.ts` - Already uses organizationId from posting queue
 - [x] `/api/queue/process-warmup/route.ts` - Already uses organizationId
-- [ ] `/api/queue/check-warmup-comments/route.ts` - Ensure organizationId filtering
+- [x] `/api/queue/check-warmup-comments/route.ts` - Already uses organizationId from posts
 
 ### Warmup APIs
 - [x] `/api/warmup/generate-posts/route.ts` - Already uses organizationId
@@ -44,7 +44,7 @@
 ### Reddit APIs
 - [x] `/api/reddit/auth/route.ts` - Organization-based auth already implemented
 - [x] `/api/reddit/callback/route.ts` - Already handles organization context
-- [ ] `/api/reddit/comments/[commentId]/replies/route.ts` - Add organizationId context
+- [x] `/api/reddit/comments/[commentId]/replies/route.ts` - Mock implementation, doesn't need organizationId yet
 
 ## Frontend Pages to Update
 
@@ -63,8 +63,8 @@
 - [x] `/reddit/warm-up/page.tsx` - Fixed to use currentOrganization
 
 ### Debug Pages
-- [ ] `/debug/lead-generation-debug/page.tsx` - Add organizationId support
-- [ ] `/debug/test-page/page.tsx` - Add organizationId support
+- [x] `/debug/lead-generation-debug/page.tsx` - Component disabled for maintenance
+- [x] `/debug/test-page/page.tsx` - Simple test page, no org context needed
 
 ## Components to Update
 
@@ -105,12 +105,12 @@
 ## Authentication & Authorization
 - [x] Add organization context provider
 - [x] Add organization selector component
-- [ ] Add middleware to ensure organizationId is available
-- [ ] Add organization member access checks
+- [x] Add middleware to ensure organizationId is available
+- [ ] Add organization member access checks (basic check added in middleware)
 
 ## Data Migration
-- [ ] Create migration script for existing data
-- [ ] Add organizationId to existing records
+- [x] Create migration script for existing data
+- [ ] Add organizationId to existing records (script created, needs to be run)
 - [ ] Update any hardcoded user-based queries
 
 ## Testing
