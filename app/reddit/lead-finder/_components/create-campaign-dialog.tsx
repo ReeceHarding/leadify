@@ -91,6 +91,7 @@ export default function CreateCampaignDialog({
   const [keywordCount, setKeywordCount] = useState(5)
   const [threadsPerKeyword, setThreadsPerKeyword] = useState(10)
   const [redditConnected, setRedditConnected] = useState<boolean | null>(null)
+  const [keywordInstructions, setKeywordInstructions] = useState("")
 
   const form = useForm<CampaignForm>({
     resolver: zodResolver(campaignSchema),
@@ -181,6 +182,7 @@ export default function CreateCampaignDialog({
       setHasLoadedOrgData(false)
       setOrganizationDescription("")
       setRedditConnected(null)
+      setKeywordInstructions("")
     }
   }, [open])
 
@@ -287,21 +289,31 @@ export default function CreateCampaignDialog({
       const keywordsResult = await generateKeywordsAction({
         website: website || undefined,
         businessDescription: contentForKeywords || effectiveDescription,
-        refinement:
-          `Generate ${keywordCount} diverse keywords for finding potential customers on Reddit`,
+        refinement: keywordInstructions.trim() 
+          ? `Generate ${keywordCount} diverse keywords for finding potential customers on Reddit. ${keywordInstructions}`
+          : `Generate ${keywordCount} diverse keywords for finding potential customers on Reddit`,
         organizationId: currentOrganization.id
       })
 
       if (keywordsResult.isSuccess) {
-        // Add generated keywords (up to remaining slots)
+        // Check if we should replace or append keywords
         const currentKeywords = form.getValues("keywords")
-        const remainingSlots = 10 - currentKeywords.length
-        const newKeywords = keywordsResult.data.keywords.slice(
-          0,
-          Math.min(remainingSlots, keywordCount)
-        )
-        form.setValue("keywords", [...currentKeywords, ...newKeywords])
-        toast.success(`Generated ${newKeywords.length} keywords!`)
+        
+        // If we have instructions and existing keywords, ask if they want to replace
+        if (keywordInstructions.trim() && currentKeywords.length > 0) {
+          // Replace existing keywords when regenerating with new instructions
+          form.setValue("keywords", keywordsResult.data.keywords.slice(0, keywordCount))
+          toast.success(`Regenerated ${keywordCount} keywords with your instructions!`)
+        } else {
+          // Add generated keywords (up to remaining slots)
+          const remainingSlots = 10 - currentKeywords.length
+          const newKeywords = keywordsResult.data.keywords.slice(
+            0,
+            Math.min(remainingSlots, keywordCount)
+          )
+          form.setValue("keywords", [...currentKeywords, ...newKeywords])
+          toast.success(`Generated ${newKeywords.length} keywords!`)
+        }
       } else {
         throw new Error("Failed to generate keywords")
       }
@@ -590,60 +602,80 @@ export default function CreateCampaignDialog({
                       </div>
 
                       {/* AI Generation Button */}
-                      <div className="flex gap-2">
-                        <Input
-                          type="number"
-                          min={1}
-                          max={10}
-                          value={keywordCount}
-                          onChange={e => {
-                            const value = parseInt(e.target.value)
-                            if (!isNaN(value) && value >= 1 && value <= 10) {
-                              setKeywordCount(value)
+                      <div className="space-y-3">
+                        {/* AI Instructions Input */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            AI Instructions <span className="text-xs text-gray-500">(Optional)</span>
+                          </label>
+                          <Input
+                            placeholder="e.g., include software terms, focus on enterprise customers..."
+                            value={keywordInstructions}
+                            onChange={e => setKeywordInstructions(e.target.value)}
+                            disabled={isCreating || isGeneratingKeywords}
+                            className="text-sm"
+                          />
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Add specific instructions to customize the AI-generated keywords
+                          </p>
+                        </div>
+
+                        {/* Generation Controls */}
+                        <div className="flex gap-2">
+                          <Input
+                            type="number"
+                            min={1}
+                            max={10}
+                            value={keywordCount}
+                            onChange={e => {
+                              const value = parseInt(e.target.value)
+                              if (!isNaN(value) && value >= 1 && value <= 10) {
+                                setKeywordCount(value)
+                              }
+                            }}
+                            disabled={
+                              field.value.length >= 10 ||
+                              isGeneratingKeywords ||
+                              isCreating
                             }
-                          }}
-                          disabled={
-                            field.value.length >= 10 ||
-                            isGeneratingKeywords ||
-                            isCreating
-                          }
-                          className="w-20"
-                          placeholder="5"
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={handleGenerateWithAI}
-                          disabled={
-                            !organizationDescription ||
-                            field.value.length >= 10 ||
-                            isGeneratingKeywords ||
-                            isCreating
-                          }
-                          className="flex-1"
-                        >
-                          {isGeneratingKeywords ? (
-                            <>
-                              <Loader2 className="mr-2 size-4 animate-spin" />
-                              {generationStep === "scraping" ? (
-                                <>
-                                  <Globe className="mr-2 size-4" />
-                                  Scraping homepage...
-                                </>
-                              ) : (
-                                <>
-                                  <Sparkles className="mr-2 size-4" />
-                                  Generating keywords...
-                                </>
-                              )}
-                            </>
-                          ) : (
-                            <>
-                              <Sparkles className="mr-2 size-4" />
-                              Generate {keywordCount} {keywordCount === 1 ? 'keyword' : 'keywords'} with AI
-                            </>
-                          )}
-                        </Button>
+                            className="w-20"
+                            placeholder="5"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleGenerateWithAI}
+                            disabled={
+                              !organizationDescription ||
+                              field.value.length >= 10 ||
+                              isGeneratingKeywords ||
+                              isCreating
+                            }
+                            className="flex-1"
+                          >
+                            {isGeneratingKeywords ? (
+                              <>
+                                <Loader2 className="mr-2 size-4 animate-spin" />
+                                {generationStep === "scraping" ? (
+                                  <>
+                                    <Globe className="mr-2 size-4" />
+                                    Scraping homepage...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Sparkles className="mr-2 size-4" />
+                                    Generating keywords...
+                                  </>
+                                )}
+                              </>
+                            ) : (
+                              <>
+                                <Sparkles className="mr-2 size-4" />
+                                {field.value.length > 0 ? 'Regenerate' : 'Generate'} {keywordCount} {keywordCount === 1 ? 'keyword' : 'keywords'} with AI
+                              </>
+                            )}
+                          </Button>
+                        </div>
                       </div>
                     </div>
                     <FormDescription>
