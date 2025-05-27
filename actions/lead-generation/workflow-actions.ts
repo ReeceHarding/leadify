@@ -57,6 +57,12 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
   campaignId: string,
   keywordLimits: Record<string, number> = {}
 ): Promise<ActionState<WorkflowProgress>> {
+  console.log("🚀🚀🚀 [WORKFLOW] ========== START WORKFLOW ==========")
+  console.log("🚀🚀🚀 [WORKFLOW] Campaign ID:", campaignId)
+  console.log("🚀🚀🚀 [WORKFLOW] Keyword limits:", JSON.stringify(keywordLimits, null, 2))
+  console.log("🚀🚀🚀 [WORKFLOW] Number of keywords:", Object.keys(keywordLimits).length)
+  console.log("🚀🚀🚀 [WORKFLOW] Total threads to find:", Object.values(keywordLimits).reduce((a, b) => a + b, 0))
+  
   const progress: WorkflowProgress = {
     currentStep: "Starting workflow",
     totalSteps: 6,
@@ -68,7 +74,12 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
   try {
     // Create progress tracking
     logger.info(`🚀 Creating progress tracking for campaign: ${campaignId}`)
+    console.log("🚀🚀🚀 [WORKFLOW] Creating progress tracking...")
+    
     await createLeadGenerationProgressAction(campaignId)
+    
+    console.log("🚀🚀🚀 [WORKFLOW] Progress tracking created, updating status...")
+    
     await updateLeadGenerationProgressAction(campaignId, {
       status: "in_progress",
       currentStage: "Initializing",
@@ -80,15 +91,29 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
       totalProgress: 5
     })
 
+    console.log("🚀🚀🚀 [WORKFLOW] Progress status updated to in_progress")
+
     // Step 1: Get campaign details
     progress.currentStep = "Loading campaign"
     logger.info(
       `🚀 Starting lead generation workflow for campaign: ${campaignId}`
     )
     logger.info(`🚀 Keyword limits:`, keywordLimits)
+    
+    console.log("🚀🚀🚀 [WORKFLOW] Fetching campaign details...")
 
     const campaignResult = await getCampaignByIdAction(campaignId)
+    
+    console.log("🚀🚀🚀 [WORKFLOW] Campaign fetch result:", {
+      isSuccess: campaignResult.isSuccess,
+      message: campaignResult.message,
+      hasData: !!campaignResult.data,
+      campaignName: campaignResult.data?.name,
+      keywords: campaignResult.data?.keywords
+    })
+    
     if (!campaignResult.isSuccess) {
+      console.log("🚀🚀🚀 [WORKFLOW] ❌ Failed to fetch campaign")
       progress.error = campaignResult.message
       await updateLeadGenerationProgressAction(campaignId, {
         status: "error",
@@ -123,6 +148,27 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
             k => keywordLimits[k] && keywordLimits[k] > 0
           )
         : campaign.keywords
+
+    console.log("🚀🚀🚀 [WORKFLOW] Keyword filtering:", {
+      campaignKeywords: campaign.keywords,
+      keywordLimitsKeys: Object.keys(keywordLimits),
+      keywordsToProcess,
+      keywordLimitsProvided: Object.keys(keywordLimits).length > 0
+    })
+
+    if (keywordsToProcess.length === 0) {
+      console.log("🚀🚀🚀 [WORKFLOW] ❌ No keywords to process!")
+      console.log("🚀🚀🚀 [WORKFLOW] Campaign keywords:", campaign.keywords)
+      console.log("🚀🚀🚀 [WORKFLOW] Keyword limits:", keywordLimits)
+      
+      // Check if the keywords in limits match campaign keywords
+      const missingKeywords = Object.keys(keywordLimits).filter(
+        k => !campaign.keywords.includes(k)
+      )
+      if (missingKeywords.length > 0) {
+        console.log("🚀🚀🚀 [WORKFLOW] ⚠️ Keywords in limits not found in campaign:", missingKeywords)
+      }
+    }
 
     progress.results.push({
       step: "Load Campaign",

@@ -1999,8 +1999,21 @@ export default function LeadFinderDashboard() {
         userId={user?.id || ""}
         campaignId={state.campaignId || ""}
         currentKeywords={currentCampaignKeywords}
-        onSuccess={() => {
+        onSuccess={async () => {
+          console.log("🔥🔥🔥 [LEAD-FINDER] FindNewLeadsDialog onSuccess called")
+          console.log("🔥🔥🔥 [LEAD-FINDER] Setting workflowRunning to true")
           setState(prev => ({ ...prev, workflowRunning: true }))
+          console.log("🔥🔥🔥 [LEAD-FINDER] State updated with workflowRunning: true")
+          
+          // Refresh campaign keywords
+          if (state.campaignId) {
+            console.log("🔥🔥🔥 [LEAD-FINDER] Refreshing campaign keywords...")
+            const campaignResult = await getCampaignByIdAction(state.campaignId)
+            if (campaignResult.isSuccess && campaignResult.data) {
+              setCurrentCampaignKeywords(campaignResult.data.keywords || [])
+              console.log("🔥🔥🔥 [LEAD-FINDER] Campaign keywords refreshed:", campaignResult.data.keywords)
+            }
+          }
         }}
       />
 

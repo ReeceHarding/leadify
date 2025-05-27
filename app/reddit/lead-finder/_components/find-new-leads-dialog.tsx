@@ -182,44 +182,115 @@ export default function FindNewLeadsDialog({
   }
 
   const handleFindLeads = async () => {
+    console.log("🔍🔍🔍 [FIND-NEW-LEADS] ========== START FIND LEADS ==========")
+    console.log("🔍🔍🔍 [FIND-NEW-LEADS] Selected keywords:", selectedKeywords)
+    console.log("🔍🔍🔍 [FIND-NEW-LEADS] Posts per keyword:", postsPerKeyword)
+    console.log("🔍🔍🔍 [FIND-NEW-LEADS] Campaign ID:", campaignId)
+    console.log("🔍🔍🔍 [FIND-NEW-LEADS] User ID:", userId)
+    console.log("🔍🔍🔍 [FIND-NEW-LEADS] Organization:", currentOrganization?.id)
+    console.log("🔍🔍🔍 [FIND-NEW-LEADS] Current campaign keywords:", currentKeywords)
+
     if (selectedKeywords.length === 0) {
+      console.log("🔍🔍🔍 [FIND-NEW-LEADS] ❌ No keywords selected")
       toast.error("Please select at least one keyword")
+      return
+    }
+
+    if (!campaignId) {
+      console.log("🔍🔍🔍 [FIND-NEW-LEADS] ❌ No campaign ID")
+      toast.error("No campaign selected")
       return
     }
 
     setIsFindingLeads(true)
     try {
+      // First, update the campaign with all keywords (existing + new)
+      const allKeywords = [...new Set([...currentKeywords, ...selectedKeywords])]
+      console.log("🔍🔍🔍 [FIND-NEW-LEADS] Updating campaign with all keywords:", allKeywords)
+      
+      const { updateCampaignAction } = await import("@/actions/db/campaign-actions")
+      const updateResult = await updateCampaignAction(campaignId, {
+        keywords: allKeywords
+      })
+      
+      if (!updateResult.isSuccess) {
+        console.log("🔍🔍🔍 [FIND-NEW-LEADS] ❌ Failed to update campaign keywords")
+        throw new Error("Failed to update campaign keywords")
+      }
+      
+      console.log("🔍🔍🔍 [FIND-NEW-LEADS] ✅ Campaign keywords updated successfully")
+      
       // Create keyword limits object
       const keywordLimits: Record<string, number> = {}
       selectedKeywords.forEach(keyword => {
         keywordLimits[keyword] = parseInt(postsPerKeyword)
       })
 
-      console.log("🔍 Finding leads with limits:", keywordLimits)
+      console.log("🔍🔍🔍 [FIND-NEW-LEADS] Keyword limits object:", keywordLimits)
+      console.log("🔍🔍🔍 [FIND-NEW-LEADS] Calling runLeadGenerationWorkflowWithLimitsAction...")
 
       const result = await runLeadGenerationWorkflowWithLimitsAction(
         campaignId,
         keywordLimits
       )
 
+      console.log("🔍🔍🔍 [FIND-NEW-LEADS] Workflow result received:", {
+        isSuccess: result.isSuccess,
+        message: result.message,
+        hasData: !!result.data
+      })
+
+      if (result.data) {
+        console.log("🔍🔍🔍 [FIND-NEW-LEADS] Workflow data:", {
+          currentStep: result.data.currentStep,
+          totalSteps: result.data.totalSteps,
+          completedSteps: result.data.completedSteps,
+          isComplete: result.data.isComplete,
+          error: result.data.error,
+          resultsCount: result.data.results?.length || 0
+        })
+
+        if (result.data.results) {
+          result.data.results.forEach((r, i) => {
+            console.log(`🔍🔍🔍 [FIND-NEW-LEADS] Step ${i + 1}:`, {
+              step: r.step,
+              success: r.success,
+              message: r.message,
+              hasData: !!r.data
+            })
+          })
+        }
+      }
+
       if (result.isSuccess) {
         const totalPosts = Object.values(keywordLimits).reduce(
           (a, b) => a + b,
           0
         )
+        console.log("🔍🔍🔍 [FIND-NEW-LEADS] ✅ Success! Total posts to find:", totalPosts)
         toast.success(`Finding up to ${totalPosts} new leads!`, {
           description: "New leads will appear as they're discovered"
         })
+        
+        console.log("🔍🔍🔍 [FIND-NEW-LEADS] Calling onSuccess callback...")
         onSuccess?.()
+        
+        console.log("🔍🔍🔍 [FIND-NEW-LEADS] Closing dialog...")
         onOpenChange(false)
       } else {
+        console.log("🔍🔍🔍 [FIND-NEW-LEADS] ❌ Workflow failed:", result.message)
         throw new Error(result.message)
       }
     } catch (error) {
-      console.error("Error finding leads:", error)
+      console.error("🔍🔍🔍 [FIND-NEW-LEADS] ❌ Error finding leads:", error)
+      console.error("🔍🔍🔍 [FIND-NEW-LEADS] Error type:", typeof error)
+      console.error("🔍🔍🔍 [FIND-NEW-LEADS] Error message:", error instanceof Error ? error.message : "Unknown error")
+      console.error("🔍🔍🔍 [FIND-NEW-LEADS] Error stack:", error instanceof Error ? error.stack : "No stack trace")
       toast.error("Failed to start lead generation")
     } finally {
+      console.log("🔍🔍🔍 [FIND-NEW-LEADS] Setting loading state to false...")
       setIsFindingLeads(false)
+      console.log("🔍🔍🔍 [FIND-NEW-LEADS] ========== END FIND LEADS ==========")
     }
   }
 
