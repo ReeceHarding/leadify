@@ -604,7 +604,13 @@ export default function LeadFinderDashboard() {
           leads: transformedLeads,
           isLoading: false, // Data received, stop loading
           lastPolledAt: new Date(), // Can be renamed to lastUpdatedAt
-          error: null
+          error: null,
+          // Update the lead count for the current campaign
+          campaigns: prev.campaigns.map(campaign => 
+            campaign.id === state.campaignId 
+              ? { ...campaign, totalCommentsGenerated: transformedLeads.length }
+              : campaign
+          )
         }))
       },
       error => {
@@ -663,18 +669,25 @@ export default function LeadFinderDashboard() {
 
         // Transform campaigns data for the dropdown
         const transformedCampaigns: Campaign[] = campaignsResult.isSuccess
-          ? campaignsResult.data.map(campaign => ({
-              id: campaign.id,
-              name: campaign.name,
-              keywords: campaign.keywords || [],
-              status: campaign.status || "draft",
-              totalCommentsGenerated: 0, // TODO: Get actual count from generated_comments
-              createdAt:
-                typeof campaign.createdAt === "string"
-                  ? campaign.createdAt
-                  : (campaign.createdAt as any)?.toDate?.()?.toISOString() ||
-                    new Date().toISOString()
-            }))
+          ? campaignsResult.data.map(campaign => {
+              // Count leads for this campaign from current state
+              const leadCount = campaign.id === state.campaignId 
+                ? state.leads.length 
+                : 0; // We only have leads loaded for the current campaign
+              
+              return {
+                id: campaign.id,
+                name: campaign.name,
+                keywords: campaign.keywords || [],
+                status: campaign.status || "draft",
+                totalCommentsGenerated: leadCount,
+                createdAt:
+                  typeof campaign.createdAt === "string"
+                    ? campaign.createdAt
+                    : (campaign.createdAt as any)?.toDate?.()?.toISOString() ||
+                      new Date().toISOString()
+              }
+            })
           : []
 
         setState(prev => ({ ...prev, campaigns: transformedCampaigns }))
@@ -1831,6 +1844,26 @@ export default function LeadFinderDashboard() {
                 campaignsResult.isSuccess &&
                 campaignsResult.data.length > 0
               ) {
+                // Transform campaigns with lead counts
+                const updatedCampaigns: Campaign[] = campaignsResult.data.map(campaign => {
+                  const leadCount = campaign.id === state.campaignId 
+                    ? state.leads.length 
+                    : 0;
+                  
+                  return {
+                    id: campaign.id,
+                    name: campaign.name,
+                    keywords: campaign.keywords || [],
+                    status: campaign.status || "draft",
+                    totalCommentsGenerated: leadCount,
+                    createdAt:
+                      typeof campaign.createdAt === "string"
+                        ? campaign.createdAt
+                        : (campaign.createdAt as any)?.toDate?.()?.toISOString() ||
+                          new Date().toISOString()
+                  }
+                })
+                
                 // Get the latest campaign (most recently created)
                 const latestCampaign = campaignsResult.data.sort(
                   (a: any, b: any) => {
@@ -1854,6 +1887,7 @@ export default function LeadFinderDashboard() {
                 // Update state with the new campaign
                 setState(prev => ({
                   ...prev,
+                  campaigns: updatedCampaigns,
                   campaignId: latestCampaign.id,
                   campaignName: latestCampaign.name || null,
                   workflowRunning: true // Workflow is running in the background

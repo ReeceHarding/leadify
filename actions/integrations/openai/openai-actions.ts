@@ -752,6 +752,19 @@ ${voicePrompt ? `\nVoice Instructions:\n${voicePrompt}\n` : ""}
 
 ${toneAnalysis ? `\nCommunity Tone Analysis:\n${toneAnalysis}\n` : ""}
 
+CRITICAL SCORING CRITERIA:
+- 80-100: The post is DIRECTLY asking for the exact type of service/product the business provides
+- 60-79: The post is asking for something closely related where the business could be genuinely helpful
+- 40-59: The post has some tangential relevance but the business is not a perfect fit
+- 20-39: The post has minimal relevance - the business could be mentioned but would seem forced
+- 0-19: The post has NO relevance to the business whatsoever
+
+BE VERY STRICT WITH SCORING:
+- A post about disc golf putters should score 0 for a coding agency
+- A post about general software recommendations should score low (20-30) for a coding agency
+- Only posts specifically asking for developers, coding help, or app development should score high
+- Consider the actual intent of the poster - are they looking for what the business offers?
+
 CRITICAL COMMENT STRUCTURE:
 You are someone who has been in the same situation as the OP and has tried multiple solutions. You should:
 1. Show empathy - you've been there
