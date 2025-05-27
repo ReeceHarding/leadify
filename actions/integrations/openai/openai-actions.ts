@@ -858,7 +858,14 @@ Campaign Focus Keywords: ${campaignKeywords.join(", ")}
 
 ${voicePrompt ? `\nVoice Instructions:\n${voicePrompt}\n` : ""}
 
-${toneAnalysis ? `\nCommunity Tone Analysis:\n${toneAnalysis}\n` : ""}`
+${toneAnalysis ? `\nCommunity Tone Analysis:\n${toneAnalysis}\n` : ""}
+
+STYLE GUIDELINES FOR COMMENTS (VERY IMPORTANT):
+- ALL COMMENTS MUST BE IN ALL LOWERCASE.
+- Adopt a very casual, friendly, and slightly informal tone. Think like you're talking to a buddy. Use phrases like "hey man", "so like", "kinda", "gotta say", etc.
+- Include 1-2 subtle, natural-sounding spelling mistakes in each comment (e.g., 'teh' instead of 'the', 'actualy' instead of 'actually', 'recomend' instead of 'recommend'). Don't make them too obvious or nonsensical.
+- NEVER USE HYPHENS (-) anywhere in your comments.
+- Be genuinely helpful first, not salesy.`
 
     const userPrompt = `Thread Title: ${threadTitle}
 Thread Content: ${threadContent}
@@ -868,60 +875,38 @@ ${existingComments && existingComments.length > 0 ? `\nExample comments from thi
 
 Evaluate how relevant this Reddit thread is for ${businessName}, considering the campaign focus keywords: ${campaignKeywords.join(", ")}.
 
-Important: People rarely directly ask for solutions. Read between the lines and look for indirect signals like:
-- Expressing frustration or challenges that the business solves
-- Asking if others experience similar issues
-- Describing workarounds they're using
-- Sharing related experiences or pain points
-- Engaging with topics the business addresses
-
-Score this thread from 0-100 based on:
-- How closely the problem matches what ${businessName} solves, aligned with the campaign keywords.
-- How clearly they express a need (directly or indirectly)
-- How likely they would be interested in the solution
-- Whether they seem to be actively looking for help
-- Their apparent frustration/pain level
-
-Use this scale:
-90-100 = Perfect match (clearly expressing need, actively looking for exactly what we offer, strong alignment with campaign keywords)
-70-89 = Strong match (clear problem/need that we solve, good alignment with campaign keywords)
-40-69 = Moderate match (showing some signs of problems we address, some alignment with campaign keywords)
-20-39 = Weak match (tangentially related to our solution or campaign keywords)
-0-19 = No match (completely unrelated to what we offer or campaign keywords)
+Score this thread from 0-100 (use the previously defined scale).
 
 Then, if the score is 40 or above:
-1. Generate three comments as someone who has tried multiple solutions:
-   - Micro (1-2 sentences): Quick mention that you've tried a few things and ${businessName} worked well
-   - Medium (3-4 sentences): Brief story following this structure:
-     - "I've been there..." or similar empathy
-     - "I tried [specific free tool name] first but [specific limitation]"
-     - "Then found ${businessName} which [specific benefit]"
-     - "There's also [specific premium tool] but that's overkill for most"
-   - Verbose (5-7 sentences): Full journey following this structure:
-     - Open with empathy about the struggle
-     - "First I tried [specific free tool] - it was okay for [what it did well] but [specific limitations]"
-     - "Then I discovered ${businessName} through [how you found it]. What really helped was [specific features]"
-     - "I also looked at [specific premium tool] which is great if you need [advanced features] but honestly overkill for most people"
-     - "Happy to share more details if you want"
+1. Generate three comments as someone who has genuinely tried multiple solutions. Be very unbiased. For each of the three options (a free one, ${businessName}, and a premium one), you MUST discuss both genuine pros and genuine cons/downsides. Your experience should reflect this balanced perspective.
 
-   CRITICAL: You MUST mention THREE different solutions in each comment:
-   1. A FREE tool/solution (name it specifically, e.g., "Google Sheets" for a data management problem, or "Canva free plan" for a design problem. Choose a tool relevant to the thread.)
-   2. ${businessName} (our solution - present as the reasonable middle option)
-   3. A PREMIUM/EXPENSIVE tool (name it specifically, e.g., "Salesforce" for CRM, or "Adobe Creative Cloud" for design. Choose a tool relevant to the thread.)
-   Present all three neutrally - you're sharing your experience, not selling.
+   COMMENT STRUCTURES (ALL LOWERCASE, CASUAL, 1-2 SPELLING MISTAKES EACH):
+
+   a. Micro Comment (1-2 sentences):
+      Example: "hey man, i was in teh same boat. tried a few things, [free tool] is ok for basic stuff but [main con]. ${businessName} was actualy better for [main pro] tho it [main con for client solution]. [premium tool] is overkill unless u need [premium feature]."
+
+   b. Medium Comment (3-5 sentences):
+      Start with empathy (e.g., "totally get where ur coming from").
+      Detail your experience: "i first tried [specific free tool name]. pros: [genuine pro1], [genuine pro2]. cons: [genuine con1, e.g., a specific limitation]. then i found ${businessName}. pros: [genuine pro1 for client solution], [genuine pro2 for client solution]. cons: [GENUINE CON1 FOR CLIENT SOLUTION, e.g., price if applicable, a missing feature, learning curve]. there's also [specific premium tool]. pros: [genuine pro for premium]. cons: [genuine con for premium, e.g., super expensive, too complex for most]. hope that helps a bit!"
+
+   c. Verbose Comment (5-8 sentences):
+      Open with strong empathy.
+      "so like, first i tried [specific free tool]. it was pretty good for [pro1], and [pro2]. but teh big downside for me was [con1] and [con2]. then i gave ${businessName} a shot after seeing it [how you found it]. gotta say, [pro1 for client solution] was a game changer, and [pro2 for client solution] is solid. that said, it's not perfect, like [GENUINE CON1 FOR CLIENT SOLUTION] can be annoying, and [GENUINE CON2 FOR CLIENT SOLUTION] was a bit of a letdown for me. i also checked out [specific premium tool]. it's a beast if you need [advanced feature1] and [advanced feature2], but for most folks, [con1 for premium, e.g., the price is insane] and [con2 for premium, e.g., way too complicated] makes it not worth it. lemme know if u have other questions, happy to share more of my experience."
+
+   CRITICAL FOR HONESTY: For ${businessName} (our client's solution), you MUST include at least one specific, believable downside or con. Don't just say it's expensive if it's not; find a real potential drawback (e.g., "the UI is a bit clunky sometimes", "customer support was slow once", "wish it had X feature", "took me a while to get used to it"). Be creative but genuine.
 
 2. Identify and list 3-5 specific keyword phrases (3-5 words each) from the thread itself that are highly relevant to the business and the campaign's focus keywords (${campaignKeywords.join(", ")}). These phrases should capture the core problem or specific interest expressed by the Reddit user.
 
-Remember: Write like someone genuinely sharing their experience. Match the subreddit's tone and style.
+Remember: Adhere strictly to the STYLE GUIDELINES (all lowercase, casual, 1-2 spelling mistakes, no hyphens). Be unbiased and share a balanced perspective of pros AND cons for ALL THREE options.
 
-Return as JSON:
+Return as JSON (ensure derivedSpecificKeywords is an empty array if no specific phrases found or score < 40):
 {
   "score": number,
   "reasoning": "brief explanation of the score",
-  "microComment": "comment text" (or empty string if score < 40),
-  "mediumComment": "comment text" (or empty string if score < 40),
-  "verboseComment": "comment text" (or empty string if score < 40),
-  "derivedSpecificKeywords": ["phrase 1", "phrase 2", ...] (empty array if score < 40 or no specific phrases found)
+  "microComment": "comment text",
+  "mediumComment": "comment text",
+  "verboseComment": "comment text",
+  "derivedSpecificKeywords": ["phrase 1", "phrase 2", ...]
 }`
 
     // Log the full prompts being sent
