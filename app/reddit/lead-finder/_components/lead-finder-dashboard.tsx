@@ -1528,12 +1528,8 @@ export default function LeadFinderDashboard() {
   ])
 
   // Render loading state
-  if ((state.isLoading || organizationLoading) && !liveFirestoreProgress && !state.error) {
-    return (
-      <div className="container mx-auto space-y-6 py-6">
-        <EnhancedLeadSkeleton />
-      </div>
-    )
+  if (state.isLoading && !state.leads.length && !state.error) {
+    return null // Let the Suspense boundary in the page handle the skeleton
   }
 
   // Render error state

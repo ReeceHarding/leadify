@@ -40,15 +40,15 @@ export default function KnowledgeBaseClient({
         </div>
       </div>
 
-      {/* Knowledge Base Content */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Left Column: What We Know */}
+      {/* Knowledge Base Content - Single Column */}
+      <div className="space-y-6">
+        {/* What We Know - Full Width Top */}
         <KnowledgeBaseDisplay
           knowledgeBase={knowledgeBase}
           userProfile={userProfile}
         />
 
-        {/* Right Column: Add to Knowledge Base */}
+        {/* Add to Knowledge Base - Full Width Bottom */}
         <AddToKnowledgeBase
           userId={userId}
           organizationId={organizationId}
