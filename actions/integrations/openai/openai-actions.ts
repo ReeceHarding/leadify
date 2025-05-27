@@ -19,7 +19,6 @@ import {
 import { scrapeWebsiteAction } from "@/actions/integrations/firecrawl/website-scraping-actions"
 import OpenAI from "openai"
 
-
 // Schema for thread scoring and comment generation
 const ThreadAnalysisSchema = z.object({
   score: z.number().min(1).max(100),
@@ -54,18 +53,22 @@ YOUR TASK:
 1. First, analyze the website content to understand:
    - What company/service/product it represents
    - What problem it solves
-   - Who their target audience is
+   - Who their target audience is (potential clients who need this service)
    
-2. Then critically score how relevant this Reddit thread is to that company/service (1-100)
+2. Then critically score how likely the thread author is to be a POTENTIAL CLIENT for this company/service (1-100)
 
-3. If relevant (70+), generate comments as if you're a genuine user who has used this service
+3. If they seem like a potential client (70+), generate comments as if you're a genuine user who has used this service
 
-CRITICAL SCORING (1-100) - BE HARSH:
-- 90-100: Thread directly asks for exactly what this company offers (rare)
-- 70-89: Thread problem strongly aligns, your experience would be genuinely valuable
-- 50-69: Some relevance but would feel forced or salesy to comment
-- 30-49: Weak connection, commenting would be obvious self-promotion  
-- 1-29: No relevant connection, would be spam to comment
+CRITICAL SCORING (1-100) - FOCUS ON CLIENT POTENTIAL:
+- 90-100: Thread author is actively looking to hire/pay for exactly what this company provides (e.g., "looking for developers", "need coding help", "hiring agency")
+- 70-89: Thread author has a problem that this company could solve and seems willing to pay for solutions
+- 50-69: Thread author might need this service but isn't actively looking or budget is unclear
+- 30-49: Weak client potential - they might do it themselves or already have a solution
+- 1-29: Not a potential client - they're offering similar services, just discussing the topic, or clearly won't pay
+
+IMPORTANT: Score based on CLIENT POTENTIAL, not topic relevance. For a coding agency:
+- HIGH SCORE: "Where can I find developers for my startup?" "Need help building an app" "Looking for coding agency"
+- LOW SCORE: "I'm a developer looking for work" "Check out my coding tutorial" "What programming language should I learn?"
 
 GENERATE 3 COMMENT LENGTH OPTIONS (authentic, helpful, non-salesy):
 
@@ -573,9 +576,14 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
     )
 
     // Get organization data for personalization
-    const { getOrganizationByIdAction } = await import("@/actions/db/organizations-actions")
-    const { getKnowledgeBaseByOrganizationIdAction, getVoiceSettingsByOrganizationIdAction } = await import("@/actions/db/personalization-actions")
-    
+    const { getOrganizationByIdAction } = await import(
+      "@/actions/db/organizations-actions"
+    )
+    const {
+      getKnowledgeBaseByOrganizationIdAction,
+      getVoiceSettingsByOrganizationIdAction
+    } = await import("@/actions/db/personalization-actions")
+
     const orgResult = await getOrganizationByIdAction(organizationId)
     if (!orgResult.isSuccess || !orgResult.data) {
       console.error("❌ [OPENAI-PERSONALIZED] Failed to get organization")
@@ -600,24 +608,35 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
     )
 
     // Get knowledge base for the organization
-    const knowledgeBaseResult = await getKnowledgeBaseByOrganizationIdAction(organizationId)
+    const knowledgeBaseResult =
+      await getKnowledgeBaseByOrganizationIdAction(organizationId)
     let knowledgeBaseSummary = ""
     if (knowledgeBaseResult.isSuccess && knowledgeBaseResult.data) {
       knowledgeBaseSummary = knowledgeBaseResult.data.summary || ""
-      console.log("✅ [OPENAI-PERSONALIZED] Found knowledge base for organization")
+      console.log(
+        "✅ [OPENAI-PERSONALIZED] Found knowledge base for organization"
+      )
     }
 
     // Get voice settings for the organization
-    const voiceSettingsResult = await getVoiceSettingsByOrganizationIdAction(organizationId)
+    const voiceSettingsResult =
+      await getVoiceSettingsByOrganizationIdAction(organizationId)
     let voicePrompt = ""
     if (voiceSettingsResult.isSuccess && voiceSettingsResult.data) {
       voicePrompt = voiceSettingsResult.data.generatedPrompt || ""
-      console.log("✅ [OPENAI-PERSONALIZED] Found voice settings for organization")
+      console.log(
+        "✅ [OPENAI-PERSONALIZED] Found voice settings for organization"
+      )
     }
 
     // Prioritize campaign-specific content, then knowledge base, then organization website
-    let primaryBusinessContent = campaignWebsiteContent || knowledgeBaseSummary || ""
-    let contentSource = campaignWebsiteContent ? "campaign" : (knowledgeBaseSummary ? "knowledge_base" : "organization_website")
+    let primaryBusinessContent =
+      campaignWebsiteContent || knowledgeBaseSummary || ""
+    let contentSource = campaignWebsiteContent
+      ? "campaign"
+      : knowledgeBaseSummary
+        ? "knowledge_base"
+        : "organization_website"
 
     if (!primaryBusinessContent && businessWebsiteUrl) {
       console.log(
@@ -637,9 +656,7 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
         )
       }
     } else if (primaryBusinessContent) {
-      console.log(
-        `✅ [OPENAI-PERSONALIZED] Using ${contentSource} content`
-      )
+      console.log(`✅ [OPENAI-PERSONALIZED] Using ${contentSource} content`)
     }
 
     if (!primaryBusinessContent) {
@@ -683,7 +700,7 @@ Provide a brief analysis of:
     }
 
     const systemPrompt = `You are a Reddit comment analyzer and generator. Your job is to:
-1. Score how relevant a Reddit thread is for promoting ${businessName}
+1. Score how likely the Reddit thread author is to be a POTENTIAL CLIENT for ${businessName}
 2. Generate natural, authentic Reddit comments that match the community's style
 
 ${primaryBusinessContent ? `Business Context: ${primaryBusinessContent.substring(0, 1500)}` : "The business offers general solutions."}
@@ -691,6 +708,16 @@ ${primaryBusinessContent ? `Business Context: ${primaryBusinessContent.substring
 ${voicePrompt ? `\nVoice Instructions:\n${voicePrompt}\n` : ""}
 
 ${toneAnalysis ? `\nCommunity Tone Analysis:\n${toneAnalysis}\n` : ""}
+
+CRITICAL SCORING RULES - FOCUS ON CLIENT POTENTIAL:
+- 90-100: Thread author is actively looking to hire/pay for what ${businessName} offers
+- 70-89: Thread author has a problem ${businessName} could solve and seems willing to pay
+- 50-69: Thread author might need this service but isn't actively looking
+- 30-49: Weak client potential - they might do it themselves
+- 1-29: Not a potential client - they're offering similar services or just discussing
+
+For a coding agency, score HIGH for: "looking for developers", "need help building", "hiring agency"
+Score LOW for: "I'm a developer", "coding tutorial", "what language to learn"
 
 CRITICAL RULES FOR COMMENTS:
 - Match the casual tone and style of the subreddit
