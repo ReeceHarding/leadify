@@ -1,0 +1,28 @@
+{
+  "crons": [
+    {
+      "path": "/api/queue/process-dm-automations",
+      "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/queue/process-posts",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/queue/process-warmup",
+      "schedule": "*/10 * * * *"
+    },
+    {
+      "path": "/api/queue/check-warmup-comments",
+      "schedule": "*/20 * * * *"
+    },
+    {
+      "path": "/api/warmup/reset-daily-counters",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/warmup/generate-posts",
+      "schedule": "0 */6 * * *"
+    }
+  ]
+} 
