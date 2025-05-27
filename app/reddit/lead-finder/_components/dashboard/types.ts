@@ -4,6 +4,7 @@ import { SerializedGeneratedCommentDocument } from "@/types"
 export interface LeadResult {
   id: string
   campaignId: string
+  organizationId: string
   postUrl: string
   postTitle: string
   postAuthor: string

@@ -562,6 +562,7 @@ export default function LeadFinderDashboard() {
             return {
               id: docSnap.id,
               campaignId: comment.campaignId || null,
+              organizationId: activeOrganization?.id || "",
               postUrl: comment.postUrl || "",
               postTitle: comment.postTitle || "Untitled Post",
               postAuthor: comment.postAuthor || "Unknown Author",
