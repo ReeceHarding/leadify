@@ -19,7 +19,6 @@ import {
 import { scrapeWebsiteAction } from "@/actions/integrations/firecrawl/website-scraping-actions"
 import OpenAI from "openai"
 
-
 // Schema for thread scoring and comment generation
 const ThreadAnalysisSchema = z.object({
   score: z.number().min(1).max(100),
@@ -41,20 +40,28 @@ export async function scoreThreadAndGenerateThreeTierCommentsAction(
     )
 
     // Log the full context being sent
-    console.log("🔍🔍🔍 [SCORING-PROMPT] ========== FULL PROMPT START ==========")
+    console.log(
+      "🔍🔍🔍 [SCORING-PROMPT] ========== FULL PROMPT START =========="
+    )
     console.log("🔍🔍🔍 [SCORING-PROMPT] Timestamp:", new Date().toISOString())
     console.log("🔍🔍🔍 [SCORING-PROMPT] Thread Title:", threadTitle)
     console.log("🔍🔍🔍 [SCORING-PROMPT] Subreddit:", subreddit)
-    console.log("🔍🔍🔍 [SCORING-PROMPT] Thread Content Length:", threadContent.length)
-    console.log("🔍🔍🔍 [SCORING-PROMPT] Website Content Length:", websiteContent.length)
+    console.log(
+      "🔍🔍🔍 [SCORING-PROMPT] Thread Content Length:",
+      threadContent.length
+    )
+    console.log(
+      "🔍🔍🔍 [SCORING-PROMPT] Website Content Length:",
+      websiteContent.length
+    )
     console.log("🔍🔍🔍 [SCORING-PROMPT] ========== WEBSITE CONTENT ==========")
     console.log(websiteContent.slice(0, 2000))
     console.log("🔍🔍🔍 [SCORING-PROMPT] ========== THREAD CONTENT ==========")
     console.log(threadContent.slice(0, 2000))
 
-    const prompt = `You are a genuine Reddit user who has personally dealt with the problem being discussed and has tried many solutions. You want to help others by sharing what worked for you.
+    const prompt = `You are a lead qualification expert for Reddit threads. Evaluate how relevant this Reddit thread is for the business described below.
 
-WEBSITE CONTENT TO PROMOTE:
+BUSINESS CONTEXT:
 ${websiteContent.slice(0, 2000)}
 
 REDDIT THREAD:
@@ -63,59 +70,62 @@ Title: ${threadTitle}
 Content: ${threadContent.slice(0, 2000)}
 
 YOUR TASK:
-1. First, analyze the website content to understand:
-   - What company/service/product it represents
-   - What problem it solves
-   - Who their target audience is
-   
-2. Then critically score how relevant this Reddit thread is to that company/service (1-100)
+1. First, understand what company/service/product the business represents and what problems it solves
+2. Then score how relevant this Reddit thread is (0-100)
 
-3. If relevant (70+), generate comments as if you're a genuine user who has used this service
+Important: People rarely directly ask for solutions. Read between the lines and look for indirect signals like:
+- Expressing frustration or challenges the business solves
+- Asking if others experience similar issues
+- Describing workarounds they're using
+- Sharing related experiences or pain points
+- Engaging with topics the business addresses
 
-CRITICAL SCORING (1-100) - BE HARSH:
-- 90-100: Thread directly asks for exactly what this company offers (rare)
-- 70-89: Thread problem strongly aligns, your experience would be genuinely valuable
-- 50-69: Some relevance but would feel forced or salesy to comment
-- 30-49: Weak connection, commenting would be obvious self-promotion  
-- 1-29: No relevant connection, would be spam to comment
+Score this thread from 0-100 based on:
+- How closely the problem matches what the business solves
+- How clearly they express a need (directly or indirectly)
+- How likely they would be interested in the solution
+- Whether they seem to be actively looking for help
+- Their apparent frustration/pain level
 
-GENERATE 3 COMMENT LENGTH OPTIONS (authentic, helpful, non-salesy):
+Use this scale:
+90-100 = Perfect match (clearly expressing need, actively looking for exactly what the business offers)
+70-89 = Strong match (clear problem/need that the business solves)
+40-69 = Moderate match (showing some signs of problems the business addresses)
+20-39 = Weak match (tangentially related to the business solution)
+0-19 = No match (completely unrelated to what the business offers)
 
-ALWAYS GENERATE ALL THREE in this natural format:
-1. MICRO COMMENT: Ultra-brief helpful tip based on your experience (5-15 words)
-2. MEDIUM COMMENT: Share your experience trying different solutions:
-   - Start with empathy ("I've been there..." or "I struggled with this too...")
-   - Mention a free/basic option you tried first (what worked/didn't work)
-   - Naturally mention how you found this company/service and what specifically helped
-   - Mention a premium/alternative option for completeness
-   - End with encouragement or offer to help
-   (30-80 words total, conversational tone)
-3. VERBOSE COMMENT: Comprehensive advice sharing your full journey:
-   - Open with strong empathy and understanding
-   - Detail your struggle with the problem
-   - List solutions you tried with honest pros/cons:
-     * Free/basic option you tried first
-     * How you discovered and used this company/service (be specific)
-     * Premium alternative for those with different needs
-   - Share specific results or improvements you saw
-   - Offer to answer questions or share more details
-   (100-200 words, genuinely helpful tone)
+If the score is 40 or above, generate three authentic Reddit comments as someone who has tried multiple solutions:
+
+1. MICRO COMMENT (5-15 words): Ultra-brief helpful tip based on your experience
+2. MEDIUM COMMENT (30-80 words): Share your experience:
+   - Start with empathy
+   - Mention a free option you tried (pros/cons)
+   - Naturally mention how you found this business and what helped
+   - Mention a premium alternative
+   - End with encouragement
+3. VERBOSE COMMENT (100-200 words): Comprehensive advice:
+   - Open with strong empathy
+   - Detail your struggle
+   - List solutions you tried with honest pros/cons
+   - Share specific results you saw
+   - Offer to answer questions
 
 CRITICAL RULES:
-- Extract the company/service name from the website content - DO NOT use "Gauntlet AI"
-- Write like a real person sharing their experience, not a salesperson
+- Extract the company name from the website content
+- Write like a real person sharing experience, not a salesperson
 - Never use marketing language or superlatives
-- Be honest about pros/cons of each option
-- Focus on being helpful first, mentioning products second
+- Be honest about pros/cons
+- Focus on being helpful first
 - Use Reddit-appropriate casual language
-- Never pressure or push any specific solution
-- Keep the company mentions natural and contextual
-- NEVER USE HYPHENS (-) anywhere in your comments
+- Never pressure or push
+- NEVER USE HYPHENS (-) anywhere in comments
 
-PRIORITIZE AUTHENTICITY AND VALUE. Most threads should score 30-60 unless they're perfect matches.`
+Return as JSON with score, reasoning, and all three comments (or empty strings if score < 40).`
 
     // Log the full prompt being sent
-    console.log("🔍🔍🔍 [SCORING-PROMPT] ========== FULL PROMPT TEXT ==========")
+    console.log(
+      "🔍🔍🔍 [SCORING-PROMPT] ========== FULL PROMPT TEXT =========="
+    )
     console.log(prompt)
     console.log("🔍🔍🔍 [SCORING-PROMPT] ========== PROMPT END ==========")
     console.log("🔍🔍🔍 [SCORING-PROMPT] Model: o3-mini")
@@ -142,9 +152,18 @@ PRIORITIZE AUTHENTICITY AND VALUE. Most threads should score 30-60 unless they'r
     console.log("🔍🔍🔍 [SCORING-RESULT] ========== AI RESPONSE ==========")
     console.log("🔍🔍🔍 [SCORING-RESULT] Score:", result.score)
     console.log("🔍🔍🔍 [SCORING-RESULT] Reasoning:", result.reasoning)
-    console.log("🔍🔍🔍 [SCORING-RESULT] Micro Comment Length:", result.microComment.length)
-    console.log("🔍🔍🔍 [SCORING-RESULT] Medium Comment Length:", result.mediumComment.length)
-    console.log("🔍🔍🔍 [SCORING-RESULT] Verbose Comment Length:", result.verboseComment.length)
+    console.log(
+      "🔍🔍🔍 [SCORING-RESULT] Micro Comment Length:",
+      result.microComment.length
+    )
+    console.log(
+      "🔍🔍🔍 [SCORING-RESULT] Medium Comment Length:",
+      result.mediumComment.length
+    )
+    console.log(
+      "🔍🔍🔍 [SCORING-RESULT] Verbose Comment Length:",
+      result.verboseComment.length
+    )
     console.log("🔍🔍🔍 [SCORING-RESULT] ========== RESPONSE END ==========")
 
     console.log(
@@ -601,9 +620,14 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
     )
 
     // Get organization data for personalization
-    const { getOrganizationByIdAction } = await import("@/actions/db/organizations-actions")
-    const { getKnowledgeBaseByOrganizationIdAction, getVoiceSettingsByOrganizationIdAction } = await import("@/actions/db/personalization-actions")
-    
+    const { getOrganizationByIdAction } = await import(
+      "@/actions/db/organizations-actions"
+    )
+    const {
+      getKnowledgeBaseByOrganizationIdAction,
+      getVoiceSettingsByOrganizationIdAction
+    } = await import("@/actions/db/personalization-actions")
+
     const orgResult = await getOrganizationByIdAction(organizationId)
     if (!orgResult.isSuccess || !orgResult.data) {
       console.error("❌ [OPENAI-PERSONALIZED] Failed to get organization")
@@ -628,24 +652,35 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
     )
 
     // Get knowledge base for the organization
-    const knowledgeBaseResult = await getKnowledgeBaseByOrganizationIdAction(organizationId)
+    const knowledgeBaseResult =
+      await getKnowledgeBaseByOrganizationIdAction(organizationId)
     let knowledgeBaseSummary = ""
     if (knowledgeBaseResult.isSuccess && knowledgeBaseResult.data) {
       knowledgeBaseSummary = knowledgeBaseResult.data.summary || ""
-      console.log("✅ [OPENAI-PERSONALIZED] Found knowledge base for organization")
+      console.log(
+        "✅ [OPENAI-PERSONALIZED] Found knowledge base for organization"
+      )
     }
 
     // Get voice settings for the organization
-    const voiceSettingsResult = await getVoiceSettingsByOrganizationIdAction(organizationId)
+    const voiceSettingsResult =
+      await getVoiceSettingsByOrganizationIdAction(organizationId)
     let voicePrompt = ""
     if (voiceSettingsResult.isSuccess && voiceSettingsResult.data) {
       voicePrompt = voiceSettingsResult.data.generatedPrompt || ""
-      console.log("✅ [OPENAI-PERSONALIZED] Found voice settings for organization")
+      console.log(
+        "✅ [OPENAI-PERSONALIZED] Found voice settings for organization"
+      )
     }
 
     // Prioritize campaign-specific content, then knowledge base, then organization website
-    let primaryBusinessContent = campaignWebsiteContent || knowledgeBaseSummary || ""
-    let contentSource = campaignWebsiteContent ? "campaign" : (knowledgeBaseSummary ? "knowledge_base" : "organization_website")
+    let primaryBusinessContent =
+      campaignWebsiteContent || knowledgeBaseSummary || ""
+    let contentSource = campaignWebsiteContent
+      ? "campaign"
+      : knowledgeBaseSummary
+        ? "knowledge_base"
+        : "organization_website"
 
     if (!primaryBusinessContent && businessWebsiteUrl) {
       console.log(
@@ -665,9 +700,7 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
         )
       }
     } else if (primaryBusinessContent) {
-      console.log(
-        `✅ [OPENAI-PERSONALIZED] Using ${contentSource} content`
-      )
+      console.log(`✅ [OPENAI-PERSONALIZED] Using ${contentSource} content`)
     }
 
     if (!primaryBusinessContent) {
@@ -711,80 +744,85 @@ Provide a brief analysis of:
     }
 
     // Log the full context being sent
-    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== FULL CONTEXT START ==========")
-    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Timestamp:", new Date().toISOString())
-    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Thread Title:", threadTitle)
+    console.log(
+      "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== FULL CONTEXT START =========="
+    )
+    console.log(
+      "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Timestamp:",
+      new Date().toISOString()
+    )
+    console.log(
+      "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Thread Title:",
+      threadTitle
+    )
     console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Subreddit:", subreddit)
-    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Thread Content Length:", threadContent.length)
-    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Business Name:", businessName)
-    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Content Source:", contentSource)
-    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Business Content Length:", primaryBusinessContent.length)
-    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Voice Prompt Length:", voicePrompt.length)
-    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Tone Analysis Length:", toneAnalysis.length)
-    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Existing Comments Count:", existingComments?.length || 0)
-    
-    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== BUSINESS CONTENT ==========")
+    console.log(
+      "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Thread Content Length:",
+      threadContent.length
+    )
+    console.log(
+      "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Business Name:",
+      businessName
+    )
+    console.log(
+      "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Content Source:",
+      contentSource
+    )
+    console.log(
+      "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Business Content Length:",
+      primaryBusinessContent.length
+    )
+    console.log(
+      "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Voice Prompt Length:",
+      voicePrompt.length
+    )
+    console.log(
+      "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Tone Analysis Length:",
+      toneAnalysis.length
+    )
+    console.log(
+      "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Existing Comments Count:",
+      existingComments?.length || 0
+    )
+
+    console.log(
+      "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== BUSINESS CONTENT =========="
+    )
     console.log(primaryBusinessContent.substring(0, 1500))
-    
-    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== VOICE PROMPT ==========")
+
+    console.log(
+      "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== VOICE PROMPT =========="
+    )
     console.log(voicePrompt || "No voice prompt configured")
-    
-    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== TONE ANALYSIS ==========")
+
+    console.log(
+      "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== TONE ANALYSIS =========="
+    )
     console.log(toneAnalysis || "No tone analysis performed")
-    
-    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== THREAD CONTENT ==========")
+
+    console.log(
+      "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== THREAD CONTENT =========="
+    )
     console.log(threadContent.slice(0, 2000))
-    
+
     if (existingComments && existingComments.length > 0) {
-      console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== EXAMPLE COMMENTS ==========")
+      console.log(
+        "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== EXAMPLE COMMENTS =========="
+      )
       existingComments.slice(0, 3).forEach((comment, i) => {
         console.log(`Comment ${i + 1}:`, comment)
       })
     }
 
-    const systemPrompt = `You are a Reddit comment analyzer and generator. Your job is to:
-1. Score how relevant a Reddit thread is for promoting ${businessName}
-2. Generate natural, authentic Reddit comments that match the community's style
+    const systemPrompt = `You are a lead qualification expert for Reddit threads. Your job is to:
+1. Score how relevant a Reddit thread is for the business
+2. Generate natural, authentic Reddit comments if relevant
 
 ${primaryBusinessContent ? `Business Context: ${primaryBusinessContent.substring(0, 1500)}` : "The business offers general solutions."}
 
 ${voicePrompt ? `\nVoice Instructions:\n${voicePrompt}\n` : ""}
 
-${toneAnalysis ? `\nCommunity Tone Analysis:\n${toneAnalysis}\n` : ""}
-
-CRITICAL SCORING CRITERIA:
-- 80-100: The post is DIRECTLY asking for the exact type of service/product the business provides
-- 60-79: The post is asking for something closely related where the business could be genuinely helpful
-- 40-59: The post has some tangential relevance but the business is not a perfect fit
-- 20-39: The post has minimal relevance - the business could be mentioned but would seem forced
-- 0-19: The post has NO relevance to the business whatsoever
-
-BE VERY STRICT WITH SCORING:
-- A post about disc golf putters should score 0 for a coding agency
-- A post about general software recommendations should score low (20-30) for a coding agency
-- Only posts specifically asking for developers, coding help, or app development should score high
-- Consider the actual intent of the poster - are they looking for what the business offers?
-
-CRITICAL COMMENT STRUCTURE:
-You are someone who has been in the same situation as the OP and has tried multiple solutions. You should:
-1. Show empathy - you've been there
-2. Share that you've tried 3 different approaches:
-   - A FREE option (what worked/didn't work about it)
-   - A REASONABLE option (which happens to be ${businessName} - share specific benefits)
-   - A PREMIUM option (acknowledge it's good but maybe overkill for most)
-3. Present all options neutrally without pushing any particular one
-4. Be genuinely helpful - you're sharing your experience, not selling
-
-CRITICAL RULES FOR COMMENTS:
-- Match the casual tone and style of the subreddit
-- Use imperfect grammar if that's the norm
-- Include typos or casual language if appropriate
-- Never sound like a marketing bot
-- Be genuinely helpful first, mention the business naturally
-- Use Reddit-style formatting and language
-- Keep it conversational and authentic
-- NEVER USE HYPHENS (-) anywhere in your comments
-- Present all three options fairly - don't oversell any one solution`
+${toneAnalysis ? `\nCommunity Tone Analysis:\n${toneAnalysis}\n` : ""}`
 
     const userPrompt = `Thread Title: ${threadTitle}
 Thread Content: ${threadContent}
@@ -792,29 +830,58 @@ Subreddit: r/${subreddit}
 
 ${existingComments && existingComments.length > 0 ? `\nExample comments from this thread:\n${existingComments.slice(0, 5).join("\n---\n")}` : ""}
 
-Score this thread (0-100) for relevance to ${businessName} and generate three comments following the structure of someone who has tried multiple solutions:
+Evaluate how relevant this Reddit thread is for ${businessName}.
+
+Important: People rarely directly ask for solutions. Read between the lines and look for indirect signals like:
+- Expressing frustration or challenges that the business solves
+- Asking if others experience similar issues
+- Describing workarounds they're using
+- Sharing related experiences or pain points
+- Engaging with topics the business addresses
+
+Score this thread from 0-100 based on:
+- How closely the problem matches what ${businessName} solves
+- How clearly they express a need (directly or indirectly)
+- How likely they would be interested in the solution
+- Whether they seem to be actively looking for help
+- Their apparent frustration/pain level
+
+Use this scale:
+90-100 = Perfect match (clearly expressing need, actively looking for exactly what we offer)
+70-89 = Strong match (clear problem/need that we solve)
+40-69 = Moderate match (showing some signs of problems we address)
+20-39 = Weak match (tangentially related to our solution)
+0-19 = No match (completely unrelated to what we offer)
+
+Then, if the score is 40 or above, generate three comments as someone who has tried multiple solutions:
 
 1. Micro (1-2 sentences): Quick mention that you've tried a few things and ${businessName} worked well
 2. Medium (3-4 sentences): Brief story - tried free option (name it), then ${businessName} (what specifically helped), also aware of premium option
 3. Verbose (5-7 sentences): Full journey - your struggle, the free tool you tried first (pros/cons), how you found ${businessName} and what made it work for you, mention of premium alternative for completeness, offer to help
 
-Remember: Write like someone genuinely sharing their experience. You're not a salesperson, you're a fellow redditor who found something that worked.
+Remember: Write like someone genuinely sharing their experience. Match the subreddit's tone and style.
 
 Return as JSON:
 {
   "score": number,
-  "reasoning": "why this score",
-  "microComment": "comment text",
-  "mediumComment": "comment text",
-  "verboseComment": "comment text"
+  "reasoning": "brief explanation of the score",
+  "microComment": "comment text" (or empty string if score < 40),
+  "mediumComment": "comment text" (or empty string if score < 40),
+  "verboseComment": "comment text" (or empty string if score < 40)
 }`
 
     // Log the full prompts being sent
-    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== SYSTEM PROMPT ==========")
+    console.log(
+      "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== SYSTEM PROMPT =========="
+    )
     console.log(systemPrompt)
-    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== USER PROMPT ==========")
+    console.log(
+      "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== USER PROMPT =========="
+    )
     console.log(userPrompt)
-    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== PROMPT END ==========")
+    console.log(
+      "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== PROMPT END =========="
+    )
     console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Model: gpt-4o")
     console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Temperature: 0.7")
     console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Max Tokens: 1500")
@@ -838,19 +905,44 @@ Return as JSON:
     }
 
     const parsed = JSON.parse(jsonMatch[0])
-    
+
     // Log the AI response
-    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] ========== AI RESPONSE ==========")
+    console.log(
+      "🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] ========== AI RESPONSE =========="
+    )
     console.log("🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] Score:", parsed.score)
-    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] Reasoning:", parsed.reasoning)
-    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] Micro Comment Length:", parsed.microComment.length)
-    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] Micro Comment:", parsed.microComment)
-    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] Medium Comment Length:", parsed.mediumComment.length)
-    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] Medium Comment:", parsed.mediumComment)
-    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] Verbose Comment Length:", parsed.verboseComment.length)
-    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] Verbose Comment:", parsed.verboseComment)
-    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] ========== RESPONSE END ==========")
-    
+    console.log(
+      "🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] Reasoning:",
+      parsed.reasoning
+    )
+    console.log(
+      "🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] Micro Comment Length:",
+      parsed.microComment.length
+    )
+    console.log(
+      "🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] Micro Comment:",
+      parsed.microComment
+    )
+    console.log(
+      "🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] Medium Comment Length:",
+      parsed.mediumComment.length
+    )
+    console.log(
+      "🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] Medium Comment:",
+      parsed.mediumComment
+    )
+    console.log(
+      "🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] Verbose Comment Length:",
+      parsed.verboseComment.length
+    )
+    console.log(
+      "🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] Verbose Comment:",
+      parsed.verboseComment
+    )
+    console.log(
+      "🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] ========== RESPONSE END =========="
+    )
+
     console.log("✅ [OPENAI-PERSONALIZED] Successfully parsed response")
     console.log("📊 [OPENAI-PERSONALIZED] Score:", parsed.score)
 
