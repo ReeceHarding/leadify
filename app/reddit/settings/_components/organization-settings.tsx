@@ -27,25 +27,25 @@ import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 
 export default function OrganizationSettings() {
-  const { activeOrganization, refreshOrganizations } = useOrganization()
+  const { currentOrganization, refreshOrganizations } = useOrganization()
   const [isUpdating, setIsUpdating] = useState(false)
-  const [orgName, setOrgName] = useState(activeOrganization?.name || "")
-  const [website, setWebsite] = useState(activeOrganization?.website || "")
+  const [orgName, setOrgName] = useState(currentOrganization?.name || "")
+  const [website, setWebsite] = useState(currentOrganization?.website || "")
   const [businessDescription, setBusinessDescription] = useState(
-    activeOrganization?.businessDescription || ""
+    currentOrganization?.businessDescription || ""
   )
   const router = useRouter()
 
   // Sync form state with active organization
   useEffect(() => {
-    if (activeOrganization) {
-      setOrgName(activeOrganization.name || "")
-      setWebsite(activeOrganization.website || "")
-      setBusinessDescription(activeOrganization.businessDescription || "")
+    if (currentOrganization) {
+      setOrgName(currentOrganization.name || "")
+      setWebsite(currentOrganization.website || "")
+      setBusinessDescription(currentOrganization.businessDescription || "")
     }
-  }, [activeOrganization])
+  }, [currentOrganization])
 
-  if (!activeOrganization) {
+  if (!currentOrganization) {
     return (
       <Alert>
         <AlertCircle className="size-4" />
@@ -58,11 +58,11 @@ export default function OrganizationSettings() {
   }
 
   const handleUpdateOrganization = async () => {
-    if (!activeOrganization) return
+    if (!currentOrganization) return
 
     setIsUpdating(true)
     try {
-      const result = await updateOrganizationAction(activeOrganization.id, {
+      const result = await updateOrganizationAction(currentOrganization.id, {
         name: orgName,
         website: website || undefined,
         businessDescription: businessDescription || undefined
@@ -83,11 +83,11 @@ export default function OrganizationSettings() {
   }
 
   const handleConnectReddit = async () => {
-    if (!activeOrganization) return
+    if (!currentOrganization) return
 
     try {
       // Store organization ID in cookie for Reddit callback
-      document.cookie = `reddit_auth_org_id=${activeOrganization.id}; path=/; max-age=600; SameSite=Lax`
+      document.cookie = `reddit_auth_org_id=${currentOrganization.id}; path=/; max-age=600; SameSite=Lax`
 
       // Generate Reddit auth URL and redirect directly
       const { generateRedditAuthUrlAction } = await import(
@@ -184,13 +184,13 @@ export default function OrganizationSettings() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {activeOrganization.redditUsername ? (
+          {currentOrganization.redditUsername ? (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <User className="text-muted-foreground size-4" />
                   <span className="font-medium">
-                    u/{activeOrganization.redditUsername}
+                    u/{currentOrganization.redditUsername}
                   </span>
                   <Badge variant="secondary">Connected</Badge>
                 </div>
@@ -246,8 +246,8 @@ export default function OrganizationSettings() {
           <div className="flex items-center gap-2">
             <span className="text-lg font-medium">Current Plan:</span>
             <Badge variant="default" className="text-lg">
-              {activeOrganization.plan.charAt(0).toUpperCase() +
-                activeOrganization.plan.slice(1)}
+              {currentOrganization.plan.charAt(0).toUpperCase() +
+                currentOrganization.plan.slice(1)}
             </Badge>
           </div>
         </CardContent>

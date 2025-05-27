@@ -16,24 +16,24 @@ interface VoiceSettingsWrapperProps {
 export default function VoiceSettingsWrapper({
   userId
 }: VoiceSettingsWrapperProps) {
-  const { activeOrganization, isLoading: orgLoading } = useOrganization()
+  const { currentOrganization, isLoading: orgLoading } = useOrganization()
   const [voiceSettings, setVoiceSettings] =
     useState<SerializedVoiceSettingsDocument | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    if (activeOrganization && !orgLoading) {
+    if (currentOrganization && !orgLoading) {
       loadData()
     }
-  }, [activeOrganization, orgLoading])
+  }, [currentOrganization, orgLoading])
 
   const loadData = async () => {
-    if (!activeOrganization) return
+    if (!currentOrganization) return
 
     try {
       setIsLoading(true)
       const voiceSettingsResult = await getVoiceSettingsByOrganizationIdAction(
-        activeOrganization.id
+        currentOrganization.id
       )
       setVoiceSettings(voiceSettingsResult.data || null)
     } catch (error) {
@@ -47,7 +47,7 @@ export default function VoiceSettingsWrapper({
     return <VoiceSettingsSkeleton />
   }
 
-  if (!activeOrganization) {
+  if (!currentOrganization) {
     return (
       <Alert>
         <AlertCircle className="size-4" />
@@ -62,7 +62,7 @@ export default function VoiceSettingsWrapper({
   return (
     <VoiceSettingsClient
       userId={userId}
-      organizationId={activeOrganization.id}
+      organizationId={currentOrganization.id}
       initialVoiceSettings={voiceSettings}
     />
   )

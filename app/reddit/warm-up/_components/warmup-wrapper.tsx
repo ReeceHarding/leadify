@@ -10,13 +10,13 @@ interface WarmupWrapperProps {
 }
 
 export default function WarmupWrapper({ userId }: WarmupWrapperProps) {
-  const { activeOrganization, isLoading } = useOrganization()
+  const { currentOrganization, isLoading } = useOrganization()
 
   if (isLoading) {
     return <div>Loading...</div>
   }
 
-  if (!activeOrganization) {
+  if (!currentOrganization) {
     return (
       <Alert>
         <AlertCircle className="size-4" />
@@ -29,6 +29,6 @@ export default function WarmupWrapper({ userId }: WarmupWrapperProps) {
   }
 
   return (
-    <WarmupDashboard userId={userId} organizationId={activeOrganization.id} />
+    <WarmupDashboard userId={userId} organizationId={currentOrganization.id} />
   )
 }

@@ -68,7 +68,7 @@ interface MyPostsDashboardProps {
 }
 
 export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
-  const { activeOrganization, isLoading: orgLoading } = useOrganization()
+  const { currentOrganization, isLoading: orgLoading } = useOrganization()
   const [posts, setPosts] = useState<PostedComment[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [expandedPosts, setExpandedPosts] = useState<Set<string>>(new Set())
@@ -79,18 +79,18 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
 
   // Fetch posted comments
   useEffect(() => {
-    if (activeOrganization && !orgLoading) {
+    if (currentOrganization && !orgLoading) {
       fetchPosts()
     }
-  }, [activeOrganization, orgLoading])
+  }, [currentOrganization, orgLoading])
 
   const fetchPosts = async () => {
-    if (!activeOrganization) return
+    if (!currentOrganization) return
 
     try {
       setIsLoading(true)
       const result = await getGeneratedCommentsByOrganizationIdAction(
-        activeOrganization.id
+        currentOrganization.id
       )
 
       if (result.isSuccess) {
@@ -116,7 +116,7 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
   }
 
   const fetchRedditReplies = async (postId: string, commentUrl: string) => {
-    if (!activeOrganization) return
+    if (!currentOrganization) return
 
     logger.info("🔍 [MY-POSTS] Fetching replies for:", commentUrl)
 
@@ -135,7 +135,7 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
 
     try {
       const result = await fetchRedditCommentRepliesAction(
-        activeOrganization.id,
+        currentOrganization.id,
         commentUrl
       )
 
@@ -260,7 +260,7 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
       logger.info(`📤 [MY-POSTS] Posting reply to comment: ${parentId}`)
 
       const result = await postCommentToRedditAction({
-        organizationId: validateOrganizationId(activeOrganization?.id, "Post reply"),
+        organizationId: validateOrganizationId(currentOrganization?.id, "Post reply"),
         parentId,
         text: replyText
       })

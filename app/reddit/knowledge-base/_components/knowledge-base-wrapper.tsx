@@ -17,25 +17,25 @@ interface KnowledgeBaseWrapperProps {
 export default function KnowledgeBaseWrapper({
   userId
 }: KnowledgeBaseWrapperProps) {
-  const { activeOrganization, isLoading: orgLoading } = useOrganization()
+  const { currentOrganization, isLoading: orgLoading } = useOrganization()
   const [knowledgeBase, setKnowledgeBase] =
     useState<SerializedKnowledgeBaseDocument | null>(null)
 
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    if (activeOrganization && !orgLoading) {
+    if (currentOrganization && !orgLoading) {
       loadData()
     }
-  }, [activeOrganization, orgLoading])
+  }, [currentOrganization, orgLoading])
 
   const loadData = async () => {
-    if (!activeOrganization) return
+    if (!currentOrganization) return
 
     try {
       setIsLoading(true)
       const knowledgeBaseResult = await getKnowledgeBaseByOrganizationIdAction(
-        activeOrganization.id
+        currentOrganization.id
       )
       setKnowledgeBase(knowledgeBaseResult.data || null)
     } catch (error) {
@@ -49,7 +49,7 @@ export default function KnowledgeBaseWrapper({
     return <KnowledgeBaseSkeleton />
   }
 
-  if (!activeOrganization) {
+  if (!currentOrganization) {
     return (
       <Alert>
         <AlertCircle className="size-4" />
@@ -64,7 +64,7 @@ export default function KnowledgeBaseWrapper({
   return (
     <KnowledgeBaseClient
       userId={userId}
-      organizationId={activeOrganization.id}
+      organizationId={currentOrganization.id}
       initialKnowledgeBase={knowledgeBase}
       userProfile={null}
     />
