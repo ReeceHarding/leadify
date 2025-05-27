@@ -188,7 +188,7 @@ export default function MassPostDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] flex flex-col">
+      <DialogContent className="flex max-h-[80vh] flex-col sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Send className="size-5 text-blue-600" />
@@ -200,7 +200,7 @@ export default function MassPostDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto px-6 -mx-6 space-y-6 py-4">
+        <div className="-mx-6 flex-1 space-y-6 overflow-y-auto px-6 py-4">
           {/* Score Threshold Selector */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">

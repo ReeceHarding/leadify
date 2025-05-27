@@ -384,7 +384,7 @@ export default function CreateCampaignDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
+      <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Create New Lead Search</DialogTitle>
           <DialogDescription>
@@ -395,9 +395,9 @@ export default function CreateCampaignDialog({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col flex-1 overflow-hidden"
+            className="flex flex-1 flex-col overflow-hidden"
           >
-            <div className="flex-1 overflow-y-auto px-6 -mx-6 space-y-4 py-4">
+            <div className="-mx-6 flex-1 space-y-4 overflow-y-auto px-6 py-4">
               {/* Show organization info if available */}
               {activeOrganization && (
                 <Alert className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/30">
@@ -596,7 +596,7 @@ export default function CreateCampaignDialog({
               )}
             </div>
 
-            <DialogFooter className="border-t pt-4 mt-4">
+            <DialogFooter className="mt-4 border-t pt-4">
               <Button
                 type="button"
                 variant="outline"

@@ -40,6 +40,18 @@ export async function scoreThreadAndGenerateThreeTierCommentsAction(
       `🤖 Critically scoring thread and generating 3-tier comments for: "${threadTitle.slice(0, 50)}..."`
     )
 
+    // Log the full context being sent
+    console.log("🔍🔍🔍 [SCORING-PROMPT] ========== FULL PROMPT START ==========")
+    console.log("🔍🔍🔍 [SCORING-PROMPT] Timestamp:", new Date().toISOString())
+    console.log("🔍🔍🔍 [SCORING-PROMPT] Thread Title:", threadTitle)
+    console.log("🔍🔍🔍 [SCORING-PROMPT] Subreddit:", subreddit)
+    console.log("🔍🔍🔍 [SCORING-PROMPT] Thread Content Length:", threadContent.length)
+    console.log("🔍🔍🔍 [SCORING-PROMPT] Website Content Length:", websiteContent.length)
+    console.log("🔍🔍🔍 [SCORING-PROMPT] ========== WEBSITE CONTENT ==========")
+    console.log(websiteContent.slice(0, 2000))
+    console.log("🔍🔍🔍 [SCORING-PROMPT] ========== THREAD CONTENT ==========")
+    console.log(threadContent.slice(0, 2000))
+
     const prompt = `You are a genuine Reddit user who has personally dealt with the problem being discussed and has tried many solutions. You want to help others by sharing what worked for you.
 
 WEBSITE CONTENT TO PROMOTE:
@@ -102,6 +114,13 @@ CRITICAL RULES:
 
 PRIORITIZE AUTHENTICITY AND VALUE. Most threads should score 30-60 unless they're perfect matches.`
 
+    // Log the full prompt being sent
+    console.log("🔍🔍🔍 [SCORING-PROMPT] ========== FULL PROMPT TEXT ==========")
+    console.log(prompt)
+    console.log("🔍🔍🔍 [SCORING-PROMPT] ========== PROMPT END ==========")
+    console.log("🔍🔍🔍 [SCORING-PROMPT] Model: o3-mini")
+    console.log("🔍🔍🔍 [SCORING-PROMPT] Reasoning Effort: medium")
+
     const { object } = await generateObject({
       model: openai("o3-mini"),
       schema: ThreadAnalysisSchema,
@@ -118,6 +137,15 @@ PRIORITIZE AUTHENTICITY AND VALUE. Most threads should score 30-60 unless they'r
       mediumComment: object.mediumComment,
       verboseComment: object.verboseComment
     }
+
+    // Log the AI response
+    console.log("🔍🔍🔍 [SCORING-RESULT] ========== AI RESPONSE ==========")
+    console.log("🔍🔍🔍 [SCORING-RESULT] Score:", result.score)
+    console.log("🔍🔍🔍 [SCORING-RESULT] Reasoning:", result.reasoning)
+    console.log("🔍🔍🔍 [SCORING-RESULT] Micro Comment Length:", result.microComment.length)
+    console.log("🔍🔍🔍 [SCORING-RESULT] Medium Comment Length:", result.mediumComment.length)
+    console.log("🔍🔍🔍 [SCORING-RESULT] Verbose Comment Length:", result.verboseComment.length)
+    console.log("🔍🔍🔍 [SCORING-RESULT] ========== RESPONSE END ==========")
 
     console.log(
       `✅ Thread critically scored: ${result.score}/100 - ${result.reasoning.slice(0, 50)}...`
@@ -682,6 +710,38 @@ Provide a brief analysis of:
       )
     }
 
+    // Log the full context being sent
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== FULL CONTEXT START ==========")
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Timestamp:", new Date().toISOString())
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Thread Title:", threadTitle)
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Subreddit:", subreddit)
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Thread Content Length:", threadContent.length)
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Business Name:", businessName)
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Content Source:", contentSource)
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Business Content Length:", primaryBusinessContent.length)
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Voice Prompt Length:", voicePrompt.length)
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Tone Analysis Length:", toneAnalysis.length)
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Existing Comments Count:", existingComments?.length || 0)
+    
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== BUSINESS CONTENT ==========")
+    console.log(primaryBusinessContent.substring(0, 1500))
+    
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== VOICE PROMPT ==========")
+    console.log(voicePrompt || "No voice prompt configured")
+    
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== TONE ANALYSIS ==========")
+    console.log(toneAnalysis || "No tone analysis performed")
+    
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== THREAD CONTENT ==========")
+    console.log(threadContent.slice(0, 2000))
+    
+    if (existingComments && existingComments.length > 0) {
+      console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== EXAMPLE COMMENTS ==========")
+      existingComments.slice(0, 3).forEach((comment, i) => {
+        console.log(`Comment ${i + 1}:`, comment)
+      })
+    }
+
     const systemPrompt = `You are a Reddit comment analyzer and generator. Your job is to:
 1. Score how relevant a Reddit thread is for promoting ${businessName}
 2. Generate natural, authentic Reddit comments that match the community's style
@@ -724,6 +784,16 @@ Return as JSON:
   "verboseComment": "comment text"
 }`
 
+    // Log the full prompts being sent
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== SYSTEM PROMPT ==========")
+    console.log(systemPrompt)
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== USER PROMPT ==========")
+    console.log(userPrompt)
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== PROMPT END ==========")
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Model: gpt-4o")
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Temperature: 0.7")
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Max Tokens: 1500")
+
     console.log("🤖 [OPENAI-PERSONALIZED] Generating personalized comments...")
     const result = await generateText({
       model: openai("gpt-4o"),
@@ -743,6 +813,19 @@ Return as JSON:
     }
 
     const parsed = JSON.parse(jsonMatch[0])
+    
+    // Log the AI response
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] ========== AI RESPONSE ==========")
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] Score:", parsed.score)
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] Reasoning:", parsed.reasoning)
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] Micro Comment Length:", parsed.microComment.length)
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] Micro Comment:", parsed.microComment)
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] Medium Comment Length:", parsed.mediumComment.length)
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] Medium Comment:", parsed.mediumComment)
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] Verbose Comment Length:", parsed.verboseComment.length)
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] Verbose Comment:", parsed.verboseComment)
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] ========== RESPONSE END ==========")
+    
     console.log("✅ [OPENAI-PERSONALIZED] Successfully parsed response")
     console.log("📊 [OPENAI-PERSONALIZED] Score:", parsed.score)
 

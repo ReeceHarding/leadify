@@ -235,7 +235,7 @@ export default function FindNewLeadsDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={handleClose}>
-        <DialogContent className="sm:max-w-[700px] max-h-[90vh] flex flex-col">
+        <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-[700px]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Search className="size-5 text-blue-600" />
@@ -247,7 +247,7 @@ export default function FindNewLeadsDialog({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto px-6 -mx-6 space-y-6 py-4">
+          <div className="-mx-6 flex-1 space-y-6 overflow-y-auto px-6 py-4">
             {/* Current Keywords Info */}
             {currentKeywords.length > 0 && (
               <Alert>
