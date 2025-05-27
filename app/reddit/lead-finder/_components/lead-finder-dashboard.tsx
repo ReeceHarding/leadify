@@ -303,6 +303,8 @@ export default function LeadFinderDashboard() {
   const searchParams = useSearchParams()
   const [liveFirestoreProgress, setLiveFirestoreProgress] =
     useState<WorkflowProgress | null>(null)
+  const [redditConnected, setRedditConnected] = useState<boolean | null>(null)
+  const posthog = usePostHog()
 
   // Debug logging
   const addDebugLog = useCallback(
@@ -320,6 +322,31 @@ export default function LeadFinderDashboard() {
     },
     [state.debugMode]
   )
+
+  // Check Reddit connection status
+  useEffect(() => {
+    const checkRedditConnection = async () => {
+      if (!currentOrganization?.id) return
+      
+      try {
+        const { getCurrentOrganizationTokens } = await import(
+          "@/actions/integrations/reddit/reddit-auth-helpers"
+        )
+        const tokenResult = await getCurrentOrganizationTokens(
+          currentOrganization.id
+        )
+        const isConnected =
+          tokenResult.isSuccess && !!tokenResult.data.accessToken
+        setRedditConnected(isConnected)
+        addDebugLog("Reddit connection status", { isConnected })
+      } catch (error) {
+        console.error("Error checking Reddit connection:", error)
+        setRedditConnected(false)
+      }
+    }
+
+    checkRedditConnection()
+  }, [currentOrganization?.id, addDebugLog])
 
   // Create and run campaign (MOVED TO BE BEFORE INITIALIZE useEffect)
   const createAndRunCampaign = useCallback(
@@ -1457,6 +1484,71 @@ export default function LeadFinderDashboard() {
           error={state.error}
           onRetry={() => window.location.reload()}
         />
+      </div>
+    )
+  }
+
+  // Check Reddit connection and show prompt if not connected
+  if (redditConnected === false && currentOrganization) {
+    return (
+      <div className="container mx-auto py-6">
+        <Card className="mx-auto max-w-2xl">
+          <CardHeader className="text-center">
+            <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/30">
+              <MessageSquare className="size-8 text-orange-600 dark:text-orange-400" />
+            </div>
+            <CardTitle className="text-2xl">Connect Your Reddit Account</CardTitle>
+            <CardDescription className="mt-2 text-base">
+              To start finding and engaging with leads, you need to connect a Reddit account to your organization.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-950/30">
+              <h3 className="mb-2 font-semibold text-blue-900 dark:text-blue-100">
+                Why connect Reddit?
+              </h3>
+              <ul className="space-y-2 text-sm text-blue-800 dark:text-blue-200">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-blue-600 dark:text-blue-400" />
+                  <span>Search Reddit for discussions relevant to your business</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-blue-600 dark:text-blue-400" />
+                  <span>Analyze existing comments to match your tone and style</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-blue-600 dark:text-blue-400" />
+                  <span>Post helpful responses when you approve them</span>
+                </li>
+              </ul>
+            </div>
+
+            <Alert className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30">
+              <AlertCircle className="size-4 text-amber-600 dark:text-amber-400" />
+              <AlertDescription className="text-amber-800 dark:text-amber-200">
+                <strong>Important:</strong> We never post without your explicit approval. You have full control over every comment.
+              </AlertDescription>
+            </Alert>
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+              <Button
+                onClick={() => window.location.href = "/reddit/settings"}
+                className="gap-2"
+                size="lg"
+              >
+                <ExternalLink className="size-4" />
+                Connect Reddit Account
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => window.location.href = "/dashboard"}
+                size="lg"
+              >
+                Back to Dashboard
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     )
   }

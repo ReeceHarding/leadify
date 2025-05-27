@@ -34,7 +34,9 @@ import {
   Target,
   Sparkles,
   Building2,
-  Info
+  Info,
+  ExternalLink,
+  MessageSquare
 } from "lucide-react"
 import { createCampaignAction } from "@/actions/db/campaign-actions"
 import { runLeadGenerationWorkflowWithLimitsAction } from "@/actions/lead-generation/workflow-actions"
@@ -88,6 +90,7 @@ export default function CreateCampaignDialog({
   const [hasLoadedOrgData, setHasLoadedOrgData] = useState(false)
   const [keywordCount, setKeywordCount] = useState(5)
   const [threadsPerKeyword, setThreadsPerKeyword] = useState(10)
+  const [redditConnected, setRedditConnected] = useState<boolean | null>(null)
 
   const form = useForm<CampaignForm>({
     resolver: zodResolver(campaignSchema),
@@ -100,6 +103,28 @@ export default function CreateCampaignDialog({
 
   const keywordsForm = form.watch("keywords")
   const businessDescriptionForm = form.watch("businessDescription")
+
+  // Check Reddit connection status
+  useEffect(() => {
+    const checkRedditConnection = async () => {
+      if (!organizationId || !open) return
+      
+      try {
+        const { getCurrentOrganizationTokens } = await import(
+          "@/actions/integrations/reddit/reddit-auth-helpers"
+        )
+        const tokenResult = await getCurrentOrganizationTokens(organizationId)
+        const isConnected =
+          tokenResult.isSuccess && !!tokenResult.data.accessToken
+        setRedditConnected(isConnected)
+      } catch (error) {
+        console.error("Error checking Reddit connection:", error)
+        setRedditConnected(false)
+      }
+    }
+
+    checkRedditConnection()
+  }, [organizationId, open])
 
   // Load organization data when dialog opens
   useEffect(() => {
@@ -155,6 +180,7 @@ export default function CreateCampaignDialog({
     if (!open) {
       setHasLoadedOrgData(false)
       setOrganizationDescription("")
+      setRedditConnected(null)
     }
   }, [open])
 
@@ -395,7 +421,8 @@ export default function CreateCampaignDialog({
   const canSubmit =
     keywords.length > 0 &&
     form.getValues("name").trim().length > 0 &&
-    !isCreating
+    !isCreating &&
+    redditConnected === true
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -413,6 +440,35 @@ export default function CreateCampaignDialog({
             className="flex flex-1 flex-col overflow-hidden"
           >
             <div className="-mx-6 flex-1 space-y-4 overflow-y-auto px-6 py-4">
+              {/* Check Reddit connection first */}
+              {redditConnected === false && (
+                <Alert className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30">
+                  <MessageSquare className="size-4 text-amber-600 dark:text-amber-400" />
+                  <AlertDescription className="space-y-3">
+                    <div>
+                      <strong className="text-amber-900 dark:text-amber-100">
+                        Reddit Connection Required
+                      </strong>
+                      <p className="mt-1 text-sm text-amber-800 dark:text-amber-200">
+                        You need to connect a Reddit account to your organization before creating lead searches.
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        window.location.href = "/reddit/settings"
+                      }}
+                      className="gap-2 border-amber-600 text-amber-700 hover:bg-amber-100 dark:border-amber-400 dark:text-amber-300 dark:hover:bg-amber-900/30"
+                    >
+                      <ExternalLink className="size-3" />
+                      Connect Reddit Account
+                    </Button>
+                  </AlertDescription>
+                </Alert>
+              )}
+
               {/* Show organization info if available */}
               {currentOrganization && (
                 <Alert className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/30">
