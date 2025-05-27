@@ -1954,3 +1954,10 @@
 [2025-05-27T06:15:33.550Z] COMMAND FINISHED: prettier --write {app,lib,db,components,context,types}/**/*.{ts,tsx} --cache (exit code: 2)
 [2025-05-27T06:15:33.550Z] ==================================================
 [2025-05-27T06:15:33.550Z] ERROR: Command failed with exit code 2
+[2025-05-27T06:15:40.566Z] NEXTJS_STDOUT: ✓ Compiled in 208ms (3002 modules)
+[2025-05-27T06:15:48.005Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/api/test-keywords
+[2025-05-27T06:15:48.006Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /api/test-keywords
+[2025-05-27T06:15:48.006Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Test API route - allowing without auth
+[2025-05-27T06:15:48.312Z] NEXTJS_STDOUT: ✓ Compiled /_not-found in 304ms (3008 modules)
+[2025-05-27T06:15:48.566Z] NEXTJS_STDOUT: POST /api/test-keywords 404 in 559ms
+[2025-05-27T06:16:23.204Z] NEXTJS_STDOUT: ✓ Compiled in 318ms (1884 modules)

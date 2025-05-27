@@ -46,14 +46,14 @@ export async function searchRedditThreadsAction(
   }
 
   try {
-    // Check if the keyword already contains quotes or OR operators (new format)
-    const hasQuotesOrOperators = keyword.includes('"') || keyword.includes(' OR ')
+    // Check if keyword already includes "reddit" at the end
+    const includesReddit = keyword.toLowerCase().includes('reddit')
     
-    // If it's the new format, append reddit outside the quotes
-    // If it's the old format, use the old behavior
-    const searchQuery = hasQuotesOrOperators 
-      ? `${keyword} reddit`  // New format: quotes/OR operators already in keyword
-      : `${keyword} site:reddit.com`  // Old format: simple keyword
+    // If keyword already includes reddit, use as-is
+    // Otherwise, add site:reddit.com for better results
+    const searchQuery = includesReddit 
+      ? keyword  // New format: keyword already includes reddit
+      : `${keyword} site:reddit.com`  // Old format: add site restriction
       
     console.log("🔍🔍🔍 [GOOGLE-SEARCH] Full search query:", searchQuery)
 
