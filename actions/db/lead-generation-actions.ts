@@ -75,6 +75,7 @@ function serializeGeneratedCommentDocument(
   return {
     id: comment.id,
     campaignId: comment.campaignId,
+    organizationId: comment.organizationId,
     redditThreadId: comment.redditThreadId,
     threadId: comment.threadId,
     postUrl: comment.postUrl,

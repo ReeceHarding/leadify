@@ -36,6 +36,7 @@ export interface LeadGenerationProgress {
 export interface SerializedKnowledgeBaseDocument {
   id: string
   userId: string
+  organizationId: string
   websiteUrl?: string
   customInformation?: string
   scrapedPages?: string[]
@@ -76,6 +77,7 @@ export interface SerializedVoiceSettingsDocument {
 export interface SerializedScrapedContentDocument {
   id: string
   userId: string
+  organizationId: string
   url: string
   title?: string
   content: string
@@ -154,6 +156,7 @@ export interface SerializedRedditThreadDocument {
 export interface SerializedGeneratedCommentDocument {
   id: string
   campaignId: string
+  organizationId: string
   redditThreadId: string
   threadId: string
   postUrl: string
