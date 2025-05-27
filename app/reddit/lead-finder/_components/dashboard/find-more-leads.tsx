@@ -310,6 +310,8 @@ export default function FindMoreLeads({
     }
 
     setIsFindingLeads(true)
+    // Close the dialog immediately so the user can see the progress bar
+    setIsOpen(false)
     onFindingLeads?.()
 
     try {
@@ -328,7 +330,6 @@ export default function FindMoreLeads({
         toast.success(`Scoring ${totalPosts} threads!`, {
           description: "New leads will appear as they're discovered"
         })
-        setIsOpen(false)
         setNewKeywords("")
         setThreadsPerKeyword({})
         setAiRefinementInput("")

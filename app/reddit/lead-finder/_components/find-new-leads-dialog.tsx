@@ -203,6 +203,10 @@ export default function FindNewLeadsDialog({
     }
 
     setIsFindingLeads(true)
+    // Close the dialog right away so the user isn't stuck waiting while the
+    // backend workflow spins up. This provides instant feedback that their
+    // request was accepted.
+    onOpenChange(false)
     try {
       // First, update the campaign with all keywords (existing + new)
       const allKeywords = [...new Set([...currentKeywords, ...selectedKeywords])]
@@ -275,14 +279,11 @@ export default function FindNewLeadsDialog({
         console.log("🔍🔍🔍 [FIND-NEW-LEADS] Calling onSuccess callback...")
         onSuccess?.()
         
-        // Reset state before closing
+        // Reset any local state (component may already be unmounted, so guard)
         setIsFindingLeads(false)
         setSelectedKeywords([])
         setSuggestedKeywords([])
         setCustomKeyword("")
-        
-        console.log("🔍🔍🔍 [FIND-NEW-LEADS] Closing dialog...")
-        onOpenChange(false)
       } else {
         console.log("🔍🔍🔍 [FIND-NEW-LEADS] ❌ Workflow failed:", result.message)
         throw new Error(result.message)

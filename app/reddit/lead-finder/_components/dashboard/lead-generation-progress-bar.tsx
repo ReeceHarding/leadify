@@ -38,7 +38,20 @@ export default function LeadGenerationProgressBar({
   // Calculate the actual progress values
   const totalThreadsToAnalyze = progress.results?.totalThreadsFound || 0
   const threadsAnalyzed = progress.results?.totalThreadsAnalyzed || 0
-  const newLeadsGenerated = progress.results?.totalCommentsGenerated || 0
+  // New leads generated – if the final result hasn't been written yet we try
+  // to extract the running total from the "Generating Comments" stage message
+  let newLeadsGenerated = progress.results?.totalCommentsGenerated || 0
+  if (!newLeadsGenerated) {
+    const generatingStage = progress.stages?.find(
+      s => s.name === "Generating Comments" && s.message?.match(/Generated/i)
+    )
+    if (generatingStage?.message) {
+      const match = generatingStage.message.match(/(\d+)/)
+      if (match) {
+        newLeadsGenerated = parseInt(match[1], 10)
+      }
+    }
+  }
   
   // Calculate progress percentage based on actual work done
   const progressPercentage = progress.totalProgress || 0
@@ -100,8 +113,13 @@ export default function LeadGenerationProgressBar({
   // Calculate total leads (existing + new)
   const totalLeads = existingLeadsCount + newLeadsGenerated
 
-  // Count completed stages
-  const completedStagesCount = progress.stages?.filter(s => s.status === "completed").length || 0
+  // If the workflow is completed we display all stages as done to avoid the
+  // confusing "Step 5 of 8" message when some intermediate stages were
+  // skipped. Otherwise fall back to the number of completed stages.
+  const completedStagesCount =
+    progress.status === "completed"
+      ? progress.stages?.length || 0
+      : progress.stages?.filter(s => s.status === "completed").length || 0
   const totalStagesCount = progress.stages?.length || 8
 
   return (
