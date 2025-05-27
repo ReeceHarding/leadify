@@ -51,24 +51,33 @@ Content: ${threadContent.slice(0, 2000)}
 
 YOUR TASK:
 1. First, analyze the website content to understand:
-   - What company/service/product it represents
-   - What problem it solves
-   - Who their target audience is (potential clients who need this service)
+   - What type of business/service this is
+   - What problems they solve
+   - What they sell or offer
+   - Who would pay for their services
    
-2. Then critically score how likely the thread author is to be a POTENTIAL CLIENT for this company/service (1-100)
+2. Then analyze the Reddit thread to determine if the author is a POTENTIAL CLIENT who would PAY for these services
 
-3. If they seem like a potential client (70+), generate comments as if you're a genuine user who has used this service
+3. Score the CLIENT POTENTIAL (1-100) based on these factors:
 
-CRITICAL SCORING (1-100) - FOCUS ON CLIENT POTENTIAL:
-- 90-100: Thread author is actively looking to hire/pay for exactly what this company provides (e.g., "looking for developers", "need coding help", "hiring agency")
-- 70-89: Thread author has a problem that this company could solve and seems willing to pay for solutions
-- 50-69: Thread author might need this service but isn't actively looking or budget is unclear
-- 30-49: Weak client potential - they might do it themselves or already have a solution
-- 1-29: Not a potential client - they're offering similar services, just discussing the topic, or clearly won't pay
+SCORING METHODOLOGY - Think step by step:
+a) Is the thread author expressing a NEED that this business solves? (not just discussing the topic)
+b) Do they seem to have BUDGET or willingness to pay for solutions?
+c) Are they ACTIVELY SEEKING help (not just venting or sharing knowledge)?
+d) Do they have DECISION-MAKING power (not just curious)?
+e) Is their need URGENT or important enough to justify paying?
 
-IMPORTANT: Score based on CLIENT POTENTIAL, not topic relevance. For a coding agency:
-- HIGH SCORE: "Where can I find developers for my startup?" "Need help building an app" "Looking for coding agency"
-- LOW SCORE: "I'm a developer looking for work" "Check out my coding tutorial" "What programming language should I learn?"
+SCORING GUIDELINES:
+- 90-100: All factors strongly present - they explicitly need what you offer and are ready to pay
+- 70-89: Most factors present - clear need with likely budget and urgency
+- 50-69: Some factors present - potential need but unclear commitment
+- 30-49: Few factors present - weak signals of being a potential client
+- 1-29: No real client potential - they're a competitor, educator, or just discussing
+
+KEY PRINCIPLE: Score based on likelihood they would PAY for the service, not just topic relevance.
+- Someone SEEKING the service you provide = HIGH score
+- Someone PROVIDING similar services = LOW score
+- Someone just DISCUSSING the topic = LOW score
 
 GENERATE 3 COMMENT LENGTH OPTIONS (authentic, helpful, non-salesy):
 
@@ -93,7 +102,7 @@ ALWAYS GENERATE ALL THREE in this natural format:
    (100-200 words, genuinely helpful tone)
 
 CRITICAL RULES:
-- Extract the company/service name from the website content - DO NOT use "Gauntlet AI"
+- Extract the company/service name from the website content
 - Write like a real person sharing their experience, not a salesperson
 - Never use marketing language or superlatives
 - Be honest about pros/cons of each option
@@ -709,15 +718,21 @@ ${voicePrompt ? `\nVoice Instructions:\n${voicePrompt}\n` : ""}
 
 ${toneAnalysis ? `\nCommunity Tone Analysis:\n${toneAnalysis}\n` : ""}
 
-CRITICAL SCORING RULES - FOCUS ON CLIENT POTENTIAL:
-- 90-100: Thread author is actively looking to hire/pay for what ${businessName} offers
-- 70-89: Thread author has a problem ${businessName} could solve and seems willing to pay
-- 50-69: Thread author might need this service but isn't actively looking
-- 30-49: Weak client potential - they might do it themselves
-- 1-29: Not a potential client - they're offering similar services or just discussing
+SCORING METHODOLOGY - Analyze these factors:
+a) Is the thread author expressing a NEED that ${businessName} solves?
+b) Do they seem to have BUDGET or willingness to pay?
+c) Are they ACTIVELY SEEKING help (not just discussing)?
+d) Do they have DECISION-MAKING power?
+e) Is their need URGENT or important?
 
-For a coding agency, score HIGH for: "looking for developers", "need help building", "hiring agency"
-Score LOW for: "I'm a developer", "coding tutorial", "what language to learn"
+SCORING GUIDELINES:
+- 90-100: All factors strongly present - ready to pay for what you offer
+- 70-89: Most factors present - clear need with likely budget
+- 50-69: Some factors present - potential but unclear
+- 30-49: Few factors present - weak client signals
+- 1-29: No client potential - competitor or just discussing
+
+KEY PRINCIPLE: Score likelihood they would PAY, not topic relevance.
 
 CRITICAL RULES FOR COMMENTS:
 - Match the casual tone and style of the subreddit

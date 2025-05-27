@@ -110,7 +110,7 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
         message: "Campaign is not associated with an organization"
       }
     }
-    
+
     console.log(`🏢 [WORKFLOW] Using organization: ${organizationId}`)
 
     // Determine which keywords to process
@@ -350,10 +350,35 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
       const limit = keywordLimits[keyword] || 10 // Default to 10 if no limit specified
       console.log(`🔍 Searching for keyword "${keyword}" with limit: ${limit}`)
 
-      const { searchRedditThreadsAction } = await import(
-        "@/actions/integrations/google/google-search-actions"
+      // Use Reddit's native search instead of Google Custom Search
+      const { searchRedditAction } = await import(
+        "@/actions/integrations/reddit/reddit-search-actions"
       )
-      return searchRedditThreadsAction(keyword, limit)
+
+      // Search Reddit directly with the keyword
+      const searchResult = await searchRedditAction(organizationId, keyword, {
+        sort: "relevance",
+        time: "all",
+        limit: limit
+      })
+
+      // Transform Reddit search results to match expected format
+      if (searchResult.isSuccess) {
+        return {
+          isSuccess: true,
+          data: searchResult.data.map((post, index) => ({
+            title: post.title,
+            link: post.permalink,
+            snippet: post.selftext
+              ? post.selftext.substring(0, 200) + "..."
+              : "",
+            position: index + 1,
+            threadId: post.id
+          }))
+        }
+      }
+
+      return searchResult
     })
 
     const searchResults = await Promise.all(searchPromises)
