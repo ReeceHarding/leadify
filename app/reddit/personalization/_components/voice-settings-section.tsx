@@ -77,7 +77,7 @@ export default function VoiceSettingsSection({
   )
 
   const { toast } = useToast()
-  const { activeOrganization } = useOrganization()
+  const { currentOrganization } = useOrganization()
 
   const handleAnalyzeTwitter = async () => {
     if (!twitterHandle.trim()) {
@@ -140,7 +140,7 @@ export default function VoiceSettingsSection({
       )
       await createTwitterAnalysisAction({
         userId,
-        organizationId: validateOrganizationId(activeOrganization?.id, "Twitter analysis"),
+        organizationId: validateOrganizationId(currentOrganization?.id, "Twitter analysis"),
         twitterHandle,
         tweets,
         writingStyleAnalysis: analysisResult.data.writingStyleAnalysis,
@@ -235,7 +235,7 @@ Common phrases: ${analysisResult.data.commonPhrases.slice(0, 3).join(", ")}`
         )
         const result = await createVoiceSettingsAction({
           userId,
-          organizationId: validateOrganizationId(activeOrganization?.id, "Voice settings creation"),
+          organizationId: validateOrganizationId(currentOrganization?.id, "Voice settings creation"),
           writingStyle,
           customWritingStyle:
             writingStyle === "custom" ? customWritingStyle : undefined,

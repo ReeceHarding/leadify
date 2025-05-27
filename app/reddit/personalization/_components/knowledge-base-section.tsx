@@ -42,7 +42,7 @@ export default function KnowledgeBaseSection({
   )
   const [showScrapeDialog, setShowScrapeDialog] = useState(false)
   const { toast } = useToast()
-  const { activeOrganization } = useOrganization()
+  const { currentOrganization } = useOrganization()
 
   const handleSaveCustomInformation = async () => {
     setIsLoading(true)
@@ -76,9 +76,9 @@ export default function KnowledgeBaseSection({
         )
         const result = await createKnowledgeBaseAction({
           userId,
-          organizationId: validateOrganizationId(activeOrganization?.id, "Knowledge base creation"),
+          organizationId: validateOrganizationId(currentOrganization?.id, "Knowledge base creation"),
           customInformation,
-          websiteUrl: activeOrganization?.website
+          websiteUrl: currentOrganization?.website
         })
 
         if (result.isSuccess) {
@@ -125,7 +125,7 @@ export default function KnowledgeBaseSection({
             <Label>Connected Website</Label>
             <div className="flex items-center gap-2">
               <Input
-                value={activeOrganization?.website || ""}
+                value={currentOrganization?.website || ""}
                 placeholder="No website connected"
                 disabled
                 className="flex-1"
@@ -133,13 +133,13 @@ export default function KnowledgeBaseSection({
               <Button
                 variant="outline"
                 onClick={() => setShowScrapeDialog(true)}
-                disabled={!activeOrganization?.website}
+                disabled={!currentOrganization?.website}
               >
                 <Plus className="mr-2 size-4" />
                 Scrape Pages
               </Button>
             </div>
-            {activeOrganization?.website && (
+            {currentOrganization?.website && (
               <p className="text-sm text-gray-600">
                 We know about your website from your profile. You can scrape
                 specific pages to add to your knowledge base.
@@ -207,9 +207,9 @@ export default function KnowledgeBaseSection({
       <WebsiteScrapeDialog
         open={showScrapeDialog}
         onOpenChange={setShowScrapeDialog}
-        websiteUrl={activeOrganization?.website || ""}
+        websiteUrl={currentOrganization?.website || ""}
         userId={userId}
-        organizationId={validateOrganizationId(activeOrganization?.id, "Website scraping")}
+        organizationId={validateOrganizationId(currentOrganization?.id, "Website scraping")}
         knowledgeBase={knowledgeBase}
         setKnowledgeBase={setKnowledgeBase}
       />

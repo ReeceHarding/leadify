@@ -17,7 +17,7 @@ import { useOrganization } from "@/components/utilities/organization-provider"
 export default function RedditAuthPage() {
   const [loading, setLoading] = useState(false)
   const [authUrl, setAuthUrl] = useState<string>("")
-  const { activeOrganization } = useOrganization()
+  const { currentOrganization } = useOrganization()
   const [pendingOrgId, setPendingOrgId] = useState<string | null>(null)
 
   useEffect(() => {
@@ -36,7 +36,7 @@ export default function RedditAuthPage() {
         setAuthUrl(result.data.authUrl)
 
         // Set organization ID cookie for the callback
-        const orgId = pendingOrgId || activeOrganization?.id
+        const orgId = pendingOrgId || currentOrganization?.id
         if (orgId) {
           // Set cookie that will be read by the callback
           document.cookie = `reddit_auth_org_id=${orgId}; path=/; max-age=3600; samesite=lax`
@@ -61,8 +61,8 @@ export default function RedditAuthPage() {
 
   const targetOrg = pendingOrgId
     ? `for organization`
-    : activeOrganization
-      ? `for ${activeOrganization.name}`
+    : currentOrganization
+      ? `for ${currentOrganization.name}`
       : ""
 
   return (
@@ -75,7 +75,7 @@ export default function RedditAuthPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {!activeOrganization && !pendingOrgId && (
+          {!currentOrganization && !pendingOrgId && (
             <Alert>
               <AlertCircle className="size-4" />
               <AlertDescription>
@@ -87,7 +87,7 @@ export default function RedditAuthPage() {
 
           <Button
             onClick={handleGenerateAuthUrl}
-            disabled={loading || (!activeOrganization && !pendingOrgId)}
+            disabled={loading || (!currentOrganization && !pendingOrgId)}
             className="w-full"
             size="lg"
           >

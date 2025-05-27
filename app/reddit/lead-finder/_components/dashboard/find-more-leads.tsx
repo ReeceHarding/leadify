@@ -90,7 +90,7 @@ export default function FindMoreLeads({
   onFindingLeads,
   disabled
 }: FindMoreLeadsProps) {
-  const { activeOrganization } = useOrganization()
+  const { currentOrganization } = useOrganization()
   const [isOpen, setIsOpen] = useState(false)
   const [keywords, setKeywords] = useState<string[]>([])
   const [keywordStats, setKeywordStats] = useState<KeywordStats[]>([])
@@ -249,16 +249,18 @@ export default function FindMoreLeads({
 
     setIsGeneratingKeywords(true)
     try {
-      if (!activeOrganization?.website) {
-        throw new Error("Organization website not found")
+      if (!currentOrganization?.website) {
+        toast.error("Organization website not found")
+        return
       }
 
       // Generate keywords with custom refinement
       const refinement = `${aiDescription}. Generate keywords for finding these specific types of customers.`
 
       const keywordsResult = await generateKeywordsAction({
-        website: activeOrganization.website,
-        refinement: refinement
+        website: currentOrganization.website,
+        refinement: refinement,
+        organizationId: currentOrganization.id
       })
 
       if (keywordsResult.isSuccess) {

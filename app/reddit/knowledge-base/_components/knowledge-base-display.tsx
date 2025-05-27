@@ -24,12 +24,12 @@ export default function KnowledgeBaseDisplay({
   knowledgeBase,
   userProfile
 }: KnowledgeBaseDisplayProps) {
-  const { activeOrganization } = useOrganization()
+  const { currentOrganization } = useOrganization()
   const hasAnyData =
     knowledgeBase?.customInformation ||
     knowledgeBase?.summary ||
     (knowledgeBase?.scrapedPages && knowledgeBase.scrapedPages.length > 0) ||
-    activeOrganization?.website
+    currentOrganization?.website
 
   return (
     <Card className="bg-white shadow-sm dark:bg-gray-900">
@@ -58,7 +58,7 @@ export default function KnowledgeBaseDisplay({
         ) : (
           <>
             {/* Connected Website */}
-            {activeOrganization?.website && (
+            {currentOrganization?.website && (
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Globe className="size-4 text-blue-600 dark:text-blue-400" />
@@ -68,7 +68,7 @@ export default function KnowledgeBaseDisplay({
                 </div>
                 <div className="rounded-lg bg-blue-50 p-3 dark:bg-blue-900/30">
                   <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                    {activeOrganization?.website}
+                    {currentOrganization?.website}
                   </p>
                   <p className="mt-1 text-xs text-blue-700 dark:text-blue-300">
                     Primary website from your profile

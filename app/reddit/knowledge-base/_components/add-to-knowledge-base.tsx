@@ -36,7 +36,7 @@ export default function AddToKnowledgeBase({
   setKnowledgeBase,
   userProfile
 }: AddToKnowledgeBaseProps) {
-  const { activeOrganization } = useOrganization()
+  const { currentOrganization } = useOrganization()
   const [isLoading, setIsLoading] = useState(false)
   const [isCombining, setIsCombining] = useState(false)
   const [newInformation, setNewInformation] = useState("")
@@ -96,7 +96,7 @@ export default function AddToKnowledgeBase({
           userId,
           organizationId,
           customInformation: newInformation,
-          websiteUrl: activeOrganization?.website
+          websiteUrl: currentOrganization?.website
         })
 
         if (result.isSuccess) {
@@ -193,7 +193,7 @@ export default function AddToKnowledgeBase({
             userId,
             organizationId,
             customInformation: combineResult.data.combinedInformation,
-            websiteUrl: activeOrganization?.website
+            websiteUrl: currentOrganization?.website
           })
 
           if (result.isSuccess) {
@@ -286,7 +286,7 @@ export default function AddToKnowledgeBase({
             <Label>Website Scraping</Label>
             <div className="flex items-center gap-2">
               <Input
-                value={activeOrganization?.website || ""}
+                value={currentOrganization?.website || ""}
                 placeholder="No website connected"
                 disabled
                 className="flex-1"
@@ -294,13 +294,13 @@ export default function AddToKnowledgeBase({
               <Button
                 variant="outline"
                 onClick={() => setShowScrapeDialog(true)}
-                disabled={!activeOrganization?.website}
+                disabled={!currentOrganization?.website}
               >
                 <Globe className="mr-2 size-4" />
                 Scrape Pages
               </Button>
             </div>
-            {activeOrganization?.website ? (
+            {currentOrganization?.website ? (
               <p className="text-sm text-gray-600">
                 Scrape specific pages from your website to add detailed
                 information to your knowledge base.
@@ -409,7 +409,7 @@ export default function AddToKnowledgeBase({
       <WebsiteScrapeDialog
         open={showScrapeDialog}
         onOpenChange={setShowScrapeDialog}
-        websiteUrl={activeOrganization?.website || ""}
+        websiteUrl={currentOrganization?.website || ""}
         userId={userId}
         organizationId={organizationId}
         knowledgeBase={knowledgeBase}

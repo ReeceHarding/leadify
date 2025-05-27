@@ -69,21 +69,21 @@ export default function CampaignResults({
   }>({ threads: [], comments: [] })
   const [isLoading, setIsLoading] = useState(false)
   const [expandedThreads, setExpandedThreads] = useState<Set<string>>(new Set())
-  const { activeOrganization } = useOrganization()
+  const { currentOrganization } = useOrganization()
 
   useEffect(() => {
-    if (selectedCampaign && activeOrganization?.id) {
-      loadCampaignResults(selectedCampaign)
+    if (selectedCampaign && currentOrganization?.id) {
+      fetchResults()
     }
-  }, [selectedCampaign, activeOrganization])
+  }, [selectedCampaign, currentOrganization])
 
-  const loadCampaignResults = async (campaignId: string) => {
-    if (!activeOrganization?.id) return
+  const fetchResults = async () => {
+    if (!currentOrganization?.id || !selectedCampaign) return
 
     setIsLoading(true)
     try {
       // Load comments
-      const commentsResult = await getGeneratedCommentsByCampaignAction(campaignId)
+      const commentsResult = await getGeneratedCommentsByCampaignAction(selectedCampaign)
       
       if (commentsResult.isSuccess) {
         // Transform comments

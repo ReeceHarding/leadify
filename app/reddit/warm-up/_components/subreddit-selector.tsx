@@ -55,11 +55,11 @@ export default function SubredditSelector({
   onUpdate,
   organizationId
 }: SubredditSelectorProps) {
-  const { activeOrganization } = useOrganization()
+  const { currentOrganization } = useOrganization()
   const { toast } = useToast()
 
   const currentOrganizationId =
-    organizationId || warmupAccount?.organizationId || activeOrganization?.id
+    organizationId || warmupAccount?.organizationId || currentOrganization?.id
 
   const [selectedSubreddits, setSelectedSubreddits] = useState<string[]>(
     warmupAccount?.targetSubreddits || []
@@ -76,7 +76,7 @@ export default function SubredditSelector({
   useEffect(() => {
     if (
       currentOrganizationId &&
-      activeOrganization &&
+      currentOrganization &&
       !hasLoadedInitialSuggestions &&
       selectedSubreddits.length === 0
     ) {
@@ -84,13 +84,13 @@ export default function SubredditSelector({
     }
   }, [
     currentOrganizationId,
-    activeOrganization,
+    currentOrganization,
     hasLoadedInitialSuggestions,
     selectedSubreddits.length
   ])
 
   const loadInitialSuggestions = async () => {
-    if (!currentOrganizationId || !activeOrganization) return
+    if (!currentOrganizationId || !currentOrganization) return
 
     try {
       console.log(
@@ -101,9 +101,9 @@ export default function SubredditSelector({
         currentOrganizationId
       )
 
-      let productDesc = activeOrganization.name || ""
-      if (activeOrganization.businessDescription) {
-        productDesc += ` - ${activeOrganization.businessDescription}`
+      let productDesc = currentOrganization.name || ""
+      if (currentOrganization.businessDescription) {
+        productDesc += ` - ${currentOrganization.businessDescription}`
       }
       if (kbResult.isSuccess && kbResult.data) {
         if (kbResult.data.summary) {
@@ -113,12 +113,12 @@ export default function SubredditSelector({
           productDesc += ` ${kbResult.data.customInformation}`
         }
       }
-      if (activeOrganization.website) {
-        productDesc += ` (Website: ${activeOrganization.website})`
+      if (currentOrganization.website) {
+        productDesc += ` (Website: ${currentOrganization.website})`
       }
 
       const keywordsForRecommendation =
-        (activeOrganization as any).keywordsForAi || []
+        (currentOrganization as any).keywordsForAi || []
 
       const result = await recommendSubredditsAction(
         keywordsForRecommendation,
@@ -191,7 +191,7 @@ export default function SubredditSelector({
   }
 
   const handleGenerateRecommendations = async () => {
-    if (!currentOrganizationId || !activeOrganization) {
+    if (!currentOrganizationId || !currentOrganization) {
       toast({
         title: "Error",
         description: "Organization not available for recommendations.",
@@ -206,19 +206,19 @@ export default function SubredditSelector({
         currentOrganizationId
       )
 
-      let productDesc = activeOrganization.name || ""
-      if (activeOrganization.businessDescription) {
-        productDesc += ` - ${activeOrganization.businessDescription}`
+      let productDesc = currentOrganization.name || ""
+      if (currentOrganization.businessDescription) {
+        productDesc += ` - ${currentOrganization.businessDescription}`
       }
-      if (activeOrganization.website) {
-        productDesc += ` (Website: ${activeOrganization.website})`
+      if (currentOrganization.website) {
+        productDesc += ` (Website: ${currentOrganization.website})`
       }
       if (productDesc.trim() === "") {
         productDesc = "General business providing services/products."
       }
 
       const keywordsForRecommendation =
-        (activeOrganization as any).keywordsForAi || []
+        (currentOrganization as any).keywordsForAi || []
 
       const result = await recommendSubredditsAction(
         keywordsForRecommendation,
@@ -358,7 +358,7 @@ export default function SubredditSelector({
         <CardDescription>
           Select subreddits where your organization{" "}
           <span className="font-semibold">
-            {activeOrganization?.name || "selected organization"}
+            {currentOrganization?.name || "selected organization"}
           </span>{" "}
           wants to build karma and authority.
         </CardDescription>

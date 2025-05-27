@@ -65,49 +65,43 @@ export default function CampaignsList({
 }: CampaignsListProps) {
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const { activeOrganization } = useOrganization()
+  const { currentOrganization } = useOrganization()
 
   useEffect(() => {
-    if (activeOrganization?.id) {
-      loadCampaigns()
+    if (currentOrganization?.id) {
+      fetchCampaigns()
     }
-  }, [activeOrganization])
+  }, [currentOrganization])
 
-  const loadCampaigns = async () => {
-    if (!activeOrganization?.id) {
-      setIsLoading(false)
+  const fetchCampaigns = async () => {
+    if (!currentOrganization?.id) {
+      console.error("No organization ID available")
       return
     }
 
     setIsLoading(true)
-    try {
-      const result = await getCampaignsByOrganizationIdAction(activeOrganization.id)
+    const result = await getCampaignsByOrganizationIdAction(currentOrganization.id)
+    
+    if (result.isSuccess) {
+      const transformedCampaigns: Campaign[] = result.data.map(campaign => ({
+        id: campaign.id,
+        name: campaign.name,
+        website: campaign.website || "",
+        keywords: campaign.keywords || [],
+        status: campaign.status || "draft",
+        totalSearchResults: campaign.totalSearchResults || 0,
+        totalThreadsAnalyzed: campaign.totalThreadsAnalyzed || 0,
+        totalCommentsGenerated: campaign.totalCommentsGenerated || 0,
+        createdAt: toISOString(campaign.createdAt) || new Date().toISOString(),
+        updatedAt: toISOString(campaign.updatedAt) || new Date().toISOString()
+      }))
       
-      if (result.isSuccess) {
-        const transformedCampaigns: Campaign[] = result.data.map(campaign => ({
-          id: campaign.id,
-          name: campaign.name,
-          website: campaign.website || "",
-          keywords: campaign.keywords || [],
-          status: campaign.status || "draft",
-          totalSearchResults: campaign.totalSearchResults || 0,
-          totalThreadsAnalyzed: campaign.totalThreadsAnalyzed || 0,
-          totalCommentsGenerated: campaign.totalCommentsGenerated || 0,
-          createdAt: toISOString(campaign.createdAt) || new Date().toISOString(),
-          updatedAt: toISOString(campaign.updatedAt) || new Date().toISOString()
-        }))
-        
-        setCampaigns(transformedCampaigns)
-      } else {
-        console.error("Error loading campaigns:", result.message)
-        setCampaigns([])
-      }
-    } catch (error) {
-      console.error("Error loading campaigns:", error)
+      setCampaigns(transformedCampaigns)
+    } else {
+      console.error("Error loading campaigns:", result.message)
       setCampaigns([])
-    } finally {
-      setIsLoading(false)
     }
+    setIsLoading(false)
   }
 
   const getStatusBadge = (status: Campaign["status"]) => {

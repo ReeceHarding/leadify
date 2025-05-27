@@ -44,7 +44,7 @@ export default function WarmupDashboard({
   const [isConnecting, setIsConnecting] = useState(false)
   const [isSettingUp, setIsSettingUp] = useState(false)
   const { toast } = useToast()
-  const { activeOrganization } = useOrganization()
+  const { currentOrganization } = useOrganization()
 
   useEffect(() => {
     if (organizationId) {
