@@ -76,7 +76,7 @@ export default function CreateCampaignDialog({
   organizationId
 }: CreateCampaignDialogProps) {
   const { user } = useUser()
-  const { activeOrganization } = useOrganization()
+  const { currentOrganization } = useOrganization()
   const [currentKeyword, setCurrentKeyword] = useState("")
   const [isCreating, setIsCreating] = useState(false)
   const [isGeneratingKeywords, setIsGeneratingKeywords] = useState(false)
@@ -104,7 +104,7 @@ export default function CreateCampaignDialog({
   // Load organization data when dialog opens
   useEffect(() => {
     const loadOrganizationData = async () => {
-      if (!open || hasLoadedOrgData || !organizationId || !activeOrganization)
+      if (!open || hasLoadedOrgData || !organizationId || !currentOrganization)
         return
 
       try {
@@ -113,8 +113,8 @@ export default function CreateCampaignDialog({
         // Build comprehensive business description from organization data
         let fullDescription = ""
 
-        if (activeOrganization.businessDescription) {
-          fullDescription = activeOrganization.businessDescription
+        if (currentOrganization.businessDescription) {
+          fullDescription = currentOrganization.businessDescription
         }
 
         // Try to get knowledge base for additional context
@@ -148,7 +148,7 @@ export default function CreateCampaignDialog({
     }
 
     loadOrganizationData()
-  }, [open, organizationId, activeOrganization, hasLoadedOrgData])
+  }, [open, organizationId, currentOrganization, hasLoadedOrgData])
 
   // Reset when dialog closes
   useEffect(() => {
@@ -170,11 +170,11 @@ export default function CreateCampaignDialog({
         try {
           const nameResult = await generateCampaignNameAction({
             keywords: keywordsForm,
-            website: activeOrganization?.website || undefined,
+            website: currentOrganization?.website || undefined,
             businessDescription:
               businessDescriptionForm || organizationDescription || undefined,
             businessName:
-              activeOrganization?.name || user?.fullName || undefined
+              currentOrganization?.name || user?.fullName || undefined
           })
 
           if (nameResult.isSuccess) {
@@ -194,7 +194,7 @@ export default function CreateCampaignDialog({
     keywordsForm,
     businessDescriptionForm,
     organizationDescription,
-    activeOrganization,
+    currentOrganization,
     user?.fullName,
     form
   ])
@@ -221,12 +221,17 @@ export default function CreateCampaignDialog({
     // Use organization description as fallback
     const effectiveDescription =
       businessDescription?.trim() || organizationDescription
-    const website = activeOrganization?.website
+    const website = currentOrganization?.website
 
     if (!website?.trim() && !effectiveDescription) {
       toast.error(
         "Organization data is missing. Please update your organization profile."
       )
+      return
+    }
+
+    if (!currentOrganization) {
+      toast.error("No organization selected")
       return
     }
 
@@ -257,7 +262,8 @@ export default function CreateCampaignDialog({
         website: website || undefined,
         businessDescription: contentForKeywords || effectiveDescription,
         refinement:
-          `Generate ${keywordCount} diverse keywords for finding potential customers on Reddit`
+          `Generate ${keywordCount} diverse keywords for finding potential customers on Reddit`,
+        organizationId: currentOrganization.id
       })
 
       if (keywordsResult.isSuccess) {
@@ -297,8 +303,8 @@ export default function CreateCampaignDialog({
       }
 
       // Normalize website URL if provided (use org website)
-      const normalizedWebsite = activeOrganization?.website?.trim()
-        ? normalizeUrl(activeOrganization.website.trim())
+      const normalizedWebsite = currentOrganization?.website?.trim()
+        ? normalizeUrl(currentOrganization.website.trim())
         : undefined
 
       // Use campaign-specific description if provided, otherwise use organization description
@@ -408,7 +414,7 @@ export default function CreateCampaignDialog({
           >
             <div className="-mx-6 flex-1 space-y-4 overflow-y-auto px-6 py-4">
               {/* Show organization info if available */}
-              {activeOrganization && (
+              {currentOrganization && (
                 <Alert className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/30">
                   <Info className="size-4 text-blue-600 dark:text-blue-400" />
                   <AlertDescription>
@@ -416,11 +422,11 @@ export default function CreateCampaignDialog({
                       Using organization:
                     </strong>{" "}
                     <span className="text-blue-800 dark:text-blue-200">
-                      {activeOrganization.name}
+                      {currentOrganization.name}
                     </span>
-                    {activeOrganization.website && (
+                    {currentOrganization.website && (
                       <span className="mt-1 block text-xs text-blue-600 dark:text-blue-400">
-                        {activeOrganization.website}
+                        {currentOrganization.website}
                       </span>
                     )}
                   </AlertDescription>

@@ -40,7 +40,7 @@ export default function CustomizeKeywordsDialog({
   currentKeywords,
   onKeywordsGenerated
 }: CustomizeKeywordsDialogProps) {
-  const { activeOrganization } = useOrganization()
+  const { currentOrganization } = useOrganization()
   const [refinementInstructions, setRefinementInstructions] = useState("")
   const [keywordCount, setKeywordCount] = useState("10")
   const [isGenerating, setIsGenerating] = useState(false)
@@ -53,7 +53,12 @@ export default function CustomizeKeywordsDialog({
 
     setIsGenerating(true)
     try {
-      if (!activeOrganization?.website) {
+      if (!currentOrganization) {
+        toast.error("No organization selected")
+        return
+      }
+
+      if (!currentOrganization.website) {
         toast.error("Organization website not found")
         return
       }
@@ -67,15 +72,16 @@ export default function CustomizeKeywordsDialog({
         Current keywords to avoid duplicating: ${currentKeywords.join(", ")}
         
         Business context:
-        - Name: ${activeOrganization.name || ""}
-        - Website: ${activeOrganization.website}
+        - Name: ${currentOrganization.name || ""}
+        - Website: ${currentOrganization.website}
       `.trim()
 
       console.log("🎯 Generating keywords with refinement:", fullRefinement)
 
       const result = await generateKeywordsAction({
-        website: activeOrganization.website,
-        refinement: fullRefinement
+        website: currentOrganization.website,
+        refinement: fullRefinement,
+        organizationId: currentOrganization.id
       })
 
       if (result.isSuccess) {

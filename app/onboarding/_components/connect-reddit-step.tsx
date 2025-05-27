@@ -52,6 +52,10 @@ export default function ConnectRedditStep({
     }
 
     try {
+      // Set the organization ID cookie for the callback to use
+      document.cookie = `reddit_auth_org_id=${organizationId}; path=/; max-age=600; SameSite=Lax`
+      console.log("ConnectRedditStep: Set reddit_auth_org_id cookie:", organizationId)
+      
       const result = await generateRedditAuthUrlAction()
 
       if (result.isSuccess) {

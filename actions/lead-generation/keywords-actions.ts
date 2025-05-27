@@ -15,7 +15,7 @@ interface GenerateKeywordsData {
   website?: string
   businessDescription?: string
   refinement?: string
-  organizationId?: string // Optional for backward compatibility
+  organizationId: string // Now required
   campaignId?: string // Optional campaign association
 }
 
@@ -44,13 +44,22 @@ export async function generateKeywordsAction({
       businessDescription ? "Provided" : "None"
     )
     console.log("🔍 [KEYWORDS] Refinement:", refinement)
-    console.log("🔍 [KEYWORDS] Organization ID:", organizationId || "None")
+    console.log("🔍 [KEYWORDS] Organization ID:", organizationId)
     console.log("🔍 [KEYWORDS] Campaign ID:", campaignId || "None")
 
-    // Get current user if organizationId not provided
+    // Validate organizationId
+    if (!organizationId) {
+      console.error("🔍 [KEYWORDS] No organization ID provided")
+      return {
+        isSuccess: false,
+        message: "Organization ID is required"
+      }
+    }
+
+    // Get current user
     const { userId } = await auth()
-    if (!userId && !organizationId) {
-      console.error("🔍 [KEYWORDS] No user ID or organization ID provided")
+    if (!userId) {
+      console.error("🔍 [KEYWORDS] No user ID from auth")
       return {
         isSuccess: false,
         message: "Authentication required"
@@ -126,27 +135,26 @@ export async function generateKeywordsAction({
     console.log(`🔍 [KEYWORDS] Generated ${parsedResponse.keywords.length} keywords and strategic insights.`)
 
     // Persist keyword performance stub for future tracking
-    if (organizationId || userId) {
-      const perfId = generateUUID()
-      const perfData: CreateKeywordPerformanceData = {
-        userId: userId!,
-        organizationId: organizationId || "", // Will need to be provided in future
-        campaignId,
-        keywords: parsedResponse.keywords
-      }
-      
-      try {
-        const perfRef = doc(collection(db, KEYWORD_PERFORMANCE_COLLECTIONS.KEYWORD_PERFORMANCE), perfId)
-        await setDoc(perfRef, {
-          ...perfData,
-          id: perfId,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
-        })
-        console.log("🔍 [KEYWORDS] Created keyword performance document:", perfId)
-      } catch (perfErr) {
-        console.error("[KEYWORD-PERF] Failed to write performance doc", perfErr)
-      }
+    const perfId = generateUUID()
+    const perfData: CreateKeywordPerformanceData = {
+      userId: userId,
+      organizationId: organizationId, // Now always provided
+      campaignId,
+      keywords: parsedResponse.keywords
+    }
+    
+    try {
+      const perfRef = doc(collection(db, KEYWORD_PERFORMANCE_COLLECTIONS.KEYWORD_PERFORMANCE), perfId)
+      await setDoc(perfRef, {
+        ...perfData,
+        id: perfId,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      })
+      console.log("🔍 [KEYWORDS] Created keyword performance document:", perfId)
+    } catch (perfErr) {
+      console.error("[KEYWORD-PERF] Failed to write performance doc", perfErr)
+      // Don't fail the whole operation if performance tracking fails
     }
 
     return {

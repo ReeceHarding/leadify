@@ -25,6 +25,7 @@ interface KeywordsStepProps {
     website: string
     keywords: string[]
     businessDescription: string // This is the organizationName for context
+    organizationId: string
   }
   onUpdate: (data: Partial<{ keywords: string[] }>) => void // Only keywords are updated by this step
   onNext: () => void
@@ -87,6 +88,7 @@ export default function KeywordsStep({
       "🔍 [KEYWORDS] Business Description (Org Name for context):",
       data.businessDescription
     )
+    console.log("🔍 [KEYWORDS] Organization ID:", data.organizationId)
     console.log("🔍 [KEYWORDS] Refinement:", refinement)
 
     setIsGenerating(true)
@@ -97,7 +99,8 @@ export default function KeywordsStep({
       const result = await generateKeywordsAction({
         website: data.website,
         businessDescription: data.businessDescription,
-        refinement: refinement || undefined
+        refinement: refinement || undefined,
+        organizationId: data.organizationId
       })
 
       console.log(

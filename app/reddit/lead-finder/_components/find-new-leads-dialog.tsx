@@ -56,7 +56,7 @@ export default function FindNewLeadsDialog({
   currentKeywords,
   onSuccess
 }: FindNewLeadsDialogProps) {
-  const { activeOrganization } = useOrganization()
+  const { currentOrganization } = useOrganization()
   const [selectedKeywords, setSelectedKeywords] = useState<string[]>([])
   const [suggestedKeywords, setSuggestedKeywords] = useState<string[]>([])
   const [customKeyword, setCustomKeyword] = useState("")
@@ -77,7 +77,12 @@ export default function FindNewLeadsDialog({
   const loadSuggestedKeywords = async () => {
     setIsGeneratingKeywords(true)
     try {
-      if (!activeOrganization?.website) {
+      if (!currentOrganization) {
+        toast.error("No organization selected")
+        return
+      }
+
+      if (!currentOrganization.website) {
         toast.error("Organization website not found")
         return
       }
@@ -89,8 +94,9 @@ export default function FindNewLeadsDialog({
           : ""
 
       const keywordsResult = await generateKeywordsAction({
-        website: activeOrganization.website,
-        refinement: refinement
+        website: currentOrganization.website,
+        refinement: refinement,
+        organizationId: currentOrganization.id
       })
 
       if (keywordsResult.isSuccess) {
@@ -118,7 +124,12 @@ export default function FindNewLeadsDialog({
 
     setIsGeneratingKeywords(true)
     try {
-      if (!activeOrganization?.website) {
+      if (!currentOrganization) {
+        toast.error("No organization selected")
+        return
+      }
+
+      if (!currentOrganization.website) {
         toast.error("Organization website not found")
         return
       }
@@ -127,8 +138,9 @@ export default function FindNewLeadsDialog({
       const refinement = `${aiRefinement}. Do not suggest these existing keywords: ${currentKeywords.join(", ")}`
 
       const keywordsResult = await generateKeywordsAction({
-        website: activeOrganization.website,
-        refinement: refinement
+        website: currentOrganization.website,
+        refinement: refinement,
+        organizationId: currentOrganization.id
       })
 
       if (keywordsResult.isSuccess) {

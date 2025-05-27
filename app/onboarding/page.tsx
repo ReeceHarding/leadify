@@ -391,7 +391,8 @@ export default function OnboardingPage() {
             data={{
               keywords: onboardingData.keywords,
               website: onboardingData.website,
-              businessDescription: onboardingData.organizationName
+              businessDescription: onboardingData.organizationName,
+              organizationId: onboardingData.organizationId
             }}
             onUpdate={d => updateData({ keywords: d.keywords })}
             onNext={nextStep}
