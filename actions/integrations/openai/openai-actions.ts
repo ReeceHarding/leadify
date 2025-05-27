@@ -102,12 +102,47 @@ If the score is 40 or above, generate three authentic Reddit comments as someone
    - mention free tool with honest pros/cons
    - mention business with honest pros/cons (include at least one real downside)
    - mention premium tool and why it might be overkill
-3. VERBOSE COMMENT (100-200 words): detailed but still casual:
-   - start super casual like "oh man i feel you on this one"
-   - describe trying free tool - what worked and what didnt
-   - describe finding business - be honest about pros AND cons
-   - mention premium option and when it might actually be worth it
-   - end with something helpful like "lmk if you want more details"
+3. VERBOSE COMMENT (800-1200 words): Follow this EXACT structure:
+
+   OPENING:
+   - Start with "hey man!" or similar casual greeting
+   - Acknowledge time since post (e.g., "know this was posted a while ago")
+   - Express intent to help others who might find thread
+   
+   BACKGROUND SECTION:
+   - Use "so for a little background:" as transition
+   - Share 7+ years of specific experience
+   - List multiple failed ventures before success
+   - Be vulnerable about failures
+   
+   MAIN LESSON:
+   - State core lesson about time vs money tradeoff
+   - Frame as two paths to choose from
+   
+   PATH EXPLANATIONS:
+   - Reference what others in thread are recommending
+   - Share 3-5 numbered personal examples with specific details
+   - Include exact time/money amounts wasted
+   - Transition to current thinking
+   
+   DETAILED SCENARIOS:
+   - Break down by user type (college student, professional, etc)
+   - Give specific actionable advice for each
+   - Include warnings from personal experience
+   - Use specific numbers and timeframes
+   
+   CONCLUSION:
+   - Clear TL;DR summary
+   - List all options in order
+   - End with "dm me" or "lmk if you want more details"
+   
+   STYLE REQUIREMENTS:
+   - ALL lowercase (no capitals)
+   - 2-3 blank lines between sections
+   - Casual abbreviations: bc, w/, lmk, tbh
+   - 1-2 spelling mistakes: experince, proabbly, definately, thier
+   - Personal pronouns: heavy use of i, my, you
+   - No hyphens anywhere
 
 CRITICAL: You MUST mention THREE different solutions in each comment:
 1. A FREE tool/solution (be specific and honest about limitations)
@@ -498,7 +533,47 @@ ${existingComments.length > 0 ? `\nExample comments from this thread:\n${existin
 Generate three comments following the tone instruction and style rules:
 1. Micro (1-2 sentences, super casual, quick mention of trying different things)
 2. Medium (3-4 sentences, helpful but natural, mention 3 solutions with honest pros/cons)
-3. Verbose (5-7 sentences, detailed but still authentic, full journey with all pros/cons)
+3. Verbose (800-1200 words following this EXACT structure):
+   
+   OPENING:
+   - Start with "hey man!" or similar casual greeting
+   - Acknowledge time since post (e.g., "know this was posted a while ago")
+   - Express intent to help others who might find thread
+   
+   BACKGROUND SECTION:
+   - Use "so for a little background:" as transition
+   - Share 7+ years of specific experience
+   - List multiple failed ventures before success
+   - Be vulnerable about failures
+   
+   MAIN LESSON:
+   - State core lesson about time vs money tradeoff
+   - Frame as two paths to choose from
+   
+   PATH EXPLANATIONS:
+   - Reference what others in thread are recommending
+   - Share 3-5 numbered personal examples with specific details
+   - Include exact time/money amounts wasted
+   - Transition to current thinking
+   
+   DETAILED SCENARIOS:
+   - Break down by user type (college student, professional, etc)
+   - Give specific actionable advice for each
+   - Include warnings from personal experience
+   - Use specific numbers and timeframes
+   
+   CONCLUSION:
+   - Clear TL;DR summary
+   - List all options in order
+   - End with "dm me" or "lmk if you want more details"
+   
+   STYLE REQUIREMENTS FOR VERBOSE:
+   - ALL lowercase (no capitals)
+   - 2-3 blank lines between sections
+   - Casual abbreviations: bc, w/, lmk, tbh
+   - 1-2 spelling mistakes: experince, proabbly, definately, thier
+   - Personal pronouns: heavy use of i, my, you
+   - No hyphens anywhere
 
 For each comment, mention:
 - A free solution (with honest limitations)
@@ -904,45 +979,58 @@ CRITICAL STYLE RULES:
 Thread Content: ${threadContent}
 Subreddit: r/${subreddit}
 
-${existingComments && existingComments.length > 0 ? `\nExample comments from this thread:\n${existingComments.slice(0, 5).join("\n---\n")}` : ""}
+${existingComments && existingComments.length > 0 ? `\nExample comments from this thread:\n${existingComments.slice(0, 3).join("\n---\n")}` : ""}
 
-Evaluate how relevant this Reddit thread is for ${businessName}, considering the campaign focus keywords: ${campaignKeywords.join(", ")}.
+Score this thread from 0-100 based on relevance to the business and campaign keywords.
 
-Important: People rarely directly ask for solutions. Read between the lines and look for indirect signals like:
-- Expressing frustration or challenges that the business solves
-- Asking if others experience similar issues
-- Describing workarounds they're using
-- Sharing related experiences or pain points
-- Engaging with topics the business addresses
+If the score is 40 or above, generate three comments:
+1. Micro (5-15 words): super quick casual mention
+2. Medium (30-80 words): casual story with genuine pros/cons:
+   - start with "hey man" or "tbh" or similar
+   - mention free tool with honest pros/cons
+   - mention ${businessName} with honest pros/cons (include at least one real downside)
+   - mention premium tool and why it might be overkill
+3. Verbose (800-1200 words): Follow this EXACT structure:
 
-Score this thread from 0-100 based on:
-- How closely the problem matches what ${businessName} solves, aligned with the campaign keywords.
-- How clearly they express a need (directly or indirectly)
-- How likely they would be interested in the solution
-- Whether they seem to be actively looking for help
-- Their apparent frustration/pain level
-
-Use this scale:
-90-100 = Perfect match (clearly expressing need, actively looking for exactly what we offer, strong alignment with campaign keywords)
-70-89 = Strong match (clear problem/need that we solve, good alignment with campaign keywords)
-40-69 = Moderate match (showing some signs of problems we address, some alignment with campaign keywords)
-20-39 = Weak match (tangentially related to our solution or campaign keywords)
-0-19 = No match (completely unrelated to what we offer or campaign keywords)
-
-Then, if the score is 40 or above:
-1. Generate three comments as someone who has tried multiple solutions:
-   - Micro (1-2 sentences): super quick casual mention
-   - Medium (3-4 sentences): casual story with genuine pros/cons:
-     - start with "hey man" or "tbh" or similar
-     - mention free tool with honest pros/cons
-     - mention ${businessName} with honest pros/cons (include at least one real downside)
-     - mention premium tool and why it might be overkill
-   - Verbose (5-7 sentences): detailed but still casual:
-     - start super casual like "oh man i feel you on this one"
-     - describe trying free tool - what worked and what didnt
-     - describe finding ${businessName} - be honest about pros AND cons
-     - mention premium option and when it might actually be worth it
-     - end with something helpful like "lmk if you want more details"
+   OPENING:
+   - Start with "hey man!" or similar casual greeting
+   - Acknowledge time since post (e.g., "know this was posted a while ago")
+   - Express intent to help others who might find thread
+   
+   BACKGROUND SECTION:
+   - Use "so for a little background:" as transition
+   - Share 7+ years of specific experience
+   - List multiple failed ventures before success
+   - Be vulnerable about failures
+   
+   MAIN LESSON:
+   - State core lesson about time vs money tradeoff
+   - Frame as two paths to choose from
+   
+   PATH EXPLANATIONS:
+   - Reference what others in thread are recommending
+   - Share 3-5 numbered personal examples with specific details
+   - Include exact time/money amounts wasted
+   - Transition to current thinking
+   
+   DETAILED SCENARIOS:
+   - Break down by user type (college student, professional, etc)
+   - Give specific actionable advice for each
+   - Include warnings from personal experience
+   - Use specific numbers and timeframes
+   
+   CONCLUSION:
+   - Clear TL;DR summary
+   - List all options in order
+   - End with "dm me" or "lmk if you want more details"
+   
+   STYLE REQUIREMENTS:
+   - ALL lowercase (no capitals)
+   - 2-3 blank lines between sections
+   - Casual abbreviations: bc, w/, lmk, tbh
+   - 1-2 spelling mistakes: experince, proabbly, definately, thier
+   - Personal pronouns: heavy use of i, my, you
+   - No hyphens anywhere
 
    CRITICAL: You MUST mention THREE different solutions in each comment:
    1. A FREE tool/solution (be specific and honest about limitations)
@@ -1002,7 +1090,7 @@ Return as JSON:
 
     // Log the AI response
     console.log(
-      "🔍🔍�� [PERSONALIZED-SCORING-RESULT] ========== AI RESPONSE =========="
+      "🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] ========== AI RESPONSE =========="
     )
     console.log("🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] Score:", parsed.score)
     console.log(
