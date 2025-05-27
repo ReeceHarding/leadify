@@ -275,6 +275,12 @@ export default function FindNewLeadsDialog({
         console.log("🔍🔍🔍 [FIND-NEW-LEADS] Calling onSuccess callback...")
         onSuccess?.()
         
+        // Reset state before closing
+        setIsFindingLeads(false)
+        setSelectedKeywords([])
+        setSuggestedKeywords([])
+        setCustomKeyword("")
+        
         console.log("🔍🔍🔍 [FIND-NEW-LEADS] Closing dialog...")
         onOpenChange(false)
       } else {
@@ -306,6 +312,33 @@ export default function FindNewLeadsDialog({
     }
   }
 
+  // Add force close handler for emergency exit
+  const handleForceClose = () => {
+    console.log("🔍🔍🔍 [FIND-NEW-LEADS] Force closing dialog")
+    // Reset all states
+    setIsFindingLeads(false)
+    setIsGeneratingKeywords(false)
+    setSelectedKeywords([])
+    setSuggestedKeywords([])
+    setCustomKeyword("")
+    setAiRefinement("")
+    setShowAiInput(false)
+    onOpenChange(false)
+  }
+
+  // Add timeout to prevent stuck loading state
+  useEffect(() => {
+    if (isFindingLeads) {
+      const timeout = setTimeout(() => {
+        console.error("🔍🔍🔍 [FIND-NEW-LEADS] Timeout: Resetting loading state after 30 seconds")
+        setIsFindingLeads(false)
+        toast.error("Lead generation is taking longer than expected. You can close this dialog and check back later.")
+      }, 30000) // 30 second timeout
+
+      return () => clearTimeout(timeout)
+    }
+  }, [isFindingLeads])
+
   const handleCustomizeWithAI = () => {
     setShowCustomizeDialog(true)
   }
@@ -317,7 +350,18 @@ export default function FindNewLeadsDialog({
 
   return (
     <>
-      <Dialog open={open} onOpenChange={handleClose}>
+      <Dialog open={open} onOpenChange={(newOpen) => {
+        if (!newOpen) {
+          // If trying to close, use force close if loading
+          if (isFindingLeads || isGeneratingKeywords) {
+            handleForceClose()
+          } else {
+            handleClose()
+          }
+        } else {
+          onOpenChange(newOpen)
+        }
+      }}>
         <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-[700px]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -482,8 +526,14 @@ export default function FindNewLeadsDialog({
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={handleClose}
-              disabled={isFindingLeads || isGeneratingKeywords}
+              onClick={() => {
+                if (isFindingLeads || isGeneratingKeywords) {
+                  handleForceClose()
+                } else {
+                  handleClose()
+                }
+              }}
+              disabled={false}
             >
               Cancel
             </Button>
