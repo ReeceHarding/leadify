@@ -54,6 +54,7 @@ interface DashboardHeaderProps {
   onCreateCampaign: () => void
   onRunWorkflow: () => void
   onSelectCampaign: (campaignId: string) => void
+  onEditCampaign?: (campaignId: string) => void
   isWorkflowRunning: boolean
   onMassPost?: () => void
 }
@@ -68,6 +69,7 @@ export default function DashboardHeader({
   onCreateCampaign,
   onRunWorkflow,
   onSelectCampaign,
+  onEditCampaign,
   isWorkflowRunning,
   onMassPost
 }: DashboardHeaderProps) {
@@ -135,6 +137,15 @@ export default function DashboardHeader({
                       </DropdownMenuItem>
                     )}
                     <DropdownMenuSeparator />
+                    {campaignId && onEditCampaign && (
+                      <>
+                        <DropdownMenuItem onClick={() => onEditCampaign(campaignId)}>
+                          <Edit2 className="mr-2 size-4" />
+                          Edit Current Campaign
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                      </>
+                    )}
                     <DropdownMenuItem onClick={onCreateCampaign}>
                       <Plus className="mr-2 size-4" />
                       New Lead Search

@@ -75,6 +75,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { toast } from "sonner"
 import CreateCampaignDialog from "./create-campaign-dialog"
+import EditCampaignDialog from "./edit-campaign-dialog"
 import CampaignsList from "./campaigns-list"
 import PostDetailPopup from "./post-detail-popup"
 import CommentEditor from "./comment-editor"
@@ -162,6 +163,7 @@ const POLLING_INTERVAL = 5000 // 5 seconds
 interface Campaign {
   id: string
   name: string
+  businessDescription?: string
   keywords: string[]
   status: "draft" | "running" | "completed" | "paused" | "error"
   totalCommentsGenerated: number
@@ -296,6 +298,8 @@ export default function LeadFinderDashboard() {
   const { currentOrganization, isLoading: organizationLoading } = useOrganization()
   const [state, setState] = useState<DashboardState>(initialState)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [editingCampaignId, setEditingCampaignId] = useState<string | null>(null)
   const [findNewLeadsOpen, setFindNewLeadsOpen] = useState(false)
   const [currentCampaignKeywords, setCurrentCampaignKeywords] = useState<
     string[]
@@ -663,6 +667,7 @@ export default function LeadFinderDashboard() {
               return {
                 id: campaign.id,
                 name: campaign.name,
+                businessDescription: campaign.businessDescription,
                 keywords: campaign.keywords || [],
                 status: campaign.status || "draft",
                 totalCommentsGenerated: campaign.totalCommentsGenerated || 0,
@@ -1680,6 +1685,11 @@ export default function LeadFinderDashboard() {
             }
           })
         }}
+        onEditCampaign={(campaignId: string) => {
+          console.log("📝 [LEAD-FINDER] Opening edit dialog for campaign:", campaignId)
+          setEditingCampaignId(campaignId)
+          setEditDialogOpen(true)
+        }}
         isWorkflowRunning={state.workflowRunning}
         onMassPost={handleMassPost}
       />
@@ -1931,6 +1941,7 @@ export default function LeadFinderDashboard() {
                   return {
                     id: campaign.id,
                     name: campaign.name,
+                    businessDescription: campaign.businessDescription,
                     keywords: campaign.keywords || [],
                     status: campaign.status || "draft",
                     totalCommentsGenerated: campaign.totalCommentsGenerated || 0,
@@ -2036,6 +2047,51 @@ export default function LeadFinderDashboard() {
         onOpenChange={open => updateState({ showMassPostDialog: open })}
         leads={state.leads}
         userId={user?.id || ""}
+      />
+
+      {/* Edit Campaign Dialog */}
+      <EditCampaignDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        campaign={editingCampaignId ? state.campaigns.find(c => c.id === editingCampaignId) || null : null}
+        onSuccess={async () => {
+          console.log("📝 [LEAD-FINDER] Campaign edited successfully, refreshing...")
+          setEditDialogOpen(false)
+          setEditingCampaignId(null)
+          
+          // Refresh campaigns list
+          if (currentOrganization) {
+            const campaignsResult = await getCampaignsByOrganizationIdAction(
+              currentOrganization.id
+            )
+            
+            if (campaignsResult.isSuccess) {
+              const transformedCampaigns: Campaign[] = campaignsResult.data.map(campaign => ({
+                id: campaign.id,
+                name: campaign.name,
+                businessDescription: campaign.businessDescription,
+                keywords: campaign.keywords || [],
+                status: campaign.status || "draft",
+                totalCommentsGenerated: campaign.totalCommentsGenerated || 0,
+                createdAt:
+                  typeof campaign.createdAt === "string"
+                    ? campaign.createdAt
+                    : (campaign.createdAt as any)?.toDate?.()?.toISOString() ||
+                      new Date().toISOString()
+              }))
+              
+              setState(prev => ({ ...prev, campaigns: transformedCampaigns }))
+              
+              // Update current campaign name if it was edited
+              if (editingCampaignId === state.campaignId) {
+                const updatedCampaign = transformedCampaigns.find(c => c.id === state.campaignId)
+                if (updatedCampaign) {
+                  setState(prev => ({ ...prev, campaignName: updatedCampaign.name }))
+                }
+              }
+            }
+          }
+        }}
       />
 
       {/* Reddit Re-authentication Dialog */}
