@@ -626,6 +626,7 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
   threadContent: string,
   subreddit: string,
   organizationId: string,
+  campaignKeywords: string[],
   campaignWebsiteContent?: string,
   existingComments?: string[]
 ): Promise<
@@ -635,6 +636,7 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
     microComment: string
     mediumComment: string
     verboseComment: string
+    derivedSpecificKeywords?: string[]
   }>
 > {
   try {
@@ -644,6 +646,7 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
     console.log("🤖 [OPENAI-PERSONALIZED] Thread title:", threadTitle)
     console.log("🤖 [OPENAI-PERSONALIZED] Subreddit:", subreddit)
     console.log("🤖 [OPENAI-PERSONALIZED] Organization ID:", organizationId)
+    console.log("🤖 [OPENAI-PERSONALIZED] Campaign Keywords:", campaignKeywords.join(", "))
     console.log(
       "🤖 [OPENAI-PERSONALIZED] Existing comments provided:",
       existingComments?.length || 0
@@ -847,8 +850,11 @@ Provide a brief analysis of:
     const systemPrompt = `You are a lead qualification expert for Reddit threads. Your job is to:
 1. Score how relevant a Reddit thread is for the business
 2. Generate natural, authentic Reddit comments if relevant
+3. Identify highly specific keyword phrases from the thread that align with the campaign's focus.
 
 ${primaryBusinessContent ? `Business Context: ${primaryBusinessContent}` : "The business offers general solutions."}
+
+Campaign Focus Keywords: ${campaignKeywords.join(", ")}
 
 ${voicePrompt ? `\nVoice Instructions:\n${voicePrompt}\n` : ""}
 
@@ -860,7 +866,7 @@ Subreddit: r/${subreddit}
 
 ${existingComments && existingComments.length > 0 ? `\nExample comments from this thread:\n${existingComments.slice(0, 5).join("\n---\n")}` : ""}
 
-Evaluate how relevant this Reddit thread is for ${businessName}.
+Evaluate how relevant this Reddit thread is for ${businessName}, considering the campaign focus keywords: ${campaignKeywords.join(", ")}.
 
 Important: People rarely directly ask for solutions. Read between the lines and look for indirect signals like:
 - Expressing frustration or challenges that the business solves
@@ -870,40 +876,41 @@ Important: People rarely directly ask for solutions. Read between the lines and 
 - Engaging with topics the business addresses
 
 Score this thread from 0-100 based on:
-- How closely the problem matches what ${businessName} solves
+- How closely the problem matches what ${businessName} solves, aligned with the campaign keywords.
 - How clearly they express a need (directly or indirectly)
 - How likely they would be interested in the solution
 - Whether they seem to be actively looking for help
 - Their apparent frustration/pain level
 
 Use this scale:
-90-100 = Perfect match (clearly expressing need, actively looking for exactly what we offer)
-70-89 = Strong match (clear problem/need that we solve)
-40-69 = Moderate match (showing some signs of problems we address)
-20-39 = Weak match (tangentially related to our solution)
-0-19 = No match (completely unrelated to what we offer)
+90-100 = Perfect match (clearly expressing need, actively looking for exactly what we offer, strong alignment with campaign keywords)
+70-89 = Strong match (clear problem/need that we solve, good alignment with campaign keywords)
+40-69 = Moderate match (showing some signs of problems we address, some alignment with campaign keywords)
+20-39 = Weak match (tangentially related to our solution or campaign keywords)
+0-19 = No match (completely unrelated to what we offer or campaign keywords)
 
-Then, if the score is 40 or above, generate three comments as someone who has tried multiple solutions:
+Then, if the score is 40 or above:
+1. Generate three comments as someone who has tried multiple solutions:
+   - Micro (1-2 sentences): Quick mention that you've tried a few things and ${businessName} worked well
+   - Medium (3-4 sentences): Brief story following this structure:
+     - "I've been there..." or similar empathy
+     - "I tried [specific free tool name] first but [specific limitation]"
+     - "Then found ${businessName} which [specific benefit]"
+     - "There's also [specific premium tool] but that's overkill for most"
+   - Verbose (5-7 sentences): Full journey following this structure:
+     - Open with empathy about the struggle
+     - "First I tried [specific free tool] - it was okay for [what it did well] but [specific limitations]"
+     - "Then I discovered ${businessName} through [how you found it]. What really helped was [specific features]"
+     - "I also looked at [specific premium tool] which is great if you need [advanced features] but honestly overkill for most people"
+     - "Happy to share more details if you want"
 
-1. Micro (1-2 sentences): Quick mention that you've tried a few things and ${businessName} worked well
-2. Medium (3-4 sentences): Brief story following this structure:
-   - "I've been there..." or similar empathy
-   - "I tried [specific free tool name] first but [specific limitation]"
-   - "Then found ${businessName} which [specific benefit]"
-   - "There's also [specific premium tool] but that's overkill for most"
-3. Verbose (5-7 sentences): Full journey following this structure:
-   - Open with empathy about the struggle
-   - "First I tried [specific free tool] - it was okay for [what it did well] but [specific limitations]"
-   - "Then I discovered ${businessName} through [how you found it]. What really helped was [specific features]"
-   - "I also looked at [specific premium tool] which is great if you need [advanced features] but honestly overkill for most people"
-   - "Happy to share more details if you want"
+   CRITICAL: You MUST mention THREE different solutions in each comment:
+   1. A FREE tool/solution (name it specifically, e.g., "Google Sheets" for a data management problem, or "Canva free plan" for a design problem. Choose a tool relevant to the thread.)
+   2. ${businessName} (our solution - present as the reasonable middle option)
+   3. A PREMIUM/EXPENSIVE tool (name it specifically, e.g., "Salesforce" for CRM, or "Adobe Creative Cloud" for design. Choose a tool relevant to the thread.)
+   Present all three neutrally - you're sharing your experience, not selling.
 
-CRITICAL: You MUST mention THREE different solutions in each comment:
-1. A FREE tool/solution (name it specifically, e.g., "Google Sheets" for a data management problem, or "Canva free plan" for a design problem. Choose a tool relevant to the thread.)
-2. ${businessName} (our solution - present as the reasonable middle option)
-3. A PREMIUM/EXPENSIVE tool (name it specifically, e.g., "Salesforce" for CRM, or "Adobe Creative Cloud" for design. Choose a tool relevant to the thread.)
-
-Present all three neutrally - you're sharing your experience, not selling.
+2. Identify and list 3-5 specific keyword phrases (3-5 words each) from the thread itself that are highly relevant to the business and the campaign's focus keywords (${campaignKeywords.join(", ")}). These phrases should capture the core problem or specific interest expressed by the Reddit user.
 
 Remember: Write like someone genuinely sharing their experience. Match the subreddit's tone and style.
 
@@ -913,7 +920,8 @@ Return as JSON:
   "reasoning": "brief explanation of the score",
   "microComment": "comment text" (or empty string if score < 40),
   "mediumComment": "comment text" (or empty string if score < 40),
-  "verboseComment": "comment text" (or empty string if score < 40)
+  "verboseComment": "comment text" (or empty string if score < 40),
+  "derivedSpecificKeywords": ["phrase 1", "phrase 2", ...] (empty array if score < 40 or no specific phrases found)
 }`
 
     // Log the full prompts being sent
@@ -986,6 +994,10 @@ Return as JSON:
       parsed.verboseComment
     )
     console.log(
+      "🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] Derived Specific Keywords:",
+      parsed.derivedSpecificKeywords
+    )
+    console.log(
       "🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] ========== RESPONSE END =========="
     )
 
@@ -1000,7 +1012,8 @@ Return as JSON:
         reasoning: parsed.reasoning,
         microComment: parsed.microComment,
         mediumComment: parsed.mediumComment,
-        verboseComment: parsed.verboseComment
+        verboseComment: parsed.verboseComment,
+        derivedSpecificKeywords: parsed.derivedSpecificKeywords || [] // Ensure it's an array
       }
     }
   } catch (error) {

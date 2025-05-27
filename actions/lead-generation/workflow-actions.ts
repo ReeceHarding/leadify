@@ -616,6 +616,7 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
             apiThread.content,
             apiThread.subreddit,
             organizationId, // Pass organizationId instead of userId
+            campaign.keywords, // Pass campaign keywords
             websiteContent, // Pass campaign website content (scraped or description)
             existingComments // Pass existing comments for tone matching
           )
