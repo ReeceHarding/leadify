@@ -104,7 +104,7 @@ export async function updateLeadGenerationProgressAction(
         const stageToUpdate = { ...updatedStages[stageIndex] }
 
         stageToUpdate.status = updates.stageUpdate.status
-        
+
         if (updates.stageUpdate.message !== undefined) {
           stageToUpdate.message = updates.stageUpdate.message
         }
@@ -116,17 +116,22 @@ export async function updateLeadGenerationProgressAction(
           updates.stageUpdate.status === "in_progress" &&
           !stageToUpdate.startedAt
         ) {
-          stageToUpdate.startedAt = serverTimestamp() as Timestamp
+          stageToUpdate.startedAt = Timestamp.now()
         }
 
-        if (updates.stageUpdate.status === "completed" && !stageToUpdate.completedAt) {
-          stageToUpdate.completedAt = serverTimestamp() as Timestamp
+        if (
+          updates.stageUpdate.status === "completed" &&
+          !stageToUpdate.completedAt
+        ) {
+          stageToUpdate.completedAt = Timestamp.now()
         }
-        
+
         updatedStages[stageIndex] = stageToUpdate
         updateData.stages = updatedStages
       } else {
-        console.warn(`[PROGRESS-UPDATE] Stage "${updates.stageUpdate.stageName}" not found for campaign ${campaignId}`)
+        console.warn(
+          `[PROGRESS-UPDATE] Stage "${updates.stageUpdate.stageName}" not found for campaign ${campaignId}`
+        )
       }
     }
 
@@ -136,17 +141,17 @@ export async function updateLeadGenerationProgressAction(
 
     if (updates.error && updates.error.trim() !== "") {
       updateData.error = updates.error
-      if (updateData.status !== 'error') {
-        updateData.status = 'error'
+      if (updateData.status !== "error") {
+        updateData.status = "error"
       }
-    } else if (updates.hasOwnProperty('error') && updates.error === null) {
+    } else if (updates.hasOwnProperty("error") && updates.error === null) {
       updateData.error = null
     }
 
     if (updates.results) {
       updateData.results = updates.results
     }
-    
+
     for (const key in updateData) {
       if (updateData[key] === undefined) {
         delete updateData[key]
@@ -154,10 +159,15 @@ export async function updateLeadGenerationProgressAction(
     }
 
     if (Object.keys(updateData).length > 1) {
-        await setDoc(progressRef, updateData, { merge: true })
-        console.log(`[PROGRESS-UPDATE] Progress updated for ${campaignId}:`, updateData)
+      await setDoc(progressRef, updateData, { merge: true })
+      console.log(
+        `[PROGRESS-UPDATE] Progress updated for ${campaignId}:`,
+        updateData
+      )
     } else {
-        console.log(`[PROGRESS-UPDATE] No actual changes to update for ${campaignId} besides timestamp.`)
+      console.log(
+        `[PROGRESS-UPDATE] No actual changes to update for ${campaignId} besides timestamp.`
+      )
     }
 
     return {

@@ -1,7 +1,8 @@
 "use client"
 
 import React from "react"
-import { LeadResult, WorkflowProgress } from "./types"
+import { LeadResult } from "./types"
+import { LeadGenerationProgress } from "@/types"
 import LeadCard from "./lead-card"
 import ToneCustomizer from "./tone-customizer"
 import FiltersAndSorting from "./filters-and-sorting"
@@ -15,8 +16,8 @@ import { EnhancedErrorState, EmptyState } from "../enhanced-error-states" // Adj
 import { MessageSquare, Search, Filter } from "lucide-react"
 
 interface LeadsDisplayProps {
-  // Remove workflowProgress from here as it's handled by the parent for the main loader
-  // workflowProgress: WorkflowProgress
+  // Add workflowProgress back as we need it to show the progress
+  workflowProgress?: LeadGenerationProgress | null
   leads: LeadResult[]
   filteredAndSortedLeads: LeadResult[]
   paginatedLeads: LeadResult[]
@@ -62,7 +63,7 @@ interface LeadsDisplayProps {
 }
 
 export default function LeadsDisplay({
-  // workflowProgress, // Removed
+  workflowProgress,
   leads,
   filteredAndSortedLeads,
   paginatedLeads,
@@ -98,20 +99,20 @@ export default function LeadsDisplay({
 }: LeadsDisplayProps) {
   const renderLoadingSkeleton = () => <EnhancedLeadSkeleton />
 
-  // Removed renderWorkflowProgress function as it's handled by parent
-
   // Main conditional rendering logic
-  // The parent LeadFinderDashboard will handle the main loading/error for the workflow.
-  // This component now focuses on displaying leads or an empty/error state for the leads list.
-
+  // If there's a campaign selected but no leads, show appropriate state
   if (leads.length === 0 && campaignId) {
-    // If there's a campaign selected but no leads, show appropriate empty state.
-    // The parent dashboard handles the "workflow still processing" case via GenerationProgress.
-    // Don't show empty state if workflow is running - let the parent's GenerationProgress show instead
-    if (isWorkflowRunning) {
-      return null // Return nothing, let parent's GenerationProgress be visible
+    // If workflow is running and we have progress data, show the progress
+    if (
+      isWorkflowRunning &&
+      workflowProgress &&
+      workflowProgress.status !== "completed" &&
+      workflowProgress.status !== "error"
+    ) {
+      return <GenerationProgress progress={workflowProgress} className="" />
     }
-    
+
+    // Otherwise show empty state
     return (
       <EmptyState
         title="No leads found for this search yet"

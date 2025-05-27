@@ -409,7 +409,7 @@ export default function CreateCampaignDialog({
                     {activeOrganization.name}
                   </span>
                   {activeOrganization.website && (
-                    <span className="text-blue-600 dark:text-blue-400 block text-xs mt-1">
+                    <span className="mt-1 block text-xs text-blue-600 dark:text-blue-400">
                       {activeOrganization.website}
                     </span>
                   )}

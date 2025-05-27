@@ -1545,17 +1545,6 @@ export default function LeadFinderDashboard() {
         </Card>
       )}
 
-      {/* Workflow Progress Display */}
-      {state.campaignId &&
-        liveFirestoreProgress &&
-        liveFirestoreProgress.status !== "completed" &&
-        liveFirestoreProgress.status !== "error" && (
-          <GenerationProgress
-            progress={liveFirestoreProgress}
-            className="mb-6"
-          />
-        )}
-
       {/* Dashboard Header */}
       <DashboardHeader
         campaignId={state.campaignId}
@@ -1736,13 +1725,17 @@ export default function LeadFinderDashboard() {
 
         {/* Main Leads Display */}
         <LeadsDisplay
+          workflowProgress={liveFirestoreProgress}
           leads={state.leads}
           filteredAndSortedLeads={filteredLeads}
           paginatedLeads={paginatedLeads}
           newLeadIds={newLeadIds.current}
           activeTab={state.activeTab}
           campaignId={state.campaignId}
-          isWorkflowRunning={state.workflowRunning || (liveFirestoreProgress?.status === "in_progress")}
+          isWorkflowRunning={
+            state.workflowRunning ||
+            liveFirestoreProgress?.status === "in_progress"
+          }
           selectedLength={state.selectedLength}
           onEditComment={handleCommentEdit}
           onPostComment={handlePostNow}
