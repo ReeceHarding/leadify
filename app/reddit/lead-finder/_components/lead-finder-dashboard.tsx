@@ -1158,7 +1158,11 @@ export default function LeadFinderDashboard() {
           lead.subreddit,
           campaignResult.data.websiteContent,
           state.toneInstruction,
-          lead.postUrl // Pass the post URL for fetching existing comments
+          lead.organizationId, // Pass organizationId from lead
+          lead.postUrl, // Pass the post URL for fetching existing comments
+          lead.microComment, // Pass existing micro comment
+          lead.mediumComment, // Pass existing medium comment
+          lead.verboseComment // Pass existing verbose comment
         )
 
         if (result.isSuccess) {
@@ -1227,7 +1231,11 @@ export default function LeadFinderDashboard() {
         lead.subreddit,
         campaignResult.data.websiteContent,
         instructions,
-        lead.postUrl // Pass the post URL for fetching existing comments
+        lead.organizationId, // Pass organizationId from lead
+        lead.postUrl, // Pass the post URL for fetching existing comments
+        lead.microComment, // Pass existing micro comment
+        lead.mediumComment, // Pass existing medium comment
+        lead.verboseComment // Pass existing verbose comment
       )
 
       if (result.isSuccess) {

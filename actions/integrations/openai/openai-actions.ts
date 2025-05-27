@@ -365,7 +365,10 @@ export async function regenerateCommentsWithToneAction(
   websiteContent: string,
   toneInstruction: string,
   organizationId: string,
-  postUrl?: string // Add optional postUrl parameter
+  postUrl?: string, // Add optional postUrl parameter
+  existingMicroComment?: string,
+  existingMediumComment?: string,
+  existingVerboseComment?: string
 ): Promise<
   ActionState<{
     microComment: string
@@ -376,6 +379,28 @@ export async function regenerateCommentsWithToneAction(
   try {
     console.log("🎨 [TONE-REGENERATE] Starting tone-based regeneration")
     console.log("🎨 [TONE-REGENERATE] Tone instruction:", toneInstruction)
+    console.log("🎨 [TONE-REGENERATE] Existing Micro:", existingMicroComment)
+    console.log("🎨 [TONE-REGENERATE] Existing Medium:", existingMediumComment)
+    console.log("🎨 [TONE-REGENERATE] Existing Verbose:", existingVerboseComment)
+
+    // Check for verbatim lowercase instruction
+    if (
+      toneInstruction.toLowerCase().includes("verbatim") &&
+      toneInstruction.toLowerCase().includes("lowercase")
+    ) {
+      console.log(
+        "🎨 [TONE-REGENERATE] Detected verbatim lowercase instruction. Converting existing comments."
+      )
+      return {
+        isSuccess: true,
+        message: "Comments converted to lowercase verbatim.",
+        data: {
+          microComment: existingMicroComment?.toLowerCase() || "",
+          mediumComment: existingMediumComment?.toLowerCase() || "",
+          verboseComment: existingVerboseComment?.toLowerCase() || ""
+        }
+      }
+    }
 
     // Try to fetch existing comments if we have a post URL
     let existingComments: string[] = []
