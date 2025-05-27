@@ -312,51 +312,63 @@ export async function updateProfileAction(
     console.log("🔥 [UPDATE-PROFILE] Profile exists:", profileDoc.exists())
 
     if (!profileDoc.exists()) {
-      console.log("🔥 [UPDATE-PROFILE] Profile not found for update")
-      return { isSuccess: false, message: "Profile not found to update" }
+      console.log("🔥 [UPDATE-PROFILE] Profile not found, creating new profile")
+      
+      // Create new profile with default values
+      const newProfileData = {
+        userId,
+        membership: "free" as const,
+        ...data,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      }
+      
+      const createData = removeUndefinedValues(newProfileData)
+      console.log("🔥 [UPDATE-PROFILE] Creating new profile with data:", JSON.stringify(createData, null, 2))
+      
+      await setDoc(profileRef, createData)
+      console.log("🔥 [UPDATE-PROFILE] New profile created successfully")
+    } else {
+      const existingData = profileDoc.data()
+      console.log(
+        "🔥 [UPDATE-PROFILE] Existing profile data:",
+        JSON.stringify(existingData, null, 2)
+      )
+
+      // Create update data and filter out undefined values
+      const rawUpdateData = {
+        ...data,
+        updatedAt: serverTimestamp()
+      }
+
+      console.log(
+        "🔥 [UPDATE-PROFILE] Raw update data before filtering:",
+        JSON.stringify(rawUpdateData, null, 2)
+      )
+      console.log(
+        "🔥 [UPDATE-PROFILE] Raw update data keys:",
+        Object.keys(rawUpdateData)
+      )
+
+      console.log(
+        "🔥 [UPDATE-PROFILE] serverTimestamp() for updatedAt type:",
+        typeof rawUpdateData.updatedAt
+      )
+
+      const updateData = removeUndefinedValues(rawUpdateData)
+      console.log(
+        "🔥 [UPDATE-PROFILE] Update data after filtering undefined values:",
+        JSON.stringify(updateData, null, 2)
+      )
+      console.log(
+        "🔥 [UPDATE-PROFILE] Filtered update data keys:",
+        Object.keys(updateData)
+      )
+
+      console.log("🔥 [UPDATE-PROFILE] Writing update to Firestore...")
+      await updateDoc(profileRef, updateData)
+      console.log("🔥 [UPDATE-PROFILE] Successfully updated Firestore")
     }
-
-    const existingData = profileDoc.data()
-    console.log(
-      "🔥 [UPDATE-PROFILE] Existing profile data:",
-      JSON.stringify(existingData, null, 2)
-    )
-
-
-    // Create update data and filter out undefined values
-    const rawUpdateData = {
-      ...data,
-      updatedAt: serverTimestamp()
-    }
-
-    console.log(
-      "🔥 [UPDATE-PROFILE] Raw update data before filtering:",
-      JSON.stringify(rawUpdateData, null, 2)
-    )
-    console.log(
-      "🔥 [UPDATE-PROFILE] Raw update data keys:",
-      Object.keys(rawUpdateData)
-    )
-
-    console.log(
-      "🔥 [UPDATE-PROFILE] serverTimestamp() for updatedAt type:",
-      typeof rawUpdateData.updatedAt
-    )
-
-    const updateData = removeUndefinedValues(rawUpdateData)
-    console.log(
-      "🔥 [UPDATE-PROFILE] Update data after filtering undefined values:",
-      JSON.stringify(updateData, null, 2)
-    )
-    console.log(
-      "🔥 [UPDATE-PROFILE] Filtered update data keys:",
-      Object.keys(updateData)
-    )
-
-
-    console.log("🔥 [UPDATE-PROFILE] Writing update to Firestore...")
-    await updateDoc(profileRef, updateData)
-    console.log("🔥 [UPDATE-PROFILE] Successfully updated Firestore")
 
     // Get the updated document
     console.log("🔥 [UPDATE-PROFILE] Reading back updated document...")
