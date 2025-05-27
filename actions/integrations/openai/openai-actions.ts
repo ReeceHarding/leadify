@@ -845,7 +845,8 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
   organizationId: string,
   campaignKeywords: string[],
   campaignWebsiteContent?: string,
-  existingComments?: string[]
+  existingComments?: string[],
+  campaignName?: string
 ): Promise<
   ActionState<{
     score: number
@@ -868,6 +869,7 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
       "🤖 [OPENAI-PERSONALIZED] Existing comments provided:",
       existingComments?.length || 0
     )
+    console.log("🤖 [OPENAI-PERSONALIZED] Campaign name:", campaignName)
 
     // Get organization data for personalization
     const { getOrganizationByIdAction } = await import(
@@ -886,10 +888,11 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
 
     const organization = orgResult.data
     const businessWebsiteUrl = organization.website || ""
-    const businessName = organization.name || "our solution"
+    // Use campaign name if provided, otherwise fall back to organization name
+    const businessName = campaignName || organization.name || "our solution"
 
     console.log(
-      "🤖 [OPENAI-PERSONALIZED] Business name from organization:",
+      "🤖 [OPENAI-PERSONALIZED] Business name being used:",
       businessName
     )
     console.log(

@@ -667,7 +667,8 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
             organizationId, // Pass organizationId instead of userId
             campaign.keywords, // Pass campaign keywords
             websiteContent, // Pass campaign website content (scraped or description)
-            existingComments // Pass existing comments for tone matching
+            existingComments, // Pass existing comments for tone matching
+            campaign.name // Pass campaign name
           )
 
         if (scoringResult.isSuccess) {
