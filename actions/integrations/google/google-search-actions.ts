@@ -8,6 +8,7 @@ Used to search for Reddit threads based on keywords.
 "use server"
 
 import { ActionState, GoogleSearchResult } from "@/types"
+import { KEYWORD_CONFIG } from "@/lib/config/keyword-config"
 
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY
 const GOOGLE_SEARCH_ENGINE_ID = process.env.GOOGLE_SEARCH_ENGINE_ID
@@ -88,7 +89,7 @@ export async function searchRedditThreadsAction(
       data = await performSearch(searchQuery)
       
       // If no results with quoted search, try without quotes
-      if (!data.items || data.items.length === 0) {
+      if (!data.items || data.items.length < KEYWORD_CONFIG.MIN_RESULTS) {
         console.log("🔍🔍🔍 [GOOGLE-SEARCH] No results with quotes, trying without quotes...")
         
         // Remove quotes and OR operators, keep the meaningful words
@@ -128,7 +129,7 @@ export async function searchRedditThreadsAction(
       data.items?.length || 0
     )
 
-    if (!data.items || data.items.length === 0) {
+    if (!data.items || data.items.length < KEYWORD_CONFIG.MIN_RESULTS) {
       console.log("🔍🔍🔍 [GOOGLE-SEARCH] ⚠️ No results found after fallback")
       console.log(
         "🔍🔍🔍 [GOOGLE-SEARCH] ========== SEARCH END (NO RESULTS) =========="
