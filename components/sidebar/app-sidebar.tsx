@@ -6,7 +6,15 @@ This client component provides the sidebar for the app.
 
 "use client"
 
-import { Building2, User, MessageSquare, Target, Settings } from "lucide-react"
+import {
+  Building2,
+  User,
+  MessageSquare,
+  Target,
+  Settings,
+  Search,
+  FileText
+} from "lucide-react"
 import * as React from "react"
 
 import {
@@ -51,6 +59,24 @@ const data = {
   ],
   projects: []
 }
+
+const redditItems = [
+  {
+    title: "Lead Finder",
+    url: "/reddit/lead-finder",
+    icon: Search
+  },
+  {
+    title: "DM Finder",
+    url: "/reddit/dm-finder",
+    icon: MessageSquare
+  },
+  {
+    title: "My Posts",
+    url: "/reddit/my-posts",
+    icon: FileText
+  }
+]
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
