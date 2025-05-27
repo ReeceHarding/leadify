@@ -7,13 +7,16 @@ import { scrapeWebsiteAction } from "@/actions/integrations/firecrawl/website-sc
 import { KEYWORD_CONFIG } from "@/lib/config/keyword-config"
 import { db } from "@/db/db"
 import { collection, doc, serverTimestamp, setDoc } from "firebase/firestore"
-import { KEYWORD_PERFORMANCE_COLLECTIONS, KeywordPerformanceDocument } from "@/db/firestore/keyword-performance-collections"
+import { KEYWORD_PERFORMANCE_COLLECTIONS, CreateKeywordPerformanceData } from "@/db/firestore/keyword-performance-collections"
 import { generateUUID } from "@/lib/utils"
+import { auth } from "@clerk/nextjs/server"
 
 interface GenerateKeywordsData {
   website?: string
   businessDescription?: string
   refinement?: string
+  organizationId?: string // Optional for backward compatibility
+  campaignId?: string // Optional campaign association
 }
 
 interface KeywordsResult {
@@ -29,7 +32,9 @@ interface KeywordsResult {
 export async function generateKeywordsAction({
   website,
   businessDescription,
-  refinement = ""
+  refinement = "",
+  organizationId,
+  campaignId
 }: GenerateKeywordsData): Promise<ActionState<KeywordsResult>> {
   try {
     console.log("🔍 [KEYWORDS] Generating keywords")
@@ -39,6 +44,18 @@ export async function generateKeywordsAction({
       businessDescription ? "Provided" : "None"
     )
     console.log("🔍 [KEYWORDS] Refinement:", refinement)
+    console.log("🔍 [KEYWORDS] Organization ID:", organizationId || "None")
+    console.log("🔍 [KEYWORDS] Campaign ID:", campaignId || "None")
+
+    // Get current user if organizationId not provided
+    const { userId } = await auth()
+    if (!userId && !organizationId) {
+      console.error("🔍 [KEYWORDS] No user ID or organization ID provided")
+      return {
+        isSuccess: false,
+        message: "Authentication required"
+      }
+    }
 
     const businessInfo = businessDescription
       ? `Business Description: ${businessDescription}`
@@ -109,17 +126,27 @@ export async function generateKeywordsAction({
     console.log(`🔍 [KEYWORDS] Generated ${parsedResponse.keywords.length} keywords and strategic insights.`)
 
     // Persist keyword performance stub for future tracking
-    const perfId = generateUUID()
-    const perfDoc: KeywordPerformanceDocument = {
-      id: perfId,
-      keywords: parsedResponse.keywords,
-      createdAt: serverTimestamp() as any
-    }
-    try {
-      const perfRef = doc(collection(db, KEYWORD_PERFORMANCE_COLLECTIONS.KEYWORD_PERFORMANCE), perfId)
-      await setDoc(perfRef, perfDoc)
-    } catch (perfErr) {
-      console.error("[KEYWORD-PERF] Failed to write performance doc", perfErr)
+    if (organizationId || userId) {
+      const perfId = generateUUID()
+      const perfData: CreateKeywordPerformanceData = {
+        userId: userId!,
+        organizationId: organizationId || "", // Will need to be provided in future
+        campaignId,
+        keywords: parsedResponse.keywords
+      }
+      
+      try {
+        const perfRef = doc(collection(db, KEYWORD_PERFORMANCE_COLLECTIONS.KEYWORD_PERFORMANCE), perfId)
+        await setDoc(perfRef, {
+          ...perfData,
+          id: perfId,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        })
+        console.log("🔍 [KEYWORDS] Created keyword performance document:", perfId)
+      } catch (perfErr) {
+        console.error("[KEYWORD-PERF] Failed to write performance doc", perfErr)
+      }
     }
 
     return {

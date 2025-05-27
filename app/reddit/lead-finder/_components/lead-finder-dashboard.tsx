@@ -292,7 +292,7 @@ const matchesSearchQuery = (lead: LeadResult, query: string): boolean => {
 
 export default function LeadFinderDashboard() {
   const { user, isLoaded: userLoaded } = useUser()
-  const { activeOrganization, isLoading: organizationLoading } = useOrganization()
+  const { currentOrganization, isLoading: organizationLoading } = useOrganization()
   const [state, setState] = useState<DashboardState>(initialState)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [findNewLeadsOpen, setFindNewLeadsOpen] = useState(false)
@@ -329,7 +329,7 @@ export default function LeadFinderDashboard() {
         return
       }
 
-      if (!activeOrganization) {
+      if (!currentOrganization) {
         addDebugLog("createAndRunCampaign: No active organization")
         toast.error("Please select an organization first")
         return
@@ -346,7 +346,7 @@ export default function LeadFinderDashboard() {
         }))
 
         // Profile check removed - using organization context instead
-        if (!activeOrganization) {
+        if (!currentOrganization) {
           toast.error("No organization selected. Cannot create campaign.")
           addDebugLog("No organization selected for campaign creation", {
             userId: user.id
@@ -360,12 +360,12 @@ export default function LeadFinderDashboard() {
           return
         }
 
-        if (!activeOrganization.website) {
+        if (!currentOrganization.website) {
           toast.error(
             "Organization is missing website information. Cannot create campaign."
           )
           addDebugLog("Organization missing website for campaign creation", {
-            organizationId: activeOrganization.id
+            organizationId: currentOrganization.id
           })
           setState(prev => ({
             ...prev,
@@ -378,9 +378,9 @@ export default function LeadFinderDashboard() {
 
         const campaignResult = await createCampaignAction({
           userId: user.id,
-          organizationId: activeOrganization.id,
+          organizationId: currentOrganization.id,
           name: `Lead Gen - ${new Date().toLocaleDateString()}`,
-          website: activeOrganization.website,
+          website: currentOrganization.website,
           keywords: keywords
         })
 
@@ -430,7 +430,7 @@ export default function LeadFinderDashboard() {
         toast.error(errorMessage)
       }
     },
-    [user, activeOrganization, addDebugLog]
+    [user, currentOrganization, addDebugLog]
   )
 
   // Real-time workflow progress listener
@@ -527,7 +527,7 @@ export default function LeadFinderDashboard() {
             return {
               id: docSnap.id,
               campaignId: comment.campaignId || "",
-              organizationId: validateOrganizationId(activeOrganization?.id, "Lead creation"),
+              organizationId: validateOrganizationId(currentOrganization?.id, "Lead creation"),
               postUrl: comment.postUrl || "",
               postTitle: comment.postTitle || "Untitled Post",
               postAuthor: comment.postAuthor || "Unknown Author",
@@ -606,7 +606,7 @@ export default function LeadFinderDashboard() {
       }
 
       // Wait for organization context to be loaded
-      if (!activeOrganization) {
+      if (!currentOrganization) {
         addDebugLog("Waiting for organization context to load")
         // Don't set isLoading to false here - wait for organization
         return
@@ -614,7 +614,7 @@ export default function LeadFinderDashboard() {
 
       addDebugLog("Initializing dashboard", { 
         userId: user.id,
-        organizationId: activeOrganization.id 
+        organizationId: currentOrganization.id 
       })
       
       // Set isLoading to true at the start of initialization.
@@ -623,10 +623,10 @@ export default function LeadFinderDashboard() {
 
       try {
         // Check localStorage for previously selected campaign
-        const storedCampaignId = localStorage.getItem(`campaign_${activeOrganization.id}_${user.id}`)
+        const storedCampaignId = localStorage.getItem(`campaign_${currentOrganization.id}_${user.id}`)
         
         const campaignsResult = await getCampaignsByOrganizationIdAction(
-          activeOrganization.id
+          currentOrganization.id
         )
 
         // Transform campaigns data for the dropdown
@@ -686,7 +686,7 @@ export default function LeadFinderDashboard() {
           setState(prev => ({ ...prev, campaignId: selectedCampaign.id }))
           
           // Store the selected campaign ID
-          localStorage.setItem(`campaign_${activeOrganization.id}_${user.id}`, selectedCampaign.id)
+          localStorage.setItem(`campaign_${currentOrganization.id}_${user.id}`, selectedCampaign.id)
           
           addDebugLog("Campaign selected", { campaignId: selectedCampaign.id })
 
@@ -720,7 +720,7 @@ export default function LeadFinderDashboard() {
     }
 
     initialize()
-  }, [userLoaded, user, activeOrganization, addDebugLog])
+  }, [userLoaded, user, currentOrganization, addDebugLog])
 
   // Handle Reddit OAuth success
   useEffect(() => {
@@ -1564,8 +1564,8 @@ export default function LeadFinderDashboard() {
           setState(prev => ({ ...prev, campaignId, isLoading: true }))
           
           // Persist the selected campaign ID
-          if (user && activeOrganization) {
-            localStorage.setItem(`campaign_${activeOrganization.id}_${user.id}`, campaignId)
+          if (user && currentOrganization) {
+            localStorage.setItem(`campaign_${currentOrganization.id}_${user.id}`, campaignId)
           }
           
           // Load campaign details
@@ -1799,10 +1799,10 @@ export default function LeadFinderDashboard() {
           setCreateDialogOpen(false)
 
           // Refresh the campaigns list to get the new campaign
-          if (user?.id && activeOrganization) {
+          if (user?.id && currentOrganization) {
             try {
               const campaignsResult = await getCampaignsByOrganizationIdAction(
-                activeOrganization.id
+                currentOrganization.id
               )
 
               if (
@@ -1855,8 +1855,8 @@ export default function LeadFinderDashboard() {
                 }))
                 
                 // Persist the new campaign ID
-                if (user && activeOrganization) {
-                  localStorage.setItem(`campaign_${activeOrganization.id}_${user.id}`, latestCampaign.id)
+                if (user && currentOrganization) {
+                  localStorage.setItem(`campaign_${currentOrganization.id}_${user.id}`, latestCampaign.id)
                 }
 
                 // Update keywords
@@ -1877,7 +1877,7 @@ export default function LeadFinderDashboard() {
             }
           }
         }}
-        organizationId={activeOrganization?.id}
+        organizationId={currentOrganization?.id}
       />
 
       <FindNewLeadsDialog

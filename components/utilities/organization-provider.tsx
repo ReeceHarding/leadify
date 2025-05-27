@@ -7,118 +7,118 @@ Manages the current active organization and provides helper functions.
 
 "use client"
 
-import React, { createContext, useContext, useState, useEffect } from "react"
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode
+} from "react"
 import { useUser } from "@clerk/nextjs"
-import { SerializedOrganizationDocument } from "@/db/schema"
 import { getOrganizationsByUserIdAction } from "@/actions/db/organizations-actions"
+import { SerializedOrganizationDocument } from "@/db/firestore/organizations-collections"
 import { toast } from "sonner"
 
 interface OrganizationContextType {
   organizations: SerializedOrganizationDocument[]
-  activeOrganization: SerializedOrganizationDocument | null
+  currentOrganization: SerializedOrganizationDocument | null
+  setCurrentOrganization: (org: SerializedOrganizationDocument) => void
   isLoading: boolean
-  setActiveOrganization: (org: SerializedOrganizationDocument) => void
+  error: string | null
   refreshOrganizations: () => Promise<void>
 }
 
-const OrganizationContext = createContext<OrganizationContextType | null>(null)
+const OrganizationContext = createContext<OrganizationContextType | undefined>(
+  undefined
+)
 
-export function useOrganization() {
-  const context = useContext(OrganizationContext)
-  if (!context) {
-    throw new Error("useOrganization must be used within OrganizationProvider")
-  }
-  return context
-}
-
-export function OrganizationProvider({
-  children
-}: {
-  children: React.ReactNode
-}) {
-  const { user } = useUser()
+export function OrganizationProvider({ children }: { children: ReactNode }) {
+  const { user, isLoaded } = useUser()
   const [organizations, setOrganizations] = useState<
     SerializedOrganizationDocument[]
   >([])
-  const [activeOrganization, setActiveOrganizationState] =
+  const [currentOrganization, setCurrentOrganization] =
     useState<SerializedOrganizationDocument | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-
-  // Load organizations when user is available
-  useEffect(() => {
-    if (user?.id) {
-      loadOrganizations()
-    }
-  }, [user?.id])
-
-  // Load active organization from localStorage
-  useEffect(() => {
-    const storedOrgId = localStorage.getItem("activeOrgId")
-    if (storedOrgId && organizations.length > 0) {
-      const org = organizations.find(o => o.id === storedOrgId)
-      if (org) {
-        setActiveOrganizationState(org)
-      } else if (organizations.length > 0) {
-        // If stored org not found, use first org
-        setActiveOrganizationState(organizations[0])
-        localStorage.setItem("activeOrgId", organizations[0].id)
-      }
-    } else if (organizations.length > 0 && !activeOrganization) {
-      // No stored org, use first org
-      setActiveOrganizationState(organizations[0])
-      localStorage.setItem("activeOrgId", organizations[0].id)
-    }
-  }, [organizations])
+  const [error, setError] = useState<string | null>(null)
 
   const loadOrganizations = async () => {
-    if (!user?.id) return
+    if (!user?.id) {
+      console.log("🏢 [ORG-PROVIDER] No user ID, skipping organization load")
+      setIsLoading(false)
+      return
+    }
 
     try {
-      setIsLoading(true)
       console.log("🏢 [ORG-PROVIDER] Loading organizations for user:", user.id)
+      setIsLoading(true)
+      setError(null)
 
       const result = await getOrganizationsByUserIdAction(user.id)
 
-      if (result.isSuccess && result.data) {
+      if (result.isSuccess && result.data.length > 0) {
         console.log(
           "🏢 [ORG-PROVIDER] Loaded organizations:",
           result.data.length
         )
         setOrganizations(result.data)
+
+        // Set current organization from localStorage or use first one
+        const savedOrgId = localStorage.getItem("currentOrganizationId")
+        const savedOrg = savedOrgId
+          ? result.data.find(org => org.id === savedOrgId)
+          : null
+
+        if (savedOrg) {
+          console.log(
+            "🏢 [ORG-PROVIDER] Restored saved organization:",
+            savedOrg.name
+          )
+          setCurrentOrganization(savedOrg)
+        } else if (result.data.length > 0) {
+          console.log(
+            "🏢 [ORG-PROVIDER] Setting first organization as current:",
+            result.data[0].name
+          )
+          setCurrentOrganization(result.data[0])
+          localStorage.setItem("currentOrganizationId", result.data[0].id)
+        }
       } else {
-        console.error(
-          "🏢 [ORG-PROVIDER] Failed to load organizations:",
-          result.message
-        )
+        console.log("🏢 [ORG-PROVIDER] No organizations found")
+        setOrganizations([])
+        setCurrentOrganization(null)
       }
-    } catch (error) {
-      console.error("🏢 [ORG-PROVIDER] Error loading organizations:", error)
-      toast.error("Failed to load organizations")
+    } catch (err) {
+      console.error("🏢 [ORG-PROVIDER] Error loading organizations:", err)
+      setError(
+        err instanceof Error ? err.message : "Failed to load organizations"
+      )
     } finally {
       setIsLoading(false)
     }
   }
 
-  const setActiveOrganization = (org: SerializedOrganizationDocument) => {
-    console.log(
-      "🏢 [ORG-PROVIDER] Setting active organization:",
-      org.id,
-      org.name
-    )
-    setActiveOrganizationState(org)
-    localStorage.setItem("activeOrgId", org.id)
-  }
+  useEffect(() => {
+    if (isLoaded) {
+      loadOrganizations()
+    }
+  }, [user?.id, isLoaded])
 
-  const refreshOrganizations = async () => {
-    await loadOrganizations()
+  const handleSetCurrentOrganization = (
+    org: SerializedOrganizationDocument
+  ) => {
+    console.log("🏢 [ORG-PROVIDER] Setting current organization:", org.name)
+    setCurrentOrganization(org)
+    localStorage.setItem("currentOrganizationId", org.id)
   }
 
   const value: OrganizationContextType = {
     organizations,
-    activeOrganization,
+    currentOrganization,
+    setCurrentOrganization: handleSetCurrentOrganization,
     isLoading,
-    setActiveOrganization,
-    refreshOrganizations
+    error,
+    refreshOrganizations: loadOrganizations
   }
 
   return (
@@ -126,4 +126,14 @@ export function OrganizationProvider({
       {children}
     </OrganizationContext.Provider>
   )
+}
+
+export function useOrganization() {
+  const context = useContext(OrganizationContext)
+  if (context === undefined) {
+    throw new Error(
+      "useOrganization must be used within an OrganizationProvider"
+    )
+  }
+  return context
 }
