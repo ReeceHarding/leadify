@@ -35,7 +35,6 @@ import {
 } from "firebase/firestore"
 import { auth } from "@clerk/nextjs/server"
 import { toISOString } from "@/lib/utils/timestamp-utils"
-import { adminDb } from "@/lib/firebase-admin"
 
 // Serialization helper functions
 function serializeOrganizationDocument(
@@ -586,87 +585,5 @@ export async function deleteOrganizationAction(
     console.error("🏢🏢🏢 [DELETE-ORG] ❌ Error:", error)
     console.log("🏢🏢🏢 [DELETE-ORG] ========== ACTION END (ERROR) ==========")
     return { isSuccess: false, message: "Failed to delete organization" }
-  }
-}
-
-// Version for use in middleware with Firebase Admin SDK
-export async function getOrganizationsByUserIdForMiddlewareAction(
-  userId: string
-): Promise<ActionState<SerializedOrganizationDocument[]>> {
-  console.log("🏢🏢🏢 [GET-ORGS-MIDDLEWARE] ========== ACTION START ==========")
-  console.log("🏢🏢🏢 [GET-ORGS-MIDDLEWARE] Timestamp:", new Date().toISOString())
-  console.log("🏢🏢🏢 [GET-ORGS-MIDDLEWARE] User ID:", userId)
-
-  try {
-    // Use Firebase Admin SDK
-    const adminFirestore = adminDb()
-    
-    // First get all organization IDs where user is a member
-    console.log(
-      "🏢🏢🏢 [GET-ORGS-MIDDLEWARE] Fetching organization memberships..."
-    )
-    
-    const membersSnapshot = await adminFirestore
-      .collection(ORGANIZATION_COLLECTIONS.ORGANIZATION_MEMBERS)
-      .where("userId", "==", userId)
-      .get()
-
-    console.log(
-      "🏢🏢🏢 [GET-ORGS-MIDDLEWARE] Found memberships:",
-      membersSnapshot.size
-    )
-
-    if (membersSnapshot.empty) {
-      console.log("🏢🏢🏢 [GET-ORGS-MIDDLEWARE] No organizations found for user")
-      return {
-        isSuccess: true,
-        message: "No organizations found",
-        data: []
-      }
-    }
-
-    // Get organization IDs
-    const orgIds = membersSnapshot.docs.map(doc => doc.data().organizationId)
-    console.log("🏢🏢🏢 [GET-ORGS-MIDDLEWARE] Organization IDs:", orgIds)
-
-    // Fetch all organizations
-    const organizations: SerializedOrganizationDocument[] = []
-    for (const orgId of orgIds) {
-      const orgDoc = await adminFirestore
-        .collection(ORGANIZATION_COLLECTIONS.ORGANIZATIONS)
-        .doc(orgId)
-        .get()
-        
-      if (orgDoc.exists) {
-        const orgData = {
-          id: orgDoc.id,
-          ...orgDoc.data()
-        } as OrganizationDocument
-        organizations.push(serializeOrganizationDocument(orgData))
-      }
-    }
-
-    console.log(
-      "🏢🏢🏢 [GET-ORGS-MIDDLEWARE] Total organizations found:",
-      organizations.length
-    )
-    console.log(
-      "🏢🏢🏢 [GET-ORGS-MIDDLEWARE] ✅ Organizations retrieved successfully"
-    )
-    console.log(
-      "🏢🏢🏢 [GET-ORGS-MIDDLEWARE] ========== ACTION END (SUCCESS) =========="
-    )
-
-    return {
-      isSuccess: true,
-      message: "Organizations retrieved successfully",
-      data: organizations
-    }
-  } catch (error) {
-    console.error("🏢🏢🏢 [GET-ORGS-MIDDLEWARE] ❌ Error:", error)
-    console.log(
-      "🏢🏢🏢 [GET-ORGS-MIDDLEWARE] ========== ACTION END (ERROR) =========="
-    )
-    return { isSuccess: false, message: "Failed to get organizations" }
   }
 }
