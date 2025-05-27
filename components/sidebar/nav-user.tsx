@@ -6,80 +6,99 @@ This client component provides a user button for the sidebar via Clerk.
 
 "use client"
 
-import { SidebarMenu, SidebarMenuItem } from "@/components/ui/sidebar"
+import { useState, useEffect } from "react"
+import {
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton
+} from "@/components/ui/sidebar"
 import { UserButton, useUser } from "@clerk/nextjs"
-import { useEffect } from "react"
+import { UserProfileDialog } from "./user-profile-dialog"
+import { ChevronRight } from "lucide-react"
+import { getProfileByUserIdAction } from "@/actions/db/profiles-actions"
 
 export function NavUser() {
-  const { user, isLoaded, isSignedIn } = useUser()
+  const { user } = useUser()
+  const [showProfileDialog, setShowProfileDialog] = useState(false)
+  const [displayName, setDisplayName] = useState("")
+  const [profilePictureUrl, setProfilePictureUrl] = useState("")
 
-  // Debug logging
   useEffect(() => {
-    console.log("🔍 [NAV-USER] User loaded:", isLoaded)
-    console.log("🔍 [NAV-USER] User signed in:", isSignedIn)
-    console.log("🔍 [NAV-USER] User data:", user)
-  }, [isLoaded, isSignedIn, user])
+    if (user?.id) {
+      loadProfile()
+    }
+  }, [user?.id])
 
-  // Don't render until user is loaded
-  if (!isLoaded) {
-    return (
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <div className="flex items-center gap-2 px-2 py-1.5">
-            <div className="bg-muted size-8 animate-pulse rounded-full" />
-            <div className="flex-1 space-y-1">
-              <div className="bg-muted h-4 w-24 animate-pulse rounded" />
-              <div className="bg-muted h-3 w-32 animate-pulse rounded" />
-            </div>
-          </div>
-        </SidebarMenuItem>
-      </SidebarMenu>
-    )
-  }
+  const loadProfile = async () => {
+    if (!user?.id) return
 
-  // Don't render if not signed in
-  if (!isSignedIn) {
-    return null
+    try {
+      console.log("👤 [NAV-USER] Loading profile for sidebar")
+      const result = await getProfileByUserIdAction(user.id)
+
+      if (result.isSuccess && result.data) {
+        setDisplayName(
+          result.data.name || user.fullName || user.firstName || "User"
+        )
+        setProfilePictureUrl(
+          result.data.profilePictureUrl || user.imageUrl || ""
+        )
+        console.log("👤 [NAV-USER] Profile loaded:", result.data.name)
+      } else {
+        // Use Clerk data as fallback
+        setDisplayName(user.fullName || user.firstName || "User")
+        setProfilePictureUrl(user.imageUrl || "")
+        console.log("👤 [NAV-USER] Using Clerk data as fallback")
+      }
+    } catch (error) {
+      console.error("👤 [NAV-USER] Error loading profile:", error)
+      // Use Clerk data as fallback
+      setDisplayName(user.fullName || user.firstName || "User")
+      setProfilePictureUrl(user.imageUrl || "")
+    }
   }
 
   return (
-    <SidebarMenu>
-      <SidebarMenuItem>
-        <div className="flex w-full items-center gap-2 px-2 py-1.5">
-          {/* UserButton wrapped in a div with higher z-index */}
-          <div className="relative z-50">
+    <>
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton
+            onClick={() => setShowProfileDialog(true)}
+            className="w-full cursor-pointer"
+          >
             <UserButton
               afterSignOutUrl="/"
-              showName={false}
               appearance={{
                 elements: {
-                  rootBox: "w-8 h-8",
-                  avatarBox: "w-8 h-8 cursor-pointer",
-                  userButtonTrigger: "rounded-full",
-                  userButtonAvatarBox: "w-8 h-8"
+                  userButtonBox: "pointer-events-none",
+                  userButtonTrigger: "pointer-events-none",
+                  avatarBox: profilePictureUrl ? "hidden" : undefined
                 }
               }}
             />
-          </div>
-
-          {/* User info */}
-          <div className="pointer-events-none flex flex-1 flex-col overflow-hidden">
-            <span className="truncate text-sm font-medium">
-              {user?.fullName || user?.firstName || user?.username || "User"}
-            </span>
-            {user?.primaryEmailAddress?.emailAddress && (
-              <span className="text-muted-foreground truncate text-xs">
-                {user.primaryEmailAddress.emailAddress}
-              </span>
+            {profilePictureUrl && (
+              <img
+                src={profilePictureUrl}
+                alt={displayName}
+                className="size-8 rounded-full object-cover"
+              />
             )}
-          </div>
+            <span className="flex-1 truncate text-left">{displayName}</span>
+            <ChevronRight className="ml-auto size-4 opacity-50" />
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
 
-          {/* Click hint */}
-          <div className="text-muted-foreground pointer-events-none text-xs">
-            Click avatar
-          </div>
-        </div>
-      </SidebarMenuItem>
-    </SidebarMenu>
+      <UserProfileDialog
+        open={showProfileDialog}
+        onOpenChange={(open: boolean) => {
+          setShowProfileDialog(open)
+          // Reload profile when dialog closes
+          if (!open && user?.id) {
+            loadProfile()
+          }
+        }}
+      />
+    </>
   )
 }
