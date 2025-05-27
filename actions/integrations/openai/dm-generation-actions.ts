@@ -1,5 +1,8 @@
 "use server"
 
+import { generateObject, generateText } from "ai"
+import { openai as aiOpenai } from "@ai-sdk/openai"
+import { z } from "zod"
 import { ActionState } from "@/types"
 import OpenAI from "openai"
 import { Timestamp } from "firebase/firestore"
@@ -153,5 +156,118 @@ export async function generateDMFromTemplateAction(
   } catch (error) {
     console.error("📝 [GENERATE-DM-TEMPLATE] ❌ Error:", error)
     return { isSuccess: false, message: "Failed to process template" }
+  }
+}
+
+// Generate personalized DM with AI
+export async function generatePersonalizedDMAction(
+  params: {
+    template: string
+    recipientUsername: string
+    postTitle: string
+    postUrl: string
+    subreddit: string
+    businessContext?: string
+    organizationName?: string
+  }
+): Promise<ActionState<{
+  subject: string
+  message: string
+  followUp?: string
+}>> {
+  console.log("🤖 [GENERATE-PERSONALIZED-DM] Generating personalized DM...")
+  console.log("🤖 [GENERATE-PERSONALIZED-DM] Recipient:", params.recipientUsername)
+  console.log("🤖 [GENERATE-PERSONALIZED-DM] Post title:", params.postTitle)
+  
+  try {
+    // First, process the template with basic variables
+    const processedTemplate = await generateDMFromTemplateAction(params.template, {
+      author: params.recipientUsername,
+      title: params.postTitle,
+      subreddit: params.subreddit,
+      timeAgo: "recently" // This could be calculated from post date
+    })
+    
+    if (!processedTemplate.isSuccess) {
+      return {
+        isSuccess: false,
+        message: "Failed to process template"
+      }
+    }
+    
+    // Now enhance with AI personalization
+    const systemPrompt = `You are a helpful Reddit user who wants to genuinely help others. You're reaching out via DM because you saw their post and think you can provide value.
+
+${params.businessContext ? `Business Context: ${params.businessContext}` : ''}
+${params.organizationName ? `Organization: ${params.organizationName}` : ''}
+
+CRITICAL RULES:
+- Be genuine and helpful, not salesy
+- Reference their specific post naturally
+- Keep it conversational and friendly
+- Don't use marketing language
+- Be respectful of their time
+- Make it clear why you're reaching out
+- Offer value upfront`
+
+    const userPrompt = `The user u/${params.recipientUsername} posted in r/${params.subreddit}:
+Title: "${params.postTitle}"
+URL: ${params.postUrl}
+
+Based on this template message:
+"${processedTemplate.data}"
+
+Generate a personalized DM that:
+1. References their specific post naturally
+2. Explains why you're reaching out
+3. Offers genuine help or value
+4. Keeps a friendly, conversational tone
+5. Is concise but not too short
+
+Also generate:
+- A short, relevant subject line (5-10 words)
+- An optional follow-up message if they don't respond (can be empty if not needed)
+
+Return as JSON:
+{
+  "subject": "subject line here",
+  "message": "main message here",
+  "followUp": "optional follow up message or empty string"
+}`
+
+    const result = await generateText({
+      model: aiOpenai("gpt-4o-mini"),
+      system: systemPrompt,
+      prompt: userPrompt,
+      temperature: 0.7
+    })
+
+    // Parse the response
+    const text = result.text.trim()
+    const jsonMatch = text.match(/\{[\s\S]*\}/)
+    if (!jsonMatch) {
+      throw new Error("Failed to extract JSON from response")
+    }
+
+    const parsed = JSON.parse(jsonMatch[0])
+    
+    console.log("🤖 [GENERATE-PERSONALIZED-DM] ✅ DM generated successfully")
+    console.log("🤖 [GENERATE-PERSONALIZED-DM] Subject:", parsed.subject)
+    
+    return {
+      isSuccess: true,
+      message: "Personalized DM generated successfully",
+      data: {
+        subject: parsed.subject || `Re: ${params.postTitle.substring(0, 50)}...`,
+        message: parsed.message || processedTemplate.data,
+        followUp: parsed.followUp || undefined
+      }
+    }
+  } catch (error) {
+    console.error("🤖 [GENERATE-PERSONALIZED-DM] ❌ Error:", error)
+    return {
+      isSuccess: false,
+      message: `Failed to generate personalized DM: ${error instanceof Error ? error.message : "Unknown error"}`
+    }
   }
 } 

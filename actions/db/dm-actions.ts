@@ -415,6 +415,68 @@ export async function deleteDMAutomationAction(id: string): Promise<ActionState<
   }
 }
 
+export async function getDMAutomationByIdAction(
+  id: string
+): Promise<ActionState<DMAutomationDocument | null>> {
+  console.log("🤖 [GET-AUTOMATION-BY-ID] Fetching automation:", id)
+  
+  try {
+    const automationRef = doc(db, DM_COLLECTIONS.DM_AUTOMATIONS, id)
+    const automationDoc = await getDoc(automationRef)
+    
+    if (!automationDoc.exists()) {
+      console.log("🤖 [GET-AUTOMATION-BY-ID] Automation not found")
+      return {
+        isSuccess: false,
+        message: "Automation not found"
+      }
+    }
+    
+    const automation = automationDoc.data() as DMAutomationDocument
+    console.log("🤖 [GET-AUTOMATION-BY-ID] ✅ Automation retrieved")
+    
+    return {
+      isSuccess: true,
+      message: "Automation retrieved successfully",
+      data: automation
+    }
+  } catch (error) {
+    console.error("🤖 [GET-AUTOMATION-BY-ID] ❌ Error:", error)
+    return { isSuccess: false, message: "Failed to get automation" }
+  }
+}
+
+export async function getDMTemplateByIdAction(
+  id: string
+): Promise<ActionState<DMTemplateDocument | null>> {
+  console.log("📋 [GET-TEMPLATE-BY-ID] Fetching template:", id)
+  
+  try {
+    const templateRef = doc(db, DM_COLLECTIONS.DM_TEMPLATES, id)
+    const templateDoc = await getDoc(templateRef)
+    
+    if (!templateDoc.exists()) {
+      console.log("📋 [GET-TEMPLATE-BY-ID] Template not found")
+      return {
+        isSuccess: false,
+        message: "Template not found"
+      }
+    }
+    
+    const template = templateDoc.data() as DMTemplateDocument
+    console.log("📋 [GET-TEMPLATE-BY-ID] ✅ Template retrieved")
+    
+    return {
+      isSuccess: true,
+      message: "Template retrieved successfully",
+      data: template
+    }
+  } catch (error) {
+    console.error("📋 [GET-TEMPLATE-BY-ID] ❌ Error:", error)
+    return { isSuccess: false, message: "Failed to get template" }
+  }
+}
+
 // DM History Actions
 export async function createDMHistoryAction(
   data: Omit<DMHistoryDocument, "id" | "createdAt">

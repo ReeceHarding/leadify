@@ -112,3 +112,48 @@ export async function searchRedditAction(
     }
   }
 }
+
+export async function searchRedditUsersAction(
+  organizationId: string,
+  keyword: string,
+  options: {
+    subreddit?: string
+    sort?: "relevance" | "hot" | "top" | "new" | "comments"
+    time?: "hour" | "day" | "week" | "month" | "year" | "all"
+    limit?: number
+  } = {}
+): Promise<ActionState<RedditPost[]>> {
+  console.log("🔍 [SEARCH-REDDIT-USERS] Searching for users with keyword:", keyword)
+  console.log("🔍 [SEARCH-REDDIT-USERS] Options:", options)
+  
+  try {
+    // Use the existing searchRedditAction but focus on getting unique users
+    const searchResult = await searchRedditAction(organizationId, keyword, options)
+    
+    if (!searchResult.isSuccess) {
+      return searchResult
+    }
+    
+    // Filter out deleted/removed posts and ensure we have author info
+    const validPosts = searchResult.data.filter(post => 
+      post.author && 
+      post.author !== "[deleted]" && 
+      post.author !== "[removed]" &&
+      post.author !== "AutoModerator"
+    )
+    
+    console.log("🔍 [SEARCH-REDDIT-USERS] Found", validPosts.length, "posts with valid authors")
+    
+    return {
+      isSuccess: true,
+      message: `Found ${validPosts.length} posts from users`,
+      data: validPosts
+    }
+  } catch (error) {
+    console.error("🔍 [SEARCH-REDDIT-USERS] ❌ Error:", error)
+    return {
+      isSuccess: false,
+      message: `Failed to search Reddit users: ${error instanceof Error ? error.message : "Unknown error"}`
+    }
+  }
+}

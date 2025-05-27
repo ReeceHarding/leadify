@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
-import { Loader2, Send, MessageSquare, Search, Clock, CheckCircle, XCircle, AlertCircle, Plus, Trash2, Edit } from "lucide-react"
+import { Loader2, Send, MessageSquare, Search, Clock, CheckCircle, XCircle, AlertCircle, Plus, Trash2, Edit, Square, Play, Pause } from "lucide-react"
 import { toast } from "sonner"
 import { OrganizationDocument, SerializedOrganizationDocument } from "@/db/schema"
 import { searchRedditAction } from "@/actions/integrations/reddit/reddit-search-actions"
@@ -34,6 +34,13 @@ import {
 } from "@/actions/db/dm-actions"
 import { DMDocument, DMTemplateDocument, DMAutomationDocument } from "@/db/schema"
 import { Timestamp } from "firebase/firestore"
+import { runDMAutomationWorkflowAction, stopDMAutomationWorkflowAction } from "@/actions/dm-generation/dm-workflow-actions"
+import { getDMProgressAction } from "@/actions/db/dm-progress-actions"
+import { db } from "@/db/db"
+import { doc, onSnapshot } from "firebase/firestore"
+import { DMProgressDocument } from "@/db/schema"
+import { Progress } from "@/components/ui/progress"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 interface DMFinderDashboardProps {
   organizationId: string
@@ -100,12 +107,53 @@ export default function DMFinderDashboard({
   const [dmHistory, setDmHistory] = useState<DMDocument[]>([])
   const [activeTab, setActiveTab] = useState("search")
   
+  // Workflow state
+  const [runningAutomations, setRunningAutomations] = useState<Set<string>>(new Set())
+  const [automationProgress, setAutomationProgress] = useState<Map<string, DMProgressDocument>>(new Map())
+  
   // Load templates and automations on mount
   useEffect(() => {
     loadTemplates()
     loadAutomations()
     loadDMHistory()
   }, [organizationId])
+  
+  // Real-time progress listeners for automations
+  useEffect(() => {
+    const unsubscribes: (() => void)[] = []
+    
+    automations.forEach(automation => {
+      if (runningAutomations.has(automation.id)) {
+        const progressDocRef = doc(db, "dm_progress", automation.id)
+        const unsubscribe = onSnapshot(
+          progressDocRef,
+          docSnapshot => {
+            if (docSnapshot.exists()) {
+              const progressData = docSnapshot.data() as DMProgressDocument
+              setAutomationProgress(prev => new Map(prev).set(automation.id, progressData))
+              
+              // If completed or error, remove from running
+              if (progressData.status === "completed" || progressData.status === "error") {
+                setRunningAutomations(prev => {
+                  const newSet = new Set(prev)
+                  newSet.delete(automation.id)
+                  return newSet
+                })
+              }
+            }
+          },
+          error => {
+            console.error("Error listening to automation progress:", error)
+          }
+        )
+        unsubscribes.push(unsubscribe)
+      }
+    })
+    
+    return () => {
+      unsubscribes.forEach(unsub => unsub())
+    }
+  }, [automations, runningAutomations])
   
   const loadTemplates = async () => {
     console.log("📋 [DM-DASHBOARD] Loading templates...")
@@ -389,6 +437,43 @@ export default function DMFinderDashboard({
     if (result.isSuccess) {
       toast.success("Automation deleted")
       loadAutomations()
+    } else {
+      toast.error(result.message)
+    }
+  }
+  
+  const handleRunAutomation = async (automation: DMAutomationDocument) => {
+    console.log("🚀 [DM-DASHBOARD] Running automation:", automation.id)
+    
+    setRunningAutomations(prev => new Set(prev).add(automation.id))
+    
+    const result = await runDMAutomationWorkflowAction(automation.id)
+    
+    if (result.isSuccess) {
+      toast.success("Automation started successfully")
+      loadDMHistory()
+    } else {
+      toast.error(result.message)
+      setRunningAutomations(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(automation.id)
+        return newSet
+      })
+    }
+  }
+  
+  const handleStopAutomation = async (automationId: string) => {
+    console.log("🛑 [DM-DASHBOARD] Stopping automation:", automationId)
+    
+    const result = await stopDMAutomationWorkflowAction(automationId)
+    
+    if (result.isSuccess) {
+      toast.success("Automation stopped")
+      setRunningAutomations(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(automationId)
+        return newSet
+      })
     } else {
       toast.error(result.message)
     }
@@ -685,40 +770,113 @@ export default function DMFinderDashboard({
               </Button>
               
               <div className="mt-4 space-y-4">
-                {automations.map((automation) => (
-                  <div
-                    key={automation.id}
-                    className="flex items-start justify-between rounded-lg border p-4"
-                  >
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-medium">{automation.name}</h4>
-                        <Badge variant={automation.isActive ? "default" : "secondary"}>
-                          {automation.isActive ? "Active" : "Paused"}
-                        </Badge>
+                {automations.map((automation) => {
+                  const isRunning = runningAutomations.has(automation.id)
+                  const progress = automationProgress.get(automation.id)
+                  
+                  return (
+                    <div
+                      key={automation.id}
+                      className="space-y-3 rounded-lg border p-4"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                          <h4 className="font-medium">{automation.name}</h4>
+                          <p className="text-muted-foreground text-sm">
+                            {automation.keywords.join(", ")}
+                          </p>
+                          <p className="text-muted-foreground text-xs">
+                            r/{automation.subreddits.join(", r/")}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {isRunning ? (
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => handleStopAutomation(automation.id)}
+                            >
+                              <Square className="mr-1 size-3" />
+                              Stop
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="default"
+                              onClick={() => handleRunAutomation(automation)}
+                              disabled={!automation.isActive}
+                            >
+                              <Play className="mr-1 size-3" />
+                              Run
+                            </Button>
+                          )}
+                          <Button
+                            size="sm"
+                            variant={automation.isActive ? "outline" : "default"}
+                            onClick={() => handleToggleAutomation(automation)}
+                          >
+                            {automation.isActive ? (
+                              <>
+                                <Pause className="mr-1 size-3" />
+                                Pause
+                              </>
+                            ) : (
+                              <>
+                                <Play className="mr-1 size-3" />
+                                Activate
+                              </>
+                            )}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleDeleteAutomation(automation.id)}
+                          >
+                            <Trash2 className="size-4" />
+                          </Button>
+                        </div>
                       </div>
-                      <div className="text-muted-foreground text-sm">
-                        <p>Keywords: {automation.keywords.join(", ")}</p>
-                        <p>Subreddits: {automation.subreddits.join(", ")}</p>
-                        <p>Daily limit: {automation.maxDailyDMs} DMs</p>
-                        <p>Sent today: {automation.dmsSentToday}</p>
+                      
+                      {/* Progress section */}
+                      {isRunning && progress && (
+                        <div className="space-y-2 border-t pt-2">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">
+                              {progress.currentStage}
+                            </span>
+                            <span className="font-medium">
+                              {progress.totalProgress}%
+                            </span>
+                          </div>
+                          <Progress value={progress.totalProgress} className="h-2" />
+                          {progress.results && (
+                            <div className="grid grid-cols-2 gap-2 text-xs">
+                              <div>
+                                <span className="text-muted-foreground">Users found: </span>
+                                <span className="font-medium">{progress.results.totalUsersFound}</span>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">DMs sent: </span>
+                                <span className="font-medium">{progress.results.totalDMsSent}</span>
+                              </div>
+                            </div>
+                          )}
+                          {progress.error && (
+                            <Alert variant="destructive">
+                              <AlertCircle className="size-4" />
+                              <AlertDescription>{progress.error}</AlertDescription>
+                            </Alert>
+                          )}
+                        </div>
+                      )}
+                      
+                      <div className="text-muted-foreground flex items-center justify-between text-sm">
+                        <span>Max {automation.maxDailyDMs} DMs/day</span>
+                        <span>{automation.dmsSentToday} sent today</span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Switch
-                        checked={automation.isActive}
-                        onCheckedChange={() => handleToggleAutomation(automation)}
-                      />
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDeleteAutomation(automation.id)}
-                      >
-                        <Trash2 className="size-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </CardContent>
           </Card>
