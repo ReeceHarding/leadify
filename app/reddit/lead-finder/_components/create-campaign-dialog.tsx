@@ -384,7 +384,7 @@ export default function CreateCampaignDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Create New Lead Search</DialogTitle>
           <DialogDescription>
@@ -395,206 +395,208 @@ export default function CreateCampaignDialog({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4 py-4"
+            className="flex flex-col flex-1 overflow-hidden"
           >
-            {/* Show organization info if available */}
-            {activeOrganization && (
-              <Alert className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/30">
-                <Info className="size-4 text-blue-600 dark:text-blue-400" />
-                <AlertDescription>
-                  <strong className="text-blue-900 dark:text-blue-100">
-                    Using organization:
-                  </strong>{" "}
-                  <span className="text-blue-800 dark:text-blue-200">
-                    {activeOrganization.name}
-                  </span>
-                  {activeOrganization.website && (
-                    <span className="mt-1 block text-xs text-blue-600 dark:text-blue-400">
-                      {activeOrganization.website}
+            <div className="flex-1 overflow-y-auto px-6 -mx-6 space-y-4 py-4">
+              {/* Show organization info if available */}
+              {activeOrganization && (
+                <Alert className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/30">
+                  <Info className="size-4 text-blue-600 dark:text-blue-400" />
+                  <AlertDescription>
+                    <strong className="text-blue-900 dark:text-blue-100">
+                      Using organization:
+                    </strong>{" "}
+                    <span className="text-blue-800 dark:text-blue-200">
+                      {activeOrganization.name}
                     </span>
-                  )}
-                </AlertDescription>
-              </Alert>
-            )}
+                    {activeOrganization.website && (
+                      <span className="mt-1 block text-xs text-blue-600 dark:text-blue-400">
+                        {activeOrganization.website}
+                      </span>
+                    )}
+                  </AlertDescription>
+                </Alert>
+              )}
 
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Campaign Name</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Input
-                        placeholder="e.g., Q1 2024 Lead Search"
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Campaign Name</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Input
+                          placeholder="e.g., Q1 2024 Lead Search"
+                          {...field}
+                          disabled={isCreating}
+                        />
+                        {isGeneratingKeywords && (
+                          <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                            <Loader2 className="size-4 animate-spin text-gray-400" />
+                          </div>
+                        )}
+                      </div>
+                    </FormControl>
+                    <FormDescription>
+                      {isGeneratingKeywords
+                        ? "AI is generating a search name based on your keywords..."
+                        : "Give your lead search a descriptive name."}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Optional campaign-specific description */}
+              <FormField
+                control={form.control}
+                name="businessDescription"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      <Building2 className="size-4" />
+                      Campaign-Specific Details
+                      <span className="text-muted-foreground text-xs font-normal">
+                        (Optional)
+                      </span>
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Add any campaign-specific details, target audience, or special focus areas for this search..."
+                        className="min-h-[80px] resize-none"
                         {...field}
                         disabled={isCreating}
                       />
-                      {isGeneratingKeywords && (
-                        <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                          <Loader2 className="size-4 animate-spin text-gray-400" />
-                        </div>
-                      )}
-                    </div>
-                  </FormControl>
-                  <FormDescription>
-                    {isGeneratingKeywords
-                      ? "AI is generating a search name based on your keywords..."
-                      : "Give your lead search a descriptive name."}
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    </FormControl>
+                    <FormDescription>
+                      Only add details specific to this campaign. Your
+                      organization's description is already included.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            {/* Optional campaign-specific description */}
-            <FormField
-              control={form.control}
-              name="businessDescription"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    <Building2 className="size-4" />
-                    Campaign-Specific Details
-                    <span className="text-muted-foreground text-xs font-normal">
-                      (Optional)
-                    </span>
-                  </FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Add any campaign-specific details, target audience, or special focus areas for this search..."
-                      className="min-h-[80px] resize-none"
-                      {...field}
-                      disabled={isCreating}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Only add details specific to this campaign. Your
-                    organization's description is already included.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="keywords"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    <Search className="size-4" />
-                    Search Keywords
-                  </FormLabel>
-                  <div className="space-y-3">
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="e.g., software developer hiring"
-                        value={currentKeyword}
-                        onChange={e => setCurrentKeyword(e.target.value)}
-                        onKeyPress={e => {
-                          if (e.key === "Enter") {
-                            e.preventDefault()
-                            handleAddKeyword()
+              <FormField
+                control={form.control}
+                name="keywords"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      <Search className="size-4" />
+                      Search Keywords
+                    </FormLabel>
+                    <div className="space-y-3">
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="e.g., software developer hiring"
+                          value={currentKeyword}
+                          onChange={e => setCurrentKeyword(e.target.value)}
+                          onKeyPress={e => {
+                            if (e.key === "Enter") {
+                              e.preventDefault()
+                              handleAddKeyword()
+                            }
+                          }}
+                          disabled={isCreating || field.value.length >= 10}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={handleAddKeyword}
+                          disabled={
+                            !currentKeyword.trim() ||
+                            field.value.length >= 10 ||
+                            isCreating
                           }
-                        }}
-                        disabled={isCreating || field.value.length >= 10}
-                      />
+                        >
+                          <Plus className="size-4" />
+                        </Button>
+                      </div>
+
+                      {/* AI Generation Button */}
                       <Button
                         type="button"
                         variant="outline"
-                        onClick={handleAddKeyword}
+                        onClick={handleGenerateWithAI}
                         disabled={
-                          !currentKeyword.trim() ||
+                          !organizationDescription ||
                           field.value.length >= 10 ||
+                          isGeneratingKeywords ||
                           isCreating
                         }
+                        className="w-full"
                       >
-                        <Plus className="size-4" />
+                        {isGeneratingKeywords ? (
+                          <>
+                            <Loader2 className="mr-2 size-4 animate-spin" />
+                            {generationStep === "scraping" ? (
+                              <>
+                                <Globe className="mr-2 size-4" />
+                                Scraping homepage...
+                              </>
+                            ) : (
+                              <>
+                                <Sparkles className="mr-2 size-4" />
+                                Generating keywords...
+                              </>
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="mr-2 size-4" />
+                            Generate with AI
+                          </>
+                        )}
                       </Button>
                     </div>
+                    <FormDescription>
+                      Keywords to search for on Reddit. We'll score threads
+                      related to these terms. ({field.value.length}/10)
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                    {/* AI Generation Button */}
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={handleGenerateWithAI}
-                      disabled={
-                        !organizationDescription ||
-                        field.value.length >= 10 ||
-                        isGeneratingKeywords ||
-                        isCreating
-                      }
-                      className="w-full"
-                    >
-                      {isGeneratingKeywords ? (
-                        <>
-                          <Loader2 className="mr-2 size-4 animate-spin" />
-                          {generationStep === "scraping" ? (
-                            <>
-                              <Globe className="mr-2 size-4" />
-                              Scraping homepage...
-                            </>
-                          ) : (
-                            <>
-                              <Sparkles className="mr-2 size-4" />
-                              Generating keywords...
-                            </>
-                          )}
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="mr-2 size-4" />
-                          Generate with AI
-                        </>
-                      )}
-                    </Button>
+              {keywords.length > 0 && (
+                <div className="space-y-2">
+                  <FormLabel>Selected Keywords</FormLabel>
+                  <div className="flex flex-wrap gap-2">
+                    {keywords.map((keyword, index) => (
+                      <Badge key={index} variant="secondary" className="gap-1">
+                        {keyword}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveKeyword(index)}
+                          className="hover:text-destructive ml-1"
+                          disabled={isCreating}
+                        >
+                          <X className="size-3" />
+                        </button>
+                      </Badge>
+                    ))}
                   </div>
-                  <FormDescription>
-                    Keywords to search for on Reddit. We'll score threads
-                    related to these terms. ({field.value.length}/10)
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
+                </div>
               )}
-            />
 
-            {keywords.length > 0 && (
-              <div className="space-y-2">
-                <FormLabel>Selected Keywords</FormLabel>
-                <div className="flex flex-wrap gap-2">
-                  {keywords.map((keyword, index) => (
-                    <Badge key={index} variant="secondary" className="gap-1">
-                      {keyword}
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveKeyword(index)}
-                        className="hover:text-destructive ml-1"
-                        disabled={isCreating}
-                      >
-                        <X className="size-3" />
-                      </button>
-                    </Badge>
-                  ))}
+              {keywords.length > 0 && (
+                <div className="space-y-2">
+                  <FormLabel>Estimated Threads</FormLabel>
+                  <div className="flex items-center gap-3">
+                    <p className="text-muted-foreground text-sm">
+                      {estimatedThreads} threads
+                    </p>
+                    <p className="text-muted-foreground text-sm">
+                      across {keywords.length} keywords
+                    </p>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
 
-            {keywords.length > 0 && (
-              <div className="space-y-2">
-                <FormLabel>Estimated Threads</FormLabel>
-                <div className="flex items-center gap-3">
-                  <p className="text-muted-foreground text-sm">
-                    {estimatedThreads} threads
-                  </p>
-                  <p className="text-muted-foreground text-sm">
-                    across {keywords.length} keywords
-                  </p>
-                </div>
-              </div>
-            )}
-
-            <DialogFooter>
+            <DialogFooter className="border-t pt-4 mt-4">
               <Button
                 type="button"
                 variant="outline"
