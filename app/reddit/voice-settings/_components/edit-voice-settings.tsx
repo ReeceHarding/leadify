@@ -22,7 +22,7 @@ import {
 import { Loader2, Twitter, Edit, Merge, Replace, Copy } from "lucide-react"
 import { SerializedVoiceSettingsDocument } from "@/types"
 import { PersonaType, WritingStyle } from "@/db/schema"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/lib/hooks/use-toast"
 import RedditStyleCopier from "./reddit-style-copier"
 
 interface EditVoiceSettingsProps {

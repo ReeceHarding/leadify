@@ -29,7 +29,7 @@ import {
 } from "lucide-react"
 import { SerializedVoiceSettingsDocument } from "@/types"
 import { PersonaType, WritingStyle } from "@/db/schema"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/lib/hooks/use-toast"
 import { useOrganization } from "@/components/utilities/organization-provider"
 
 interface VoiceSettingsSectionProps {

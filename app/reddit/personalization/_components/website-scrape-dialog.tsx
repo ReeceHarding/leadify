@@ -13,7 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { Loader2, Globe, AlertTriangle, X } from "lucide-react"
 import { SerializedKnowledgeBaseDocument } from "@/types"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/lib/hooks/use-toast"
 
 interface SitemapPage {
   url: string

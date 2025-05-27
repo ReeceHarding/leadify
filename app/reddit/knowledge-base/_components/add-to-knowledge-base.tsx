@@ -17,7 +17,7 @@ import {
   SerializedKnowledgeBaseDocument,
   SerializedProfileDocument
 } from "@/types"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/lib/hooks/use-toast"
 import { useOrganization } from "@/components/utilities/organization-provider"
 import WebsiteScrapeDialog from "../../personalization/_components/website-scrape-dialog"
 

@@ -19,7 +19,7 @@ import {
   SerializedProfileDocument
 } from "@/types"
 import { useOrganization } from "@/components/utilities/organization-provider"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/lib/hooks/use-toast"
 import WebsiteScrapeDialog from "./website-scrape-dialog"
 
 interface KnowledgeBaseSectionProps {
