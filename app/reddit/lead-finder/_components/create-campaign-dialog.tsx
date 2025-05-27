@@ -458,7 +458,10 @@ export default function CreateCampaignDialog({
                       size="sm"
                       variant="outline"
                       onClick={() => {
-                        window.location.href = "/reddit/settings"
+                        // Set the organization ID cookie before redirecting
+                        document.cookie = `reddit_auth_org_id=${organizationId}; path=/; max-age=600; samesite=lax${window.location.protocol === 'https:' ? '; secure' : ''}`
+                        // Redirect to Reddit auth with return URL back to lead finder
+                        window.location.href = "/api/reddit/auth?return_url=/reddit/lead-finder"
                       }}
                       className="gap-2 border-amber-600 text-amber-700 hover:bg-amber-100 dark:border-amber-400 dark:text-amber-300 dark:hover:bg-amber-900/30"
                     >

@@ -87,19 +87,10 @@ export default function OrganizationSettings() {
 
     try {
       // Store organization ID in cookie for Reddit callback
-      document.cookie = `reddit_auth_org_id=${currentOrganization.id}; path=/; max-age=600; SameSite=Lax`
+      document.cookie = `reddit_auth_org_id=${currentOrganization.id}; path=/; max-age=600; samesite=lax${window.location.protocol === 'https:' ? '; secure' : ''}`
 
-      // Generate Reddit auth URL and redirect directly
-      const { generateRedditAuthUrlAction } = await import(
-        "@/actions/integrations/reddit/reddit-oauth-actions"
-      )
-      const result = await generateRedditAuthUrlAction()
-
-      if (result.isSuccess) {
-        window.location.href = result.data.authUrl
-      } else {
-        toast.error(result.message || "Failed to generate Reddit auth URL")
-      }
+      // Redirect to Reddit auth with return URL back to lead finder
+      window.location.href = "/api/reddit/auth?return_url=/reddit/lead-finder"
     } catch (error) {
       console.error("Error connecting Reddit:", error)
       toast.error("Failed to connect Reddit account")

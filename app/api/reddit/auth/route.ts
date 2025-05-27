@@ -58,6 +58,8 @@ export async function GET(request: NextRequest) {
     cookieStore.set("reddit_oauth_state", csrf, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
       maxAge: 10 * 60 // 10 minutes
     })
 

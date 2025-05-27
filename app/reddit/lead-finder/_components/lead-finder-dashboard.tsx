@@ -1532,7 +1532,12 @@ export default function LeadFinderDashboard() {
 
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
               <Button
-                onClick={() => window.location.href = "/reddit/settings"}
+                onClick={async () => {
+                  // Set the organization ID cookie before redirecting
+                  document.cookie = `reddit_auth_org_id=${currentOrganization.id}; path=/; max-age=600; samesite=lax${window.location.protocol === 'https:' ? '; secure' : ''}`
+                  // Redirect to Reddit auth with return URL back to lead finder
+                  window.location.href = "/api/reddit/auth?return_url=/reddit/lead-finder"
+                }}
                 className="gap-2"
                 size="lg"
               >
