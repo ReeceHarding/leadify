@@ -59,40 +59,38 @@ export async function scoreThreadAndGenerateThreeTierCommentsAction(
     console.log("🔍��🔍 [SCORING-PROMPT] ========== THREAD CONTENT ==========")
     console.log(threadContent)
 
-    const prompt = `You are a lead qualification expert for Reddit threads. Evaluate how relevant this Reddit thread is for the business described below.
-
-BUSINESS CONTEXT:
-${websiteContent}
+    const prompt = `You are a lead qualification expert for Reddit threads. Evaluate how likely the person behind this thread is a potential customer based on their post.
 
 REDDIT THREAD:
 Subreddit: r/${subreddit}
-Title: ${threadTitle}
-Content: ${threadContent}
+Title: "${threadTitle}"
+Content: "${threadContent}"
 
-YOUR TASK:
-1. First, understand what company/service/product the business represents and what problems it solves
-2. Then score how relevant this Reddit thread is (0-100)
+PRODUCT/SOLUTION CONTEXT:
+This person was found when searching for keywords related to our solution. We want to gauge if they are a potential customer for a company with this context:
 
-Important: People rarely directly ask for solutions. Read between the lines and look for indirect signals like:
-- Expressing frustration or challenges the business solves
+${websiteContent}
+
+IMPORTANT: People rarely directly ask for solutions. Read between the lines and look for indirect signals like:
+- Expressing frustration or challenges
 - Asking if others experience similar issues
 - Describing workarounds they're using
 - Sharing related experiences or pain points
-- Engaging with topics the business addresses
+- Engaging with related topics or discussions
 
 Score this thread from 0-100 based on:
-- How closely the problem matches what the business solves
-- How clearly they express a need (directly or indirectly)
-- How likely they would be interested in the solution
-- Whether they seem to be actively looking for help
-- Their apparent frustration/pain level
+- How closely they match the ideal customer profile described in the business context
+- How clearly they express a problem or need (directly or indirectly)
+- How likely they would be interested in a solution
+- Whether they seem to be actively looking for solutions
+- Their apparent frustration/pain level with the current situation
 
-Use this scale:
-90-100 = Perfect match (clearly expressing need, actively looking for exactly what the business offers)
-70-89 = Strong match (clear problem/need that the business solves)
-40-69 = Moderate match (showing some signs of problems the business addresses)
-20-39 = Weak match (tangentially related to the business solution)
-0-19 = No match (completely unrelated to what the business offers)
+Return a precise number between 0-100. Use this scale as a general guide:
+90-100 = Perfect lead (clearly expressing need, actively looking for solutions)
+70-89 = Strong lead (clear problem/need expression)
+40-69 = Moderate potential (showing some signs of the problem)
+10-39 = Weak signal (tangentially related)
+0-9 = Not a potential customer
 
 If the score is 40 or above, generate three authentic Reddit comments as someone who has tried multiple solutions:
 
@@ -100,7 +98,7 @@ If the score is 40 or above, generate three authentic Reddit comments as someone
 2. MEDIUM COMMENT (30-80 words): casual story with genuine pros/cons:
    - start with "hey man" or "tbh" or similar
    - mention free tool with honest pros/cons
-   - mention business with honest pros/cons (include at least one real downside)
+   - mention our solution with honest pros/cons (include at least one real downside)
    - mention premium tool and why it might be overkill
 3. VERBOSE COMMENT (800-1200 words): Follow this EXACT structure:
 
@@ -146,7 +144,7 @@ If the score is 40 or above, generate three authentic Reddit comments as someone
 
 CRITICAL: You MUST mention THREE different solutions in each comment:
 1. A FREE tool/solution (be specific and honest about limitations)
-2. The business from the website content (be honest about pros AND cons)
+2. Our solution from the business context (be honest about pros AND cons)
 3. A PREMIUM/EXPENSIVE tool (be fair about when it's actually worth it)
 
 CRITICAL STYLE RULES:
@@ -1090,17 +1088,26 @@ Provide a brief analysis of:
     }
 
     const systemPrompt = `You are a lead qualification expert for Reddit threads. Your job is to:
-1. Score how relevant a Reddit thread is for the business
-2. Generate natural, authentic Reddit comments if relevant
-3. Identify highly specific keyword phrases from the thread that align with the campaign's focus.
+1. Score how likely the person behind the thread is a potential customer
+2. Generate natural, authentic Reddit comments if they are a good lead
+3. Identify highly specific keyword phrases from the thread that align with the campaign's focus
 
-${primaryBusinessContent ? `Business Context: ${primaryBusinessContent}` : "The business offers general solutions."}
+PRODUCT/SOLUTION CONTEXT:
+${primaryBusinessContent ? primaryBusinessContent : "The business offers general solutions."}
 
-Campaign Focus Keywords: ${campaignKeywords.join(", ")}
+IDEAL CUSTOMER PROFILE (ICP):
+Based on the campaign keywords "${campaignKeywords.join(", ")}", we are targeting people who are looking for solutions related to these topics.
 
-${voicePrompt ? `\nVoice Instructions:\n${voicePrompt}\n` : ""}
+${voicePrompt ? `\nVOICE INSTRUCTIONS:\n${voicePrompt}\n` : ""}
 
-${toneAnalysis ? `\nCommunity Tone Analysis:\n${toneAnalysis}\n` : ""}
+${toneAnalysis ? `\nCOMMUNITY TONE ANALYSIS:\n${toneAnalysis}\n` : ""}
+
+IMPORTANT: People rarely directly ask for solutions. Read between the lines and look for indirect signals like:
+- Expressing frustration or challenges
+- Asking if others experience similar issues
+- Describing workarounds they're using
+- Sharing related experiences or pain points
+- Engaging with related topics or discussions
 
 CRITICAL STYLE RULES:
 - write everything in lowercase (no capitals at all)
@@ -1111,13 +1118,27 @@ CRITICAL STYLE RULES:
 - be honest about downsides of our solution too
 - never sound like marketing`
 
-    const userPrompt = `Thread Title: ${threadTitle}
-Thread Content: ${threadContent}
+    const userPrompt = `Thread: "${threadTitle}"
+Content: "${threadContent}"
 Subreddit: r/${subreddit}
+
+This person was found when searching for "${campaignKeywords.join(", ")}". We want to gauge if they are a potential customer for ${businessName}.
 
 ${existingComments && existingComments.length > 0 ? `\nExample comments from this thread:\n${existingComments.slice(0, 3).join("\n---\n")}` : ""}
 
-Score this thread from 0-100 based on relevance to the business and campaign keywords.
+Score this thread from 0-100 based on:
+- How closely they match the ICP description
+- How clearly they express a problem or need related to ${campaignKeywords.join(", ")} (directly or indirectly)
+- How likely they would be interested in a solution
+- Whether they seem to be actively looking for solutions
+- Their apparent frustration/pain level with the current situation
+
+Return a precise number between 0-100. Use this scale as a general guide:
+90-100 = Perfect lead (clearly expressing need, actively looking for solutions)
+70-89 = Strong lead (clear problem/need expression)
+40-69 = Moderate potential (showing some signs of the problem)
+10-39 = Weak signal (tangentially related)
+0-9 = Not a potential customer
 
 If the score is 40 or above, generate three comments:
 1. Micro (5-15 words): super quick casual mention
@@ -1195,7 +1216,7 @@ If the score is 40 or above, generate three comments:
    Present all three with genuine pros and cons. Make the comment feel like a real person's messy experience, not a structured pitch.
    Remember: all lowercase, 2-3 spelling mistakes, super casual tone, random tangents.
 
-2. Identify and list 3-5 specific keyword phrases (3-5 words each) from the thread itself that are highly relevant to the business and the campaign's focus keywords (${campaignKeywords.join(", ")}). These phrases should capture the core problem or specific interest expressed by the Reddit user.
+Also, identify and list 3-5 specific keyword phrases (3-5 words each) from the thread itself that are highly relevant to the business and the campaign's focus keywords (${campaignKeywords.join(", ")}). These phrases should capture the core problem or specific interest expressed by the Reddit user.
 
 Return as JSON:
 {
