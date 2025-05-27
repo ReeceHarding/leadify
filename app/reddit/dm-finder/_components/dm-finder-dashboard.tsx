@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch"
 import { Loader2, Send, MessageSquare, Search, Clock, CheckCircle, XCircle, AlertCircle, Plus, Trash2, Edit } from "lucide-react"
 import { toast } from "sonner"
-import { OrganizationDocument } from "@/db/schema"
+import { OrganizationDocument, SerializedOrganizationDocument } from "@/db/schema"
 import { searchRedditAction } from "@/actions/integrations/reddit/reddit-search-actions"
 import { generateDMAction } from "@/actions/integrations/openai/dm-generation-actions"
 import { sendRedditDMAction, checkCanSendDMAction } from "@/actions/integrations/reddit/dm-actions"
@@ -38,7 +38,7 @@ import { Timestamp } from "firebase/firestore"
 interface DMFinderDashboardProps {
   organizationId: string
   userId: string
-  organization: OrganizationDocument
+  organization: SerializedOrganizationDocument
 }
 
 interface RedditPost {

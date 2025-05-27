@@ -3,27 +3,30 @@
 import { Suspense } from "react"
 import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
-import { getOrganizationByIdAction } from "@/actions/db/organizations-actions"
-import DMFinderDashboard from "./_components/dm-finder-dashboard"
+import { getOrganizationsByUserIdAction } from "@/actions/db/organizations-actions"
+import DMFinderWrapper from "./_components/dm-finder-wrapper"
 import { Skeleton } from "@/components/ui/skeleton"
 
 export default async function DMFinderPage() {
   console.log("📨 [DM-FINDER-PAGE] Loading DM finder page...")
   
-  const { userId, orgId } = await auth()
+  const { userId } = await auth()
   
   if (!userId) {
     console.log("📨 [DM-FINDER-PAGE] No user ID, redirecting to login")
     redirect("/login")
   }
   
-  if (!orgId) {
-    console.log("📨 [DM-FINDER-PAGE] No organization ID, redirecting to onboarding")
+  console.log("📨 [DM-FINDER-PAGE] User ID:", userId)
+  
+  // Check if user has any organizations
+  const orgsResult = await getOrganizationsByUserIdAction(userId)
+  if (!orgsResult.isSuccess || !orgsResult.data || orgsResult.data.length === 0) {
+    console.log("📨 [DM-FINDER-PAGE] No organizations found, redirecting to onboarding")
     redirect("/onboarding")
   }
   
-  console.log("📨 [DM-FINDER-PAGE] User ID:", userId)
-  console.log("📨 [DM-FINDER-PAGE] Organization ID:", orgId)
+  console.log("📨 [DM-FINDER-PAGE] User has organizations, rendering page")
   
   return (
     <div className="flex flex-col gap-6">
@@ -35,36 +38,9 @@ export default async function DMFinderPage() {
       </div>
       
       <Suspense fallback={<DMFinderSkeleton />}>
-        <DMFinderDashboardFetcher organizationId={orgId} userId={userId} />
+        <DMFinderWrapper userId={userId} />
       </Suspense>
     </div>
-  )
-}
-
-async function DMFinderDashboardFetcher({
-  organizationId,
-  userId
-}: {
-  organizationId: string
-  userId: string
-}) {
-  console.log("📨 [DM-FINDER-FETCHER] Fetching organization data...")
-  
-  const orgResult = await getOrganizationByIdAction(organizationId)
-  
-  if (!orgResult.isSuccess) {
-    console.error("📨 [DM-FINDER-FETCHER] Failed to fetch organization:", orgResult.message)
-    return <div>Failed to load organization data</div>
-  }
-  
-  console.log("📨 [DM-FINDER-FETCHER] Organization loaded successfully")
-  
-  return (
-    <DMFinderDashboard
-      organizationId={organizationId}
-      userId={userId}
-      organization={orgResult.data}
-    />
   )
 }
 
