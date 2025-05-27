@@ -116,6 +116,30 @@ export async function createOrganizationAction(
       "🏢🏢🏢 [CREATE-ORG] ✅ Organization and member created successfully"
     )
 
+    // Create a knowledge base for the organization
+    console.log("🏢🏢🏢 [CREATE-ORG] Creating knowledge base for organization...")
+    try {
+      const { createKnowledgeBaseAction } = await import("@/actions/db/personalization-actions")
+      const kbResult = await createKnowledgeBaseAction({
+        userId: data.ownerId,
+        organizationId: orgRef.id,
+        websiteUrl: data.website || "",
+        customInformation: data.businessDescription || "",
+        summary: "",
+        keyFacts: []
+      })
+      
+      if (kbResult.isSuccess) {
+        console.log("🏢🏢🏢 [CREATE-ORG] ✅ Knowledge base created successfully")
+      } else {
+        console.warn("🏢🏢🏢 [CREATE-ORG] ⚠️ Failed to create knowledge base:", kbResult.message)
+        // Don't fail the organization creation if KB creation fails
+      }
+    } catch (kbError) {
+      console.error("🏢🏢🏢 [CREATE-ORG] ❌ Error creating knowledge base:", kbError)
+      // Don't fail the organization creation if KB creation fails
+    }
+
     // Get the created document to return with actual timestamps
     const createdDoc = await getDoc(orgRef)
     const createdData = {
