@@ -13,4 +13,4 @@ export interface KeywordPerformanceDocument {
   reach?: number[]
   signal?: number[]
   score?: number[]
-} 
+}

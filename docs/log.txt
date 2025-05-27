@@ -3191,3 +3191,512 @@
 [2025-05-27T08:04:27.456Z] NEXTJS_STDOUT: ✓ Compiled in 140ms (1378 modules)
 [2025-05-27T08:04:39.474Z] NEXTJS_STDOUT: ✓ Compiled in 158ms (1378 modules)
 [2025-05-27T08:04:52.502Z] NEXTJS_STDOUT: ✓ Compiled in 197ms (1378 modules)
+[2025-05-27T08:06:50.465Z] NEXTJS_STDOUT: ✓ Compiled in 502ms (1377 modules)
+[2025-05-27T08:06:55.099Z] ==================================================
+[2025-05-27T08:06:55.100Z] COMMAND STARTED: next lint --fix
+[2025-05-27T08:06:55.100Z] ==================================================
+[2025-05-27T08:06:56.776Z] STDOUT: ✔ No ESLint warnings or errors
+[2025-05-27T08:06:56.826Z] ==================================================
+[2025-05-27T08:06:56.826Z] COMMAND FINISHED: next lint --fix (exit code: 0)
+[2025-05-27T08:06:56.826Z] ==================================================
+[2025-05-27T08:06:57.007Z] ==================================================
+[2025-05-27T08:06:57.008Z] COMMAND STARTED: prettier --write {app,lib,db,components,context,types}/**/*.{ts,tsx} --cache
+[2025-05-27T08:06:57.008Z] ==================================================
+[2025-05-27T08:06:57.090Z] STDOUT: app/api/lead-generation/start/route.ts 1ms (unchanged) (cached)
+[2025-05-27T08:06:57.093Z] STDOUT: app/api/queue/check-warmup-comments/route.ts 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.094Z] STDOUT: app/api/queue/process-posts/route.ts 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.095Z] STDOUT: app/api/queue/process-warmup/route.ts 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.097Z] STDOUT: app/api/reddit/auth/route.ts 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.098Z] STDOUT: app/api/reddit/callback/route.ts 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.101Z] STDOUT: app/api/reddit/comments/[commentId]/replies/route.ts 1ms (unchanged) (cached)
+[2025-05-27T08:06:57.102Z] STDOUT: app/api/reddit/comments/route.ts 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.104Z] STDOUT: app/api/stripe/webhooks/route.ts 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.105Z] STDOUT: app/api/test-twitter-analysis/route.ts 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.106Z] STDOUT: app/api/test-twitter-direct/route.ts 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.108Z] STDOUT: app/api/warmup/generate-posts/route.ts 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.110Z] STDOUT: app/reddit/lead-finder/_components/dashboard/types.ts 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.111Z] STDOUT: app/reddit/lead-finder/_components/dashboard/utils.ts 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.113Z] STDOUT: app/(auth)/layout.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.115Z] STDOUT: app/(marketing)/layout.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.116Z] STDOUT: app/(marketing)/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.119Z] STDOUT: app/dashboard/layout.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.120Z] STDOUT: app/dashboard/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.122Z] STDOUT: app/firebase-test/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.124Z] STDOUT: app/onboarding/layout.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.126Z] STDOUT: app/onboarding/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.127Z] STDOUT: app/reddit-auth/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.129Z] STDOUT: app/reddit-test/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.130Z] STDOUT: app/reddit/layout.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.164Z] STDOUT: lib/config/keyword-config.ts 32ms
+[2025-05-27T08:06:57.167Z] STDOUT: lib/hooks/use-toast.ts 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.168Z] STDOUT: lib/hooks/use-copy-to-clipboard.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.170Z] STDOUT: lib/hooks/use-mobile.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.171Z] STDOUT: db/firestore/collections.ts 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.176Z] STDOUT: db/firestore/keyword-performance-collections.ts 4ms
+[2025-05-27T08:06:57.178Z] STDOUT: db/firestore/lead-generation-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.179Z] STDOUT: db/firestore/organizations-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.180Z] STDOUT: db/firestore/personalization-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.181Z] STDOUT: db/firestore/posting-queue-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.182Z] STDOUT: db/firestore/warmup-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.185Z] STDOUT: db/schema/index.ts 1ms (unchanged)
+[2025-05-27T08:06:57.186Z] STDERR: [error] No files matching the pattern were found: "db/**/*.tsx".
+[2025-05-27T08:06:57.187Z] STDOUT: components/ui/use-toast.ts 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.189Z] STDOUT: components/landing/hero.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.190Z] STDOUT: components/landing/logo-carousel.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.191Z] STDOUT: components/landing/testimonials.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.192Z] STDOUT: components/magicui/animated-gradient-text.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.194Z] STDOUT: components/magicui/hero-video-dialog.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.195Z] STDOUT: components/sidebar/app-sidebar.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.196Z] STDOUT: components/sidebar/create-organization-dialog.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.197Z] STDOUT: components/sidebar/nav-main.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.198Z] STDOUT: components/sidebar/nav-projects.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.198Z] STDOUT: components/sidebar/nav-user.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.199Z] STDOUT: components/sidebar/team-switcher.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.200Z] STDOUT: components/ui/accordion.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.201Z] STDOUT: components/ui/alert-dialog.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.202Z] STDOUT: components/ui/alert.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.203Z] STDOUT: components/ui/aspect-ratio.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.204Z] STDOUT: components/ui/avatar.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.204Z] STDOUT: components/ui/badge.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.206Z] STDOUT: components/ui/breadcrumb.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.207Z] STDOUT: components/ui/button.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.207Z] STDOUT: components/ui/calendar.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.208Z] STDOUT: components/ui/card.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.209Z] STDOUT: components/ui/carousel.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.210Z] STDOUT: components/ui/chart.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.211Z] STDOUT: components/ui/checkbox.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.212Z] STDOUT: components/ui/collapsible.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.213Z] STDOUT: components/ui/command.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.214Z] STDOUT: components/ui/context-menu.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.215Z] STDOUT: components/ui/dialog.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.216Z] STDOUT: components/ui/drawer.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.217Z] STDOUT: components/ui/dropdown-menu.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.219Z] STDOUT: components/ui/form.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.221Z] STDOUT: components/ui/hover-card.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.222Z] STDOUT: components/ui/input-otp.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.223Z] STDOUT: components/ui/input.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.224Z] STDOUT: components/ui/label.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.225Z] STDOUT: components/ui/menubar.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.226Z] STDOUT: components/ui/navigation-menu.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.228Z] STDOUT: components/ui/pagination.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.229Z] STDOUT: components/ui/popover.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.230Z] STDOUT: components/ui/progress.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.231Z] STDOUT: components/ui/radio-group.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.232Z] STDOUT: components/ui/resizable.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.232Z] STDOUT: components/ui/scroll-area.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.234Z] STDOUT: components/ui/select.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.235Z] STDOUT: components/ui/separator.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.236Z] STDOUT: components/ui/sheet.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.237Z] STDOUT: components/ui/sidebar.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.238Z] STDOUT: components/ui/skeleton.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.240Z] STDOUT: components/ui/slider.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.241Z] STDOUT: components/ui/sonner.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.242Z] STDOUT: components/ui/switch.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.242Z] STDOUT: components/ui/table.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.244Z] STDOUT: components/ui/tabs.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.245Z] STDOUT: components/ui/textarea.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.246Z] STDOUT: components/ui/toast.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.247Z] STDOUT: components/ui/toaster.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.249Z] STDOUT: components/ui/toggle-group.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.249Z] STDOUT: components/ui/toggle.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.250Z] STDOUT: components/ui/tooltip.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.252Z] STDOUT: components/utilities/organization-provider.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.253Z] STDOUT: components/utilities/providers.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.254Z] STDOUT: components/utilities/tailwind-indicator.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.255Z] STDOUT: components/utilities/theme-switcher.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.255Z] STDERR: [error] No files matching the pattern were found: "context/**/*.ts".
+[2025-05-27T08:06:57.255Z] STDERR: [error] No files matching the pattern were found: "context/**/*.tsx".
+[2025-05-27T08:06:57.257Z] STDOUT: types/action-interfaces.ts 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.258Z] STDOUT: types/index.ts 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.259Z] STDOUT: types/lead-generation-types.ts 1ms (unchanged) (cached)
+[2025-05-27T08:06:57.259Z] STDOUT: types/organization-types.ts 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.260Z] STDOUT: types/profile-types.ts 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.261Z] STDOUT: types/server-action-types.ts 0ms (unchanged) (cached)
+[2025-05-27T08:06:57.261Z] STDERR: [error] No files matching the pattern were found: "types/**/*.tsx".
+[2025-05-27T08:06:57.270Z] ==================================================
+[2025-05-27T08:06:57.270Z] COMMAND FINISHED: prettier --write {app,lib,db,components,context,types}/**/*.{ts,tsx} --cache (exit code: 2)
+[2025-05-27T08:06:57.270Z] ==================================================
+[2025-05-27T08:06:57.270Z] ERROR: Command failed with exit code 2
+[2025-05-27T08:06:57.712Z] NEXTJS_STDOUT: ✓ Compiled in 511ms (1933 modules)
+[2025-05-27T08:07:08.854Z] ==================================================
+[2025-05-27T08:07:08.854Z] COMMAND STARTED: tsc --noEmit
+[2025-05-27T08:07:08.854Z] ==================================================
+[2025-05-27T08:07:11.303Z] ==================================================
+[2025-05-27T08:07:11.303Z] COMMAND FINISHED: tsc --noEmit (exit code: 0)
+[2025-05-27T08:07:11.303Z] ==================================================
+[2025-05-27T08:11:02.656Z] NEXTJS_STDOUT: ✓ Compiled in 638ms (3296 modules)
+[2025-05-27T08:12:39.799Z] NEXTJS_STDOUT: ✓ Compiled in 352ms (1933 modules)
+[2025-05-27T08:12:58.972Z] NEXTJS_STDOUT: ✓ Compiled in 637ms (1377 modules)
+[2025-05-27T08:13:09.130Z] NEXTJS_STDOUT: ✓ Compiled in 810ms (3310 modules)
+[2025-05-27T08:13:19.613Z] NEXTJS_STDERR: ⨯ ./app/reddit/lead-finder/_components/dashboard/leads-display.tsx
+[2025-05-27T08:13:19.613Z] NEXTJS_STDERR: Module parse failed: Identifier 'EmptyState' has already been declared (9:9)
+[2025-05-27T08:13:19.613Z] NEXTJS_STDERR: | import { EmptyState } from "../enhanced-error-states"; // Adjust path
+[2025-05-27T08:13:19.613Z] NEXTJS_STDERR: | import { MessageSquare, Search, Filter } from "__barrel_optimize__?names=Filter,MessageSquare,Search!=!lucide-react";
+[2025-05-27T08:13:19.613Z] NEXTJS_STDERR: > import { EmptyState } from "@/app/reddit/lead-finder/_components/enhanced-error-states";
+[2025-05-27T08:13:19.614Z] NEXTJS_STDERR: | export default function LeadsDisplay(param) {
+[2025-05-27T08:13:19.614Z] NEXTJS_STDERR: |     let { workflowProgress, leads, filteredAndSortedLeads, paginatedLeads, newLeadIds, activeTab, campaignId, isWorkflowRunning = false, selectedLength, onEditComment, onPostComment, onQueueComment, onViewComments, onRegenerateWithInstructions, postingLeadId, queuingLeadId, toneInstruction, onToneInstructionChange, onRegenerateAllTones, isRegeneratingAllTones, filterKeyword, onFilterKeywordChange, filterScore, onFilterScoreChange, sortBy, onSortByChange, approvedLeadsCount, onBatchPostQueue, isBatchPosting, currentPage, totalPages, onPageChange, onTriggerCreateCampaign } = param;
+[2025-05-27T08:13:19.614Z] NEXTJS_STDERR: Import trace for requested module:
+[2025-05-27T08:13:19.614Z] NEXTJS_STDERR: ./app/reddit/lead-finder/_components/dashboard/leads-display.tsx
+[2025-05-27T08:13:19.614Z] NEXTJS_STDERR: ./app/reddit/lead-finder/_components/lead-finder-dashboard.tsx
+[2025-05-27T08:13:28.742Z] NEXTJS_STDERR: ⨯ ./app/reddit/lead-finder/_components/dashboard/leads-display.tsx
+[2025-05-27T08:13:28.742Z] NEXTJS_STDERR: Module parse failed: Identifier 'EmptyState' has already been declared (9:9)
+[2025-05-27T08:13:28.742Z] NEXTJS_STDERR: | import { EmptyState } from "../enhanced-error-states"; // Adjust path
+[2025-05-27T08:13:28.742Z] NEXTJS_STDERR: | import { MessageSquare, Search, Filter } from "__barrel_optimize__?names=Filter,MessageSquare,Search!=!lucide-react";
+[2025-05-27T08:13:28.742Z] NEXTJS_STDERR: > import { EmptyState } from "@/app/reddit/lead-finder/_components/enhanced-error-states";
+[2025-05-27T08:13:28.742Z] NEXTJS_STDERR: | export default function LeadsDisplay(param) {
+[2025-05-27T08:13:28.742Z] NEXTJS_STDERR: |     let { workflowProgress, leads, filteredAndSortedLeads, paginatedLeads, newLeadIds, activeTab, campaignId, isWorkflowRunning = false, selectedLength, onEditComment, onPostComment, onQueueComment, onViewComments, onRegenerateWithInstructions, postingLeadId, queuingLeadId, toneInstruction, onToneInstructionChange, onRegenerateAllTones, isRegeneratingAllTones, filterKeyword, onFilterKeywordChange, filterScore, onFilterScoreChange, sortBy, onSortByChange, approvedLeadsCount, onBatchPostQueue, isBatchPosting, currentPage, totalPages, onPageChange, onTriggerCreateCampaign } = param;
+[2025-05-27T08:13:28.742Z] NEXTJS_STDERR: Import trace for requested module:
+[2025-05-27T08:13:28.742Z] NEXTJS_STDERR: ./app/reddit/lead-finder/_components/dashboard/leads-display.tsx
+[2025-05-27T08:13:28.742Z] NEXTJS_STDERR: ./app/reddit/lead-finder/_components/lead-finder-dashboard.tsx
+[2025-05-27T08:13:47.844Z] NEXTJS_STDOUT: ✓ Compiled in 517ms (3310 modules)
+[2025-05-27T08:13:48.014Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/lead-finder
+[2025-05-27T08:13:48.014Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/lead-finder
+[2025-05-27T08:13:48.015Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Skipping auth for /reddit/lead-finder (testing)
+[2025-05-27T08:13:48.062Z] NEXTJS_STDERR: ⨯ Error: ENOENT: no such file or directory, open '/Users/reeceharding/Leadify/.next/server/vendor-chunks/next.js'
+[2025-05-27T08:13:48.062Z] NEXTJS_STDERR: at __webpack_require__.f.require (.next/server/webpack-runtime.js:208:28)
+[2025-05-27T08:13:48.062Z] NEXTJS_STDERR: at <unknown> (.next/server/webpack-runtime.js:116:40)
+[2025-05-27T08:13:48.062Z] NEXTJS_STDERR: at Array.reduce (<anonymous>)
+[2025-05-27T08:13:48.062Z] NEXTJS_STDERR: at __webpack_require__.e (.next/server/webpack-runtime.js:115:67)
+[2025-05-27T08:13:48.062Z] NEXTJS_STDERR: at Array.map (<anonymous>)
+[2025-05-27T08:13:48.062Z] NEXTJS_STDERR: at __webpack_require__.X (.next/server/webpack-runtime.js:167:22)
+[2025-05-27T08:13:48.062Z] NEXTJS_STDERR: at <unknown> (.next/server/app/reddit/lead-finder/page.js:2056:47)
+[2025-05-27T08:13:48.062Z] NEXTJS_STDERR: at Object.<anonymous> (.next/server/app/reddit/lead-finder/page.js:2059:3) {
+[2025-05-27T08:13:48.062Z] NEXTJS_STDERR: errno: -2,
+[2025-05-27T08:13:48.062Z] NEXTJS_STDERR: code: 'ENOENT',
+[2025-05-27T08:13:48.062Z] NEXTJS_STDERR: syscall: 'open',
+[2025-05-27T08:13:48.062Z] NEXTJS_STDERR: path: '/Users/reeceharding/Leadify/.next/server/vendor-chunks/next.js',
+[2025-05-27T08:13:48.062Z] NEXTJS_STDERR: page: '/reddit/lead-finder'
+[2025-05-27T08:13:48.062Z] NEXTJS_STDERR: }
+[2025-05-27T08:13:48.508Z] NEXTJS_STDOUT: ✓ Compiled /_error in 445ms (3339 modules)
+[2025-05-27T08:13:48.525Z] NEXTJS_STDERR: ⨯ Error: Cannot find module './8548.js'
+[2025-05-27T08:13:48.526Z] NEXTJS_STDERR: Require stack:
+[2025-05-27T08:13:48.526Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/.next/server/webpack-runtime.js
+[2025-05-27T08:13:48.526Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/.next/server/pages/_document.js
+[2025-05-27T08:13:48.526Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/server/require.js
+[2025-05-27T08:13:48.526Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/server/load-components.js
+[2025-05-27T08:13:48.526Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/build/utils.js
+[2025-05-27T08:13:48.526Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/build/swc/options.js
+[2025-05-27T08:13:48.526Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/build/swc/index.js
+[2025-05-27T08:13:48.526Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/build/analysis/parse-module.js
+[2025-05-27T08:13:48.526Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/build/analysis/get-page-static-info.js
+[2025-05-27T08:13:48.526Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+[2025-05-27T08:13:48.526Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/server/lib/router-server.js
+[2025-05-27T08:13:48.526Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/server/lib/start-server.js
+[2025-05-27T08:13:48.526Z] NEXTJS_STDERR: at __webpack_require__.f.require (.next/server/webpack-runtime.js:208:28)
+[2025-05-27T08:13:48.526Z] NEXTJS_STDERR: at <unknown> (.next/server/webpack-runtime.js:116:40)
+[2025-05-27T08:13:48.526Z] NEXTJS_STDERR: at Array.reduce (<anonymous>)
+[2025-05-27T08:13:48.526Z] NEXTJS_STDERR: at __webpack_require__.e (.next/server/webpack-runtime.js:115:67)
+[2025-05-27T08:13:48.526Z] NEXTJS_STDERR: at Array.map (<anonymous>)
+[2025-05-27T08:13:48.526Z] NEXTJS_STDERR: at __webpack_require__.X (.next/server/webpack-runtime.js:167:22)
+[2025-05-27T08:13:48.526Z] NEXTJS_STDERR: at <unknown> (.next/server/pages/_document.js:1:392)
+[2025-05-27T08:13:48.526Z] NEXTJS_STDERR: at Object.<anonymous> (.next/server/pages/_document.js:1:435) {
+[2025-05-27T08:13:48.526Z] NEXTJS_STDERR: code: 'MODULE_NOT_FOUND',
+[2025-05-27T08:13:48.526Z] NEXTJS_STDERR: requireStack: [Array]
+[2025-05-27T08:13:48.526Z] NEXTJS_STDERR: }
+[2025-05-27T08:13:49.129Z] NEXTJS_STDOUT: GET /reddit/lead-finder 500 in 1114ms
+[2025-05-27T08:13:56.789Z] NEXTJS_STDOUT: ✓ Compiled /_not-found in 452ms (3345 modules)
+[2025-05-27T08:13:56.844Z] NEXTJS_STDERR: ⨯ Error: ENOENT: no such file or directory, open '/Users/reeceharding/Leadify/.next/server/vendor-chunks/tailwind-merge.js'
+[2025-05-27T08:13:56.844Z] NEXTJS_STDERR: at __webpack_require__.f.require (.next/server/webpack-runtime.js:208:28)
+[2025-05-27T08:13:56.844Z] NEXTJS_STDERR: at <unknown> (.next/server/webpack-runtime.js:116:40)
+[2025-05-27T08:13:56.844Z] NEXTJS_STDERR: at Array.reduce (<anonymous>)
+[2025-05-27T08:13:56.844Z] NEXTJS_STDERR: at __webpack_require__.e (.next/server/webpack-runtime.js:115:67)
+[2025-05-27T08:13:56.844Z] NEXTJS_STDERR: at Array.map (<anonymous>)
+[2025-05-27T08:13:56.844Z] NEXTJS_STDERR: at __webpack_require__.X (.next/server/webpack-runtime.js:167:22)
+[2025-05-27T08:13:56.844Z] NEXTJS_STDERR: at <unknown> (.next/server/app/_not-found/page.js:832:47)
+[2025-05-27T08:13:56.844Z] NEXTJS_STDERR: at Object.<anonymous> (.next/server/app/_not-found/page.js:835:3) {
+[2025-05-27T08:13:56.844Z] NEXTJS_STDERR: errno: -2,
+[2025-05-27T08:13:56.844Z] NEXTJS_STDERR: code: 'ENOENT',
+[2025-05-27T08:13:56.844Z] NEXTJS_STDERR: syscall: 'open',
+[2025-05-27T08:13:56.844Z] NEXTJS_STDERR: path: '/Users/reeceharding/Leadify/.next/server/vendor-chunks/tailwind-merge.js'
+[2025-05-27T08:13:56.844Z] NEXTJS_STDERR: }
+[2025-05-27T08:13:56.846Z] NEXTJS_STDOUT: GET /_next/static/webpack/d77f9845c353d142.webpack.hot-update.json 500 in 355ms
+[2025-05-27T08:13:56.849Z] NEXTJS_STDERR: ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+[2025-05-27T08:13:56.861Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/lead-finder
+[2025-05-27T08:13:56.861Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/lead-finder
+[2025-05-27T08:13:56.861Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Skipping auth for /reddit/lead-finder (testing)
+[2025-05-27T08:13:56.897Z] NEXTJS_STDERR: ⨯ Error: ENOENT: no such file or directory, open '/Users/reeceharding/Leadify/.next/server/vendor-chunks/tailwind-merge.js'
+[2025-05-27T08:13:56.897Z] NEXTJS_STDERR: at __webpack_require__.f.require (.next/server/webpack-runtime.js:208:28)
+[2025-05-27T08:13:56.897Z] NEXTJS_STDERR: at <unknown> (.next/server/webpack-runtime.js:116:40)
+[2025-05-27T08:13:56.897Z] NEXTJS_STDERR: at Array.reduce (<anonymous>)
+[2025-05-27T08:13:56.897Z] NEXTJS_STDERR: at __webpack_require__.e (.next/server/webpack-runtime.js:115:67)
+[2025-05-27T08:13:56.897Z] NEXTJS_STDERR: at Array.map (<anonymous>)
+[2025-05-27T08:13:56.897Z] NEXTJS_STDERR: at __webpack_require__.X (.next/server/webpack-runtime.js:167:22)
+[2025-05-27T08:13:56.897Z] NEXTJS_STDERR: at <unknown> (.next/server/app/reddit/lead-finder/page.js:2056:47)
+[2025-05-27T08:13:56.897Z] NEXTJS_STDERR: at Object.<anonymous> (.next/server/app/reddit/lead-finder/page.js:2059:3) {
+[2025-05-27T08:13:56.897Z] NEXTJS_STDERR: errno: -2,
+[2025-05-27T08:13:56.897Z] NEXTJS_STDERR: code: 'ENOENT',
+[2025-05-27T08:13:56.897Z] NEXTJS_STDERR: syscall: 'open',
+[2025-05-27T08:13:56.897Z] NEXTJS_STDERR: path: '/Users/reeceharding/Leadify/.next/server/vendor-chunks/tailwind-merge.js',
+[2025-05-27T08:13:56.897Z] NEXTJS_STDERR: page: '/reddit/lead-finder'
+[2025-05-27T08:13:56.898Z] NEXTJS_STDERR: }
+[2025-05-27T08:13:56.910Z] NEXTJS_STDERR: ⨯ Error: Cannot find module './8548.js'
+[2025-05-27T08:13:56.910Z] NEXTJS_STDERR: Require stack:
+[2025-05-27T08:13:56.910Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/.next/server/webpack-runtime.js
+[2025-05-27T08:13:56.910Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/.next/server/app/_not-found/page.js
+[2025-05-27T08:13:56.910Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/server/require.js
+[2025-05-27T08:13:56.910Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/server/load-components.js
+[2025-05-27T08:13:56.910Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/build/utils.js
+[2025-05-27T08:13:56.910Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/build/swc/options.js
+[2025-05-27T08:13:56.910Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/build/swc/index.js
+[2025-05-27T08:13:56.910Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/build/analysis/parse-module.js
+[2025-05-27T08:13:56.910Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/build/analysis/get-page-static-info.js
+[2025-05-27T08:13:56.911Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+[2025-05-27T08:13:56.911Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/server/lib/router-server.js
+[2025-05-27T08:13:56.911Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/server/lib/start-server.js
+[2025-05-27T08:13:56.911Z] NEXTJS_STDERR: at __webpack_require__.f.require (.next/server/webpack-runtime.js:208:28)
+[2025-05-27T08:13:56.911Z] NEXTJS_STDERR: at <unknown> (.next/server/webpack-runtime.js:116:40)
+[2025-05-27T08:13:56.911Z] NEXTJS_STDERR: at Array.reduce (<anonymous>)
+[2025-05-27T08:13:56.911Z] NEXTJS_STDERR: at __webpack_require__.e (.next/server/webpack-runtime.js:115:67)
+[2025-05-27T08:13:56.911Z] NEXTJS_STDERR: at Array.map (<anonymous>)
+[2025-05-27T08:13:56.911Z] NEXTJS_STDERR: at __webpack_require__.X (.next/server/webpack-runtime.js:167:22)
+[2025-05-27T08:13:56.911Z] NEXTJS_STDERR: at <unknown> (.next/server/pages/_document.js:1:392)
+[2025-05-27T08:13:56.911Z] NEXTJS_STDERR: at Object.<anonymous> (.next/server/pages/_document.js:1:435) {
+[2025-05-27T08:13:56.911Z] NEXTJS_STDERR: code: 'MODULE_NOT_FOUND',
+[2025-05-27T08:13:56.911Z] NEXTJS_STDERR: requireStack: [Array]
+[2025-05-27T08:13:56.911Z] NEXTJS_STDERR: }
+[2025-05-27T08:13:56.912Z] NEXTJS_STDOUT: GET /reddit/lead-finder 500 in 51ms
+[2025-05-27T08:14:06.726Z] NEXTJS_STDOUT: ✓ Compiled in 381ms (1381 modules)
+[2025-05-27T08:14:06.749Z] NEXTJS_STDERR: ⨯ Error: ENOENT: no such file or directory, open '/Users/reeceharding/Leadify/.next/server/vendor-chunks/tailwind-merge.js'
+[2025-05-27T08:14:06.749Z] NEXTJS_STDERR: at __webpack_require__.f.require (.next/server/webpack-runtime.js:208:28)
+[2025-05-27T08:14:06.749Z] NEXTJS_STDERR: at <unknown> (.next/server/webpack-runtime.js:116:40)
+[2025-05-27T08:14:06.749Z] NEXTJS_STDERR: at Array.reduce (<anonymous>)
+[2025-05-27T08:14:06.749Z] NEXTJS_STDERR: at __webpack_require__.e (.next/server/webpack-runtime.js:115:67)
+[2025-05-27T08:14:06.749Z] NEXTJS_STDERR: at Array.map (<anonymous>)
+[2025-05-27T08:14:06.749Z] NEXTJS_STDERR: at __webpack_require__.X (.next/server/webpack-runtime.js:167:22)
+[2025-05-27T08:14:06.749Z] NEXTJS_STDERR: at <unknown> (.next/server/app/_not-found/page.js:832:47)
+[2025-05-27T08:14:06.749Z] NEXTJS_STDERR: at Object.<anonymous> (.next/server/app/_not-found/page.js:835:3) {
+[2025-05-27T08:14:06.749Z] NEXTJS_STDERR: errno: -2,
+[2025-05-27T08:14:06.749Z] NEXTJS_STDERR: code: 'ENOENT',
+[2025-05-27T08:14:06.749Z] NEXTJS_STDERR: syscall: 'open',
+[2025-05-27T08:14:06.749Z] NEXTJS_STDERR: path: '/Users/reeceharding/Leadify/.next/server/vendor-chunks/tailwind-merge.js'
+[2025-05-27T08:14:06.749Z] NEXTJS_STDERR: }
+[2025-05-27T08:14:06.751Z] NEXTJS_STDOUT: GET /_next/static/webpack/d77f9845c353d142.webpack.hot-update.json 500 in 20ms
+[2025-05-27T08:14:06.753Z] NEXTJS_STDERR: ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+[2025-05-27T08:14:06.765Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/lead-finder
+[2025-05-27T08:14:06.765Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/lead-finder
+[2025-05-27T08:14:06.765Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Skipping auth for /reddit/lead-finder (testing)
+[2025-05-27T08:14:06.809Z] NEXTJS_STDERR: ⨯ Error: ENOENT: no such file or directory, open '/Users/reeceharding/Leadify/.next/server/vendor-chunks/tailwind-merge.js'
+[2025-05-27T08:14:06.809Z] NEXTJS_STDERR: at __webpack_require__.f.require (.next/server/webpack-runtime.js:208:28)
+[2025-05-27T08:14:06.809Z] NEXTJS_STDERR: at <unknown> (.next/server/webpack-runtime.js:116:40)
+[2025-05-27T08:14:06.809Z] NEXTJS_STDERR: at Array.reduce (<anonymous>)
+[2025-05-27T08:14:06.809Z] NEXTJS_STDERR: at __webpack_require__.e (.next/server/webpack-runtime.js:115:67)
+[2025-05-27T08:14:06.809Z] NEXTJS_STDERR: at Array.map (<anonymous>)
+[2025-05-27T08:14:06.809Z] NEXTJS_STDERR: at __webpack_require__.X (.next/server/webpack-runtime.js:167:22)
+[2025-05-27T08:14:06.809Z] NEXTJS_STDERR: at <unknown> (.next/server/app/reddit/lead-finder/page.js:2056:47)
+[2025-05-27T08:14:06.809Z] NEXTJS_STDERR: at Object.<anonymous> (.next/server/app/reddit/lead-finder/page.js:2059:3) {
+[2025-05-27T08:14:06.809Z] NEXTJS_STDERR: errno: -2,
+[2025-05-27T08:14:06.809Z] NEXTJS_STDERR: code: 'ENOENT',
+[2025-05-27T08:14:06.809Z] NEXTJS_STDERR: syscall: 'open',
+[2025-05-27T08:14:06.809Z] NEXTJS_STDERR: path: '/Users/reeceharding/Leadify/.next/server/vendor-chunks/tailwind-merge.js',
+[2025-05-27T08:14:06.810Z] NEXTJS_STDERR: page: '/reddit/lead-finder'
+[2025-05-27T08:14:06.810Z] NEXTJS_STDERR: }
+[2025-05-27T08:14:06.822Z] NEXTJS_STDERR: ⨯ Error: Cannot find module './8548.js'
+[2025-05-27T08:14:06.822Z] NEXTJS_STDERR: Require stack:
+[2025-05-27T08:14:06.822Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/.next/server/webpack-runtime.js
+[2025-05-27T08:14:06.822Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/.next/server/app/_not-found/page.js
+[2025-05-27T08:14:06.822Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/server/require.js
+[2025-05-27T08:14:06.822Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/server/load-components.js
+[2025-05-27T08:14:06.823Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/build/utils.js
+[2025-05-27T08:14:06.823Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/build/swc/options.js
+[2025-05-27T08:14:06.823Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/build/swc/index.js
+[2025-05-27T08:14:06.823Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/build/analysis/parse-module.js
+[2025-05-27T08:14:06.823Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/build/analysis/get-page-static-info.js
+[2025-05-27T08:14:06.823Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+[2025-05-27T08:14:06.823Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/server/lib/router-server.js
+[2025-05-27T08:14:06.823Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/server/lib/start-server.js
+[2025-05-27T08:14:06.823Z] NEXTJS_STDERR: at __webpack_require__.f.require (.next/server/webpack-runtime.js:208:28)
+[2025-05-27T08:14:06.823Z] NEXTJS_STDERR: at <unknown> (.next/server/webpack-runtime.js:116:40)
+[2025-05-27T08:14:06.823Z] NEXTJS_STDERR: at Array.reduce (<anonymous>)
+[2025-05-27T08:14:06.823Z] NEXTJS_STDERR: at __webpack_require__.e (.next/server/webpack-runtime.js:115:67)
+[2025-05-27T08:14:06.823Z] NEXTJS_STDERR: at Array.map (<anonymous>)
+[2025-05-27T08:14:06.823Z] NEXTJS_STDERR: at __webpack_require__.X (.next/server/webpack-runtime.js:167:22)
+[2025-05-27T08:14:06.823Z] NEXTJS_STDERR: at <unknown> (.next/server/pages/_document.js:1:392)
+[2025-05-27T08:14:06.823Z] NEXTJS_STDERR: at Object.<anonymous> (.next/server/pages/_document.js:1:435) {
+[2025-05-27T08:14:06.823Z] NEXTJS_STDERR: code: 'MODULE_NOT_FOUND',
+[2025-05-27T08:14:06.823Z] NEXTJS_STDERR: requireStack: [Array]
+[2025-05-27T08:14:06.823Z] NEXTJS_STDERR: }
+[2025-05-27T08:14:06.824Z] NEXTJS_STDOUT: GET /reddit/lead-finder 500 in 58ms
+[2025-05-27T08:14:51.350Z] ==================================================
+[2025-05-27T08:14:51.351Z] COMMAND STARTED: next lint --fix
+[2025-05-27T08:14:51.351Z] ==================================================
+[2025-05-27T08:14:52.796Z] STDOUT: ✔ No ESLint warnings or errors
+[2025-05-27T08:14:52.853Z] ==================================================
+[2025-05-27T08:14:52.853Z] COMMAND FINISHED: next lint --fix (exit code: 0)
+[2025-05-27T08:14:52.853Z] ==================================================
+[2025-05-27T08:14:53.046Z] ==================================================
+[2025-05-27T08:14:53.048Z] COMMAND STARTED: prettier --write {app,lib,db,components,types}/**/*.{ts,tsx} --cache
+[2025-05-27T08:14:53.048Z] ==================================================
+[2025-05-27T08:14:53.122Z] STDOUT: app/api/lead-generation/start/route.ts 1ms (unchanged) (cached)
+[2025-05-27T08:14:53.124Z] STDOUT: app/api/queue/check-warmup-comments/route.ts 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.125Z] STDOUT: app/api/queue/process-posts/route.ts 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.126Z] STDOUT: app/api/queue/process-warmup/route.ts 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.128Z] STDOUT: app/api/reddit/auth/route.ts 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.129Z] STDOUT: app/api/reddit/callback/route.ts 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.131Z] STDOUT: app/api/reddit/comments/[commentId]/replies/route.ts 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.132Z] STDOUT: app/api/reddit/comments/route.ts 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.134Z] STDOUT: app/api/stripe/webhooks/route.ts 1ms (unchanged) (cached)
+[2025-05-27T08:14:53.135Z] STDOUT: app/api/test-twitter-analysis/route.ts 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.136Z] STDOUT: app/api/test-twitter-direct/route.ts 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.137Z] STDOUT: app/api/warmup/generate-posts/route.ts 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.139Z] STDOUT: app/reddit/lead-finder/_components/dashboard/types.ts 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.140Z] STDOUT: app/reddit/lead-finder/_components/dashboard/utils.ts 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.142Z] STDOUT: app/(auth)/layout.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.144Z] STDOUT: app/(marketing)/layout.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.145Z] STDOUT: app/(marketing)/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.147Z] STDOUT: app/dashboard/layout.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.148Z] STDOUT: app/dashboard/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.150Z] STDOUT: app/firebase-test/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.152Z] STDOUT: app/onboarding/layout.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.153Z] STDOUT: app/onboarding/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.154Z] STDOUT: app/reddit-auth/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.156Z] STDOUT: app/reddit-test/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.157Z] STDOUT: app/reddit/layout.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.158Z] STDOUT: lib/config/keyword-config.ts 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.160Z] STDOUT: lib/hooks/use-toast.ts 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.161Z] STDOUT: lib/hooks/use-copy-to-clipboard.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.162Z] STDOUT: lib/hooks/use-mobile.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.163Z] STDOUT: db/firestore/collections.ts 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.164Z] STDOUT: db/firestore/keyword-performance-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.168Z] STDOUT: db/firestore/lead-generation-collections.ts 1ms (unchanged) (cached)
+[2025-05-27T08:14:53.169Z] STDOUT: db/firestore/organizations-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.170Z] STDOUT: db/firestore/personalization-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.171Z] STDOUT: db/firestore/posting-queue-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.172Z] STDOUT: db/firestore/warmup-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.195Z] STDOUT: db/schema/index.ts 22ms (unchanged)
+[2025-05-27T08:14:53.196Z] STDERR: [error] No files matching the pattern were found: "db/**/*.tsx".
+[2025-05-27T08:14:53.197Z] STDOUT: components/ui/use-toast.ts 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.228Z] STDOUT: components/landing/hero.tsx 29ms (unchanged)
+[2025-05-27T08:14:53.230Z] STDOUT: components/landing/logo-carousel.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.231Z] STDOUT: components/landing/testimonials.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.233Z] STDOUT: components/magicui/animated-gradient-text.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.234Z] STDOUT: components/magicui/hero-video-dialog.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.235Z] STDOUT: components/sidebar/app-sidebar.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.237Z] STDOUT: components/sidebar/create-organization-dialog.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.238Z] STDOUT: components/sidebar/nav-main.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.239Z] STDOUT: components/sidebar/nav-projects.tsx 1ms (unchanged) (cached)
+[2025-05-27T08:14:53.240Z] STDOUT: components/sidebar/nav-user.tsx 1ms (unchanged) (cached)
+[2025-05-27T08:14:53.241Z] STDOUT: components/sidebar/team-switcher.tsx 1ms (unchanged) (cached)
+[2025-05-27T08:14:53.242Z] STDOUT: components/ui/accordion.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.242Z] STDOUT: components/ui/alert-dialog.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.244Z] STDOUT: components/ui/alert.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.245Z] STDOUT: components/ui/aspect-ratio.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.246Z] STDOUT: components/ui/avatar.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.247Z] STDOUT: components/ui/badge.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.248Z] STDOUT: components/ui/breadcrumb.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.248Z] STDOUT: components/ui/button.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.249Z] STDOUT: components/ui/calendar.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.250Z] STDOUT: components/ui/card.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.251Z] STDOUT: components/ui/carousel.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.252Z] STDOUT: components/ui/chart.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.252Z] STDOUT: components/ui/checkbox.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.253Z] STDOUT: components/ui/collapsible.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.254Z] STDOUT: components/ui/command.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.255Z] STDOUT: components/ui/context-menu.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.256Z] STDOUT: components/ui/dialog.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.257Z] STDOUT: components/ui/drawer.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.258Z] STDOUT: components/ui/dropdown-menu.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.258Z] STDOUT: components/ui/form.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.259Z] STDOUT: components/ui/hover-card.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.260Z] STDOUT: components/ui/input-otp.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.260Z] STDOUT: components/ui/input.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.261Z] STDOUT: components/ui/label.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.262Z] STDOUT: components/ui/menubar.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.262Z] STDOUT: components/ui/navigation-menu.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.263Z] STDOUT: components/ui/pagination.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.264Z] STDOUT: components/ui/popover.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.266Z] STDOUT: components/ui/progress.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.268Z] STDOUT: components/ui/radio-group.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.269Z] STDOUT: components/ui/resizable.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.270Z] STDOUT: components/ui/scroll-area.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.271Z] STDOUT: components/ui/select.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.272Z] STDOUT: components/ui/separator.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.272Z] STDOUT: components/ui/sheet.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.273Z] STDOUT: components/ui/sidebar.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.274Z] STDOUT: components/ui/skeleton.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.275Z] STDOUT: components/ui/slider.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.276Z] STDOUT: components/ui/sonner.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.277Z] STDOUT: components/ui/switch.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.278Z] STDOUT: components/ui/table.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.279Z] STDOUT: components/ui/tabs.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.280Z] STDOUT: components/ui/textarea.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.280Z] STDOUT: components/ui/toast.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.281Z] STDOUT: components/ui/toaster.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.282Z] STDOUT: components/ui/toggle-group.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.283Z] STDOUT: components/ui/toggle.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.284Z] STDOUT: components/ui/tooltip.tsx 1ms (unchanged) (cached)
+[2025-05-27T08:14:53.285Z] STDOUT: components/utilities/organization-provider.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.286Z] STDOUT: components/utilities/providers.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.287Z] STDOUT: components/utilities/tailwind-indicator.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.287Z] STDOUT: components/utilities/theme-switcher.tsx 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.289Z] STDOUT: types/action-interfaces.ts 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.289Z] STDOUT: types/index.ts 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.290Z] STDOUT: types/lead-generation-types.ts 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.291Z] STDOUT: types/organization-types.ts 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.291Z] STDOUT: types/profile-types.ts 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.292Z] STDOUT: types/server-action-types.ts 0ms (unchanged) (cached)
+[2025-05-27T08:14:53.292Z] STDERR: [error] No files matching the pattern were found: "types/**/*.tsx".
+[2025-05-27T08:14:53.304Z] ==================================================
+[2025-05-27T08:14:53.304Z] COMMAND FINISHED: prettier --write {app,lib,db,components,types}/**/*.{ts,tsx} --cache (exit code: 2)
+[2025-05-27T08:14:53.304Z] ==================================================
+[2025-05-27T08:14:53.304Z] ERROR: Command failed with exit code 2
+[2025-05-27T08:15:02.435Z] NEXTJS_STDOUT: ✓ Compiled in 743ms (3345 modules)
+[2025-05-27T08:15:02.461Z] NEXTJS_STDERR: ⨯ Error: ENOENT: no such file or directory, open '/Users/reeceharding/Leadify/.next/server/vendor-chunks/tailwind-merge.js'
+[2025-05-27T08:15:02.461Z] NEXTJS_STDERR: at __webpack_require__.f.require (.next/server/webpack-runtime.js:208:28)
+[2025-05-27T08:15:02.461Z] NEXTJS_STDERR: at <unknown> (.next/server/webpack-runtime.js:116:40)
+[2025-05-27T08:15:02.461Z] NEXTJS_STDERR: at Array.reduce (<anonymous>)
+[2025-05-27T08:15:02.461Z] NEXTJS_STDERR: at __webpack_require__.e (.next/server/webpack-runtime.js:115:67)
+[2025-05-27T08:15:02.461Z] NEXTJS_STDERR: at Array.map (<anonymous>)
+[2025-05-27T08:15:02.461Z] NEXTJS_STDERR: at __webpack_require__.X (.next/server/webpack-runtime.js:167:22)
+[2025-05-27T08:15:02.461Z] NEXTJS_STDERR: at <unknown> (.next/server/app/_not-found/page.js:832:47)
+[2025-05-27T08:15:02.461Z] NEXTJS_STDERR: at Object.<anonymous> (.next/server/app/_not-found/page.js:835:3) {
+[2025-05-27T08:15:02.461Z] NEXTJS_STDERR: errno: -2,
+[2025-05-27T08:15:02.461Z] NEXTJS_STDERR: code: 'ENOENT',
+[2025-05-27T08:15:02.461Z] NEXTJS_STDERR: syscall: 'open',
+[2025-05-27T08:15:02.461Z] NEXTJS_STDERR: path: '/Users/reeceharding/Leadify/.next/server/vendor-chunks/tailwind-merge.js'
+[2025-05-27T08:15:02.461Z] NEXTJS_STDERR: }
+[2025-05-27T08:15:02.464Z] NEXTJS_STDOUT: GET /_next/static/webpack/d77f9845c353d142.webpack.hot-update.json 500 in 538ms
+[2025-05-27T08:15:02.467Z] NEXTJS_STDERR: ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+[2025-05-27T08:15:02.484Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/lead-finder
+[2025-05-27T08:15:02.484Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/lead-finder
+[2025-05-27T08:15:02.485Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Skipping auth for /reddit/lead-finder (testing)
+[2025-05-27T08:15:02.527Z] NEXTJS_STDERR: ⨯ Error: ENOENT: no such file or directory, open '/Users/reeceharding/Leadify/.next/server/vendor-chunks/tailwind-merge.js'
+[2025-05-27T08:15:02.527Z] NEXTJS_STDERR: at __webpack_require__.f.require (.next/server/webpack-runtime.js:208:28)
+[2025-05-27T08:15:02.527Z] NEXTJS_STDERR: at <unknown> (.next/server/webpack-runtime.js:116:40)
+[2025-05-27T08:15:02.527Z] NEXTJS_STDERR: at Array.reduce (<anonymous>)
+[2025-05-27T08:15:02.527Z] NEXTJS_STDERR: at __webpack_require__.e (.next/server/webpack-runtime.js:115:67)
+[2025-05-27T08:15:02.527Z] NEXTJS_STDERR: at Array.map (<anonymous>)
+[2025-05-27T08:15:02.527Z] NEXTJS_STDERR: at __webpack_require__.X (.next/server/webpack-runtime.js:167:22)
+[2025-05-27T08:15:02.527Z] NEXTJS_STDERR: at <unknown> (.next/server/app/reddit/lead-finder/page.js:2056:47)
+[2025-05-27T08:15:02.527Z] NEXTJS_STDERR: at Object.<anonymous> (.next/server/app/reddit/lead-finder/page.js:2059:3) {
+[2025-05-27T08:15:02.527Z] NEXTJS_STDERR: errno: -2,
+[2025-05-27T08:15:02.527Z] NEXTJS_STDERR: code: 'ENOENT',
+[2025-05-27T08:15:02.527Z] NEXTJS_STDERR: syscall: 'open',
+[2025-05-27T08:15:02.527Z] NEXTJS_STDERR: path: '/Users/reeceharding/Leadify/.next/server/vendor-chunks/tailwind-merge.js',
+[2025-05-27T08:15:02.527Z] NEXTJS_STDERR: page: '/reddit/lead-finder'
+[2025-05-27T08:15:02.527Z] NEXTJS_STDERR: }
+[2025-05-27T08:15:02.537Z] NEXTJS_STDERR: ⨯ Error: Cannot find module './8548.js'
+[2025-05-27T08:15:02.537Z] NEXTJS_STDERR: Require stack:
+[2025-05-27T08:15:02.537Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/.next/server/webpack-runtime.js
+[2025-05-27T08:15:02.537Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/.next/server/app/_not-found/page.js
+[2025-05-27T08:15:02.538Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/server/require.js
+[2025-05-27T08:15:02.538Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/server/load-components.js
+[2025-05-27T08:15:02.538Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/build/utils.js
+[2025-05-27T08:15:02.538Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/build/swc/options.js
+[2025-05-27T08:15:02.538Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/build/swc/index.js
+[2025-05-27T08:15:02.538Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/build/analysis/parse-module.js
+[2025-05-27T08:15:02.538Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/build/analysis/get-page-static-info.js
+[2025-05-27T08:15:02.538Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+[2025-05-27T08:15:02.538Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/server/lib/router-server.js
+[2025-05-27T08:15:02.538Z] NEXTJS_STDERR: - /Users/reeceharding/Leadify/node_modules/next/dist/server/lib/start-server.js
+[2025-05-27T08:15:02.538Z] NEXTJS_STDERR: at __webpack_require__.f.require (.next/server/webpack-runtime.js:208:28)
+[2025-05-27T08:15:02.538Z] NEXTJS_STDERR: at <unknown> (.next/server/webpack-runtime.js:116:40)
+[2025-05-27T08:15:02.538Z] NEXTJS_STDERR: at Array.reduce (<anonymous>)
+[2025-05-27T08:15:02.538Z] NEXTJS_STDERR: at __webpack_require__.e (.next/server/webpack-runtime.js:115:67)
+[2025-05-27T08:15:02.538Z] NEXTJS_STDERR: at Array.map (<anonymous>)
+[2025-05-27T08:15:02.538Z] NEXTJS_STDERR: at __webpack_require__.X (.next/server/webpack-runtime.js:167:22)
+[2025-05-27T08:15:02.538Z] NEXTJS_STDERR: at <unknown> (.next/server/pages/_document.js:1:392)
+[2025-05-27T08:15:02.538Z] NEXTJS_STDERR: at Object.<anonymous> (.next/server/pages/_document.js:1:435) {
+[2025-05-27T08:15:02.538Z] NEXTJS_STDERR: code: 'MODULE_NOT_FOUND',
+[2025-05-27T08:15:02.538Z] NEXTJS_STDERR: requireStack: [Array]
+[2025-05-27T08:15:02.538Z] NEXTJS_STDERR: }
+[2025-05-27T08:15:02.541Z] NEXTJS_STDOUT: GET /reddit/lead-finder 500 in 56ms

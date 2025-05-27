@@ -19,7 +19,7 @@ import {
 } from "@/types"
 import { useToast } from "@/lib/hooks/use-toast"
 import { useOrganization } from "@/components/utilities/organization-provider"
-import WebsiteScrapeDialog from "../../personalization/_components/website-scrape-dialog"
+import WebsiteScrapeDialog from "@/app/reddit/personalization/_components/website-scrape-dialog"
 
 interface AddToKnowledgeBaseProps {
   userId: string

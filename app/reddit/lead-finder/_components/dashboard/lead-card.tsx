@@ -51,7 +51,7 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
-import PostDetailPopup from "../post-detail-popup"
+import PostDetailPopup from "@/app/reddit/lead-finder/_components/post-detail-popup"
 import {
   Tooltip,
   TooltipContent,

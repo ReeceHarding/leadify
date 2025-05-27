@@ -5,6 +5,6 @@ export const KEYWORD_CONFIG = {
   MAX_ATTEMPTS: Number(process.env.KEYWORD_MAX_ATTEMPTS || 3),
   // Minimum acceptable reach-signal score (0-1) for a generated query to be kept.
   SCORE_THRESHOLD: Number(process.env.KEYWORD_SCORE_THRESHOLD || 0.3)
-} as const;
+} as const
 
-export type KeywordConfig = typeof KEYWORD_CONFIG; 
+export type KeywordConfig = typeof KEYWORD_CONFIG

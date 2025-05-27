@@ -7,7 +7,7 @@ Script to manually generate warm-up posts for testing.
 import dotenv from "dotenv"
 dotenv.config({ path: ".env.local" })
 
-import { generateAndScheduleWarmupPostsAction } from "../actions/warmup-queue-actions"
+import { generateAndScheduleWarmupPostsAction } from "@/actions/warmup-queue-actions"
 
 async function generatePosts() {
   const userId = process.argv[2]

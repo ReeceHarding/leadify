@@ -26,8 +26,8 @@ import { resetAccountAction } from "@/actions/db/profiles-actions"
 import { getGeneratedCommentsByCampaignAction } from "@/actions/db/lead-generation-actions"
 import { getCampaignsByOrganizationIdAction } from "@/actions/db/campaign-actions"
 import { getOrganizationsByUserIdAction } from "@/actions/db/organizations-actions"
-import AnimatedGradientText from "../magicui/animated-gradient-text"
-import HeroVideoDialog from "../magicui/hero-video-dialog"
+import AnimatedGradientText from "@/components/magicui/animated-gradient-text"
+import HeroVideoDialog from "@/components/magicui/hero-video-dialog"
 
 export const HeroSection = () => {
   const { user, isLoaded } = useUser()

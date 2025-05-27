@@ -5,10 +5,10 @@ Exports all database schema types and interfaces.
 */
 
 // Export Firestore types
-export * from "../firestore/collections"
-export * from "../firestore/lead-generation-collections"
-export * from "../firestore/posting-queue-collections"
-export * from "../firestore/personalization-collections"
-export * from "../firestore/warmup-collections"
-export * from "../firestore/organizations-collections"
-export * from "../firestore/keyword-performance-collections"
+export * from "@/db/firestore/collections"
+export * from "@/db/firestore/lead-generation-collections"
+export * from "@/db/firestore/posting-queue-collections"
+export * from "@/db/firestore/personalization-collections"
+export * from "@/db/firestore/warmup-collections"
+export * from "@/db/firestore/organizations-collections"
+export * from "@/db/firestore/keyword-performance-collections"

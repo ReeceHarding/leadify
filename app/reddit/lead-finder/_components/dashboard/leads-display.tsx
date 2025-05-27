@@ -11,8 +11,8 @@ import PaginationControls from "./pagination-controls"
 import {
   EnhancedLeadSkeleton,
   GenerationProgress
-} from "../enhanced-loading-states" // Adjust path as these are one level up
-import { EnhancedErrorState, EmptyState } from "../enhanced-error-states" // Adjust path
+} from "@/app/reddit/lead-finder/_components/enhanced-loading-states"
+import { EnhancedErrorState, EmptyState } from "@/app/reddit/lead-finder/_components/enhanced-error-states"
 import { MessageSquare, Search, Filter } from "lucide-react"
 
 interface LeadsDisplayProps {
