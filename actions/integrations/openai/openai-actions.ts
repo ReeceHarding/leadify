@@ -752,6 +752,16 @@ ${voicePrompt ? `\nVoice Instructions:\n${voicePrompt}\n` : ""}
 
 ${toneAnalysis ? `\nCommunity Tone Analysis:\n${toneAnalysis}\n` : ""}
 
+CRITICAL COMMENT STRUCTURE:
+You are someone who has been in the same situation as the OP and has tried multiple solutions. You should:
+1. Show empathy - you've been there
+2. Share that you've tried 3 different approaches:
+   - A FREE option (what worked/didn't work about it)
+   - A REASONABLE option (which happens to be ${businessName} - share specific benefits)
+   - A PREMIUM option (acknowledge it's good but maybe overkill for most)
+3. Present all options neutrally without pushing any particular one
+4. Be genuinely helpful - you're sharing your experience, not selling
+
 CRITICAL RULES FOR COMMENTS:
 - Match the casual tone and style of the subreddit
 - Use imperfect grammar if that's the norm
@@ -760,7 +770,8 @@ CRITICAL RULES FOR COMMENTS:
 - Be genuinely helpful first, mention the business naturally
 - Use Reddit-style formatting and language
 - Keep it conversational and authentic
-- NEVER USE HYPHENS (-) anywhere in your comments`
+- NEVER USE HYPHENS (-) anywhere in your comments
+- Present all three options fairly - don't oversell any one solution`
 
     const userPrompt = `Thread Title: ${threadTitle}
 Thread Content: ${threadContent}
@@ -768,12 +779,13 @@ Subreddit: r/${subreddit}
 
 ${existingComments && existingComments.length > 0 ? `\nExample comments from this thread:\n${existingComments.slice(0, 5).join("\n---\n")}` : ""}
 
-Score this thread (0-100) for relevance to ${businessName} and generate three comments:
-1. Micro (1-2 sentences, super casual)
-2. Medium (3-4 sentences, helpful but natural)
-3. Verbose (5-7 sentences, detailed but still authentic)
+Score this thread (0-100) for relevance to ${businessName} and generate three comments following the structure of someone who has tried multiple solutions:
 
-Remember: Write like a real redditor, not a marketer. Match the tone of the existing comments.
+1. Micro (1-2 sentences): Quick mention that you've tried a few things and ${businessName} worked well
+2. Medium (3-4 sentences): Brief story - tried free option (name it), then ${businessName} (what specifically helped), also aware of premium option
+3. Verbose (5-7 sentences): Full journey - your struggle, the free tool you tried first (pros/cons), how you found ${businessName} and what made it work for you, mention of premium alternative for completeness, offer to help
+
+Remember: Write like someone genuinely sharing their experience. You're not a salesperson, you're a fellow redditor who found something that worked.
 
 Return as JSON:
 {

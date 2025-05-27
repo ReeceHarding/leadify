@@ -624,7 +624,7 @@ export default function CreateCampaignDialog({
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <label className="text-sm text-muted-foreground">
+                      <label className="text-muted-foreground text-sm">
                         Threads per keyword:
                       </label>
                       <Input

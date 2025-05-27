@@ -124,6 +124,7 @@ export default function LeadCard({
   const [showRegenerateDialog, setShowRegenerateDialog] = useState(false)
   const [regenerateInstructions, setRegenerateInstructions] = useState("")
   const [isRegenerating, setIsRegenerating] = useState(false)
+  const [isPostBodyOpen, setIsPostBodyOpen] = useState(false)
 
   const comment = lead[`${selectedLength}Comment`] || lead.mediumComment || ""
 
@@ -227,6 +228,36 @@ export default function LeadCard({
               {lead.postTitle}
             </h3>
           </a>
+
+          {/* Post Body Dropdown */}
+          {lead.postContentSnippet && (
+            <Collapsible
+              open={isPostBodyOpen}
+              onOpenChange={setIsPostBodyOpen}
+            >
+              <CollapsibleTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-1 px-2 py-1 text-xs text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+                >
+                  {isPostBodyOpen ? (
+                    <ChevronDown className="size-3" />
+                  ) : (
+                    <ChevronRight className="size-3" />
+                  )}
+                  View post content
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-2">
+                <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700 dark:border-gray-700 dark:bg-gray-900/50 dark:text-gray-300">
+                  <p className="whitespace-pre-wrap">
+                    {lead.postContentSnippet}
+                  </p>
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          )}
 
           {/* AI Generated Comment Section */}
           <div className="space-y-3">
