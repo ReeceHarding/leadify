@@ -46,18 +46,16 @@ export async function GET(request: NextRequest) {
     }
 
     // Generate state parameter for security (include return URL)
-    const stateId = crypto.randomUUID()
+    const csrf = crypto.randomUUID()
     const stateData = {
-      userId,
-      timestamp: Date.now(),
-      returnUrl,
-      stateId
+      csrf,
+      returnUrl
     }
     const state = Buffer.from(JSON.stringify(stateData)).toString("base64")
 
-    // Store state in cookie for verification
+    // Store CSRF token in cookie for verification
     const cookieStore = await cookies()
-    cookieStore.set("reddit_oauth_state", state, {
+    cookieStore.set("reddit_oauth_state", csrf, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       maxAge: 10 * 60 // 10 minutes

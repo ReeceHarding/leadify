@@ -891,7 +891,8 @@ export default function LeadFinderDashboard() {
         const result = await postCommentAndUpdateStatusAction(
           lead.id,
           threadId,
-          comment
+          comment,
+          currentOrganization?.id || ""
         )
 
         if (result.isSuccess) {
@@ -1027,7 +1028,8 @@ export default function LeadFinderDashboard() {
       const result = await postCommentAndUpdateStatusAction(
         lead.id,
         threadId,
-        comment
+        comment,
+        currentOrganization?.id || ""
       )
 
       if (result.isSuccess) {
@@ -1249,7 +1251,8 @@ export default function LeadFinderDashboard() {
       const posts = queuedLeads.map(lead => ({
         leadId: lead.id,
         threadId: lead.postUrl.match(/\/comments\/([a-zA-Z0-9]+)/)?.[1] || "",
-        comment: getDisplayComment(lead)
+        comment: getDisplayComment(lead),
+        organizationId: currentOrganization?.id || ""
       }))
 
       // Dynamic import to avoid importing server action in client component

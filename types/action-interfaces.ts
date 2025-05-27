@@ -15,14 +15,14 @@ export interface LeadGenerationProgress {
   stages: {
     name: string
     status: "pending" | "in_progress" | "completed" | "error"
-    startedAt?: any // Timestamp
-    completedAt?: any // Timestamp
+    startedAt?: Timestamp
+    completedAt?: Timestamp
     message?: string
     progress?: number // 0-100
   }[]
   totalProgress: number // 0-100
-  startedAt: any // Timestamp
-  completedAt?: any // Timestamp
+  startedAt: Timestamp
+  completedAt?: Timestamp
   error?: string
   results?: {
     totalThreadsFound: number
@@ -177,8 +177,6 @@ export interface SerializedGeneratedCommentDocument {
     | "queued"
     | "posted"
   selectedLength?: "micro" | "medium" | "verbose"
-  approved: boolean
-  used: boolean
   createdAt: string
   updatedAt: string
   postScore?: number
@@ -352,7 +350,6 @@ export interface FirebaseExportData {
   relevanceScore: number
   generatedComment: string
   reasoning: string
-  approved: boolean
-  used: boolean
+  status: string
   exportedAt: Date
 }

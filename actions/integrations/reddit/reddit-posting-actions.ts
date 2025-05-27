@@ -120,34 +120,23 @@ export async function postCommentToRedditAction(
 export async function postCommentAndUpdateStatusAction(
   leadId: string,
   threadId: string,
-  comment: string
+  comment: string,
+  organizationId: string
 ): Promise<ActionState<{ link: string }>> {
   try {
     console.log("📤 [REDDIT-POST] Starting post comment and update status")
     console.log("📤 [REDDIT-POST] Lead ID:", leadId)
     console.log("📤 [REDDIT-POST] Thread ID:", threadId)
     console.log("📤 [REDDIT-POST] Comment length:", comment.length)
+    console.log("📤 [REDDIT-POST] Organization ID:", organizationId)
 
-    // Get the lead to find its organization
-    const leadResult = await getGeneratedCommentByIdAction(leadId)
-    if (!leadResult.isSuccess || !leadResult.data) {
-      console.error("📤 [REDDIT-POST] Failed to get lead data")
-      return {
-        isSuccess: false,
-        message: "Failed to get lead information"
-      }
-    }
-
-    const organizationId = leadResult.data.organizationId
     if (!organizationId) {
-      console.error("📤 [REDDIT-POST] Lead has no organizationId")
+      console.error("📤 [REDDIT-POST] Organization ID is required")
       return {
         isSuccess: false,
-        message: "Lead is not associated with an organization"
+        message: "Organization ID is required"
       }
     }
-
-    console.log("📤 [REDDIT-POST] Using organization:", organizationId)
 
     // Get the organization's Reddit tokens
     const tokensResult = await getCurrentOrganizationTokens(organizationId)

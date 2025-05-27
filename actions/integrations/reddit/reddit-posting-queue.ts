@@ -135,7 +135,8 @@ export async function processPostWithRateLimit(
   userId: string,
   leadId: string,
   threadId: string,
-  comment: string
+  comment: string,
+  organizationId: string
 ): Promise<ActionState<{ link?: string; waitTime?: number }>> {
   console.log(`🚀 [POST-QUEUE] Processing post for lead: ${leadId}`)
 
@@ -162,7 +163,8 @@ export async function processPostWithRateLimit(
     const result = await postCommentAndUpdateStatusAction(
       leadId,
       threadId,
-      comment
+      comment,
+      organizationId
     )
 
     if (result.isSuccess) {
@@ -195,7 +197,7 @@ export async function processPostWithRateLimit(
  */
 export async function queuePostsForAsyncProcessing(
   userId: string,
-  posts: Array<{ leadId: string; threadId: string; comment: string }>
+  posts: Array<{ leadId: string; threadId: string; comment: string; organizationId: string }>
 ): Promise<ActionState<{ queuedCount: number; estimatedTime: number }>> {
   console.log(
     `📋 [POST-QUEUE] Queueing ${posts.length} posts for user: ${userId}`
@@ -228,6 +230,7 @@ export async function queuePostsForAsyncProcessing(
       await setDoc(doc(queueCollection), {
         ...queueItem,
         userId,
+        organizationId: post.organizationId,
         createdAt: serverTimestamp()
       })
 

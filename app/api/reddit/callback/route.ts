@@ -21,8 +21,8 @@ export async function GET(request: NextRequest) {
 
   try {
     const cookieStore = await cookies()
-    const storedCsrfToken = cookieStore.get("reddit_oauth_csrf")?.value
-    addCookieToClear("reddit_oauth_csrf") // Clear CSRF cookie in response
+    const storedCsrfToken = cookieStore.get("reddit_oauth_state")?.value
+    addCookieToClear("reddit_oauth_state") // Clear CSRF cookie in response
 
     if (!stateFromReddit) {
       console.error("[CALLBACK] State parameter missing from Reddit redirect.")
@@ -124,7 +124,7 @@ export async function GET(request: NextRequest) {
       `[CALLBACK] Processing org-specific Reddit auth for org: ${organizationId}, state CSRF validated.`
     )
     // Pass the original stateFromReddit (which is base64) to the action.
-    // The action `exchangeRedditCodeForTokensOrganizationAction` is responsible for validating the `state` again with the CSRF cookie `reddit_oauth_csrf`
+    // The action `exchangeRedditCodeForTokensOrganizationAction` is responsible for validating the `state` again with the CSRF cookie `reddit_oauth_state`
     // (or we can pass `storedCsrfToken` to it if it doesn't read cookies itself).
     // For now, we assume it re-validates or that our validation here is primary.
     const result = await exchangeRedditCodeForTokensOrganizationAction(
@@ -132,8 +132,8 @@ export async function GET(request: NextRequest) {
       stateFromReddit,
       organizationId
     )
-    // `exchangeRedditCodeForTokensOrganizationAction` should also delete the `reddit_oauth_state` (now `reddit_oauth_csrf`) cookie if it re-validates.
-    // Since we clear `reddit_oauth_csrf` above, the action might not find it.
+    // `exchangeRedditCodeForTokensOrganizationAction` should also delete the `reddit_oauth_state` (now `reddit_oauth_state`) cookie if it re-validates.
+    // Since we clear `reddit_oauth_state` above, the action might not find it.
     // It might be better if the action takes the `storedCsrfToken` for its own validation step.
 
     if (!result.isSuccess) {
@@ -173,7 +173,7 @@ export async function GET(request: NextRequest) {
         ? e.message
         : "An unexpected error occurred during authentication."
     addCookieToClear("reddit_auth_org_id")
-    addCookieToClear("reddit_oauth_csrf")
+    addCookieToClear("reddit_oauth_state")
     return NextResponse.redirect(
       new URL(
         `${parsedReturnUrl}?error=${encodeURIComponent("Authentication failed: " + errorMsg)}`,

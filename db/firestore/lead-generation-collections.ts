@@ -151,8 +151,6 @@ export interface GeneratedCommentDocument {
     | "queued"
     | "posted" // Lead status
   selectedLength?: "micro" | "medium" | "verbose" // Which length the user selected
-  approved: boolean // Kept for potential direct approval, 'status' is more granular
-  used: boolean // Whether the user has used this comment
   createdAt: Timestamp
   updatedAt: Timestamp
 
@@ -193,8 +191,15 @@ export interface CreateGeneratedCommentData {
 
 // Update generated comment data
 export interface UpdateGeneratedCommentData {
-  approved?: boolean
-  used?: boolean
+  status?:
+    | "new"
+    | "viewed"
+    | "approved"
+    | "rejected"
+    | "used"
+    | "queued"
+    | "posted"
+  selectedLength?: "micro" | "medium" | "verbose"
   postedCommentUrl?: string
 }
 
@@ -222,7 +227,6 @@ export interface GoogleSheetsExportData {
   relevanceScore: number
   generatedComment: string
   reasoning: string
-  approved: string
-  used: string
+  status: string
   createdAt: string
 }

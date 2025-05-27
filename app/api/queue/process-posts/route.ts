@@ -79,7 +79,8 @@ export async function GET(request: NextRequest) {
         const result = await postCommentAndUpdateStatusAction(
           postData.leadId,
           postData.threadId,
-          postData.comment
+          postData.comment,
+          postData.organizationId
         )
 
         if (result.isSuccess) {
