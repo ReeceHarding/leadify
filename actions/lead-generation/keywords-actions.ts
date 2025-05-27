@@ -59,24 +59,28 @@ Tasks:
 5. List key Target Pain Points the business addresses.
 6. Generate ${requestedCount} specific Google search queries that will find Reddit posts from people who need this business's services.
 
-IMPORTANT: Create HIGHLY SPECIFIC search queries using quotes and OR operators to find people actively looking to hire or seeking recommendations.
+CRITICAL: Create search queries that will actually find Reddit posts. DO NOT use quotes for exact phrase matching as this severely limits results.
 
-Each query should be 4-8 words long and very specific to capture high-intent users.
-
-For example, if the business is a coding agency, generate queries like:
-- "software developer to build our internal tools" OR "need developer for internal tools project"
-- "looking for MVP developer for startup" OR "where to find MVP developer"
-- "need technical cofounder for my startup" OR "looking for technical cofounder to build"
-- "recommend development agency for web app" OR "best agency to build SaaS MVP"
-- "hire freelance developer for React project" OR "need React developer for contract work"
+For a coding agency that builds internal tools and MVPs, generate queries like:
+- need developer internal tools reddit
+- looking for MVP developer reddit startup
+- hire coding agency reddit recommendations
+- technical cofounder wanted reddit
+- freelance developer React project reddit
+- development agency web app reddit
+- outsource software development reddit
+- build SaaS MVP reddit agency
+- internal tools developer needed reddit
+- startup looking technical help reddit
 
 Each query should:
-- Use quotes around longer, more specific phrases (4-8 words)
-- Use OR operators to combine related high-intent phrases
-- Include context words like "for", "to", "our", "my" to find more specific requests
-- Focus on hiring intent, project needs, and specific use cases
-- Target people who are actively seeking solutions with budget and timeline
-- Be specific about the type of help needed (not just "need developer" but "need developer for X")
+- Be 3-6 words plus "reddit" at the end
+- NOT use quotes (they limit results too much)
+- Focus on common ways people ask for help on Reddit
+- Include action words like: need, looking, hire, want, seeking, recommend
+- Include specific contexts: MVP, startup, internal tools, SaaS, web app
+- Be natural language that matches how people actually post on Reddit
+- Always end with "reddit" to ensure Reddit results
 
 Return ONLY a JSON object with the following structure, no other text:
 {
@@ -92,7 +96,7 @@ Ensure the keywords array contains exactly ${requestedCount} search queries.`
     const result = await generateText({
       model: openai("gpt-4o-mini"),
       system:
-        "You are a Reddit keyword and business strategy expert specializing in high-intent, specific search queries. Generate longer, more specific keyword phrases that capture users with clear buying intent and specific project needs. Return only valid JSON objects adhering to the specified schema.",
+        "You are a Reddit search query expert. Generate natural language search queries that will find Reddit posts from people seeking help. NEVER use quotes or OR operators as they limit results. Focus on how people actually write on Reddit. Return only valid JSON objects.",
       prompt: prompt,
       temperature: 0.5,
       maxTokens: 1500
