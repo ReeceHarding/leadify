@@ -289,7 +289,7 @@ const matchesSearchQuery = (lead: LeadResult, query: string): boolean => {
 
 export default function LeadFinderDashboard() {
   const { user, isLoaded: userLoaded } = useUser()
-  const { activeOrganization } = useOrganization()
+  const { activeOrganization, isLoading: organizationLoading } = useOrganization()
   const [state, setState] = useState<DashboardState>(initialState)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [findNewLeadsOpen, setFindNewLeadsOpen] = useState(false)
@@ -637,18 +637,26 @@ export default function LeadFinderDashboard() {
         return
       }
 
-      addDebugLog("Initializing dashboard", { userId: user.id })
+      // Wait for organization context to be loaded
+      if (!activeOrganization) {
+        addDebugLog("Waiting for organization context to load")
+        // Don't set isLoading to false here - wait for organization
+        return
+      }
+
+      addDebugLog("Initializing dashboard", { 
+        userId: user.id,
+        organizationId: activeOrganization.id 
+      })
+      
       // Set isLoading to true at the start of initialization.
       // The onSnapshot listener will set it to false once data is loaded or an error occurs.
       setState(prev => ({ ...prev, isLoading: true }))
 
       try {
-        if (!activeOrganization) {
-          addDebugLog("No active organization available for campaign lookup")
-          setState(prev => ({ ...prev, isLoading: false }))
-          return
-        }
-
+        // Check localStorage for previously selected campaign
+        const storedCampaignId = localStorage.getItem(`campaign_${activeOrganization.id}_${user.id}`)
+        
         const campaignsResult = await getCampaignsByOrganizationIdAction(
           activeOrganization.id
         )
@@ -672,30 +680,49 @@ export default function LeadFinderDashboard() {
         setState(prev => ({ ...prev, campaigns: transformedCampaigns }))
 
         if (campaignsResult.isSuccess && campaignsResult.data.length > 0) {
-          const latestCampaign = campaignsResult.data.sort((a: any, b: any) => {
-            // Assuming createdAt is a string (ISO format) or Timestamp
-            const dateA =
-              typeof a.createdAt === "string"
-                ? new Date(a.createdAt)
-                : (a.createdAt as Timestamp)?.toDate()
-            const dateB =
-              typeof b.createdAt === "string"
-                ? new Date(b.createdAt)
-                : (b.createdAt as Timestamp)?.toDate()
-            return (dateB?.getTime() || 0) - (dateA?.getTime() || 0)
-          })[0]
+          // Try to use stored campaign ID first, then fall back to latest
+          let selectedCampaign = null
+          
+          if (storedCampaignId) {
+            selectedCampaign = campaignsResult.data.find(c => c.id === storedCampaignId)
+            if (selectedCampaign) {
+              addDebugLog("Restored previously selected campaign", {
+                campaignId: storedCampaignId
+              })
+            }
+          }
+          
+          if (!selectedCampaign) {
+            // Fall back to latest campaign
+            selectedCampaign = campaignsResult.data.sort((a: any, b: any) => {
+              // Assuming createdAt is a string (ISO format) or Timestamp
+              const dateA =
+                typeof a.createdAt === "string"
+                  ? new Date(a.createdAt)
+                  : (a.createdAt as Timestamp)?.toDate()
+              const dateB =
+                typeof b.createdAt === "string"
+                  ? new Date(b.createdAt)
+                  : (b.createdAt as Timestamp)?.toDate()
+              return (dateB?.getTime() || 0) - (dateA?.getTime() || 0)
+            })[0]
+            
+            addDebugLog("Selected latest campaign", {
+              campaignId: selectedCampaign.id,
+              status: selectedCampaign.status
+            })
+          }
 
-          addDebugLog("Found existing campaign(s), selecting latest", {
-            campaignId: latestCampaign.id,
-            status: latestCampaign.status
-          })
-
-          setState(prev => ({ ...prev, campaignId: latestCampaign.id }))
-          addDebugLog("Campaign selected", { campaignId: latestCampaign.id })
+          setState(prev => ({ ...prev, campaignId: selectedCampaign.id }))
+          
+          // Store the selected campaign ID
+          localStorage.setItem(`campaign_${activeOrganization.id}_${user.id}`, selectedCampaign.id)
+          
+          addDebugLog("Campaign selected", { campaignId: selectedCampaign.id })
 
           // Fetch full campaign details to get the name
           const campaignDetailsResult = await getCampaignByIdAction(
-            latestCampaign.id
+            selectedCampaign.id
           )
           if (campaignDetailsResult.isSuccess && campaignDetailsResult.data) {
             setState(prev => ({
@@ -707,7 +734,7 @@ export default function LeadFinderDashboard() {
             )
           }
         } else {
-          addDebugLog("No campaigns found for user")
+          addDebugLog("No campaigns found for organization")
           setState(prev => ({ ...prev, isLoading: false }))
         }
       } catch (error) {
@@ -723,7 +750,7 @@ export default function LeadFinderDashboard() {
     }
 
     initialize()
-  }, [userLoaded, user, addDebugLog])
+  }, [userLoaded, user, activeOrganization, addDebugLog])
 
   // Handle Reddit OAuth success
   useEffect(() => {
@@ -1433,7 +1460,7 @@ export default function LeadFinderDashboard() {
   ])
 
   // Render loading state
-  if (state.isLoading && !liveFirestoreProgress && !state.error) {
+  if ((state.isLoading || organizationLoading) && !liveFirestoreProgress && !state.error) {
     return (
       <div className="container mx-auto space-y-6 py-6">
         <EnhancedLeadSkeleton />
@@ -1557,6 +1584,12 @@ export default function LeadFinderDashboard() {
         onRunWorkflow={manualRunWorkflow}
         onSelectCampaign={(campaignId: string) => {
           setState(prev => ({ ...prev, campaignId, isLoading: true }))
+          
+          // Persist the selected campaign ID
+          if (user && activeOrganization) {
+            localStorage.setItem(`campaign_${activeOrganization.id}_${user.id}`, campaignId)
+          }
+          
           // Load campaign details
           getCampaignByIdAction(campaignId).then(result => {
             if (result.isSuccess && result.data) {
@@ -1825,6 +1858,11 @@ export default function LeadFinderDashboard() {
                   campaignName: latestCampaign.name || null,
                   workflowRunning: true // Workflow is running in the background
                 }))
+                
+                // Persist the new campaign ID
+                if (user && activeOrganization) {
+                  localStorage.setItem(`campaign_${activeOrganization.id}_${user.id}`, latestCampaign.id)
+                }
 
                 // Update keywords
                 const campaignDetailsResult = await getCampaignByIdAction(
