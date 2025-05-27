@@ -696,11 +696,33 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
     // Get knowledge base for the organization
     const knowledgeBaseResult =
       await getKnowledgeBaseByOrganizationIdAction(organizationId)
-    let knowledgeBaseSummary = ""
+    let knowledgeBaseContent = ""
     if (knowledgeBaseResult.isSuccess && knowledgeBaseResult.data) {
-      knowledgeBaseSummary = knowledgeBaseResult.data.summary || ""
+      const kb = knowledgeBaseResult.data
+      
+      // Combine all knowledge base content
+      const contentParts = []
+      
+      // Add custom information (manually typed info)
+      if (kb.customInformation) {
+        contentParts.push(kb.customInformation)
+      }
+      
+      // Add summary if available
+      if (kb.summary) {
+        contentParts.push(kb.summary)
+      }
+      
+      // Add key facts if available
+      if (kb.keyFacts && kb.keyFacts.length > 0) {
+        contentParts.push(`Key facts: ${kb.keyFacts.join(", ")}`)
+      }
+      
+      knowledgeBaseContent = contentParts.join("\n\n")
+      
       console.log(
-        "✅ [OPENAI-PERSONALIZED] Found knowledge base for organization"
+        "✅ [OPENAI-PERSONALIZED] Found knowledge base for organization with content length:",
+        knowledgeBaseContent.length
       )
     }
 
@@ -717,10 +739,10 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
 
     // Prioritize campaign-specific content, then knowledge base, then organization website
     let primaryBusinessContent =
-      campaignWebsiteContent || knowledgeBaseSummary || ""
+      campaignWebsiteContent || knowledgeBaseContent || ""
     let contentSource = campaignWebsiteContent
       ? "campaign"
-      : knowledgeBaseSummary
+      : knowledgeBaseContent
         ? "knowledge_base"
         : "organization_website"
 
@@ -980,7 +1002,7 @@ Return as JSON:
 
     // Log the AI response
     console.log(
-      "🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] ========== AI RESPONSE =========="
+      "🔍🔍�� [PERSONALIZED-SCORING-RESULT] ========== AI RESPONSE =========="
     )
     console.log("🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] Score:", parsed.score)
     console.log(
