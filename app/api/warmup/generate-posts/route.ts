@@ -1,6 +1,6 @@
 /*
 <ai_context>
-API endpoint for generating warm-up posts for a specific user.
+API endpoint for generating warm-up posts for a specific organization.
 Can be called manually or by scheduled functions.
 </ai_context>
 */
@@ -8,6 +8,7 @@ Can be called manually or by scheduled functions.
 import { NextResponse } from "next/server"
 import { headers } from "next/headers"
 import { generateAndScheduleWarmupPostsAction } from "@/actions/warmup-queue-actions"
+import { getOrganizationsByUserIdAction } from "@/actions/db/organizations-actions"
 
 export async function POST(request: Request) {
   try {
@@ -20,15 +21,42 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { userId } = body
+    const { organizationId, userId } = body
 
-    if (!userId) {
-      return NextResponse.json({ error: "userId is required" }, { status: 400 })
+    // Support both organizationId (preferred) and userId (legacy)
+    let targetOrganizationId = organizationId
+
+    if (!targetOrganizationId && userId) {
+      // Legacy support: get first organization for user
+      console.log(
+        `🔧 [GENERATE-POSTS-API] Legacy mode: Getting organization for user: ${userId}`
+      )
+      const orgsResult = await getOrganizationsByUserIdAction(userId)
+      if (
+        orgsResult.isSuccess &&
+        orgsResult.data &&
+        orgsResult.data.length > 0
+      ) {
+        targetOrganizationId = orgsResult.data[0].id
+        console.log(
+          `🔧 [GENERATE-POSTS-API] Found organization: ${targetOrganizationId}`
+        )
+      }
     }
 
-    console.log(`🔧 [GENERATE-POSTS-API] Generating posts for user: ${userId}`)
+    if (!targetOrganizationId) {
+      return NextResponse.json(
+        { error: "organizationId is required (or userId for legacy support)" },
+        { status: 400 }
+      )
+    }
 
-    const result = await generateAndScheduleWarmupPostsAction(userId)
+    console.log(
+      `🔧 [GENERATE-POSTS-API] Generating posts for organization: ${targetOrganizationId}`
+    )
+
+    const result =
+      await generateAndScheduleWarmupPostsAction(targetOrganizationId)
 
     if (result.isSuccess) {
       return NextResponse.json({

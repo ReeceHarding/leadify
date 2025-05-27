@@ -277,6 +277,7 @@ export async function createWarmupPostAction(
     const postData = {
       id: postRef.id,
       userId: data.userId,
+      organizationId: data.organizationId,
       warmupAccountId: data.warmupAccountId,
       subreddit: data.subreddit,
       title: data.title,

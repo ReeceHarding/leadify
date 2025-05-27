@@ -5564,3 +5564,175 @@
 [2025-05-27T09:35:49.021Z] ==================================================
 [2025-05-27T09:35:49.022Z] COMMAND FINISHED: prettier --write {app,lib,components}/**/*.{ts,tsx} db/**/*.ts types/**/*.ts --cache --ignore-unknown (exit code: 0)
 [2025-05-27T09:35:49.022Z] ==================================================
+[2025-05-27T09:35:49.158Z] NEXTJS_STDOUT: ✓ Compiled in 243ms (1380 modules)
+[2025-05-27T09:39:06.841Z] NEXTJS_STDOUT: ✓ Compiled in 1475ms (3319 modules)
+[2025-05-27T09:42:59.095Z] NEXTJS_STDOUT: ✓ Compiled in 758ms (1380 modules)
+[2025-05-27T09:44:05.609Z] ==================================================
+[2025-05-27T09:44:05.609Z] COMMAND STARTED: next build
+[2025-05-27T09:44:05.609Z] ==================================================
+[2025-05-27T09:44:06.018Z] STDOUT: ▲ Next.js 15.3.2
+[2025-05-27T09:44:06.018Z] STDOUT: - Environments: .env.local
+[2025-05-27T09:44:06.092Z] STDOUT: Creating an optimized production build ...
+[2025-05-27T09:44:12.629Z] STDERR: <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (952kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+[2025-05-27T09:44:12.630Z] STDERR: <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (128kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+[2025-05-27T09:44:12.631Z] STDERR: <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (452kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+[2025-05-27T09:44:12.703Z] STDERR: <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (121kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+[2025-05-27T09:44:12.742Z] STDERR: ⚠ Compiled with warnings in 1000ms
+[2025-05-27T09:44:12.742Z] STDERR: ./node_modules/@firebase/firestore/dist/index.esm2017.js
+[2025-05-27T09:44:12.742Z] STDERR: A Node.js API is used (process.__PRIVATE_env at line: 1773) which is not supported in the Edge Runtime.
+[2025-05-27T09:44:12.743Z] STDERR: Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+[2025-05-27T09:44:12.743Z] STDERR: Import trace for requested module:
+[2025-05-27T09:44:12.743Z] STDERR: ./node_modules/@firebase/firestore/dist/index.esm2017.js
+[2025-05-27T09:44:12.743Z] STDERR: ./node_modules/firebase/firestore/dist/esm/index.esm.js
+[2025-05-27T09:44:12.743Z] STDERR: ./actions/db/organizations-actions.ts
+[2025-05-27T09:44:12.743Z] STDERR: ./node_modules/firebase/node_modules/@firebase/auth/dist/esm2017/index-8bd0c73f.js
+[2025-05-27T09:44:12.743Z] STDERR: A Node.js API is used (MessageChannel at line: 7942) which is not supported in the Edge Runtime.
+[2025-05-27T09:44:12.743Z] STDERR: Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+[2025-05-27T09:44:12.743Z] STDERR: Import trace for requested module:
+[2025-05-27T09:44:12.743Z] STDERR: ./node_modules/firebase/node_modules/@firebase/auth/dist/esm2017/index-8bd0c73f.js
+[2025-05-27T09:44:12.743Z] STDERR: ./node_modules/firebase/node_modules/@firebase/auth/dist/esm2017/index.js
+[2025-05-27T09:44:12.743Z] STDERR: ./node_modules/firebase/auth/dist/esm/index.esm.js
+[2025-05-27T09:44:12.743Z] STDERR: ./lib/firebase.ts
+[2025-05-27T09:44:12.743Z] STDERR: ./db/db.ts
+[2025-05-27T09:44:12.743Z] STDERR: ./actions/db/organizations-actions.ts
+[2025-05-27T09:44:12.743Z] STDERR: ./node_modules/firebase/node_modules/@firebase/auth/dist/esm2017/index-8bd0c73f.js
+[2025-05-27T09:44:12.743Z] STDERR: A Node.js API is used (MessageChannel at line: 7942) which is not supported in the Edge Runtime.
+[2025-05-27T09:44:12.743Z] STDERR: Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+[2025-05-27T09:44:12.743Z] STDERR: Import trace for requested module:
+[2025-05-27T09:44:12.743Z] STDERR: ./node_modules/firebase/node_modules/@firebase/auth/dist/esm2017/index-8bd0c73f.js
+[2025-05-27T09:44:12.744Z] STDERR: ./node_modules/firebase/node_modules/@firebase/auth/dist/esm2017/index.js
+[2025-05-27T09:44:12.744Z] STDERR: ./node_modules/firebase/auth/dist/esm/index.esm.js
+[2025-05-27T09:44:12.744Z] STDERR: ./lib/firebase.ts
+[2025-05-27T09:44:12.744Z] STDERR: ./db/db.ts
+[2025-05-27T09:44:12.744Z] STDERR: ./actions/db/organizations-actions.ts
+[2025-05-27T09:44:15.875Z] STDOUT: ✓ Compiled successfully in 7.0s
+[2025-05-27T09:44:15.877Z] STDOUT: Linting and checking validity of types ...
+[2025-05-27T09:44:21.058Z] STDOUT: Collecting page data ...
+[2025-05-27T09:44:34.768Z] ==================================================
+[2025-05-27T09:44:34.768Z] COMMAND STARTED: next lint --fix
+[2025-05-27T09:44:34.768Z] ==================================================
+[2025-05-27T09:44:35.747Z] STDOUT: ✔ No ESLint warnings or errors
+[2025-05-27T09:44:35.805Z] ==================================================
+[2025-05-27T09:44:35.806Z] COMMAND FINISHED: next lint --fix (exit code: 0)
+[2025-05-27T09:44:35.806Z] ==================================================
+[2025-05-27T09:44:35.996Z] ==================================================
+[2025-05-27T09:44:35.997Z] COMMAND STARTED: prettier --write {app,lib,components}/**/*.{ts,tsx} db/**/*.ts types/**/*.ts --cache --ignore-unknown
+[2025-05-27T09:44:35.997Z] ==================================================
+[2025-05-27T09:44:36.075Z] STDOUT: app/api/lead-generation/start/route.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.076Z] STDOUT: app/api/queue/check-warmup-comments/route.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.078Z] STDOUT: app/api/queue/process-posts/route.ts 1ms (unchanged) (cached)
+[2025-05-27T09:44:36.079Z] STDOUT: app/api/queue/process-warmup/route.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.080Z] STDOUT: app/api/reddit/auth/route.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.081Z] STDOUT: app/api/reddit/callback/route.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.083Z] STDOUT: app/api/reddit/comments/[commentId]/replies/route.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.084Z] STDOUT: app/api/reddit/comments/route.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.085Z] STDOUT: app/api/stripe/webhooks/route.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.087Z] STDOUT: app/api/test-twitter-analysis/route.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.088Z] STDOUT: app/api/test-twitter-direct/route.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.128Z] STDOUT: app/api/warmup/generate-posts/route.ts 39ms
+[2025-05-27T09:44:36.133Z] STDOUT: app/reddit/lead-finder/_components/dashboard/types.ts 1ms (unchanged) (cached)
+[2025-05-27T09:44:36.133Z] STDOUT: app/reddit/lead-finder/_components/dashboard/utils.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.136Z] STDOUT: app/(auth)/layout.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.138Z] STDOUT: app/(marketing)/layout.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.139Z] STDOUT: app/(marketing)/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.141Z] STDOUT: app/dashboard/layout.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.143Z] STDOUT: app/dashboard/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.144Z] STDOUT: app/firebase-test/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.146Z] STDOUT: app/onboarding/layout.tsx 1ms (unchanged) (cached)
+[2025-05-27T09:44:36.181Z] STDOUT: app/onboarding/page.tsx 34ms (unchanged)
+[2025-05-27T09:44:36.183Z] STDOUT: app/reddit-auth/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.184Z] STDOUT: app/reddit-test/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.185Z] STDOUT: app/reddit/layout.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.188Z] STDOUT: lib/config/keyword-config.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.189Z] STDOUT: lib/config/reddit-config.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.190Z] STDOUT: lib/hooks/use-toast.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.192Z] STDOUT: lib/reddit/reddit-api-client.ts 1ms (unchanged) (cached)
+[2025-05-27T09:44:36.193Z] STDOUT: lib/utils/firestore-batch-utils.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.194Z] STDOUT: lib/utils/organization-utils.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.195Z] STDOUT: lib/utils/theme-utils.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.195Z] STDOUT: lib/utils/timestamp-utils.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.196Z] STDOUT: lib/hooks/use-copy-to-clipboard.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.197Z] STDOUT: lib/hooks/use-mobile.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.199Z] STDOUT: components/ui/use-toast.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.201Z] STDOUT: components/landing/hero.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.202Z] STDOUT: components/landing/logo-carousel.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.202Z] STDOUT: components/landing/testimonials.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.204Z] STDOUT: components/magicui/animated-gradient-text.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.204Z] STDOUT: components/magicui/hero-video-dialog.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.206Z] STDOUT: components/sidebar/app-sidebar.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.207Z] STDOUT: components/sidebar/create-organization-dialog.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.208Z] STDOUT: components/sidebar/nav-main.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.209Z] STDOUT: components/sidebar/nav-projects.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.210Z] STDOUT: components/sidebar/nav-user.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.211Z] STDOUT: components/sidebar/team-switcher.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.212Z] STDOUT: components/ui/accordion.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.213Z] STDOUT: components/ui/alert-dialog.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.214Z] STDOUT: components/ui/alert.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.215Z] STDOUT: components/ui/aspect-ratio.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.216Z] STDOUT: components/ui/avatar.tsx 1ms (unchanged) (cached)
+[2025-05-27T09:44:36.216Z] STDOUT: components/ui/badge.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.217Z] STDOUT: components/ui/breadcrumb.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.218Z] STDOUT: components/ui/button.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.219Z] STDOUT: components/ui/calendar.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.220Z] STDOUT: components/ui/card.tsx 1ms (unchanged) (cached)
+[2025-05-27T09:44:36.220Z] STDOUT: components/ui/carousel.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.221Z] STDOUT: components/ui/chart.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.222Z] STDOUT: components/ui/checkbox.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.223Z] STDOUT: components/ui/collapsible.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.225Z] STDOUT: components/ui/command.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.226Z] STDOUT: components/ui/context-menu.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.227Z] STDOUT: components/ui/dialog.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.228Z] STDOUT: components/ui/drawer.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.228Z] STDOUT: components/ui/dropdown-menu.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.229Z] STDOUT: components/ui/form.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.230Z] STDOUT: components/ui/hover-card.tsx 1ms (unchanged) (cached)
+[2025-05-27T09:44:36.230Z] STDOUT: components/ui/input-otp.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.231Z] STDOUT: components/ui/input.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.232Z] STDOUT: components/ui/label.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.232Z] STDOUT: components/ui/loading-skeleton.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.233Z] STDOUT: components/ui/menubar.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.234Z] STDOUT: components/ui/navigation-menu.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.234Z] STDOUT: components/ui/pagination.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.235Z] STDOUT: components/ui/popover.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.236Z] STDOUT: components/ui/progress.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.236Z] STDOUT: components/ui/radio-group.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.237Z] STDOUT: components/ui/resizable.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.238Z] STDOUT: components/ui/scroll-area.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.239Z] STDOUT: components/ui/select.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.239Z] STDOUT: components/ui/separator.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.240Z] STDOUT: components/ui/sheet.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.241Z] STDOUT: components/ui/sidebar.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.242Z] STDOUT: components/ui/skeleton.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.242Z] STDOUT: components/ui/slider.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.243Z] STDOUT: components/ui/sonner.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.244Z] STDOUT: components/ui/switch.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.244Z] STDOUT: components/ui/table.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.245Z] STDOUT: components/ui/tabs.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.247Z] STDOUT: components/ui/textarea.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.247Z] STDOUT: components/ui/toast.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.248Z] STDOUT: components/ui/toaster.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.249Z] STDOUT: components/ui/toggle-group.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.249Z] STDOUT: components/ui/toggle.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.250Z] STDOUT: components/ui/tooltip.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.251Z] STDOUT: components/utilities/organization-provider.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.252Z] STDOUT: components/utilities/organization-selector.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.253Z] STDOUT: components/utilities/providers.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.253Z] STDOUT: components/utilities/tailwind-indicator.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.254Z] STDOUT: components/utilities/theme-switcher.tsx 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.256Z] STDOUT: db/firestore/collections.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.256Z] STDOUT: db/firestore/keyword-performance-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.257Z] STDOUT: db/firestore/lead-generation-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.258Z] STDOUT: db/firestore/organizations-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.259Z] STDOUT: db/firestore/personalization-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.259Z] STDOUT: db/firestore/posting-queue-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.260Z] STDOUT: db/firestore/warmup-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.262Z] STDOUT: db/schema/index.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.263Z] STDOUT: types/action-interfaces.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.264Z] STDOUT: types/index.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.265Z] STDOUT: types/lead-generation-types.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.266Z] STDOUT: types/organization-types.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.266Z] STDOUT: types/profile-types.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.267Z] STDOUT: types/server-action-types.ts 0ms (unchanged) (cached)
+[2025-05-27T09:44:36.280Z] ==================================================
+[2025-05-27T09:44:36.280Z] COMMAND FINISHED: prettier --write {app,lib,components}/**/*.{ts,tsx} db/**/*.ts types/**/*.ts --cache --ignore-unknown (exit code: 0)
+[2025-05-27T09:44:36.280Z] ==================================================
