@@ -36,25 +36,39 @@ export default function LeadGenerationProgressBar({
   if (!progress) return null
 
   // Calculate the actual progress values
-  const totalThreadsToAnalyze = progress.results?.totalThreadsFound || 10
+  const totalThreadsToAnalyze = progress.results?.totalThreadsFound || 0
   const threadsAnalyzed = progress.results?.totalThreadsAnalyzed || 0
-  const commentsGenerated = progress.results?.totalCommentsGenerated || 0
+  const newLeadsGenerated = progress.results?.totalCommentsGenerated || 0
   
   // Calculate progress percentage based on actual work done
   const progressPercentage = progress.totalProgress || 0
   
-  // Get current stage info
-  const currentStage = progress.stages?.find(s => s.status === "in_progress") || 
-                      progress.stages?.[progress.stages.length - 1]
+  // Get current stage info - prioritize based on status
+  let currentStage = null
+  let currentStageMessage = ""
   
-  const currentStageMessage = currentStage?.message || progress.currentStage || "Processing..."
+  if (progress.status === "completed") {
+    currentStageMessage = "Lead generation complete!"
+  } else if (progress.status === "error") {
+    currentStageMessage = progress.error || "An error occurred"
+  } else {
+    // Find the first in_progress stage
+    currentStage = progress.stages?.find(s => s.status === "in_progress")
+    if (!currentStage) {
+      // If no in_progress, find the last completed stage
+      const completedStages = progress.stages?.filter(s => s.status === "completed") || []
+      currentStage = completedStages[completedStages.length - 1]
+    }
+    currentStageMessage = currentStage?.message || progress.currentStage || "Processing..."
+  }
   
   console.log("🎯🎯🎯 [PROGRESS-BAR] Calculated values:", {
     totalThreadsToAnalyze,
     threadsAnalyzed,
-    commentsGenerated,
+    newLeadsGenerated,
     progressPercentage,
-    currentStageMessage
+    currentStageMessage,
+    status: progress.status
   })
 
   // Determine icon and color based on status
@@ -84,7 +98,11 @@ export default function LeadGenerationProgressBar({
   const progressColor = getProgressColor()
 
   // Calculate total leads (existing + new)
-  const totalLeads = existingLeadsCount + commentsGenerated
+  const totalLeads = existingLeadsCount + newLeadsGenerated
+
+  // Count completed stages
+  const completedStagesCount = progress.stages?.filter(s => s.status === "completed").length || 0
+  const totalStagesCount = progress.stages?.length || 8
 
   return (
     <AnimatePresence mode="wait">
@@ -114,23 +132,31 @@ export default function LeadGenerationProgressBar({
                     progress.status === "in_progress" && "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300"
                   )}
                 >
-                  {commentsGenerated} out of {totalLeads} leads
+                  {newLeadsGenerated} new leads found
                 </Badge>
               </div>
 
               {/* Progress bar */}
               <div className="space-y-2">
                 <Progress 
-                  value={progressPercentage} 
+                  value={progress.status === "completed" ? 100 : progressPercentage} 
                   className={cn("h-2 w-full", progressColor)}
                 />
                 <div className={cn("flex justify-between text-xs", statusColor)}>
                   <span>
-                    {progress.stages?.filter(s => s.status === "completed").length || 0} of {progress.stages?.length || 8} steps completed
+                    Step {completedStagesCount} of {totalStagesCount}
                   </span>
-                  <span>{Math.round(progressPercentage)}%</span>
+                  <span>{Math.round(progress.status === "completed" ? 100 : progressPercentage)}%</span>
                 </div>
               </div>
+
+              {/* Additional info for in-progress state */}
+              {progress.status === "in_progress" && totalThreadsToAnalyze > 0 && (
+                <div className="text-muted-foreground flex justify-between text-xs">
+                  <span>Analyzing {threadsAnalyzed} of {totalThreadsToAnalyze} threads</span>
+                  <span>Total leads: {totalLeads}</span>
+                </div>
+              )}
 
               {/* Stage indicators */}
               <div className="flex gap-1 pt-2">
