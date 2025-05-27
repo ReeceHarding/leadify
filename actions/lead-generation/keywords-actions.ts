@@ -59,18 +59,24 @@ Tasks:
 5. List key Target Pain Points the business addresses.
 6. Generate ${requestedCount} specific Google search queries that will find Reddit posts from people who need this business's services.
 
-IMPORTANT: Create search queries using quotes and OR operators to find people actively looking to hire or seeking recommendations.
+IMPORTANT: Create HIGHLY SPECIFIC search queries using quotes and OR operators to find people actively looking to hire or seeking recommendations.
+
+Each query should be 4-8 words long and very specific to capture high-intent users.
 
 For example, if the business is a coding agency, generate queries like:
-- "need a developer" OR "looking for developer" OR "hiring developer"
-- "need MVP built" OR "need app built" OR "looking for technical co-founder"
-- "recommend development agency" OR "best coding agency" OR "freelance developer needed"
+- "software developer to build our internal tools" OR "need developer for internal tools project"
+- "looking for MVP developer for startup" OR "where to find MVP developer"
+- "need technical cofounder for my startup" OR "looking for technical cofounder to build"
+- "recommend development agency for web app" OR "best agency to build SaaS MVP"
+- "hire freelance developer for React project" OR "need React developer for contract work"
 
 Each query should:
-- Use quotes around key phrases to find exact matches
-- Use OR operators to combine related phrases
-- Focus on buying intent and hiring signals
-- Target people who are actively seeking solutions, not just discussing the topic
+- Use quotes around longer, more specific phrases (4-8 words)
+- Use OR operators to combine related high-intent phrases
+- Include context words like "for", "to", "our", "my" to find more specific requests
+- Focus on hiring intent, project needs, and specific use cases
+- Target people who are actively seeking solutions with budget and timeline
+- Be specific about the type of help needed (not just "need developer" but "need developer for X")
 
 Return ONLY a JSON object with the following structure, no other text:
 {
@@ -86,7 +92,7 @@ Ensure the keywords array contains exactly ${requestedCount} search queries.`
     const result = await generateText({
       model: openai("gpt-4o-mini"),
       system:
-        "You are a Reddit keyword and business strategy expert. Return only valid JSON objects adhering to the specified schema.",
+        "You are a Reddit keyword and business strategy expert specializing in high-intent, specific search queries. Generate longer, more specific keyword phrases that capture users with clear buying intent and specific project needs. Return only valid JSON objects adhering to the specified schema.",
       prompt: prompt,
       temperature: 0.5,
       maxTokens: 1500
