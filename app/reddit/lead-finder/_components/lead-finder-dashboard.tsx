@@ -605,13 +605,7 @@ export default function LeadFinderDashboard() {
           leads: transformedLeads,
           isLoading: false, // Data received, stop loading
           lastPolledAt: new Date(), // Can be renamed to lastUpdatedAt
-          error: null,
-          // Update the lead count for the current campaign
-          campaigns: prev.campaigns.map(campaign => 
-            campaign.id === state.campaignId 
-              ? { ...campaign, totalCommentsGenerated: transformedLeads.length }
-              : campaign
-          )
+          error: null
         }))
       },
       error => {
@@ -671,17 +665,12 @@ export default function LeadFinderDashboard() {
         // Transform campaigns data for the dropdown
         const transformedCampaigns: Campaign[] = campaignsResult.isSuccess
           ? campaignsResult.data.map(campaign => {
-              // Count leads for this campaign from current state
-              const leadCount = campaign.id === state.campaignId 
-                ? state.leads.length 
-                : 0; // We only have leads loaded for the current campaign
-              
               return {
                 id: campaign.id,
                 name: campaign.name,
                 keywords: campaign.keywords || [],
                 status: campaign.status || "draft",
-                totalCommentsGenerated: leadCount,
+                totalCommentsGenerated: campaign.totalCommentsGenerated || 0,
                 createdAt:
                   typeof campaign.createdAt === "string"
                     ? campaign.createdAt
@@ -1855,16 +1844,12 @@ export default function LeadFinderDashboard() {
               ) {
                 // Transform campaigns with lead counts
                 const updatedCampaigns: Campaign[] = campaignsResult.data.map(campaign => {
-                  const leadCount = campaign.id === state.campaignId 
-                    ? state.leads.length 
-                    : 0;
-                  
                   return {
                     id: campaign.id,
                     name: campaign.name,
                     keywords: campaign.keywords || [],
                     status: campaign.status || "draft",
-                    totalCommentsGenerated: leadCount,
+                    totalCommentsGenerated: campaign.totalCommentsGenerated || 0,
                     createdAt:
                       typeof campaign.createdAt === "string"
                         ? campaign.createdAt
