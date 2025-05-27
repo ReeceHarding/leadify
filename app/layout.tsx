@@ -4,7 +4,7 @@ The root server layout for the app.
 </ai_context>
 */
 
-import { createProfileAction } from "@/actions/db/profiles-actions"
+import { ensureProfileExistsAction } from "@/actions/db/profiles-actions"
 import { Toaster } from "@/components/ui/toaster"
 import { PostHogPageview } from "@/components/utilities/posthog/posthog-pageview"
 import { PostHogUserIdentify } from "@/components/utilities/posthog/posthog-user-identity"
@@ -32,8 +32,8 @@ export default async function RootLayout({
   const { userId } = await auth()
 
   if (userId) {
-    // Ensure user has a profile (createProfileAction handles duplicates)
-    await createProfileAction({ userId })
+    // Ensure user has a profile without overwriting existing data
+    await ensureProfileExistsAction(userId)
   }
 
   return (

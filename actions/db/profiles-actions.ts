@@ -103,6 +103,26 @@ export async function createProfileAction(
     console.log("🔥 [CREATE-PROFILE] Collection:", COLLECTIONS.PROFILES)
     console.log("🔥 [CREATE-PROFILE] Document path:", profileRef.path)
 
+    // Check if profile already exists
+    console.log("🔥 [CREATE-PROFILE] Checking if profile already exists...")
+    const existingDoc = await getDoc(profileRef)
+    
+    if (existingDoc.exists()) {
+      console.log("🔥 [CREATE-PROFILE] Profile already exists, returning existing profile")
+      const existingProfile = existingDoc.data() as ProfileDocument
+      console.log("🔥 [CREATE-PROFILE] Existing profile data:", JSON.stringify(existingProfile, null, 2))
+      
+      const serializedProfile = serializeProfileDocument(existingProfile)
+      
+      return {
+        isSuccess: true as const,
+        message: "Profile already exists",
+        data: serializedProfile
+      }
+    }
+
+    console.log("🔥 [CREATE-PROFILE] Profile does not exist, creating new profile")
+
     // Create profile data and filter out undefined values
     const rawProfileData = {
       userId: data.userId,
@@ -780,5 +800,34 @@ export async function resetAccountAction(
       isSuccess: false,
       message: "Failed to reset account"
     }
+  }
+}
+
+export async function ensureProfileExistsAction(
+  userId: string
+): Promise<ActionState<SerializedProfileDocument>> {
+  console.log("🔧 [ENSURE-PROFILE] Action called")
+  console.log("🔧 [ENSURE-PROFILE] User ID:", userId)
+
+  try {
+    // First try to get existing profile
+    console.log("🔧 [ENSURE-PROFILE] Checking for existing profile...")
+    const getResult = await getProfileByUserIdAction(userId)
+    
+    if (getResult.isSuccess && getResult.data) {
+      console.log("🔧 [ENSURE-PROFILE] Profile already exists")
+      return getResult
+    }
+
+    // Profile doesn't exist, create it
+    console.log("🔧 [ENSURE-PROFILE] Profile not found, creating new profile...")
+    const createResult = await createProfileAction({ userId })
+    
+    console.log("🔧 [ENSURE-PROFILE] Create result:", createResult.isSuccess)
+    return createResult
+  } catch (error) {
+    console.error("🔧 [ENSURE-PROFILE] ERROR occurred:", error)
+    console.error("🔧 [ENSURE-PROFILE] Error stack:", (error as Error)?.stack)
+    return { isSuccess: false, message: "Failed to ensure profile exists" }
   }
 }
