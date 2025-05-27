@@ -34,15 +34,15 @@ export function TeamSwitcher() {
   const router = useRouter()
   const {
     organizations,
-    activeOrganization,
+    currentOrganization,
     isLoading,
-    setActiveOrganization,
+    setCurrentOrganization,
     refreshOrganizations
   } = useOrganization()
   const [showCreateDialog, setShowCreateDialog] = React.useState(false)
 
   const handleOrganizationSwitch = (org: (typeof organizations)[0]) => {
-    setActiveOrganization(org)
+    setCurrentOrganization(org)
     // Refresh the page to update all components
     router.refresh()
   }
@@ -136,13 +136,13 @@ export function TeamSwitcher() {
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">
-                    {activeOrganization?.name || "Select Organization"}
+                    {currentOrganization?.name || "Select Organization"}
                   </span>
                   <span className="truncate text-xs">
-                    {(activeOrganization?.plan || "free")
+                    {(currentOrganization?.plan || "free")
                       .charAt(0)
                       .toUpperCase() +
-                      (activeOrganization?.plan || "free").slice(1)}
+                      (currentOrganization?.plan || "free").slice(1)}
                   </span>
                 </div>
                 <ChevronsUpDown className="ml-auto" />
