@@ -575,7 +575,7 @@ export default function CreateCampaignDialog({
                           ) : (
                             <>
                               <Sparkles className="mr-2 size-4" />
-                              Generate {keywordCount} with AI
+                              Generate {keywordCount} {keywordCount === 1 ? 'keyword' : 'keywords'} with AI
                             </>
                           )}
                         </Button>

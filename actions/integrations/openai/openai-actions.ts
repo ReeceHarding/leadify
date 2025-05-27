@@ -96,19 +96,23 @@ Use this scale:
 
 If the score is 40 or above, generate three authentic Reddit comments as someone who has tried multiple solutions:
 
-1. MICRO COMMENT (5-15 words): Ultra-brief helpful tip based on your experience
-2. MEDIUM COMMENT (30-80 words): Share your experience:
-   - Start with empathy
-   - Mention a free option you tried (pros/cons)
-   - Naturally mention how you found this business and what helped
-   - Mention a premium alternative
-   - End with encouragement
-3. VERBOSE COMMENT (100-200 words): Comprehensive advice:
-   - Open with strong empathy
-   - Detail your struggle
-   - List solutions you tried with honest pros/cons
-   - Share specific results you saw
-   - Offer to answer questions
+1. MICRO COMMENT (5-15 words): Ultra-brief helpful tip mentioning you've tried a few things
+2. MEDIUM COMMENT (30-80 words): Share your experience following this structure:
+   - Start with empathy ("I've been there...")
+   - "I tried [specific free tool name] first but [specific limitation]"
+   - "Then found [business name from website] which [specific benefit]"
+   - "There's also [specific premium tool] but that's overkill for most"
+3. VERBOSE COMMENT (100-200 words): Comprehensive advice following this structure:
+   - Open with strong empathy about the struggle
+   - "First I tried [specific free tool] - it was okay for [what it did well] but [specific limitations]"
+   - "Then I discovered [business name] through [how you found it]. What really helped was [specific features]"
+   - "I also looked at [specific premium tool] which is great if you need [advanced features] but honestly overkill for most people"
+   - "Happy to share more details if you want"
+
+CRITICAL: You MUST mention THREE different solutions in each comment:
+1. A FREE tool/solution (name it specifically based on the problem, e.g., "Google Sheets", "Notion free plan", etc.)
+2. The business from the website content (present as the reasonable middle option)
+3. A PREMIUM/EXPENSIVE tool (name it specifically, e.g., "Salesforce", "Monday.com Enterprise", etc.)
 
 CRITICAL RULES:
 - Extract the company name from the website content
@@ -119,6 +123,7 @@ CRITICAL RULES:
 - Use Reddit-appropriate casual language
 - Never pressure or push
 - NEVER USE HYPHENS (-) anywhere in comments
+- Present all three options neutrally
 
 Return as JSON with score, reasoning, and all three comments (or empty strings if score < 40).`
 
@@ -856,8 +861,24 @@ Use this scale:
 Then, if the score is 40 or above, generate three comments as someone who has tried multiple solutions:
 
 1. Micro (1-2 sentences): Quick mention that you've tried a few things and ${businessName} worked well
-2. Medium (3-4 sentences): Brief story - tried free option (name it), then ${businessName} (what specifically helped), also aware of premium option
-3. Verbose (5-7 sentences): Full journey - your struggle, the free tool you tried first (pros/cons), how you found ${businessName} and what made it work for you, mention of premium alternative for completeness, offer to help
+2. Medium (3-4 sentences): Brief story following this structure:
+   - "I've been there..." or similar empathy
+   - "I tried [specific free tool name] first but [specific limitation]"
+   - "Then found ${businessName} which [specific benefit]"
+   - "There's also [specific premium tool] but that's overkill for most"
+3. Verbose (5-7 sentences): Full journey following this structure:
+   - Open with empathy about the struggle
+   - "First I tried [specific free tool] - it was okay for [what it did well] but [specific limitations]"
+   - "Then I discovered ${businessName} through [how you found it]. What really helped was [specific features]"
+   - "I also looked at [specific premium tool] which is great if you need [advanced features] but honestly overkill for most people"
+   - "Happy to share more details if you want"
+
+CRITICAL: You MUST mention THREE different solutions in each comment:
+1. A FREE tool/solution (name it specifically based on the problem, e.g., "Google Sheets", "Notion free plan", etc.)
+2. The business from the website content (present as the reasonable middle option)
+3. A PREMIUM/EXPENSIVE tool (name it specifically, e.g., "Salesforce", "Monday.com Enterprise", etc.)
+
+Present all three neutrally - you're sharing your experience, not selling.
 
 Remember: Write like someone genuinely sharing their experience. Match the subreddit's tone and style.
 
