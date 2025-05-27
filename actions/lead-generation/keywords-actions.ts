@@ -5,6 +5,10 @@ import { openai } from "@ai-sdk/openai"
 import { generateText } from "ai"
 import { scrapeWebsiteAction } from "@/actions/integrations/firecrawl/website-scraping-actions"
 import { KEYWORD_CONFIG } from "@/lib/config/keyword-config"
+import { db } from "@/db/db"
+import { collection, doc, serverTimestamp, setDoc } from "firebase/firestore"
+import { KEYWORD_PERFORMANCE_COLLECTIONS, KeywordPerformanceDocument } from "@/db/firestore/keyword-performance-collections"
+import { generateUUID } from "@/lib/utils"
 
 interface GenerateKeywordsData {
   website?: string
@@ -103,6 +107,20 @@ export async function generateKeywordsAction({
     }
 
     console.log(`🔍 [KEYWORDS] Generated ${parsedResponse.keywords.length} keywords and strategic insights.`)
+
+    // Persist keyword performance stub for future tracking
+    const perfId = generateUUID()
+    const perfDoc: KeywordPerformanceDocument = {
+      id: perfId,
+      keywords: parsedResponse.keywords,
+      createdAt: serverTimestamp() as any
+    }
+    try {
+      const perfRef = doc(collection(db, KEYWORD_PERFORMANCE_COLLECTIONS.KEYWORD_PERFORMANCE), perfId)
+      await setDoc(perfRef, perfDoc)
+    } catch (perfErr) {
+      console.error("[KEYWORD-PERF] Failed to write performance doc", perfErr)
+    }
 
     return {
       isSuccess: true,
