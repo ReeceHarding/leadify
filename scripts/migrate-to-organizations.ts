@@ -10,20 +10,13 @@ This script will:
 5. Clean up profile documents
 
 Prerequisites:
-- Set GOOGLE_APPLICATION_CREDENTIALS environment variable in .env.local
-- The service account key should be stored securely outside the project directory
+- Set Firebase Admin credentials (see docs/firebase-admin-setup.md)
 */
 
+import { adminDb } from "../lib/firebase-admin";
 import * as admin from "firebase-admin";
 
-// Initialize Firebase Admin SDK using environment variable
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.applicationDefault()
-  });
-}
-
-const db = admin.firestore();
+const db = adminDb();
 const serverTimestamp = admin.firestore.FieldValue.serverTimestamp; // Admin SDK server timestamp
 
 // Import collection name constants (assuming they don't use client SDK specific features)
