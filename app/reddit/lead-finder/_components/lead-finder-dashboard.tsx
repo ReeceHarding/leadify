@@ -1865,7 +1865,7 @@ export default function LeadFinderDashboard() {
                     setState(prev => ({ ...prev, selectedLength: value }))
                   }
                 >
-                  <SelectTrigger className="h-9 w-[240px]">
+                  <SelectTrigger className="h-9 min-w-fit">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

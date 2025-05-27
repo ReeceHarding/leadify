@@ -20,7 +20,7 @@ function LeadFinderSkeleton() {
       </div>
       <div className="flex items-center gap-4">
         <Skeleton className="h-9 w-[200px]" />
-        <Skeleton className="h-9 w-[240px]" />
+        <Skeleton className="h-9 min-w-[240px]" />
         <Skeleton className="h-9 w-[160px]" />
         <Skeleton className="h-9 w-[180px]" />
       </div>
