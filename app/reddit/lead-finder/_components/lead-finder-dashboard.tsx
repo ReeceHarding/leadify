@@ -143,6 +143,8 @@ import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { usePostHog } from "posthog-js/react"
 import { useSearchParams } from "next/navigation"
+import { GeneratedCommentDocument } from "@/db/firestore/lead-generation-collections"
+import { toISOString } from "@/lib/utils/timestamp-utils"
 
 // Import newly created types and utils
 import { LeadResult } from "./dashboard/types"
@@ -515,53 +517,15 @@ export default function LeadFinderDashboard() {
         })
         const transformedLeads: LeadResult[] = querySnapshot.docs.map(
           docSnap => {
-            const comment = docSnap.data() as any // TODO: Replace 'any' with a proper Firestore document type for generated_comments
-            let createdAtISO: string | undefined = undefined
-            let postCreatedAtISO: string | undefined = undefined
-
-            // Process comment creation time
-            if (comment.createdAt) {
-              if (comment.createdAt instanceof Timestamp) {
-                createdAtISO = comment.createdAt.toDate().toISOString()
-              } else if (typeof comment.createdAt === "string") {
-                // Handle if it's already a string (e.g., from previous serialization)
-                createdAtISO = comment.createdAt
-              } else if (
-                typeof comment.createdAt.seconds === "number" &&
-                typeof comment.createdAt.nanoseconds === "number"
-              ) {
-                // Handle plain object representation of Timestamp
-                createdAtISO = new Timestamp(
-                  comment.createdAt.seconds,
-                  comment.createdAt.nanoseconds
-                )
-                  .toDate()
-                  .toISOString()
-              }
-            }
-
-            // Process Reddit post creation time
-            if (comment.postCreatedAt) {
-              if (comment.postCreatedAt instanceof Timestamp) {
-                postCreatedAtISO = comment.postCreatedAt.toDate().toISOString()
-              } else if (typeof comment.postCreatedAt === "string") {
-                postCreatedAtISO = comment.postCreatedAt
-              } else if (
-                typeof comment.postCreatedAt.seconds === "number" &&
-                typeof comment.postCreatedAt.nanoseconds === "number"
-              ) {
-                postCreatedAtISO = new Timestamp(
-                  comment.postCreatedAt.seconds,
-                  comment.postCreatedAt.nanoseconds
-                )
-                  .toDate()
-                  .toISOString()
-              }
-            }
+            const comment = docSnap.data() as GeneratedCommentDocument
+            
+            // Use centralized timestamp utility
+            const createdAtISO = toISOString(comment.createdAt) || undefined
+            const postCreatedAtISO = toISOString(comment.postCreatedAt) || undefined
 
             return {
               id: docSnap.id,
-              campaignId: comment.campaignId || null,
+              campaignId: comment.campaignId || "",
               organizationId: activeOrganization?.id || "",
               postUrl: comment.postUrl || "",
               postTitle: comment.postTitle || "Untitled Post",
@@ -583,14 +547,16 @@ export default function LeadFinderDashboard() {
               originalData: {
                 ...comment,
                 id: docSnap.id,
-                createdAt: createdAtISO
+                createdAt: createdAtISO || "",
+                updatedAt: toISOString(comment.updatedAt) || "",
+                postCreatedAt: postCreatedAtISO || ""
               },
               postScore: comment.postScore || 0,
               keyword: comment.keyword || "",
               createdAt: createdAtISO,
               postCreatedAt: postCreatedAtISO,
               postedCommentUrl: comment.postedCommentUrl || undefined
-            } as LeadResult // Explicit cast to ensure all fields are covered or provide defaults
+            }
           }
         )
 

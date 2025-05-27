@@ -856,8 +856,24 @@ export async function testAllIntegrationsAction(): Promise<
     }
 
     // Test Reddit - skip for now since it requires organizationId
-    // TODO: Update this to test with a specific organization
-    results.reddit = true // Assume working for general integration test
+    // Test Reddit with a mock organization ID for integration testing
+    try {
+      const { testRedditConnectionAction } = await import(
+        "@/actions/integrations/reddit/reddit-actions"
+      )
+      // Use a test organization ID or skip if not available
+      const testOrgId = process.env.TEST_ORGANIZATION_ID
+      if (testOrgId) {
+        const redditTest = await testRedditConnectionAction(testOrgId)
+        results.reddit = redditTest.isSuccess
+      } else {
+        // Skip Reddit test if no test org ID is configured
+        results.reddit = true
+        console.log("⚠️ Skipping Reddit test - no TEST_ORGANIZATION_ID configured")
+      }
+    } catch {
+      results.reddit = false
+    }
 
     // Test OpenAI
     try {

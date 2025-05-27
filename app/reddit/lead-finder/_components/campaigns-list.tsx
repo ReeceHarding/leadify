@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from "react"
 import { format } from "date-fns"
+import { useOrganization } from "@/components/utilities/organization-provider"
+import { getCampaignsByOrganizationIdAction } from "@/actions/db/campaign-actions"
+import { toISOString } from "@/lib/utils/timestamp-utils"
 import {
   Eye,
   Play,
@@ -62,19 +65,46 @@ export default function CampaignsList({
 }: CampaignsListProps) {
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const { activeOrganization } = useOrganization()
 
   useEffect(() => {
-    loadCampaigns()
-  }, [])
+    if (activeOrganization?.id) {
+      loadCampaigns()
+    }
+  }, [activeOrganization])
 
   const loadCampaigns = async () => {
+    if (!activeOrganization?.id) {
+      setIsLoading(false)
+      return
+    }
+
     setIsLoading(true)
     try {
-      // TODO: Implement getCampaignsByUserIdAction
-      // For now, show empty state
-      setCampaigns([])
+      const result = await getCampaignsByOrganizationIdAction(activeOrganization.id)
+      
+      if (result.isSuccess) {
+        const transformedCampaigns: Campaign[] = result.data.map(campaign => ({
+          id: campaign.id,
+          name: campaign.name,
+          website: campaign.website || "",
+          keywords: campaign.keywords || [],
+          status: campaign.status || "draft",
+          totalSearchResults: campaign.totalSearchResults || 0,
+          totalThreadsAnalyzed: campaign.totalThreadsAnalyzed || 0,
+          totalCommentsGenerated: campaign.totalCommentsGenerated || 0,
+          createdAt: toISOString(campaign.createdAt) || new Date().toISOString(),
+          updatedAt: toISOString(campaign.updatedAt) || new Date().toISOString()
+        }))
+        
+        setCampaigns(transformedCampaigns)
+      } else {
+        console.error("Error loading campaigns:", result.message)
+        setCampaigns([])
+      }
     } catch (error) {
       console.error("Error loading campaigns:", error)
+      setCampaigns([])
     } finally {
       setIsLoading(false)
     }

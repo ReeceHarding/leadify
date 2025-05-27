@@ -27,6 +27,10 @@ import {
 } from "@/components/ui/collapsible"
 import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "sonner"
+import { useOrganization } from "@/components/utilities/organization-provider"
+import { getGeneratedCommentsByCampaignAction } from "@/actions/db/lead-generation-actions"
+import { toISOString } from "@/lib/utils/timestamp-utils"
+import { SerializedGeneratedCommentDocument } from "@/types"
 
 interface GeneratedComment {
   id: string
@@ -65,21 +69,67 @@ export default function CampaignResults({
   }>({ threads: [], comments: [] })
   const [isLoading, setIsLoading] = useState(false)
   const [expandedThreads, setExpandedThreads] = useState<Set<string>>(new Set())
+  const { activeOrganization } = useOrganization()
 
   useEffect(() => {
-    if (selectedCampaign) {
+    if (selectedCampaign && activeOrganization?.id) {
       loadCampaignResults(selectedCampaign)
     }
-  }, [selectedCampaign])
+  }, [selectedCampaign, activeOrganization])
 
   const loadCampaignResults = async (campaignId: string) => {
+    if (!activeOrganization?.id) return
+
     setIsLoading(true)
     try {
-      // TODO: Implement actual data loading
-      // For now, show empty state
-      setResults({ threads: [], comments: [] })
+      // Load comments
+      const commentsResult = await getGeneratedCommentsByCampaignAction(campaignId)
+      
+      if (commentsResult.isSuccess) {
+        // Transform comments
+        const transformedComments: GeneratedComment[] = commentsResult.data.map((comment: SerializedGeneratedCommentDocument) => ({
+          id: comment.id,
+          campaignId: comment.campaignId,
+          threadId: comment.redditThreadId || comment.threadId || "",
+          relevanceScore: comment.relevanceScore || 0,
+          reasoning: comment.reasoning || "",
+          microComment: comment.microComment || "",
+          mediumComment: comment.mediumComment || "",
+          verboseComment: comment.verboseComment || "",
+          approved: comment.status === "approved",
+          used: comment.status === "posted"
+        }))
+        
+        // For now, we'll create thread data from comments since we don't have a separate threads endpoint
+        const threadMap = new Map<string, RedditThread>()
+        
+        commentsResult.data.forEach((comment: SerializedGeneratedCommentDocument) => {
+          const threadId = comment.redditThreadId || comment.threadId || ""
+          if (threadId && !threadMap.has(threadId)) {
+            threadMap.set(threadId, {
+              id: threadId,
+              title: comment.postTitle || "",
+              subreddit: comment.postUrl?.match(/r\/([^/]+)/)?.[1] || "",
+              author: comment.postAuthor || "",
+              score: comment.postScore || 0,
+              numComments: 0, // We don't have this data
+              url: comment.postUrl || "",
+              content: comment.postContentSnippet || ""
+            })
+          }
+        })
+        
+        setResults({
+          threads: Array.from(threadMap.values()),
+          comments: transformedComments
+        })
+      } else {
+        console.error("Error loading campaign results:", commentsResult.message)
+        setResults({ threads: [], comments: [] })
+      }
     } catch (error) {
       console.error("Error loading campaign results:", error)
+      setResults({ threads: [], comments: [] })
     } finally {
       setIsLoading(false)
     }
