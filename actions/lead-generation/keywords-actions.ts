@@ -57,18 +57,31 @@ Tasks:
 3. Define the Ideal Customer Profile (ICP).
 4. State the Unique Value Proposition (UVP).
 5. List key Target Pain Points the business addresses.
-6. Generate ${requestedCount} specific, targeted Reddit search keywords that people would use to find solutions or recommendations related to this business.
+6. Generate ${requestedCount} specific Google search queries that will find Reddit posts from people who need this business's services.
+
+IMPORTANT: Create search queries using quotes and OR operators to find people actively looking to hire or seeking recommendations.
+
+For example, if the business is a coding agency, generate queries like:
+- "need a developer" OR "looking for developer" OR "hiring developer"
+- "need MVP built" OR "need app built" OR "looking for technical co-founder"
+- "recommend development agency" OR "best coding agency" OR "freelance developer needed"
+
+Each query should:
+- Use quotes around key phrases to find exact matches
+- Use OR operators to combine related phrases
+- Focus on buying intent and hiring signals
+- Target people who are actively seeking solutions, not just discussing the topic
 
 Return ONLY a JSON object with the following structure, no other text:
 {
-  "keywords": ["keyword 1", "keyword 2", ...],
+  "keywords": ["query 1", "query 2", ...],
   "coreProblem": "The core problem solved...",
   "customerGroups": ["Group A", "Group B", ...],
   "idealCustomerProfile": "Detailed ICP...",
   "uniqueValueProposition": "The UVP is...",
   "targetPainPoints": ["Pain point 1", "Pain point 2", ...]
 }
-Ensure the keywords array contains exactly ${requestedCount} keywords.`
+Ensure the keywords array contains exactly ${requestedCount} search queries.`
 
     const result = await generateText({
       model: openai("gpt-4o-mini"),

@@ -46,8 +46,15 @@ export async function searchRedditThreadsAction(
   }
 
   try {
-    // Add site:reddit.com to search only Reddit
-    const searchQuery = `${keyword} site:reddit.com`
+    // Check if the keyword already contains quotes or OR operators (new format)
+    const hasQuotesOrOperators = keyword.includes('"') || keyword.includes(' OR ')
+    
+    // If it's the new format, append reddit outside the quotes
+    // If it's the old format, use the old behavior
+    const searchQuery = hasQuotesOrOperators 
+      ? `${keyword} reddit`  // New format: quotes/OR operators already in keyword
+      : `${keyword} site:reddit.com`  // Old format: simple keyword
+      
     console.log("🔍🔍🔍 [GOOGLE-SEARCH] Full search query:", searchQuery)
 
     const url = new URL("https://www.googleapis.com/customsearch/v1")
