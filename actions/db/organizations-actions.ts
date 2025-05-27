@@ -305,6 +305,83 @@ export async function getOrganizationsByUserIdAction(
   }
 }
 
+// Version without auth check for use in middleware
+export async function getOrganizationsByUserIdWithoutAuthAction(
+  userId: string
+): Promise<ActionState<SerializedOrganizationDocument[]>> {
+  console.log("🏢🏢🏢 [GET-ORGS-BY-USER-NO-AUTH] ========== ACTION START ==========")
+  console.log("🏢🏢🏢 [GET-ORGS-BY-USER-NO-AUTH] Timestamp:", new Date().toISOString())
+  console.log("🏢🏢🏢 [GET-ORGS-BY-USER-NO-AUTH] User ID:", userId)
+
+  try {
+    // First get all organization IDs where user is a member
+    console.log(
+      "🏢🏢🏢 [GET-ORGS-BY-USER-NO-AUTH] Fetching organization memberships..."
+    )
+    const membersQuery = query(
+      collection(db, ORGANIZATION_COLLECTIONS.ORGANIZATION_MEMBERS),
+      where("userId", "==", userId)
+    )
+    const membersSnapshot = await getDocs(membersQuery)
+
+    console.log(
+      "🏢🏢🏢 [GET-ORGS-BY-USER-NO-AUTH] Found memberships:",
+      membersSnapshot.size
+    )
+
+    if (membersSnapshot.empty) {
+      console.log("🏢🏢🏢 [GET-ORGS-BY-USER-NO-AUTH] No organizations found for user")
+      return {
+        isSuccess: true,
+        message: "No organizations found",
+        data: []
+      }
+    }
+
+    // Get organization IDs
+    const orgIds = membersSnapshot.docs.map(doc => doc.data().organizationId)
+    console.log("🏢🏢🏢 [GET-ORGS-BY-USER-NO-AUTH] Organization IDs:", orgIds)
+
+    // Fetch all organizations
+    const organizations: SerializedOrganizationDocument[] = []
+    for (const orgId of orgIds) {
+      const orgDoc = await getDoc(
+        doc(db, ORGANIZATION_COLLECTIONS.ORGANIZATIONS, orgId)
+      )
+      if (orgDoc.exists()) {
+        const orgData = {
+          id: orgDoc.id,
+          ...orgDoc.data()
+        } as OrganizationDocument
+        organizations.push(serializeOrganizationDocument(orgData))
+      }
+    }
+
+    console.log(
+      "🏢🏢🏢 [GET-ORGS-BY-USER-NO-AUTH] Total organizations found:",
+      organizations.length
+    )
+    console.log(
+      "🏢🏢🏢 [GET-ORGS-BY-USER-NO-AUTH] ✅ Organizations retrieved successfully"
+    )
+    console.log(
+      "🏢🏢🏢 [GET-ORGS-BY-USER-NO-AUTH] ========== ACTION END (SUCCESS) =========="
+    )
+
+    return {
+      isSuccess: true,
+      message: "Organizations retrieved successfully",
+      data: organizations
+    }
+  } catch (error) {
+    console.error("🏢🏢🏢 [GET-ORGS-BY-USER-NO-AUTH] ❌ Error:", error)
+    console.log(
+      "🏢🏢🏢 [GET-ORGS-BY-USER-NO-AUTH] ========== ACTION END (ERROR) =========="
+    )
+    return { isSuccess: false, message: "Failed to get organizations" }
+  }
+}
+
 export async function getOrganizationByIdAction(
   organizationId: string
 ): Promise<ActionState<SerializedOrganizationDocument>> {

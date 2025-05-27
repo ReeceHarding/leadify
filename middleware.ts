@@ -8,7 +8,7 @@ Using clerkMiddleware to handle authentication across the app.
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
-import { getOrganizationsByUserIdAction } from "@/actions/db/organizations-actions"
+import { getOrganizationsByUserIdWithoutAuthAction } from "@/actions/db/organizations-actions"
 
 const isProtectedRoute = createRouteMatcher([
   "/dashboard(.*)",
@@ -98,7 +98,7 @@ export default clerkMiddleware(async (auth, req) => {
       console.log("🔥🔥🔥 [MIDDLEWARE] Checking organization context for user:", userId)
       
       try {
-        const orgsResult = await getOrganizationsByUserIdAction(userId)
+        const orgsResult = await getOrganizationsByUserIdWithoutAuthAction(userId)
         
         if (!orgsResult.isSuccess || !orgsResult.data || orgsResult.data.length === 0) {
           console.log("🔥🔥🔥 [MIDDLEWARE] No organizations found for user")
