@@ -222,7 +222,7 @@ const initialState: DashboardState = {
   leads: [],
   isLoading: true,
   error: null,
-  selectedLength: "medium",
+  selectedLength: "verbose",
   currentPage: 1,
   sortBy: "relevance",
   filterKeyword: "",
@@ -1832,6 +1832,7 @@ export default function LeadFinderDashboard() {
             </div>
           </div>
 
+          {/* Filters and Controls */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <ArrowUpDown className="size-4 shrink-0 text-gray-500 dark:text-gray-400" />
@@ -1852,6 +1853,43 @@ export default function LeadFinderDashboard() {
                   <SelectItem value="time">Recent Activity</SelectItem>
                 </SelectContent>
               </Select>
+              
+              {/* Comment Length Selector */}
+              <div className="ml-4 flex items-center gap-2">
+                <Label className="text-sm text-gray-600 dark:text-gray-400">
+                  Comment Length:
+                </Label>
+                <Select
+                  value={state.selectedLength}
+                  onValueChange={(value: "micro" | "medium" | "verbose") =>
+                    setState(prev => ({ ...prev, selectedLength: value }))
+                  }
+                >
+                  <SelectTrigger className="h-9 w-[140px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="micro">
+                      <div className="flex items-center gap-2">
+                        <span>⚡</span>
+                        <span>Micro (5-15 words)</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="medium">
+                      <div className="flex items-center gap-2">
+                        <span>💼</span>
+                        <span>Medium (30-80 words)</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="verbose">
+                      <div className="flex items-center gap-2">
+                        <span>📝</span>
+                        <span>Verbose (800-1200 words)</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             <div className="text-sm text-gray-500 dark:text-gray-400">
               Showing {filteredLeads.length} of {state.leads.length} leads

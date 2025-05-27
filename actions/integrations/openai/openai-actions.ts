@@ -654,11 +654,14 @@ Return as JSON:
 
     console.log("🎨 [TONE-REGENERATE] Generating comments with custom tone...")
     const result = await generateText({
-      model: openai("gpt-4o"),
+      model: openai("o3-mini"),
       system: systemPrompt,
       prompt: userPrompt,
-      temperature: 0.8, // Higher temperature for more creative variation
+      temperature: 0.8,
       // maxTokens: 3000 // Removed token limit - no restrictions
+      providerOptions: {
+        openai: { reasoningEffort: "medium" }
+      }
     })
 
     // Parse the response
@@ -1194,17 +1197,20 @@ Return as JSON:
     console.log(
       "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== PROMPT END =========="
     )
-    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Model: gpt-4o")
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Model: o3-mini")
     console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Temperature: 0.7")
     console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Max Tokens: 1500")
 
     console.log("🤖 [OPENAI-PERSONALIZED] Generating personalized comments...")
     const result = await generateText({
-      model: openai("gpt-4o"),
+      model: openai("o3-mini"),
       system: systemPrompt,
       prompt: userPrompt,
       temperature: 0.7,
       // maxTokens: 1500 // Removed token limit
+      providerOptions: {
+        openai: { reasoningEffort: "medium" }
+      }
     })
 
     console.log("🤖 [OPENAI-PERSONALIZED] Raw response received")
