@@ -47,6 +47,10 @@ export default function WarmupDashboard({
   const { currentOrganization } = useOrganization()
 
   useEffect(() => {
+    console.log("🔥🔥🔥 [WARMUP-DASHBOARD] Component mounted")
+    console.log("🔥🔥🔥 [WARMUP-DASHBOARD] User ID:", userId)
+    console.log("🔥🔥🔥 [WARMUP-DASHBOARD] Organization ID:", organizationId)
+    
     if (organizationId) {
       loadWarmupAccount()
       checkRedditConnection()
@@ -54,7 +58,11 @@ export default function WarmupDashboard({
   }, [organizationId])
 
   const loadWarmupAccount = async () => {
-    if (!organizationId) return
+    if (!organizationId) {
+      console.log("⚠️ [WARMUP-DASHBOARD] No organization ID, skipping load")
+      return
+    }
+    
     try {
       console.log(
         "🔍 [WARMUP-DASHBOARD] Loading warm-up account for organization:",
@@ -62,8 +70,18 @@ export default function WarmupDashboard({
       )
       const result =
         await getWarmupAccountByOrganizationIdAction(organizationId)
+      
+      console.log("🔍 [WARMUP-DASHBOARD] Load result:", {
+        isSuccess: result.isSuccess,
+        hasData: !!result.data,
+        message: result.message
+      })
+      
       if (result.isSuccess && result.data) {
+        console.log("✅ [WARMUP-DASHBOARD] Warm-up account loaded:", result.data)
         setWarmupAccount(result.data)
+      } else {
+        console.log("ℹ️ [WARMUP-DASHBOARD] No warm-up account found")
       }
     } catch (error) {
       console.error(
@@ -82,30 +100,31 @@ export default function WarmupDashboard({
 
   const checkRedditConnection = async () => {
     if (!organizationId) {
-      setRedditUsername(null)
+      console.log("⚠️ [WARMUP-DASHBOARD] No organization ID, skipping Reddit check")
       return
     }
+    
     try {
       console.log(
-        "🔍 [WARMUP-DASHBOARD] Checking Reddit connection for org:",
+        "🔍 [WARMUP-DASHBOARD] Checking Reddit connection for organization:",
         organizationId
       )
-      const userInfoResult = await getRedditUserInfoAction(organizationId)
-      if (userInfoResult.isSuccess && userInfoResult.data?.name) {
-        setRedditUsername(userInfoResult.data.name)
-        console.log(
-          "✅ [WARMUP-DASHBOARD] Reddit connected as:",
-          userInfoResult.data.name
-        )
+      const result = await getRedditUserInfoAction(organizationId)
+      
+      console.log("🔍 [WARMUP-DASHBOARD] Reddit connection result:", {
+        isSuccess: result.isSuccess,
+        hasData: !!result.data,
+        username: result.data?.name,
+        message: result.message
+      })
+      
+      if (result.isSuccess && result.data) {
+        console.log("✅ [WARMUP-DASHBOARD] Reddit connected as:", result.data.name)
+        setRedditUsername(result.data.name)
       } else {
-        setRedditUsername(null)
-        console.warn(
-          "⚠️ [WARMUP-DASHBOARD] Reddit not connected for org or failed to get user info:",
-          userInfoResult.message
-        )
+        console.log("ℹ️ [WARMUP-DASHBOARD] Reddit not connected")
       }
     } catch (error) {
-      setRedditUsername(null)
       console.error(
         "❌ [WARMUP-DASHBOARD] Error checking Reddit connection:",
         error
@@ -114,21 +133,12 @@ export default function WarmupDashboard({
   }
 
   const handleConnectReddit = async () => {
-    if (!organizationId) {
-      toast({
-        title: "Error",
-        description: "Organization context is missing.",
-        variant: "destructive"
-      })
-      return
-    }
     try {
       setIsConnecting(true)
-      console.log(
-        "🔗 [WARMUP-DASHBOARD] Connecting Reddit account for org:",
-        organizationId
-      )
+      console.log("🔧 [WARMUP-DASHBOARD] Connecting Reddit account")
+      console.log("🔧 [WARMUP-DASHBOARD] Organization ID:", organizationId)
 
+      // Set cookie for organization ID
       document.cookie = `reddit_auth_org_id=${organizationId}; path=/; max-age=600; SameSite=Lax`
 
       // Pass the current page URL as the return URL
@@ -136,12 +146,21 @@ export default function WarmupDashboard({
       const result = await generateRedditAuthUrlAction({
         returnUrl: currentUrl
       })
+      
+      console.log("🔧 [WARMUP-DASHBOARD] Auth URL result:", {
+        isSuccess: result.isSuccess,
+        hasData: !!result.data,
+        message: result.message
+      })
+
       if (result.isSuccess && result.data) {
+        console.log("🔗 [WARMUP-DASHBOARD] Redirecting to Reddit auth")
         window.location.href = result.data.authUrl
       } else {
+        console.error("❌ [WARMUP-DASHBOARD] Failed to generate auth URL:", result.message)
         toast({
           title: "Error",
-          description: result.message || "Failed to generate Reddit auth URL",
+          description: result.message || "Failed to connect Reddit account",
           variant: "destructive"
         })
       }
@@ -161,8 +180,12 @@ export default function WarmupDashboard({
     try {
       setIsSettingUp(true)
       console.log("🔧 [WARMUP-DASHBOARD] Setting up warm-up account")
+      console.log("🔧 [WARMUP-DASHBOARD] Reddit username:", redditUsername)
+      console.log("🔧 [WARMUP-DASHBOARD] Organization ID:", organizationId)
+      console.log("🔧 [WARMUP-DASHBOARD] User ID:", userId)
 
       if (!redditUsername) {
+        console.log("⚠️ [WARMUP-DASHBOARD] No Reddit username available")
         toast({
           title: "Error",
           description: "Please connect your Reddit account first",
@@ -171,16 +194,27 @@ export default function WarmupDashboard({
         return
       }
 
-      const result = await createWarmupAccountAction({
+      const createData = {
         userId,
         organizationId,
         redditUsername,
         targetSubreddits: [], // Start with empty, user will add them
-        postingMode: "manual",
+        postingMode: "manual" as const,
         dailyPostLimit: 3
+      }
+      
+      console.log("🔧 [WARMUP-DASHBOARD] Creating warm-up account with data:", createData)
+      
+      const result = await createWarmupAccountAction(createData)
+      
+      console.log("🔧 [WARMUP-DASHBOARD] Create result:", {
+        isSuccess: result.isSuccess,
+        hasData: !!result.data,
+        message: result.message
       })
 
       if (result.isSuccess && result.data) {
+        console.log("✅ [WARMUP-DASHBOARD] Warm-up account created:", result.data)
         setWarmupAccount(result.data)
         toast({
           title: "Success",
@@ -188,6 +222,7 @@ export default function WarmupDashboard({
             "Warm-up account created! Now add some subreddits to get started."
         })
       } else {
+        console.error("❌ [WARMUP-DASHBOARD] Failed to create warm-up account:", result.message)
         toast({
           title: "Error",
           description: result.message || "Failed to create warm-up account",
@@ -206,29 +241,42 @@ export default function WarmupDashboard({
     }
   }
 
-  const handleToggleActive = async (checked: boolean) => {
-    if (!warmupAccount) return
+  const handleToggleWarmup = async (isActive: boolean) => {
+    if (!warmupAccount) {
+      console.log("⚠️ [WARMUP-DASHBOARD] No warm-up account to toggle")
+      return
+    }
 
     try {
-      console.log(
-        "🔧 [WARMUP-DASHBOARD] Toggling warm-up active state:",
-        checked
-      )
-
+      console.log("🔧 [WARMUP-DASHBOARD] Toggling warm-up status")
+      console.log("🔧 [WARMUP-DASHBOARD] Account ID:", warmupAccount.id)
+      console.log("🔧 [WARMUP-DASHBOARD] New status:", isActive ? "active" : "paused")
+      
       const result = await updateWarmupAccountAction(warmupAccount.id, {
-        isActive: checked
+        isActive,
+        status: isActive ? "active" : "paused"
+      })
+      
+      console.log("🔧 [WARMUP-DASHBOARD] Toggle result:", {
+        isSuccess: result.isSuccess,
+        hasData: !!result.data,
+        message: result.message
       })
 
       if (result.isSuccess && result.data) {
+        console.log("✅ [WARMUP-DASHBOARD] Warm-up status updated:", result.data.status)
         setWarmupAccount(result.data)
         toast({
           title: "Success",
-          description: checked ? "Warm-up activated" : "Warm-up deactivated"
+          description: isActive
+            ? "Warm-up activated! Posts will be generated daily."
+            : "Warm-up paused."
         })
       } else {
+        console.error("❌ [WARMUP-DASHBOARD] Failed to toggle warm-up:", result.message)
         toast({
           title: "Error",
-          description: "Failed to update warm-up status",
+          description: result.message || "Failed to update warm-up status",
           variant: "destructive"
         })
       }
@@ -306,7 +354,7 @@ export default function WarmupDashboard({
                 <Switch
                   id="warmup-active"
                   checked={warmupAccount.isActive}
-                  onCheckedChange={handleToggleActive}
+                  onCheckedChange={handleToggleWarmup}
                 />
               </div>
 

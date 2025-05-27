@@ -49,101 +49,123 @@ import {
 } from "@/actions/integrations/openai/warmup-content-generation-actions"
 import { getOrganizationByIdAction } from "@/actions/db/organizations-actions"
 import { getCurrentOrganizationTokens } from "@/actions/integrations/reddit/reddit-auth-helpers"
+import { getKnowledgeBaseByOrganizationIdAction } from "@/actions/db/personalization-actions"
+
+const logger = {
+  info: (message: string, data?: any) => {
+    console.log(`ℹ️ ${message}`, data || "")
+  },
+  error: (message: string, error?: any) => {
+    console.error(`❌ ${message}`, error || "")
+  }
+}
 
 export async function generateAndScheduleWarmupPostsAction(
   organizationId: string
 ): Promise<ActionState<{ postsGenerated: number }>> {
   try {
-    console.log(
-      "🔧 [GENERATE-WARMUP-POSTS] Starting post generation for organization:",
-      organizationId
-    )
-    if (!organizationId) {
-      return { isSuccess: false, message: "Organization ID is required" }
+    console.log("🔥🔥🔥 [WARMUP-QUEUE] Starting generateAndScheduleWarmupPostsAction")
+    console.log("🔥🔥🔥 [WARMUP-QUEUE] Organization ID:", organizationId)
+    
+    // Get warmup account
+    const warmupResult = await getWarmupAccountByOrganizationIdAction(organizationId)
+    
+    console.log("🔍 [WARMUP-QUEUE] Warmup account result:", {
+      isSuccess: warmupResult.isSuccess,
+      hasData: !!warmupResult.data,
+      accountId: warmupResult.data?.id,
+      isActive: warmupResult.data?.isActive,
+      targetSubreddits: warmupResult.data?.targetSubreddits,
+      message: warmupResult.message
+    })
+    
+    if (!warmupResult.isSuccess || !warmupResult.data) {
+      console.log("⚠️ [WARMUP-QUEUE] No warmup account found")
+      return { isSuccess: false, message: "No warmup account found" }
     }
 
-    // Get warm-up account for the organization
-    const accountResult = await getWarmupAccountByOrganizationIdAction(organizationId)
-    if (!accountResult.isSuccess || !accountResult.data) {
-      return { isSuccess: false, message: "No warm-up account found for this organization" }
-    }
-    const account = accountResult.data
-    if (!account.isActive) {
-      return { isSuccess: false, message: "Warm-up account is not active" }
+    const warmupAccount = warmupResult.data
+    
+    if (!warmupAccount.isActive) {
+      console.log("⚠️ [WARMUP-QUEUE] Warmup account is not active")
+      return { isSuccess: false, message: "Warmup account is not active" }
     }
 
-    // Check if warm-up period has ended
-    const now = new Date()
-    const warmupEndDate = new Date(account.warmupEndDate)
-    if (now > warmupEndDate) {
-      return { isSuccess: false, message: "Warm-up period has ended" }
+    if (warmupAccount.targetSubreddits.length === 0) {
+      console.log("⚠️ [WARMUP-QUEUE] No target subreddits configured")
+      return { isSuccess: false, message: "No target subreddits configured" }
     }
 
-    // Get Organization details for context (e.g., website, businessDescription for AI)
-    const orgDetailsResult = await getOrganizationByIdAction(organizationId)
-    if (!orgDetailsResult.isSuccess || !orgDetailsResult.data) {
-      return { isSuccess: false, message: "Organization details not found." }
+    // Check rate limit - pass organizationId and subreddit
+    console.log("🔍 [WARMUP-QUEUE] Checking rate limit")
+    const rateLimitResult = await checkWarmupRateLimitAction(organizationId, "")
+    
+    console.log("🔍 [WARMUP-QUEUE] Rate limit result:", {
+      isSuccess: rateLimitResult.isSuccess,
+      hasData: !!rateLimitResult.data,
+      canPost: rateLimitResult.data?.canPost,
+      message: rateLimitResult.message
+    })
+    
+    if (!rateLimitResult.isSuccess || !rateLimitResult.data || !rateLimitResult.data.canPost) {
+      console.log("⚠️ [WARMUP-QUEUE] Cannot post due to rate limit")
+      return { isSuccess: false, message: "Rate limit reached" }
     }
-    const orgDetails = orgDetailsResult.data
-    // Use organization details for AI context, e.g., orgDetails.aiContextKeywords or construct from name/website/description
-    const aiContextKeywords = (orgDetails as any).aiContextKeywords || []
-    const businessContextForAI = orgDetails.businessDescription || orgDetails.name || orgDetails.website || "general business"
 
+    // Get knowledge base
+    console.log("🔍 [WARMUP-QUEUE] Getting knowledge base")
+    const kbResult = await getKnowledgeBaseByOrganizationIdAction(organizationId)
+    
+    console.log("🔍 [WARMUP-QUEUE] Knowledge base result:", {
+      isSuccess: kbResult.isSuccess,
+      hasData: !!kbResult.data,
+      hasSummary: !!kbResult.data?.summary,
+      message: kbResult.message
+    })
+    
+    if (!kbResult.isSuccess || !kbResult.data) {
+      console.log("⚠️ [WARMUP-QUEUE] No knowledge base found")
+      return { isSuccess: false, message: "No knowledge base found" }
+    }
+
+    // Get organization details
+    const orgResult = await getOrganizationByIdAction(organizationId)
+    if (!orgResult.isSuccess || !orgResult.data) {
+      console.log("⚠️ [WARMUP-QUEUE] No organization found")
+      return { isSuccess: false, message: "No organization found" }
+    }
+
+    // Generate posts
+    const postsToGenerate = Math.min(3, warmupAccount.dailyPostLimit) // Generate up to 3 posts at a time
+    console.log("🤖 [WARMUP-QUEUE] Generating posts:", postsToGenerate)
+    
     let postsGenerated = 0
 
-    // Generate posts for each target subreddit
-    for (const subreddit of account.targetSubreddits) {
-      console.log(
-        `🔍 [GENERATE-WARMUP-POSTS] Processing subreddit: r/${subreddit}`
-      )
+    for (let i = 0; i < postsToGenerate; i++) {
+      // Select random subreddit
+      const subreddit = warmupAccount.targetSubreddits[
+        Math.floor(Math.random() * warmupAccount.targetSubreddits.length)
+      ]
+      
+      console.log(`🎯 [WARMUP-QUEUE] Generating post ${i + 1}/${postsToGenerate} for r/${subreddit}`)
 
-      // Corrected call to checkWarmupRateLimitAction
-      const rateLimitResult = await checkWarmupRateLimitAction(
-        organizationId, 
-        subreddit
-      )
-      if (!rateLimitResult.isSuccess || !rateLimitResult.data?.canPost) {
-        console.log(
-          `⏳ [GENERATE-WARMUP-POSTS] Rate limited for r/${subreddit}`
-        )
-        continue
-      }
+      // Get subreddit analysis
+      const analysisResult = await getSubredditAnalysisAction(subreddit)
+      let analysis = analysisResult.isSuccess ? analysisResult.data : null
 
-      // Get or update subreddit analysis
-      let analysisResult = await getSubredditAnalysisAction(subreddit)
-      let analysis: SubredditAnalysisDocument | null = null
-      if (analysisResult.isSuccess) {
-        analysis = analysisResult.data as (SubredditAnalysisDocument | null)
-      }
-
-      // Check if analysis needs refresh
-      let needsRefresh = !analysis
-      if (analysis && analysis.lastAnalyzedAt) {
-        const lastAnalyzedMillis = (analysis.lastAnalyzedAt as Timestamp).toMillis()
-        if ((Timestamp.now().toMillis() - lastAnalyzedMillis) > 7 * 24 * 60 * 60 * 1000) {
-          needsRefresh = true
-        }
-      }
-
-      if (needsRefresh) {
-        console.log(`📊 [GENERATE-WARMUP-POSTS] Analyzing r/${subreddit}`)
-
-        // Pass organizationId to getTopPostsFromSubredditAction
+      // If no analysis or it's old, create new one
+      if (!analysis) {
+        console.log(`📊 [WARMUP-QUEUE] Analyzing subreddit r/${subreddit}`)
+        
         const topPostsResult = await getTopPostsFromSubredditAction(organizationId, subreddit)
         if (!topPostsResult.isSuccess || !topPostsResult.data) {
-          console.error(
-            `❌ [GENERATE-WARMUP-POSTS] Failed to get top posts for r/${subreddit}`
-          )
+          console.log(`⚠️ [WARMUP-QUEUE] Failed to get top posts for r/${subreddit}`)
           continue
         }
 
-        const styleResult = await analyzeSubredditStyleAction(
-          topPostsResult.data
-        )
+        const styleResult = await analyzeSubredditStyleAction(topPostsResult.data)
         if (!styleResult.isSuccess || !styleResult.data) {
-          console.error(
-            `❌ [GENERATE-WARMUP-POSTS] Failed to analyze style for r/${subreddit}`
-          )
+          console.log(`⚠️ [WARMUP-QUEUE] Failed to analyze style for r/${subreddit}`)
           continue
         }
 
@@ -162,77 +184,91 @@ export async function generateAndScheduleWarmupPostsAction(
           styleResult.data.commonTopics
         )
 
-        // Construct analysis object conforming to SubredditAnalysisDocument (with Timestamps)
         analysis = {
-          id: subreddit, 
-          subreddit, 
+          id: subreddit,
+          subreddit,
           topPosts: topPostsForDb,
-          writingStyle: styleResult.data.writingStyle, 
-          commonTopics: styleResult.data.commonTopics, 
-          lastAnalyzedAt: Timestamp.now(), // Firestore Timestamp
-          createdAt: Timestamp.now(),      // Firestore Timestamp
-          updatedAt:Timestamp.now()       // Firestore Timestamp
+          writingStyle: styleResult.data.writingStyle,
+          commonTopics: styleResult.data.commonTopics,
+          lastAnalyzedAt: Timestamp.now(),
+          createdAt: Timestamp.now(),
+          updatedAt: Timestamp.now()
         }
       }
 
-      // Ensure analysis is not null
-      if (!analysis) {
-        console.error(
-          `❌ [GENERATE-WARMUP-POSTS] No analysis available for r/${subreddit} after attempting refresh.`
-        )
-        continue
-      }
-
-      // Generate post
+      // Generate post content
+      const aiContextKeywords = (orgResult.data as any).aiContextKeywords || []
       const postResult = await generateWarmupPostAction(
         subreddit,
         analysis.writingStyle,
         analysis.commonTopics,
-        aiContextKeywords // Use AI context keywords from org
+        aiContextKeywords
       )
+      
+      console.log(`🤖 [WARMUP-QUEUE] Content generation result for post ${i + 1}:`, {
+        isSuccess: postResult.isSuccess,
+        hasData: !!postResult.data,
+        title: postResult.data?.title?.substring(0, 50) + "...",
+        message: postResult.message
+      })
 
       if (!postResult.isSuccess || !postResult.data) {
-        console.error(
-          `❌ [GENERATE-WARMUP-POSTS] Failed to generate post for r/${subreddit}`
-        )
+        console.log(`⚠️ [WARMUP-QUEUE] Failed to generate content for post ${i + 1}`)
         continue
       }
 
-      // Schedule the post
-      const scheduledFor = calculateNextPostTime(postsGenerated)
-
-      const warmupPostData: CreateWarmupPostData = {
-        userId: account.userId, // User who owns the warmup account record
-        organizationId, // Link post to organization
-        warmupAccountId: account.id,
+      // Create warmup post
+      const createResult = await createWarmupPostAction({
+        userId: warmupAccount.userId,
+        organizationId,
+        warmupAccountId: warmupAccount.id,
         subreddit,
         title: postResult.data.title,
         content: postResult.data.content,
-        scheduledFor
-      }
-      await createWarmupPostAction(warmupPostData)
+        scheduledFor: Timestamp.now() // Use Firestore Timestamp
+      })
+      
+      console.log(`📝 [WARMUP-QUEUE] Create post result for post ${i + 1}:`, {
+        isSuccess: createResult.isSuccess,
+        hasData: !!createResult.data,
+        postId: createResult.data?.id,
+        message: createResult.message
+      })
 
-      postsGenerated++
-      console.log(
-        `✅ [GENERATE-WARMUP-POSTS] Post generated for r/${subreddit}`
-      )
-
-      // Limit posts per run
-      if (postsGenerated >= (account.dailyPostLimit || 3)) {
-        break
+      if (createResult.isSuccess) {
+        postsGenerated++
+        console.log(`✅ [WARMUP-QUEUE] Post ${i + 1} created successfully`)
+      } else {
+        console.log(`❌ [WARMUP-QUEUE] Failed to create post ${i + 1}`)
       }
     }
 
-    console.log(`✅ [GENERATE-WARMUP-POSTS] Generated ${postsGenerated} posts`)
+    // Update rate limit
+    if (postsGenerated > 0) {
+      console.log("📊 [WARMUP-QUEUE] Updating rate limit, posts generated:", postsGenerated)
+      await updateWarmupRateLimitAction(organizationId, postsGenerated.toString())
+    }
 
-    return {
-      isSuccess: true,
-      message: `Generated ${postsGenerated} warm-up posts`,
-      data: { postsGenerated }
+    console.log("✅ [WARMUP-QUEUE] Completed generateAndScheduleWarmupPostsAction:", {
+      postsGenerated,
+      success: postsGenerated > 0
+    })
+
+    if (postsGenerated > 0) {
+      return {
+        isSuccess: true,
+        message: `Generated ${postsGenerated} warmup posts`,
+        data: { postsGenerated }
+      }
+    } else {
+      return {
+        isSuccess: false,
+        message: "Failed to generate any posts"
+      }
     }
   } catch (error) {
-    console.error("❌ [GENERATE-WARMUP-POSTS] Error:", error)
-    return { isSuccess: false, message: "Failed to generate warm-up posts" }
+    console.error("❌ [WARMUP-QUEUE] Error in generateAndScheduleWarmupPostsAction:", error)
+    return { isSuccess: false, message: "Failed to generate warmup posts" }
   }
 }
 
@@ -500,55 +536,98 @@ function calculateNextPostTime(postsToday: number): Timestamp {
 export async function postWarmupImmediatelyAction(
   postId: string,
   organizationId: string
-): Promise<ActionState<{ url?: string }>> {
+): Promise<ActionState<{ url: string }>> {
   try {
-    console.log(
-      "🚀 [POST-IMMEDIATELY] Posting warm-up post:", postId, "for org:", organizationId
-    )
-    if (!organizationId) {
-      return { isSuccess: false, message: "Organization ID is required for posting." }
+    console.log("🔥🔥🔥 [WARMUP-QUEUE] Starting postWarmupImmediatelyAction")
+    console.log("🔥🔥🔥 [WARMUP-QUEUE] Post ID:", postId)
+    console.log("🔥🔥🔥 [WARMUP-QUEUE] Organization ID:", organizationId)
+    
+    // Get the post
+    const posts = await getWarmupPostsByOrganizationIdAction(organizationId)
+    
+    console.log("🔍 [WARMUP-QUEUE] Posts result:", {
+      isSuccess: posts.isSuccess,
+      hasData: !!posts.data,
+      postCount: posts.data?.length || 0,
+      message: posts.message
+    })
+    
+    if (!posts.isSuccess || !posts.data) {
+      console.log("⚠️ [WARMUP-QUEUE] Failed to get posts")
+      return { isSuccess: false, message: "Failed to get posts" }
     }
 
-    const postRef = doc(db, WARMUP_COLLECTIONS.WARMUP_POSTS, postId)
-    const postDoc = await getDoc(postRef)
-    if (!postDoc.exists()) {
+    const post = posts.data.find(p => p.id === postId)
+    
+    console.log("🔍 [WARMUP-QUEUE] Found post:", {
+      found: !!post,
+      postId: post?.id,
+      status: post?.status,
+      subreddit: post?.subreddit,
+      title: post?.title?.substring(0, 50) + "..."
+    })
+    
+    if (!post) {
+      console.log("⚠️ [WARMUP-QUEUE] Post not found")
       return { isSuccess: false, message: "Post not found" }
     }
-    const post = postDoc.data() as WarmupPostDocument
 
-    // Ensure the post belongs to the specified organization if doing a cross-check (optional here)
-    if (post.organizationId !== organizationId) {
-      console.error(`❌ [POST-IMMEDIATELY] Post ${postId} does not belong to organization ${organizationId}. Belongs to ${post.organizationId}`)
-      return { isSuccess: false, message: "Post does not belong to this organization." }
+    if (post.status === "posted") {
+      console.log("⚠️ [WARMUP-QUEUE] Post already posted")
+      return { isSuccess: false, message: "Post already posted" }
     }
 
-    // Pass organizationId to submitRedditPostAction
+    // Submit to Reddit
+    console.log("🚀 [WARMUP-QUEUE] Submitting to Reddit")
     const submitResult = await submitRedditPostAction(
       organizationId,
       post.subreddit,
       post.title,
       post.content
     )
+    
+    console.log("🚀 [WARMUP-QUEUE] Submit result:", {
+      isSuccess: submitResult.isSuccess,
+      hasData: !!submitResult.data,
+      url: submitResult.data?.url,
+      postId: submitResult.data?.id,
+      message: submitResult.message
+    })
 
-    if (submitResult.isSuccess && submitResult.data) {
-      await updateWarmupPostAction(post.id, {
-        status: "posted",
-        postedAt: Timestamp.now(),
-        redditPostId: submitResult.data.id,
-        redditPostUrl: submitResult.data.url
-      })
-      // Pass organizationId to updateWarmupRateLimitAction
-      await updateWarmupRateLimitAction(organizationId, post.subreddit)
-      return { isSuccess: true, message: "Post submitted successfully", data: { url: submitResult.data.url } }
-    } else {
-      await updateWarmupPostAction(post.id, { status: "failed", error: submitResult.message })
+    if (!submitResult.isSuccess || !submitResult.data) {
+      console.log("❌ [WARMUP-QUEUE] Failed to submit to Reddit:", submitResult.message)
       return { isSuccess: false, message: submitResult.message || "Failed to submit post" }
     }
-  } catch (error) {
-    console.error("❌ [POST-IMMEDIATELY] Error:", error)
-    return {
-      isSuccess: false,
-      message: error instanceof Error ? error.message : "Failed to post immediately"
+
+    // Update post status
+    console.log("📝 [WARMUP-QUEUE] Updating post status")
+    const updateResult = await updateWarmupPostAction(postId, {
+      status: "posted",
+      postedAt: Timestamp.now(),
+      redditPostId: submitResult.data.id,
+      redditPostUrl: submitResult.data.url
+    })
+    
+    console.log("📝 [WARMUP-QUEUE] Update result:", {
+      isSuccess: updateResult.isSuccess,
+      hasData: !!updateResult.data,
+      message: updateResult.message
+    })
+
+    if (!updateResult.isSuccess) {
+      console.log("⚠️ [WARMUP-QUEUE] Failed to update post status but post was submitted")
     }
+
+    console.log("✅ [WARMUP-QUEUE] Post submitted successfully:", submitResult.data.url)
+
+    return {
+      isSuccess: true,
+      message: "Post submitted successfully",
+      data: { url: submitResult.data.url }
+    }
+  } catch (error) {
+    console.error("❌ [WARMUP-QUEUE] Error in postWarmupImmediatelyAction:", error)
+    return { isSuccess: false, message: "Failed to post immediately" }
   }
 }
+
