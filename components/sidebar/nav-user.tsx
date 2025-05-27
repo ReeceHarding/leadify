@@ -46,22 +46,24 @@ export function NavUser() {
     <SidebarMenu>
       <SidebarMenuItem>
         <div className="flex w-full items-center gap-2 px-2 py-1.5">
-          {/* UserButton with explicit configuration */}
-          <UserButton
-            afterSignOutUrl="/"
-            appearance={{
-              elements: {
-                avatarBox:
-                  "h-8 w-8 cursor-pointer hover:opacity-80 transition-opacity",
-                userButtonTrigger:
-                  "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring",
-                userButtonPopoverCard: "shadow-lg"
-              }
-            }}
-          />
+          {/* UserButton wrapped in a div with higher z-index */}
+          <div className="relative z-50">
+            <UserButton
+              afterSignOutUrl="/"
+              showName={false}
+              appearance={{
+                elements: {
+                  rootBox: "w-8 h-8",
+                  avatarBox: "w-8 h-8 cursor-pointer",
+                  userButtonTrigger: "rounded-full",
+                  userButtonAvatarBox: "w-8 h-8"
+                }
+              }}
+            />
+          </div>
 
           {/* User info */}
-          <div className="flex flex-1 flex-col overflow-hidden">
+          <div className="pointer-events-none flex flex-1 flex-col overflow-hidden">
             <span className="truncate text-sm font-medium">
               {user?.fullName || user?.firstName || user?.username || "User"}
             </span>
@@ -73,8 +75,8 @@ export function NavUser() {
           </div>
 
           {/* Click hint */}
-          <div className="text-muted-foreground text-xs">
-            Click avatar to edit
+          <div className="text-muted-foreground pointer-events-none text-xs">
+            Click avatar
           </div>
         </div>
       </SidebarMenuItem>

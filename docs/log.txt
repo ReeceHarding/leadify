@@ -30893,3 +30893,471 @@
 [2025-05-27T23:35:14.248Z] ==================================================
 [2025-05-27T23:35:14.248Z] COMMAND FINISHED: prettier --write {app,lib,components}/**/*.{ts,tsx} db/**/*.ts types/**/*.ts --cache --ignore-unknown (exit code: 0)
 [2025-05-27T23:35:14.248Z] ==================================================
+[2025-05-27T23:35:14.310Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Successfully wrote to Firestore
+[2025-05-27T23:35:14.310Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Reading back created document...
+[2025-05-27T23:35:14.475Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Document exists: true
+[2025-05-27T23:35:14.476Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Document id: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-27T23:35:14.476Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw data from Firestore: {
+[2025-05-27T23:35:14.476Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-27T23:35:14.476Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-27T23:35:14.476Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-27T23:35:14.476Z] NEXTJS_STDOUT: "seconds": 1748388914,
+[2025-05-27T23:35:14.476Z] NEXTJS_STDOUT: "nanoseconds": 296000000
+[2025-05-27T23:35:14.476Z] NEXTJS_STDOUT: },
+[2025-05-27T23:35:14.476Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-27T23:35:14.476Z] NEXTJS_STDOUT: "seconds": 1748388914,
+[2025-05-27T23:35:14.476Z] NEXTJS_STDOUT: "nanoseconds": 296000000
+[2025-05-27T23:35:14.476Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:14.476Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:14.477Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw data keys: [ 'userId', 'membership', 'createdAt', 'updatedAt' ]
+[2025-05-27T23:35:14.477Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw createdAt from Firestore: Timestamp { seconds: 1748388914, nanoseconds: 296000000 }
+[2025-05-27T23:35:14.477Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw updatedAt from Firestore: Timestamp { seconds: 1748388914, nanoseconds: 296000000 }
+[2025-05-27T23:35:14.477Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Casting to ProfileDocument
+[2025-05-27T23:35:14.477Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] ProfileDocument createdAt: Timestamp { seconds: 1748388914, nanoseconds: 296000000 }
+[2025-05-27T23:35:14.477Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] ProfileDocument updatedAt: Timestamp { seconds: 1748388914, nanoseconds: 296000000 }
+[2025-05-27T23:35:14.477Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Starting serialization...
+[2025-05-27T23:35:14.477Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Starting serialization
+[2025-05-27T23:35:14.477Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Input profile keys: [ 'userId', 'membership', 'createdAt', 'updatedAt' ]
+[2025-05-27T23:35:14.477Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Raw profile data: {
+[2025-05-27T23:35:14.477Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-27T23:35:14.477Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-27T23:35:14.477Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-27T23:35:14.477Z] NEXTJS_STDOUT: "seconds": 1748388914,
+[2025-05-27T23:35:14.477Z] NEXTJS_STDOUT: "nanoseconds": 296000000
+[2025-05-27T23:35:14.477Z] NEXTJS_STDOUT: },
+[2025-05-27T23:35:14.477Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-27T23:35:14.477Z] NEXTJS_STDOUT: "seconds": 1748388914,
+[2025-05-27T23:35:14.477Z] NEXTJS_STDOUT: "nanoseconds": 296000000
+[2025-05-27T23:35:14.477Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:14.477Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:14.477Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt type: object
+[2025-05-27T23:35:14.477Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt instanceof Timestamp: true
+[2025-05-27T23:35:14.477Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt value: Timestamp { seconds: 1748388914, nanoseconds: 296000000 }
+[2025-05-27T23:35:14.477Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt type: object
+[2025-05-27T23:35:14.477Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt instanceof Timestamp: true
+[2025-05-27T23:35:14.478Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt value: Timestamp { seconds: 1748388914, nanoseconds: 296000000 }
+[2025-05-27T23:35:14.478Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized profile: {
+[2025-05-27T23:35:14.478Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-27T23:35:14.478Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-27T23:35:14.478Z] NEXTJS_STDOUT: "createdAt": "2025-05-27T23:35:14.296Z",
+[2025-05-27T23:35:14.478Z] NEXTJS_STDOUT: "updatedAt": "2025-05-27T23:35:14.296Z"
+[2025-05-27T23:35:14.478Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:14.478Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized createdAt: 2025-05-27T23:35:14.296Z
+[2025-05-27T23:35:14.478Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized updatedAt: 2025-05-27T23:35:14.296Z
+[2025-05-27T23:35:14.478Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialization complete
+[2025-05-27T23:35:14.478Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Final result: {
+[2025-05-27T23:35:14.478Z] NEXTJS_STDOUT: "isSuccess": true,
+[2025-05-27T23:35:14.478Z] NEXTJS_STDOUT: "message": "Profile created successfully",
+[2025-05-27T23:35:14.478Z] NEXTJS_STDOUT: "data": {
+[2025-05-27T23:35:14.478Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-27T23:35:14.478Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-27T23:35:14.478Z] NEXTJS_STDOUT: "createdAt": "2025-05-27T23:35:14.296Z",
+[2025-05-27T23:35:14.478Z] NEXTJS_STDOUT: "updatedAt": "2025-05-27T23:35:14.296Z"
+[2025-05-27T23:35:14.478Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:14.478Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:14.478Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Action completed successfully
+[2025-05-27T23:35:14.487Z] NEXTJS_STDOUT: GET /reddit/lead-finder 200 in 650ms
+[2025-05-27T23:35:14.748Z] NEXTJS_STDOUT: ✓ Compiled in 549ms (3671 modules)
+[2025-05-27T23:35:14.754Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/lead-finder
+[2025-05-27T23:35:14.754Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/lead-finder
+[2025-05-27T23:35:14.754Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Skipping auth for /reddit/lead-finder (testing)
+[2025-05-27T23:35:14.848Z] NEXTJS_STDOUT: 🔥🔥🔥 [LEAD-FINDER-PAGE] Rendering LeadFinderPage
+[2025-05-27T23:35:14.848Z] NEXTJS_STDOUT: 🔥🔥🔥 [LEAD-FINDER-PAGE] Environment: development
+[2025-05-27T23:35:14.848Z] NEXTJS_STDOUT: 🔥🔥🔥 [LEAD-FINDER-PAGE] Time: 2025-05-27T23:35:14.848Z
+[2025-05-27T23:35:14.848Z] NEXTJS_STDOUT: 🔥🔥🔥 [LEAD-FINDER-PAGE] Rendering LeadFinderDashboard inside Suspense
+[2025-05-27T23:35:14.857Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Action called
+[2025-05-27T23:35:14.857Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Input data: {
+[2025-05-27T23:35:14.857Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy"
+[2025-05-27T23:35:14.857Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:14.857Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Input data keys: [ 'userId' ]
+[2025-05-27T23:35:14.857Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] User ID: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-27T23:35:14.857Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Created Firestore document reference
+[2025-05-27T23:35:14.857Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Collection: profiles
+[2025-05-27T23:35:14.857Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Document path: profiles/user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-27T23:35:14.857Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw profile data before filtering: {
+[2025-05-27T23:35:14.857Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-27T23:35:14.857Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-27T23:35:14.857Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-27T23:35:14.857Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-27T23:35:14.857Z] NEXTJS_STDOUT: },
+[2025-05-27T23:35:14.857Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-27T23:35:14.857Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-27T23:35:14.857Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:14.857Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:14.857Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw profile data keys: [
+[2025-05-27T23:35:14.857Z] NEXTJS_STDOUT: 'userId',
+[2025-05-27T23:35:14.857Z] NEXTJS_STDOUT: 'membership',
+[2025-05-27T23:35:14.857Z] NEXTJS_STDOUT: 'stripeCustomerId',
+[2025-05-27T23:35:14.857Z] NEXTJS_STDOUT: 'stripeSubscriptionId',
+[2025-05-27T23:35:14.857Z] NEXTJS_STDOUT: 'createdAt',
+[2025-05-27T23:35:14.857Z] NEXTJS_STDOUT: 'updatedAt'
+[2025-05-27T23:35:14.857Z] NEXTJS_STDOUT: ]
+[2025-05-27T23:35:14.857Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] serverTimestamp() type: object
+[2025-05-27T23:35:14.858Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Profile data after filtering undefined values: {
+[2025-05-27T23:35:14.858Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-27T23:35:14.858Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-27T23:35:14.858Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-27T23:35:14.858Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-27T23:35:14.858Z] NEXTJS_STDOUT: },
+[2025-05-27T23:35:14.858Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-27T23:35:14.858Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-27T23:35:14.858Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:14.858Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:14.858Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Filtered profile data keys: [ 'userId', 'membership', 'createdAt', 'updatedAt' ]
+[2025-05-27T23:35:14.858Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Writing to Firestore...
+[2025-05-27T23:35:15.019Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Successfully wrote to Firestore
+[2025-05-27T23:35:15.019Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Reading back created document...
+[2025-05-27T23:35:15.137Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Document exists: true
+[2025-05-27T23:35:15.142Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Document id: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-27T23:35:15.142Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw data from Firestore: {
+[2025-05-27T23:35:15.142Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-27T23:35:15.142Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-27T23:35:15.142Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-27T23:35:15.142Z] NEXTJS_STDOUT: "seconds": 1748388915,
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: "nanoseconds": 9000000
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: },
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: "seconds": 1748388915,
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: "nanoseconds": 9000000
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw data keys: [ 'userId', 'membership', 'createdAt', 'updatedAt' ]
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw createdAt from Firestore: Timestamp { seconds: 1748388915, nanoseconds: 9000000 }
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw updatedAt from Firestore: Timestamp { seconds: 1748388915, nanoseconds: 9000000 }
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Casting to ProfileDocument
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] ProfileDocument createdAt: Timestamp { seconds: 1748388915, nanoseconds: 9000000 }
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] ProfileDocument updatedAt: Timestamp { seconds: 1748388915, nanoseconds: 9000000 }
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Starting serialization...
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Starting serialization
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Input profile keys: [ 'userId', 'membership', 'createdAt', 'updatedAt' ]
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Raw profile data: {
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: "seconds": 1748388915,
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: "nanoseconds": 9000000
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: },
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: "seconds": 1748388915,
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: "nanoseconds": 9000000
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt type: object
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt instanceof Timestamp: true
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt value: Timestamp { seconds: 1748388915, nanoseconds: 9000000 }
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt type: object
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt instanceof Timestamp: true
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt value: Timestamp { seconds: 1748388915, nanoseconds: 9000000 }
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized profile: {
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: "createdAt": "2025-05-27T23:35:15.009Z",
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: "updatedAt": "2025-05-27T23:35:15.009Z"
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized createdAt: 2025-05-27T23:35:15.009Z
+[2025-05-27T23:35:15.143Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized updatedAt: 2025-05-27T23:35:15.009Z
+[2025-05-27T23:35:15.144Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialization complete
+[2025-05-27T23:35:15.144Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Final result: {
+[2025-05-27T23:35:15.144Z] NEXTJS_STDOUT: "isSuccess": true,
+[2025-05-27T23:35:15.144Z] NEXTJS_STDOUT: "message": "Profile created successfully",
+[2025-05-27T23:35:15.144Z] NEXTJS_STDOUT: "data": {
+[2025-05-27T23:35:15.144Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-27T23:35:15.144Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-27T23:35:15.144Z] NEXTJS_STDOUT: "createdAt": "2025-05-27T23:35:15.009Z",
+[2025-05-27T23:35:15.144Z] NEXTJS_STDOUT: "updatedAt": "2025-05-27T23:35:15.009Z"
+[2025-05-27T23:35:15.144Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:15.144Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:15.144Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Action completed successfully
+[2025-05-27T23:35:15.144Z] NEXTJS_STDOUT: GET /reddit/lead-finder 200 in 385ms
+[2025-05-27T23:35:37.352Z] NEXTJS_STDOUT: ✓ Compiled in 450ms (3671 modules)
+[2025-05-27T23:35:37.364Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/lead-finder
+[2025-05-27T23:35:37.364Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/lead-finder
+[2025-05-27T23:35:37.364Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Skipping auth for /reddit/lead-finder (testing)
+[2025-05-27T23:35:37.461Z] NEXTJS_STDOUT: 🔥🔥🔥 [LEAD-FINDER-PAGE] Rendering LeadFinderPage
+[2025-05-27T23:35:37.461Z] NEXTJS_STDOUT: 🔥🔥🔥 [LEAD-FINDER-PAGE] Environment: development
+[2025-05-27T23:35:37.461Z] NEXTJS_STDOUT: 🔥🔥🔥 [LEAD-FINDER-PAGE] Time: 2025-05-27T23:35:37.461Z
+[2025-05-27T23:35:37.461Z] NEXTJS_STDOUT: 🔥🔥🔥 [LEAD-FINDER-PAGE] Rendering LeadFinderDashboard inside Suspense
+[2025-05-27T23:35:37.475Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Action called
+[2025-05-27T23:35:37.475Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Input data: {
+[2025-05-27T23:35:37.475Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy"
+[2025-05-27T23:35:37.476Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:37.476Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Input data keys: [ 'userId' ]
+[2025-05-27T23:35:37.476Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] User ID: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-27T23:35:37.476Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Created Firestore document reference
+[2025-05-27T23:35:37.476Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Collection: profiles
+[2025-05-27T23:35:37.476Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Document path: profiles/user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-27T23:35:37.476Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw profile data before filtering: {
+[2025-05-27T23:35:37.476Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-27T23:35:37.476Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-27T23:35:37.476Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-27T23:35:37.476Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-27T23:35:37.476Z] NEXTJS_STDOUT: },
+[2025-05-27T23:35:37.476Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-27T23:35:37.476Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-27T23:35:37.476Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:37.476Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:37.476Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw profile data keys: [
+[2025-05-27T23:35:37.476Z] NEXTJS_STDOUT: 'userId',
+[2025-05-27T23:35:37.476Z] NEXTJS_STDOUT: 'membership',
+[2025-05-27T23:35:37.476Z] NEXTJS_STDOUT: 'stripeCustomerId',
+[2025-05-27T23:35:37.476Z] NEXTJS_STDOUT: 'stripeSubscriptionId',
+[2025-05-27T23:35:37.476Z] NEXTJS_STDOUT: 'createdAt',
+[2025-05-27T23:35:37.476Z] NEXTJS_STDOUT: 'updatedAt'
+[2025-05-27T23:35:37.476Z] NEXTJS_STDOUT: ]
+[2025-05-27T23:35:37.476Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] serverTimestamp() type: object
+[2025-05-27T23:35:37.476Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Profile data after filtering undefined values: {
+[2025-05-27T23:35:37.476Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-27T23:35:37.476Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-27T23:35:37.476Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-27T23:35:37.476Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-27T23:35:37.477Z] NEXTJS_STDOUT: },
+[2025-05-27T23:35:37.477Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-27T23:35:37.477Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-27T23:35:37.477Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:37.477Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:37.477Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Filtered profile data keys: [ 'userId', 'membership', 'createdAt', 'updatedAt' ]
+[2025-05-27T23:35:37.477Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Writing to Firestore...
+[2025-05-27T23:35:37.665Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Successfully wrote to Firestore
+[2025-05-27T23:35:37.665Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Reading back created document...
+[2025-05-27T23:35:37.749Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Document exists: true
+[2025-05-27T23:35:37.750Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Document id: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-27T23:35:37.750Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw data from Firestore: {
+[2025-05-27T23:35:37.750Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-27T23:35:37.750Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-27T23:35:37.750Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-27T23:35:37.750Z] NEXTJS_STDOUT: "seconds": 1748388937,
+[2025-05-27T23:35:37.750Z] NEXTJS_STDOUT: "nanoseconds": 649000000
+[2025-05-27T23:35:37.750Z] NEXTJS_STDOUT: },
+[2025-05-27T23:35:37.750Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-27T23:35:37.750Z] NEXTJS_STDOUT: "seconds": 1748388937,
+[2025-05-27T23:35:37.750Z] NEXTJS_STDOUT: "nanoseconds": 649000000
+[2025-05-27T23:35:37.750Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:37.750Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:37.750Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw data keys: [ 'userId', 'membership', 'createdAt', 'updatedAt' ]
+[2025-05-27T23:35:37.750Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw createdAt from Firestore: Timestamp { seconds: 1748388937, nanoseconds: 649000000 }
+[2025-05-27T23:35:37.750Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw updatedAt from Firestore: Timestamp { seconds: 1748388937, nanoseconds: 649000000 }
+[2025-05-27T23:35:37.750Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Casting to ProfileDocument
+[2025-05-27T23:35:37.750Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] ProfileDocument createdAt: Timestamp { seconds: 1748388937, nanoseconds: 649000000 }
+[2025-05-27T23:35:37.750Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] ProfileDocument updatedAt: Timestamp { seconds: 1748388937, nanoseconds: 649000000 }
+[2025-05-27T23:35:37.750Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Starting serialization...
+[2025-05-27T23:35:37.750Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Starting serialization
+[2025-05-27T23:35:37.750Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Input profile keys: [ 'userId', 'membership', 'createdAt', 'updatedAt' ]
+[2025-05-27T23:35:37.750Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Raw profile data: {
+[2025-05-27T23:35:37.750Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-27T23:35:37.750Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-27T23:35:37.750Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-27T23:35:37.750Z] NEXTJS_STDOUT: "seconds": 1748388937,
+[2025-05-27T23:35:37.751Z] NEXTJS_STDOUT: "nanoseconds": 649000000
+[2025-05-27T23:35:37.751Z] NEXTJS_STDOUT: },
+[2025-05-27T23:35:37.751Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-27T23:35:37.751Z] NEXTJS_STDOUT: "seconds": 1748388937,
+[2025-05-27T23:35:37.751Z] NEXTJS_STDOUT: "nanoseconds": 649000000
+[2025-05-27T23:35:37.751Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:37.751Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:37.751Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt type: object
+[2025-05-27T23:35:37.751Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt instanceof Timestamp: true
+[2025-05-27T23:35:37.751Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt value: Timestamp { seconds: 1748388937, nanoseconds: 649000000 }
+[2025-05-27T23:35:37.751Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt type: object
+[2025-05-27T23:35:37.751Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt instanceof Timestamp: true
+[2025-05-27T23:35:37.751Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt value: Timestamp { seconds: 1748388937, nanoseconds: 649000000 }
+[2025-05-27T23:35:37.751Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized profile: {
+[2025-05-27T23:35:37.751Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-27T23:35:37.751Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-27T23:35:37.751Z] NEXTJS_STDOUT: "createdAt": "2025-05-27T23:35:37.649Z",
+[2025-05-27T23:35:37.751Z] NEXTJS_STDOUT: "updatedAt": "2025-05-27T23:35:37.649Z"
+[2025-05-27T23:35:37.751Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:37.751Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized createdAt: 2025-05-27T23:35:37.649Z
+[2025-05-27T23:35:37.751Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized updatedAt: 2025-05-27T23:35:37.649Z
+[2025-05-27T23:35:37.751Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialization complete
+[2025-05-27T23:35:37.751Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Final result: {
+[2025-05-27T23:35:37.751Z] NEXTJS_STDOUT: "isSuccess": true,
+[2025-05-27T23:35:37.752Z] NEXTJS_STDOUT: "message": "Profile created successfully",
+[2025-05-27T23:35:37.752Z] NEXTJS_STDOUT: "data": {
+[2025-05-27T23:35:37.752Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-27T23:35:37.752Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-27T23:35:37.752Z] NEXTJS_STDOUT: "createdAt": "2025-05-27T23:35:37.649Z",
+[2025-05-27T23:35:37.752Z] NEXTJS_STDOUT: "updatedAt": "2025-05-27T23:35:37.649Z"
+[2025-05-27T23:35:37.752Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:37.752Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:37.752Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Action completed successfully
+[2025-05-27T23:35:37.757Z] NEXTJS_STDOUT: GET /reddit/lead-finder 200 in 392ms
+[2025-05-27T23:35:45.880Z] ==================================================
+[2025-05-27T23:35:45.881Z] COMMAND STARTED: next lint --fix
+[2025-05-27T23:35:45.881Z] ==================================================
+[2025-05-27T23:35:47.304Z] STDOUT: ✔ No ESLint warnings or errors
+[2025-05-27T23:35:47.354Z] ==================================================
+[2025-05-27T23:35:47.354Z] COMMAND FINISHED: next lint --fix (exit code: 0)
+[2025-05-27T23:35:47.354Z] ==================================================
+[2025-05-27T23:35:47.539Z] ==================================================
+[2025-05-27T23:35:47.540Z] COMMAND STARTED: prettier --write {app,lib,components}/**/*.{ts,tsx} db/**/*.ts types/**/*.ts --cache --ignore-unknown
+[2025-05-27T23:35:47.540Z] ==================================================
+[2025-05-27T23:35:47.629Z] STDOUT: app/api/lead-generation/start/route.ts 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.631Z] STDOUT: app/api/queue/check-warmup-comments/route.ts 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.633Z] STDOUT: app/api/queue/process-dm-automations/route.ts 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.635Z] STDOUT: app/api/queue/process-posts/route.ts 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.636Z] NEXTJS_STDOUT: ✓ Compiled in 545ms (3603 modules)
+[2025-05-27T23:35:47.641Z] STDOUT: app/api/queue/process-warmup/route.ts 1ms (unchanged) (cached)
+[2025-05-27T23:35:47.737Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/lead-finder
+[2025-05-27T23:35:47.737Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/lead-finder
+[2025-05-27T23:35:47.737Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Skipping auth for /reddit/lead-finder (testing)
+[2025-05-27T23:35:47.742Z] STDOUT: app/api/reddit/auth/route.ts 1ms (unchanged) (cached)
+[2025-05-27T23:35:47.745Z] STDOUT: app/api/reddit/callback/route.ts 1ms (unchanged) (cached)
+[2025-05-27T23:35:47.751Z] STDOUT: app/api/reddit/comments/[commentId]/replies/route.ts 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.765Z] STDOUT: app/api/reddit/comments/route.ts 1ms (unchanged) (cached)
+[2025-05-27T23:35:47.772Z] STDOUT: app/api/stripe/webhooks/route.ts 1ms (unchanged) (cached)
+[2025-05-27T23:35:47.775Z] STDOUT: app/api/test-twitter-analysis/route.ts 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.778Z] STDOUT: app/api/test-twitter-direct/route.ts 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.781Z] STDOUT: app/api/warmup/generate-posts/route.ts 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.782Z] STDOUT: app/api/warmup/reset-daily-counters/route.ts 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.784Z] STDOUT: app/reddit/lead-finder/_components/dashboard/types.ts 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.786Z] STDOUT: app/reddit/lead-finder/_components/dashboard/utils.ts 1ms (unchanged) (cached)
+[2025-05-27T23:35:47.788Z] STDOUT: app/(auth)/layout.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.790Z] STDOUT: app/(marketing)/layout.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.791Z] STDOUT: app/(marketing)/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.794Z] STDOUT: app/dashboard/layout.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.795Z] STDOUT: app/dashboard/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.797Z] STDOUT: app/firebase-test/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.799Z] STDOUT: app/onboarding/layout.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.801Z] STDOUT: app/onboarding/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.803Z] STDOUT: app/reddit-auth/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.804Z] STDOUT: app/reddit-test/page.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.806Z] STDOUT: app/reddit/layout.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.808Z] STDOUT: lib/config/keyword-config.ts 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.809Z] STDOUT: lib/config/reddit-config.ts 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.810Z] STDOUT: lib/hooks/use-toast.ts 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.812Z] STDOUT: lib/reddit/reddit-api-client.ts 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.815Z] STDOUT: lib/utils/firestore-batch-utils.ts 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.818Z] STDOUT: lib/utils/organization-utils.ts 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.819Z] STDOUT: lib/utils/theme-utils.ts 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.821Z] STDOUT: lib/utils/timestamp-utils.ts 1ms (unchanged) (cached)
+[2025-05-27T23:35:47.822Z] STDOUT: lib/hooks/use-copy-to-clipboard.tsx 1ms (unchanged) (cached)
+[2025-05-27T23:35:47.823Z] STDOUT: lib/hooks/use-mobile.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.825Z] STDOUT: components/ui/use-toast.ts 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.826Z] STDOUT: components/landing/hero.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.827Z] STDOUT: components/landing/logo-carousel.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.829Z] STDOUT: components/landing/testimonials.tsx 1ms (unchanged) (cached)
+[2025-05-27T23:35:47.830Z] STDOUT: components/magicui/animated-gradient-text.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.832Z] STDOUT: components/magicui/hero-video-dialog.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.833Z] STDOUT: components/sidebar/app-sidebar.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.836Z] STDOUT: components/sidebar/create-organization-dialog.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.837Z] STDOUT: components/sidebar/nav-main.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.838Z] STDOUT: components/sidebar/nav-projects.tsx 1ms (unchanged) (cached)
+[2025-05-27T23:35:47.878Z] STDOUT: components/sidebar/nav-user.tsx 40ms
+[2025-05-27T23:35:47.880Z] STDOUT: components/sidebar/team-switcher.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.881Z] STDOUT: components/ui/accordion.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.883Z] STDOUT: components/ui/alert-dialog.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.884Z] STDOUT: components/ui/alert.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.885Z] STDOUT: components/ui/aspect-ratio.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.887Z] STDOUT: components/ui/avatar.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.888Z] STDOUT: components/ui/badge.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.889Z] STDOUT: components/ui/breadcrumb.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.890Z] STDOUT: components/ui/button.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.891Z] STDOUT: components/ui/calendar.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.892Z] STDOUT: components/ui/card.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.893Z] STDOUT: components/ui/carousel.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.894Z] STDOUT: components/ui/chart.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.895Z] STDOUT: components/ui/checkbox.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.897Z] STDOUT: components/ui/collapsible.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.898Z] STDOUT: components/ui/command.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.900Z] STDOUT: components/ui/context-menu.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.901Z] STDOUT: components/ui/dialog.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.902Z] STDOUT: components/ui/drawer.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.903Z] STDOUT: components/ui/dropdown-menu.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.904Z] STDOUT: components/ui/form.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.904Z] STDOUT: components/ui/hover-card.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.905Z] STDOUT: components/ui/input-otp.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.906Z] STDOUT: components/ui/input.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.907Z] STDOUT: components/ui/label.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.909Z] STDOUT: components/ui/loading-skeleton.tsx 1ms (unchanged) (cached)
+[2025-05-27T23:35:47.909Z] STDOUT: components/ui/menubar.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.911Z] STDOUT: components/ui/navigation-menu.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.912Z] STDOUT: components/ui/pagination.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.913Z] STDOUT: components/ui/popover.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.914Z] STDOUT: components/ui/progress.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.915Z] STDOUT: components/ui/radio-group.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.916Z] STDOUT: components/ui/resizable.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.917Z] NEXTJS_STDOUT: 🔥🔥🔥 [LEAD-FINDER-PAGE] Rendering LeadFinderPage
+[2025-05-27T23:35:47.917Z] STDOUT: components/ui/scroll-area.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.917Z] NEXTJS_STDOUT: 🔥🔥🔥 [LEAD-FINDER-PAGE] Environment: development
+[2025-05-27T23:35:47.917Z] NEXTJS_STDOUT: 🔥🔥🔥 [LEAD-FINDER-PAGE] Time: 2025-05-27T23:35:47.917Z
+[2025-05-27T23:35:47.917Z] NEXTJS_STDOUT: 🔥🔥🔥 [LEAD-FINDER-PAGE] Rendering LeadFinderDashboard inside Suspense
+[2025-05-27T23:35:47.917Z] STDOUT: components/ui/select.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.918Z] STDOUT: components/ui/separator.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.919Z] STDOUT: components/ui/sheet.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.920Z] STDOUT: components/ui/sidebar.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.920Z] STDOUT: components/ui/skeleton.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.925Z] STDOUT: components/ui/slider.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.926Z] STDOUT: components/ui/sonner.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.927Z] STDOUT: components/ui/switch.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.928Z] STDOUT: components/ui/table.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.929Z] STDOUT: components/ui/tabs.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.930Z] STDOUT: components/ui/textarea.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.931Z] STDOUT: components/ui/toast.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.931Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Action called
+[2025-05-27T23:35:47.931Z] STDOUT: components/ui/toaster.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.932Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Input data: {
+[2025-05-27T23:35:47.932Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy"
+[2025-05-27T23:35:47.932Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:47.932Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Input data keys: [ 'userId' ]
+[2025-05-27T23:35:47.932Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] User ID: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-27T23:35:47.932Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Created Firestore document reference
+[2025-05-27T23:35:47.932Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Collection: profiles
+[2025-05-27T23:35:47.932Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Document path: profiles/user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-27T23:35:47.932Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw profile data before filtering: {
+[2025-05-27T23:35:47.932Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-27T23:35:47.932Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-27T23:35:47.932Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-27T23:35:47.932Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-27T23:35:47.932Z] NEXTJS_STDOUT: },
+[2025-05-27T23:35:47.932Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-27T23:35:47.933Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-27T23:35:47.933Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:47.933Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:47.933Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Raw profile data keys: [
+[2025-05-27T23:35:47.933Z] NEXTJS_STDOUT: 'userId',
+[2025-05-27T23:35:47.933Z] NEXTJS_STDOUT: 'membership',
+[2025-05-27T23:35:47.933Z] NEXTJS_STDOUT: 'stripeCustomerId',
+[2025-05-27T23:35:47.933Z] NEXTJS_STDOUT: 'stripeSubscriptionId',
+[2025-05-27T23:35:47.933Z] NEXTJS_STDOUT: 'createdAt',
+[2025-05-27T23:35:47.933Z] NEXTJS_STDOUT: 'updatedAt'
+[2025-05-27T23:35:47.933Z] NEXTJS_STDOUT: ]
+[2025-05-27T23:35:47.933Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] serverTimestamp() type: object
+[2025-05-27T23:35:47.933Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Profile data after filtering undefined values: {
+[2025-05-27T23:35:47.933Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-27T23:35:47.933Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-27T23:35:47.933Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-27T23:35:47.933Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-27T23:35:47.933Z] NEXTJS_STDOUT: },
+[2025-05-27T23:35:47.933Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-27T23:35:47.933Z] STDOUT: components/ui/toggle-group.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.933Z] NEXTJS_STDOUT: "_methodName": "serverTimestamp"
+[2025-05-27T23:35:47.933Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:47.933Z] NEXTJS_STDOUT: }
+[2025-05-27T23:35:47.933Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Filtered profile data keys: [ 'userId', 'membership', 'createdAt', 'updatedAt' ]
+[2025-05-27T23:35:47.933Z] NEXTJS_STDOUT: 🔥 [CREATE-PROFILE] Writing to Firestore...
+[2025-05-27T23:35:47.934Z] STDOUT: components/ui/toggle.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.935Z] STDOUT: components/ui/tooltip.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.937Z] STDOUT: components/utilities/organization-provider.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.938Z] STDOUT: components/utilities/organization-selector.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.939Z] STDOUT: components/utilities/providers.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.940Z] STDOUT: components/utilities/tailwind-indicator.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.941Z] STDOUT: components/utilities/theme-switcher.tsx 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.945Z] STDOUT: db/firestore/collections.ts 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.947Z] STDOUT: db/firestore/dm-collections.ts 1ms (unchanged) (cached)
+[2025-05-27T23:35:47.948Z] STDOUT: db/firestore/dm-progress-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.950Z] STDOUT: db/firestore/keyword-performance-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.952Z] STDOUT: db/firestore/lead-generation-collections.ts 1ms (unchanged) (cached)
+[2025-05-27T23:35:47.953Z] STDOUT: db/firestore/organizations-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.954Z] STDOUT: db/firestore/personalization-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.956Z] STDOUT: db/firestore/posting-queue-collections.ts 1ms (unchanged) (cached)
+[2025-05-27T23:35:47.957Z] STDOUT: db/firestore/warmup-collections.ts 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.960Z] STDOUT: db/schema/index.ts 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.965Z] STDOUT: types/action-interfaces.ts 1ms (unchanged) (cached)
+[2025-05-27T23:35:47.967Z] STDOUT: types/index.ts 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.969Z] STDOUT: types/lead-generation-types.ts 1ms (unchanged) (cached)
+[2025-05-27T23:35:47.970Z] STDOUT: types/organization-types.ts 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.971Z] STDOUT: types/profile-types.ts 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.973Z] STDOUT: types/server-action-types.ts 0ms (unchanged) (cached)
+[2025-05-27T23:35:47.996Z] ==================================================
+[2025-05-27T23:35:47.996Z] COMMAND FINISHED: prettier --write {app,lib,components}/**/*.{ts,tsx} db/**/*.ts types/**/*.ts --cache --ignore-unknown (exit code: 0)
+[2025-05-27T23:35:47.996Z] ==================================================
