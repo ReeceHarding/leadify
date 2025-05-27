@@ -104,15 +104,15 @@ export default function FiltersAndSorting({
               onValueChange={onSortByChange as any}
               disabled={disabled}
             >
-              <SelectTrigger className="h-9 w-[130px] rounded-md border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-700">
+              <SelectTrigger className="h-9 w-[180px] rounded-md border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-700">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="relevance">Relevance</SelectItem>
-                <SelectItem value="upvotes">Upvotes</SelectItem>
-                <SelectItem value="time">Time</SelectItem>
-                <SelectItem value="fetched">Fetched</SelectItem>
-                <SelectItem value="posted">Posted</SelectItem>
+                <SelectItem value="relevance">Best Match (Relevance)</SelectItem>
+                <SelectItem value="upvotes">Highest Score (Upvotes)</SelectItem>
+                <SelectItem value="posted">Most Recently Posted</SelectItem>
+                <SelectItem value="fetched">Most Recently Fetched</SelectItem>
+                <SelectItem value="time">Recent Activity</SelectItem>
               </SelectContent>
             </Select>
           </div>
