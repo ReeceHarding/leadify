@@ -45,49 +45,75 @@ export async function searchRedditThreadsAction(
     }
   }
 
-  try {
-    // Check if keyword already includes "reddit" at the end
-    const includesReddit = keyword.toLowerCase().includes('reddit')
-    
-    // If keyword already includes reddit, use as-is
-    // Otherwise, add site:reddit.com for better results
-    const searchQuery = includesReddit 
-      ? keyword  // New format: keyword already includes reddit
-      : `${keyword} site:reddit.com`  // Old format: add site restriction
-      
-    console.log("🔍🔍🔍 [GOOGLE-SEARCH] Full search query:", searchQuery)
-
+  // Helper function to perform the actual search
+  async function performSearch(query: string): Promise<any> {
     const url = new URL("https://www.googleapis.com/customsearch/v1")
-    url.searchParams.append("key", GOOGLE_API_KEY)
-    url.searchParams.append("cx", GOOGLE_SEARCH_ENGINE_ID)
-    url.searchParams.append("q", searchQuery)
+    url.searchParams.append("key", GOOGLE_API_KEY!)
+    url.searchParams.append("cx", GOOGLE_SEARCH_ENGINE_ID!)
+    url.searchParams.append("q", query)
     url.searchParams.append("num", numResults.toString())
 
     console.log(
       "🔍🔍🔍 [GOOGLE-SEARCH] API URL:",
-      url.toString().replace(GOOGLE_API_KEY, "***API_KEY***")
+      url.toString().replace(GOOGLE_API_KEY!, "***API_KEY***")
     )
     console.log("🔍🔍🔍 [GOOGLE-SEARCH] Making API request...")
 
     const response = await fetch(url.toString())
     console.log("🔍🔍🔍 [GOOGLE-SEARCH] Response status:", response.status)
     console.log("🔍🔍🔍 [GOOGLE-SEARCH] Response OK:", response.ok)
-    console.log(
-      "🔍🔍🔍 [GOOGLE-SEARCH] Response headers:",
-      Object.fromEntries(response.headers.entries())
-    )
 
     if (!response.ok) {
       const errorText = await response.text()
       console.log("🔍🔍🔍 [GOOGLE-SEARCH] ❌ API request failed")
       console.log("🔍🔍🔍 [GOOGLE-SEARCH] Error response:", errorText)
-      console.log(
-        "🔍🔍🔍 [GOOGLE-SEARCH] ========== SEARCH END (API ERROR) =========="
-      )
       throw new Error(`Google Search API error: ${response.status}`)
     }
 
-    const data = await response.json()
+    return await response.json()
+  }
+
+  try {
+    // Check if keyword contains quotes or OR operators (old format)
+    const hasQuotesOrOperators = keyword.includes('"') || keyword.includes(' OR ')
+    
+    let searchQuery: string
+    let data: any
+    
+    if (hasQuotesOrOperators) {
+      // Old format with quotes/OR - try it first for precision
+      searchQuery = `${keyword} reddit`
+      console.log("🔍🔍🔍 [GOOGLE-SEARCH] Trying quoted search first:", searchQuery)
+      
+      data = await performSearch(searchQuery)
+      
+      // If no results with quoted search, try without quotes
+      if (!data.items || data.items.length === 0) {
+        console.log("🔍🔍🔍 [GOOGLE-SEARCH] No results with quotes, trying without quotes...")
+        
+        // Remove quotes and OR operators, keep the meaningful words
+        const unquotedKeyword = keyword
+          .replace(/"/g, '') // Remove quotes
+          .replace(/\s+OR\s+/g, ' ') // Replace OR with space
+          .replace(/\s+/g, ' ') // Normalize spaces
+          .trim()
+        
+        searchQuery = `${unquotedKeyword} site:reddit.com`
+        console.log("🔍🔍🔍 [GOOGLE-SEARCH] Fallback search query:", searchQuery)
+        
+        data = await performSearch(searchQuery)
+      }
+    } else {
+      // New format or simple keyword
+      const includesReddit = keyword.toLowerCase().includes('reddit')
+      searchQuery = includesReddit 
+        ? keyword  // New format: keyword already includes reddit
+        : `${keyword} site:reddit.com`  // Old format: add site restriction
+      
+      console.log("🔍🔍🔍 [GOOGLE-SEARCH] Full search query:", searchQuery)
+      data = await performSearch(searchQuery)
+    }
+
     console.log("🔍🔍🔍 [GOOGLE-SEARCH] Response data received")
     console.log(
       "🔍🔍🔍 [GOOGLE-SEARCH] Total results:",
@@ -103,7 +129,7 @@ export async function searchRedditThreadsAction(
     )
 
     if (!data.items || data.items.length === 0) {
-      console.log("🔍🔍🔍 [GOOGLE-SEARCH] ⚠️ No results found")
+      console.log("🔍🔍🔍 [GOOGLE-SEARCH] ⚠️ No results found after fallback")
       console.log(
         "🔍🔍🔍 [GOOGLE-SEARCH] ========== SEARCH END (NO RESULTS) =========="
       )
