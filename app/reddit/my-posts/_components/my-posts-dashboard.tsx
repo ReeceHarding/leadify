@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useMemo } from "react"
 import {
   Card,
   CardContent,
@@ -41,6 +41,11 @@ import type { SerializedGeneratedCommentDocument } from "@/types"
 import { fetchRedditCommentRepliesAction } from "@/actions/integrations/reddit/reddit-actions"
 import { useOrganization } from "@/components/utilities/organization-provider"
 import Link from "next/link"
+import { validateOrganizationId } from "@/lib/utils/organization-utils"
+import { ListLoadingSkeleton } from "@/components/ui/loading-skeleton"
+import { loggers } from "@/lib/logger"
+
+const logger = loggers.reddit
 
 interface RedditComment {
   id: string
@@ -103,7 +108,7 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
         toast.error("Failed to load your posts")
       }
     } catch (error) {
-      console.error("Error fetching posts:", error)
+      logger.error("Error fetching posts:", error)
       toast.error("Error loading posts")
     } finally {
       setIsLoading(false)
@@ -113,7 +118,7 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
   const fetchRedditReplies = async (postId: string, commentUrl: string) => {
     if (!activeOrganization) return
 
-    console.log("🔍 [MY-POSTS] Fetching replies for:", commentUrl)
+    logger.info("🔍 [MY-POSTS] Fetching replies for:", commentUrl)
 
     // Set loading state
     setPosts(prev =>
@@ -135,7 +140,7 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
       )
 
       if (result.isSuccess) {
-        console.log(`✅ [MY-POSTS] Fetched ${result.data.length} replies`)
+        logger.info(`✅ [MY-POSTS] Fetched ${result.data.length} replies`)
         setPosts(prev =>
           prev.map(post =>
             post.id === postId
@@ -148,7 +153,7 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
           )
         )
       } else {
-        console.error("❌ [MY-POSTS] Failed to fetch replies:", result.message)
+        logger.error("❌ [MY-POSTS] Failed to fetch replies:", result.message)
         setPosts(prev =>
           prev.map(post =>
             post.id === postId
@@ -173,7 +178,7 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
         }
       }
     } catch (error) {
-      console.error("❌ [MY-POSTS] Error fetching replies:", error)
+      logger.error("❌ [MY-POSTS] Error fetching replies:", error)
       setPosts(prev =>
         prev.map(post =>
           post.id === postId
@@ -231,7 +236,7 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
         toast.error("Failed to generate reply")
       }
     } catch (error) {
-      console.error("Error generating reply:", error)
+      logger.error("Error generating reply:", error)
       toast.error("Error generating AI reply")
     } finally {
       setGeneratingReply(null)
@@ -252,16 +257,16 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
         ? parentCommentId
         : `t1_${parentCommentId}`
 
-      console.log(`📤 [MY-POSTS] Posting reply to comment: ${parentId}`)
+      logger.info(`📤 [MY-POSTS] Posting reply to comment: ${parentId}`)
 
       const result = await postCommentToRedditAction({
-        organizationId: activeOrganization?.id || "",
+        organizationId: validateOrganizationId(activeOrganization?.id, "Post reply"),
         parentId,
         text: replyText
       })
 
       if (result.isSuccess) {
-        console.log(
+        logger.info(
           `✅ [MY-POSTS] Reply posted successfully: ${result.data.link}`
         )
         toast.success("Reply posted successfully!")
@@ -274,7 +279,7 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
           fetchRedditReplies(postId, post.postedCommentUrl)
         }
       } else {
-        console.error("❌ [MY-POSTS] Failed to post reply:", result.message)
+        logger.error("❌ [MY-POSTS] Failed to post reply:", result.message)
 
         // Show user-friendly error messages
         if (result.message.includes("authentication")) {
@@ -288,7 +293,7 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
         }
       }
     } catch (error) {
-      console.error("❌ [MY-POSTS] Error posting reply:", error)
+      logger.error("❌ [MY-POSTS] Error posting reply:", error)
       toast.error("Failed to post reply")
     } finally {
       setPostingReply(null)
@@ -322,13 +327,7 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
   }
 
   if (isLoading) {
-    return (
-      <div className="space-y-4">
-        <Skeleton className="h-32 w-full" />
-        <Skeleton className="h-32 w-full" />
-        <Skeleton className="h-32 w-full" />
-      </div>
-    )
+    return <ListLoadingSkeleton items={3} className="space-y-4" />
   }
 
   if (posts.length === 0) {

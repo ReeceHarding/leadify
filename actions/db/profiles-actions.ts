@@ -32,6 +32,7 @@ import {
 } from "firebase/firestore"
 // clearRedditTokensAction removed - Reddit tokens are now organization-based
 import { LEAD_COLLECTIONS } from "@/db/schema"
+import { toISOString } from "@/lib/utils/timestamp-utils"
 
 // Helper function to serialize ProfileDocument to remove Firestore Timestamps
 function serializeProfileDocument(
@@ -67,14 +68,8 @@ function serializeProfileDocument(
 
   const serialized: SerializedProfileDocument = {
     ...profile,
-    createdAt:
-      profile.createdAt instanceof Timestamp
-        ? profile.createdAt.toDate().toISOString()
-        : new Date().toISOString(),
-    updatedAt:
-      profile.updatedAt instanceof Timestamp
-        ? profile.updatedAt.toDate().toISOString()
-        : new Date().toISOString()
+    createdAt: toISOString(profile.createdAt) || new Date().toISOString(),
+    updatedAt: toISOString(profile.updatedAt) || new Date().toISOString()
   }
 
   console.log(

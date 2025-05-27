@@ -31,6 +31,7 @@ import {
   serverTimestamp,
   Timestamp
 } from "firebase/firestore"
+import { toISOString } from "@/lib/utils/timestamp-utils"
 
 // Serialization helper function
 function serializeCampaignDocument(
@@ -39,14 +40,8 @@ function serializeCampaignDocument(
   return {
     ...campaign,
     organizationId: campaign.organizationId,
-    createdAt:
-      campaign.createdAt instanceof Timestamp
-        ? campaign.createdAt.toDate().toISOString()
-        : new Date().toISOString(),
-    updatedAt:
-      campaign.updatedAt instanceof Timestamp
-        ? campaign.updatedAt.toDate().toISOString()
-        : new Date().toISOString()
+    createdAt: toISOString(campaign.createdAt) || new Date().toISOString(),
+    updatedAt: toISOString(campaign.updatedAt) || new Date().toISOString()
   }
 }
 

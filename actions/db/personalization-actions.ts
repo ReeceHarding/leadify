@@ -42,13 +42,12 @@ import {
   serverTimestamp,
   Timestamp
 } from "firebase/firestore"
+import { removeUndefinedValues } from "@/lib/firebase-utils"
+import { toISOString } from "@/lib/utils/timestamp-utils"
 
 // Helper function to serialize Firestore Timestamps to ISO strings
 function serializeTimestamp(timestamp: Timestamp | any): string {
-  if (timestamp instanceof Timestamp) {
-    return timestamp.toDate().toISOString()
-  }
-  return new Date().toISOString()
+  return toISOString(timestamp) || new Date().toISOString()
 }
 
 // Serialization functions to convert Firestore Timestamps to ISO strings

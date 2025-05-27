@@ -145,6 +145,7 @@ import { usePostHog } from "posthog-js/react"
 import { useSearchParams } from "next/navigation"
 import { GeneratedCommentDocument } from "@/db/firestore/lead-generation-collections"
 import { toISOString } from "@/lib/utils/timestamp-utils"
+import { validateOrganizationId, resolveOrganizationId } from "@/lib/utils/organization-utils"
 
 // Import newly created types and utils
 import { LeadResult } from "./dashboard/types"
@@ -526,7 +527,7 @@ export default function LeadFinderDashboard() {
             return {
               id: docSnap.id,
               campaignId: comment.campaignId || "",
-              organizationId: activeOrganization?.id || "",
+              organizationId: validateOrganizationId(activeOrganization?.id, "Lead creation"),
               postUrl: comment.postUrl || "",
               postTitle: comment.postTitle || "Untitled Post",
               postAuthor: comment.postAuthor || "Unknown Author",

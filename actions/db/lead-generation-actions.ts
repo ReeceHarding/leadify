@@ -36,39 +36,11 @@ import {
   writeBatch,
   Timestamp
 } from "firebase/firestore"
+import { toISOString } from "@/lib/utils/timestamp-utils"
 
 // Serialization helper functions
 function serializeTimestampToISOBoilerplate(timestamp: any): string {
-  if (timestamp instanceof Timestamp) {
-    return timestamp.toDate().toISOString()
-  }
-  if (typeof timestamp === "string") {
-    // Attempt to parse to validate and re-serialize to ensure consistent format
-    try {
-      return new Date(timestamp).toISOString()
-    } catch (e) {
-      // If parsing fails, it's not a valid date string
-      console.warn(
-        "[TIMESTAMP_SERIALIZE] Invalid date string provided, using epoch as fallback:",
-        timestamp
-      )
-      return new Date(0).toISOString()
-    }
-  }
-  if (
-    timestamp &&
-    typeof timestamp.seconds === "number" &&
-    typeof timestamp.nanoseconds === "number"
-  ) {
-    return new Date(
-      timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000
-    ).toISOString()
-  }
-  console.warn(
-    "[TIMESTAMP_SERIALIZE] Unexpected timestamp format, using epoch as fallback:",
-    timestamp
-  )
-  return new Date(0).toISOString() // Fallback for unexpected types
+  return toISOString(timestamp) || new Date(0).toISOString()
 }
 
 function serializeSearchResultDocument(

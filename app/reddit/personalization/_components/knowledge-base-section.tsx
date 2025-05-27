@@ -21,6 +21,7 @@ import {
 import { useOrganization } from "@/components/utilities/organization-provider"
 import { useToast } from "@/lib/hooks/use-toast"
 import WebsiteScrapeDialog from "./website-scrape-dialog"
+import { validateOrganizationId } from "@/lib/utils/organization-utils"
 
 interface KnowledgeBaseSectionProps {
   userId: string
@@ -75,7 +76,7 @@ export default function KnowledgeBaseSection({
         )
         const result = await createKnowledgeBaseAction({
           userId,
-          organizationId: activeOrganization?.id || "",
+          organizationId: validateOrganizationId(activeOrganization?.id, "Knowledge base creation"),
           customInformation,
           websiteUrl: activeOrganization?.website
         })
@@ -208,7 +209,7 @@ export default function KnowledgeBaseSection({
         onOpenChange={setShowScrapeDialog}
         websiteUrl={activeOrganization?.website || ""}
         userId={userId}
-        organizationId={activeOrganization?.id || ""}
+        organizationId={validateOrganizationId(activeOrganization?.id, "Website scraping")}
         knowledgeBase={knowledgeBase}
         setKnowledgeBase={setKnowledgeBase}
       />

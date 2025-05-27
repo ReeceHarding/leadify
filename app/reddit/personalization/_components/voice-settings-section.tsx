@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   Card,
   CardContent,
@@ -31,6 +31,7 @@ import { SerializedVoiceSettingsDocument } from "@/types"
 import { PersonaType, WritingStyle } from "@/db/schema"
 import { useToast } from "@/lib/hooks/use-toast"
 import { useOrganization } from "@/components/utilities/organization-provider"
+import { validateOrganizationId } from "@/lib/utils/organization-utils"
 
 interface VoiceSettingsSectionProps {
   userId: string
@@ -139,7 +140,7 @@ export default function VoiceSettingsSection({
       )
       await createTwitterAnalysisAction({
         userId,
-        organizationId: activeOrganization?.id || "",
+        organizationId: validateOrganizationId(activeOrganization?.id, "Twitter analysis"),
         twitterHandle,
         tweets,
         writingStyleAnalysis: analysisResult.data.writingStyleAnalysis,
@@ -234,7 +235,7 @@ Common phrases: ${analysisResult.data.commonPhrases.slice(0, 3).join(", ")}`
         )
         const result = await createVoiceSettingsAction({
           userId,
-          organizationId: activeOrganization?.id || "",
+          organizationId: validateOrganizationId(activeOrganization?.id, "Voice settings creation"),
           writingStyle,
           customWritingStyle:
             writingStyle === "custom" ? customWritingStyle : undefined,

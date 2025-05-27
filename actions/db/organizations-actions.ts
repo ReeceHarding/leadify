@@ -34,6 +34,7 @@ import {
   writeBatch
 } from "firebase/firestore"
 import { auth } from "@clerk/nextjs/server"
+import { toISOString } from "@/lib/utils/timestamp-utils"
 
 // Serialization helper functions
 function serializeOrganizationDocument(
@@ -43,18 +44,9 @@ function serializeOrganizationDocument(
 
   return {
     ...org,
-    createdAt:
-      org.createdAt instanceof Timestamp
-        ? org.createdAt.toDate().toISOString()
-        : new Date().toISOString(),
-    updatedAt:
-      org.updatedAt instanceof Timestamp
-        ? org.updatedAt.toDate().toISOString()
-        : new Date().toISOString(),
-    redditTokenExpiresAt:
-      org.redditTokenExpiresAt instanceof Timestamp
-        ? org.redditTokenExpiresAt.toDate().toISOString()
-        : (org.redditTokenExpiresAt as any)
+    createdAt: toISOString(org.createdAt) || new Date().toISOString(),
+    updatedAt: toISOString(org.updatedAt) || new Date().toISOString(),
+    redditTokenExpiresAt: toISOString(org.redditTokenExpiresAt) || (org.redditTokenExpiresAt as any)
   }
 }
 
@@ -63,14 +55,8 @@ function serializeOrganizationMemberDocument(
 ): SerializedOrganizationMemberDocument {
   return {
     ...member,
-    joinedAt:
-      member.joinedAt instanceof Timestamp
-        ? member.joinedAt.toDate().toISOString()
-        : new Date().toISOString(),
-    updatedAt:
-      member.updatedAt instanceof Timestamp
-        ? member.updatedAt.toDate().toISOString()
-        : new Date().toISOString()
+    joinedAt: toISOString(member.joinedAt) || new Date().toISOString(),
+    updatedAt: toISOString(member.updatedAt) || new Date().toISOString()
   }
 }
 

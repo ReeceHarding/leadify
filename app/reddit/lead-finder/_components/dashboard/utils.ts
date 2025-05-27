@@ -1,38 +1,10 @@
 import { Timestamp } from "firebase/firestore"
+import { toISOString } from "@/lib/utils/timestamp-utils"
 
 // Helper function to robustly serialize Firestore Timestamps or plain timestamp objects to ISO string format
-export const serializeTimestampToISO = (timestamp: any): string | undefined => {
-  if (timestamp instanceof Timestamp) {
-    return timestamp.toDate().toISOString()
-  }
-  if (typeof timestamp === "string") {
-    try {
-      new Date(timestamp).toISOString() // Validate if it's a valid ISO string
-      return timestamp
-    } catch (e) {
-      console.warn(
-        "[SERIALIZE_TIMESTAMP] Invalid date string provided:",
-        timestamp
-      )
-      return undefined
-    }
-  }
-  if (
-    timestamp &&
-    typeof timestamp.seconds === "number" &&
-    typeof timestamp.nanoseconds === "number"
-  ) {
-    return new Date(
-      timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000
-    ).toISOString()
-  }
-  if (timestamp) {
-    console.warn(
-      "[SERIALIZE_TIMESTAMP] Unexpected timestamp format:",
-      timestamp
-    )
-  }
-  return undefined
+export function serializeTimestampToISO(timestamp: any): string | undefined {
+  const iso = toISOString(timestamp)
+  return iso || undefined
 }
 
 // Helper to get time ago string

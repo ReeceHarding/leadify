@@ -43,16 +43,12 @@ import {
   orderBy,
   limit
 } from "firebase/firestore"
+import { removeUndefinedValues } from "@/lib/firebase-utils"
+import { toISOString } from "@/lib/utils/timestamp-utils"
 
 // Serialization helpers to convert Firestore Timestamps to ISO strings
 function serializeTimestamp(timestamp: any): string {
-  if (timestamp instanceof Timestamp) {
-    return timestamp.toDate().toISOString()
-  }
-  if (timestamp && typeof timestamp === "object" && "seconds" in timestamp) {
-    return new Date(timestamp.seconds * 1000).toISOString()
-  }
-  return timestamp
+  return toISOString(timestamp) || new Date().toISOString()
 }
 
 function serializeWarmupAccount(account: any): SerializedWarmupAccountDocument {

@@ -42,6 +42,9 @@ import {
 import { LEAD_GENERATION_STAGES } from "@/types"
 import { getKnowledgeBaseByOrganizationIdAction } from "@/actions/db/personalization-actions"
 import { getVoiceSettingsByOrganizationIdAction } from "@/actions/db/personalization-actions"
+import { loggers } from "@/lib/logger"
+
+const logger = loggers.leadGen
 
 export async function runFullLeadGenerationWorkflowAction(
   campaignId: string
@@ -64,7 +67,7 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
 
   try {
     // Create progress tracking
-    console.log(`🚀 Creating progress tracking for campaign: ${campaignId}`)
+    logger.info(`🚀 Creating progress tracking for campaign: ${campaignId}`)
     await createLeadGenerationProgressAction(campaignId)
     await updateLeadGenerationProgressAction(campaignId, {
       status: "in_progress",
@@ -79,10 +82,10 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
 
     // Step 1: Get campaign details
     progress.currentStep = "Loading campaign"
-    console.log(
+    logger.info(
       `🚀 Starting lead generation workflow for campaign: ${campaignId}`
     )
-    console.log(`🚀 Keyword limits:`, keywordLimits)
+    logger.info(`🚀 Keyword limits:`, keywordLimits)
 
     const campaignResult = await getCampaignByIdAction(campaignId)
     if (!campaignResult.isSuccess) {
@@ -100,7 +103,7 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
     // Get organization for personalization
     const organizationId = campaign.organizationId
     if (!organizationId) {
-      console.error("❌ [WORKFLOW] Campaign has no organizationId")
+      logger.error("❌ [WORKFLOW] Campaign has no organizationId")
       await updateLeadGenerationProgressAction(campaignId, {
         status: "error",
         error: "Campaign is not associated with an organization"
@@ -111,7 +114,7 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
       }
     }
     
-    console.log(`🏢 [WORKFLOW] Using organization: ${organizationId}`)
+    logger.info(`🏢 [WORKFLOW] Using organization: ${organizationId}`)
 
     // Determine which keywords to process
     const keywordsToProcess =
@@ -155,9 +158,9 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
     })
 
     progress.currentStep = "Preparing business content"
-    console.log(`🔥 Step 2: Preparing business content`)
-    console.log(`🔥 Campaign has website: ${!!campaign.website}`)
-    console.log(
+    logger.info(`🔥 Step 2: Preparing business content`)
+    logger.info(`🔥 Campaign has website: ${!!campaign.website}`)
+    logger.info(
       `🔥 Campaign has businessDescription: ${!!campaign.businessDescription}`
     )
 
@@ -166,7 +169,7 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
 
     // Check if campaign has a website
     if (campaign.website) {
-      console.log(`🔥 Campaign has website: ${campaign.website}`)
+      logger.info(`🔥 Campaign has website: ${campaign.website}`)
 
       // Update progress for scraping
       await updateLeadGenerationProgressAction(campaignId, {
@@ -195,19 +198,19 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
           (now.getTime() - lastUpdate.getTime()) / (1000 * 60 * 60)
 
         if (hoursSinceUpdate < 24) {
-          console.log(
+          logger.info(
             `🔥 Using cached website content (${Math.round(hoursSinceUpdate)}h old)`
           )
           skipScraping = true
         } else {
-          console.log(
+          logger.info(
             `🔥 Website content is ${Math.round(hoursSinceUpdate)}h old, re-scraping...`
           )
         }
       }
 
       if (!skipScraping) {
-        console.log(`🔥 Scraping website: ${campaign.website}`)
+        logger.info(`🔥 Scraping website: ${campaign.website}`)
         const scrapeResult = await scrapeWebsiteAction(campaign.website)
         if (!scrapeResult.isSuccess) {
           progress.results.push({
@@ -280,7 +283,7 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
       }
     } else if (campaign.businessDescription) {
       // Use business description as content if no website
-      console.log(`🔥 No website provided, using business description`)
+      logger.info(`🔥 No website provided, using business description`)
       websiteContent = campaign.businessDescription
 
       // Save business description as websiteContent for consistency
@@ -341,14 +344,14 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
     })
 
     progress.currentStep = "Searching Reddit threads"
-    console.log(
+    logger.info(
       `🔍 Step 3: Searching for Reddit threads with ${keywordsToProcess.length} keywords`
     )
 
     // Search with limits per keyword
     const searchPromises = keywordsToProcess.map(async keyword => {
       const limit = keywordLimits[keyword] || 10 // Default to 10 if no limit specified
-      console.log(`🔍 Searching for keyword "${keyword}" with limit: ${limit}`)
+      logger.info(`🔍 Searching for keyword "${keyword}" with limit: ${limit}`)
 
       const { searchRedditThreadsAction } = await import(
         "@/actions/integrations/google/google-search-actions"
@@ -432,7 +435,7 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
     })
 
     progress.currentStep = "Fetching and processing Reddit threads"
-    console.log(
+    logger.info(
       `📖 Step 4&5: Fetching and processing ${allSearchResults.length} Reddit threads individually`
     )
 
@@ -452,10 +455,10 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
     // Process threads one by one
     for (const threadToFetch of threadsToFetch) {
       try {
-        console.log(
+        logger.info(
           `\n🔍 [WORKFLOW] Processing thread ${threadsProcessed + 1}/${threadsToFetch.length}`
         )
-        console.log(
+        logger.info(
           `🔍 [WORKFLOW] Thread ID: ${threadToFetch.threadId}, Subreddit: ${threadToFetch.subreddit || "unknown"}, Keyword: ${threadToFetch.keyword}`
         )
 
@@ -483,14 +486,14 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
         )
 
         if (!fetchResult.isSuccess) {
-          console.error(
+          logger.error(
             `❌ [WORKFLOW] Failed to fetch thread ${threadToFetch.threadId}: ${fetchResult.message}`
           )
           continue
         }
 
         const apiThread = fetchResult.data
-        console.log(
+        logger.info(
           `✅ [WORKFLOW] Fetched thread: "${apiThread.title}" by u/${apiThread.author}, Score: ${apiThread.score}`
         )
 
@@ -514,7 +517,7 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
         }
 
         // Fetch comments from the thread to analyze tone
-        console.log(
+        logger.info(
           `💬 [WORKFLOW] Fetching comments from thread for tone analysis...`
         )
         const { fetchRedditCommentsAction } = await import(
@@ -539,11 +542,11 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
             )
             .map(comment => comment.body)
             .slice(0, 10) // Take up to 10 comments
-          console.log(
+          logger.info(
             `✅ [WORKFLOW] Fetched ${existingComments.length} comments for tone analysis`
           )
         } else {
-          console.log(`⚠️ [WORKFLOW] No comments fetched for tone analysis`)
+          logger.info(`⚠️ [WORKFLOW] No comments fetched for tone analysis`)
         }
 
         // Save thread to Firestore
@@ -565,11 +568,11 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
           updatedAt: serverTimestamp()
         }
 
-        console.log(
+        logger.info(
           `💾 [WORKFLOW] Saving thread to Firestore with ID: ${threadRef.id}`
         )
         await setDoc(threadRef, removeUndefinedValues(threadDocData))
-        console.log(`✅ [WORKFLOW] Thread saved to Firestore`)
+        logger.info(`✅ [WORKFLOW] Thread saved to Firestore`)
 
         // Update progress for analyzing
         const analyzingProgress =
@@ -585,7 +588,7 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
         })
 
         // Immediately score and generate comment with tone analysis
-        console.log(
+        logger.info(
           `🤖 [WORKFLOW] Starting AI scoring for thread: "${apiThread.title}"`
         )
 
@@ -623,10 +626,10 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
 
         if (scoringResult.isSuccess) {
           const scoringData = scoringResult.data
-          console.log(
+          logger.info(
             `✅ [WORKFLOW] AI Scoring complete - Score: ${scoringData.score}/100`
           )
-          console.log(`📝 [WORKFLOW] Reasoning: ${scoringData.reasoning}`)
+          logger.info(`📝 [WORKFLOW] Reasoning: ${scoringData.reasoning}`)
 
           // Update progress for generating
           const generatingProgress =
@@ -645,7 +648,7 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
           const postCreatedAtValue = apiThread.created
             ? Timestamp.fromDate(new Date(apiThread.created * 1000))
             : undefined
-          console.log(
+          logger.info(
             `💾 [WORKFLOW] Extracted post creation timestamp: ${apiThread.created}, Firestore Timestamp: ${postCreatedAtValue?.toDate()?.toISOString() || "undefined"}`
           )
 
@@ -669,8 +672,8 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
             postCreatedAt: postCreatedAtValue // Use the derived Timestamp
           }
 
-          console.log(`💾 [WORKFLOW] Saving generated comment to Firestore...`)
-          console.log(
+          logger.info(`💾 [WORKFLOW] Saving generated comment to Firestore...`)
+          logger.info(
             `💾 [WORKFLOW] With keyword: ${threadToFetch.keyword}, score: ${apiThread.score}`
           )
           const saveCommentResult =
@@ -679,10 +682,10 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
           if (saveCommentResult.isSuccess) {
             commentsGeneratedCount++
             totalScoreSum += scoringData.score
-            console.log(
+            logger.info(
               `✅ [WORKFLOW] Comment saved successfully for thread: "${apiThread.title}"`
             )
-            console.log(
+            logger.info(
               `✅ [WORKFLOW] Total comments generated so far: ${commentsGeneratedCount}`
             )
 
@@ -692,12 +695,12 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
               totalCommentsGenerated: commentsGeneratedCount
             })
           } else {
-            console.error(
+            logger.error(
               `❌ [WORKFLOW] Failed to save comment: ${saveCommentResult.message}`
             )
           }
         } else {
-          console.error(
+          logger.error(
             `❌ [WORKFLOW] Failed to score thread: ${scoringResult.message}`
           )
         }
@@ -708,7 +711,7 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
         // Add a small delay to avoid rate limits
         await new Promise(resolve => setTimeout(resolve, 1000))
       } catch (error) {
-        console.error(
+        logger.error(
           `❌ [WORKFLOW] Error processing thread ${threadToFetch.threadId}:`,
           error
         )
@@ -796,7 +799,7 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
       }
     })
 
-    console.log(`✅ Workflow completed for campaign: ${campaignId}`)
+    logger.info(`✅ Workflow completed for campaign: ${campaignId}`)
 
     return {
       isSuccess: true,
@@ -804,7 +807,7 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
       data: progress
     }
   } catch (error) {
-    console.error("Error in lead generation workflow:", error)
+    logger.error("Error in lead generation workflow:", error)
     await updateCampaignAction(campaignId, { status: "error" })
     await updateLeadGenerationProgressAction(campaignId, {
       status: "error",
@@ -829,7 +832,7 @@ export async function testAllIntegrationsAction(): Promise<
   ActionState<{ [key: string]: boolean }>
 > {
   try {
-    console.log("🧪 Testing all API integrations...")
+    logger.info("🧪 Testing all API integrations...")
 
     const results: { [key: string]: boolean } = {}
 
@@ -869,7 +872,7 @@ export async function testAllIntegrationsAction(): Promise<
       } else {
         // Skip Reddit test if no test org ID is configured
         results.reddit = true
-        console.log("⚠️ Skipping Reddit test - no TEST_ORGANIZATION_ID configured")
+        logger.info("⚠️ Skipping Reddit test - no TEST_ORGANIZATION_ID configured")
       }
     } catch {
       results.reddit = false
@@ -901,7 +904,7 @@ export async function testAllIntegrationsAction(): Promise<
       }
     }
   } catch (error) {
-    console.error("Error testing integrations:", error)
+    logger.error("Error testing integrations:", error)
     return {
       isSuccess: false,
       message: `Integration test failed: ${error instanceof Error ? error.message : "Unknown error"}`
