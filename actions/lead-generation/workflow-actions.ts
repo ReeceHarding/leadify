@@ -706,7 +706,8 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
             campaign.keywords, // Pass campaign keywords
             websiteContent, // Pass campaign website content (scraped or description)
             existingComments, // Pass existing comments for tone matching
-            campaign.name // Pass campaign name
+            campaign.name, // Pass campaign name
+            apiThread.created // Pass post creation timestamp
           )
 
         if (scoringResult.isSuccess) {
@@ -1187,6 +1188,20 @@ export async function regenerateAllCommentsForCampaignAction(
             console.warn("🔄 [REGENERATE-ALL] Failed to fetch Reddit comments:", error)
           }
 
+          // Extract post creation timestamp
+          let postCreatedUtc: number | undefined
+          if (comment.postCreatedAt) {
+            // Convert Firestore Timestamp to Unix timestamp in seconds
+            const timestamp = comment.postCreatedAt as any
+            if (timestamp && timestamp.seconds) {
+              postCreatedUtc = timestamp.seconds
+            } else if (timestamp && timestamp.toDate) {
+              postCreatedUtc = Math.floor(timestamp.toDate().getTime() / 1000)
+            }
+          }
+          
+          console.log("🔄 [REGENERATE-ALL] Post created UTC:", postCreatedUtc)
+
           // Use the new personalized scoring and comment generation
           const { scoreThreadAndGeneratePersonalizedCommentsAction } = await import(
             "@/actions/integrations/openai/openai-actions"
@@ -1200,7 +1215,8 @@ export async function regenerateAllCommentsForCampaignAction(
             campaign.keywords,
             websiteContent,
             existingRedditComments,
-            brandNameToUse
+            brandNameToUse,
+            postCreatedUtc
           )
 
           if (result.isSuccess) {

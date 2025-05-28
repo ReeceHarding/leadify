@@ -925,7 +925,8 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
   campaignKeywords: string[],
   campaignWebsiteContent?: string,
   existingComments?: string[],
-  campaignName?: string
+  campaignName?: string,
+  postCreatedUtc?: number // Add post creation timestamp
 ): Promise<
   ActionState<{
     score: number
@@ -949,6 +950,29 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
       existingComments?.length || 0
     )
     console.log("🤖 [OPENAI-PERSONALIZED] Campaign name:", campaignName)
+    console.log("🤖 [OPENAI-PERSONALIZED] Post created UTC:", postCreatedUtc)
+
+    // Calculate post age
+    let postAgeContext = ""
+    if (postCreatedUtc) {
+      const now = Date.now() / 1000 // Current time in seconds
+      const ageInSeconds = now - postCreatedUtc
+      const ageInMinutes = Math.floor(ageInSeconds / 60)
+      const ageInHours = Math.floor(ageInMinutes / 60)
+      const ageInDays = Math.floor(ageInHours / 24)
+      
+      if (ageInDays > 0) {
+        postAgeContext = `Posted ${ageInDays} day${ageInDays > 1 ? 's' : ''} ago`
+      } else if (ageInHours > 0) {
+        postAgeContext = `Posted ${ageInHours} hour${ageInHours > 1 ? 's' : ''} ago`
+      } else if (ageInMinutes > 0) {
+        postAgeContext = `Posted ${ageInMinutes} minute${ageInMinutes > 1 ? 's' : ''} ago`
+      } else {
+        postAgeContext = `Posted just now`
+      }
+      
+      console.log("🤖 [OPENAI-PERSONALIZED] Post age context:", postAgeContext)
+    }
 
     // Get organization data for personalization
     const { getOrganizationByIdAction } = await import(
@@ -1250,55 +1274,66 @@ Your goal is to share authentic experiences that help others while naturally men
     const userPrompt = `Thread: "${threadTitle}"
 Content: "${threadContent}"
 Subreddit: r/${subreddit}
+${postAgeContext ? `Timing: ${postAgeContext}` : ''}
 
 This person was found when searching for "${campaignKeywords.join(", ")}". Evaluate if you can genuinely help based on your experience.
 
-${existingComments && existingComments.length > 0 ? `\nEXISTING COMMENTS (engage naturally if relevant):
-${existingComments.slice(0, 5).map((comment, i) => `"${comment}"`).join("\n\n")}` : ""}
+${existingComments && existingComments.length > 0 ? `\nEXISTING COMMENTS IN THIS THREAD:
+${existingComments.slice(0, 10).map((comment, i) => `Comment ${i + 1}: "${comment}"`).join("\n\n")}` : ""}
 
-TASK:
-1. Score relevance to your experience (1-100)
-2. If 70+, write three authentic comments sharing your personal experience
+CONTEXT TO CONSIDER:
+- What specific problem are they trying to solve?
+- What constraints have they mentioned (budget, timeline, expertise)?
+- What solutions have others already suggested?
+- How can you add unique value to this conversation?
+${postAgeContext ? `- Consider the post timing: ${postAgeContext} (adjust urgency/tone accordingly)` : ''}
 
-COMMENT TYPES:
+YOUR TASK:
+1. Score relevance (1-100) based on whether you can genuinely help
+2. If 70+, write three authentic comments that respond to THEIR specific situation
+
+COMMENT FRAMEWORK (adapt to their specific needs):
 
 MICRO (5-15 words): 
-- Quick, genuine reaction
-- Like "i would love to chat about this if you want to message me"
+- Express genuine interest in helping
+- Should feel like a natural reaction to their specific post
 
 MEDIUM (30-80 words):
-- Start with genuine empathy ("I would love to chat about this if you want to message me. This is what I do!")
-- Share what you love about this type of work
-- Mention 2-3 different approaches briefly
-- End with simple brand mention like "look at ${brandNameToUse || 'our solution'} and ask to set up an intro call"
+- Start with enthusiasm about their specific project/problem
+- Reference what others have said if relevant ("I see others mentioned X...")
+- Briefly outline 2-3 approaches that fit THEIR situation
+- Include a natural mention of ${brandNameToUse || 'your solution'} as one option
+- End with offer to discuss further
 
 VERBOSE (300-800 words):
-Write like the example - natural, helpful, conversational:
-- Start with "I would love to chat about this if you want to message me. This is what I do! I love this exploratory phase!"
-- Ask thoughtful questions about their situation (involvement level, budget, risk tolerance, expertise)
-- Present 3 clear options (A, B, C format):
-  A: DIY/offshore option with pros/cons
-  B: Hire an engineer option with pros/cons  
-  C: Hire a company option with pros/cons
-- For option C, naturally mention searching for terms like "digital innovation" or "custom software" 
-- Casually mention "look at ${brandNameToUse || 'our solution'} and ask to set up an intro call"
-- Explain why each option works for different situations
-- End with genuine offer to chat and enthusiasm about their project
+Follow this thinking process:
+1. Open with genuine enthusiasm about their specific challenge
+2. Ask clarifying questions relevant to THEIR situation (not generic)
+3. Present options that make sense for THEIR specific context:
+   - Structure as A, B, C (or similar) based on their needs
+   - Reference solutions others have mentioned
+   - Include pros/cons specific to their situation
+   - Naturally mention ${brandNameToUse || 'your solution'} where it fits
+4. Close with genuine offer to help
 
-AUTHENTICITY RULES:
-- Write like you genuinely love this type of work and helping people
-- Use natural language, not marketing speak
-- Be enthusiastic but not pushy
-- Share real insights about each approach
-- Make the brand mention feel natural and casual
-- Focus on being genuinely helpful first
-- Use exclamation points sparingly but naturally
-- Write in a warm, consultative tone
+CRITICAL THINKING GUIDELINES:
+- Respond to THEIR specific situation, not a generic template
+- Reference other comments naturally ("I see John mentioned Upwork...")
+- Adapt your options to their constraints (budget, timeline, expertise)
+- Only mention solutions that genuinely fit their needs
+- Use natural transitions and conversational flow
+- Show you've read and understood their unique challenge
+
+AUTHENTICITY CHECKLIST:
+✓ Does this respond to their SPECIFIC situation?
+✓ Have you acknowledged what others have already said?
+✓ Are your suggestions tailored to their constraints?
+✓ Does it feel like a genuine conversation, not a template?
 
 Return JSON:
 {
   "score": <1-100>,
-  "reasoning": "<why this relates to your experience>",
+  "reasoning": "<why you can help with their specific situation>",
   "microComment": "<comment>" or null,
   "mediumComment": "<comment>" or null,
   "verboseComment": "<comment>" or null
