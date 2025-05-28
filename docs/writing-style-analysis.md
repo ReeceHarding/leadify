@@ -51,7 +51,7 @@
 - **Personal**: Shares opinions and preferences ("I love these people")
 
 ### 8. Specific Examples & Recommendations
-- **Concrete Actions**: "Search for 'digital innovation' or 'custom software' or look at 'beaugmented.ai'"
+- **Concrete Actions**: "Search for 'digital innovation' or 'custom software' or look at companies like CCO Vibe, Manifest, or Accenture"
 - **Specific Numbers**: "at least 4 people"
 - **Real Expectations**: "relatively high salary", "time-boxed project"
 

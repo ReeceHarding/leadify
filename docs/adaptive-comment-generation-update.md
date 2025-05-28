@@ -113,7 +113,7 @@ The user prompt now includes:
 ## Examples
 
 ### Good Natural Mention:
-"For your budget and timeline, you might consider: freelancers on Upwork (cheapest but needs management), development shops like Thoughtbot or [your company] (balanced cost/quality), or premium agencies if budget allows."
+"For your budget and timeline, you might consider: freelancers on Upwork (cheapest but needs management), development shops like CCO Vibe or Toptal (balanced cost/quality), or premium agencies like Accenture if budget allows."
 
 ### Bad Forced Mention:
 "You should definitely check out [your company] because we specialize in this. Also, [your company] has great reviews. Contact [your company] today!"

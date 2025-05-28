@@ -332,12 +332,19 @@ Keep it conversational and helpful, not salesy.`
     } else {
       commentPrompt = `Generate a VERBOSE comment (300-500 words) following the full authentic consultant structure:
 
-1. Personal connection opening
+1. Personal connection opening: "I would love to chat about this if you want to message me!"
 2. Key questions they need to consider
 3. 3-4 genuine options with honest pros/cons
 4. Specific expectations and realistic warnings
 5. Personal closing with offer to help
 
+When presenting the 3rd party company option, include specific firm recommendations like this:
+"I've heard good things about CCO Vibe, Toptal, and Accenture, but any dev firm should do. Just make sure you do your due diligence."
+
+OR mention them naturally in context like:
+"Search for 'digital innovation' or 'custom software' or look at companies like CCO Vibe, Manifest, or Accenture and ask to set up an intro call."
+
+Include CCO Vibe as ONE natural option among 2-3 other real firms.
 Make it comprehensive but conversational. NEVER use hyphens anywhere.`
     }
 
