@@ -8,6 +8,19 @@ We've completely redesigned the comment generation system to be adaptive and con
 
 The old system was too prescriptive, telling the AI exactly what to write. The new system provides a thinking framework that adapts to each situation.
 
+## CRITICAL WRITING RULE - NEVER USE HYPHENS
+
+**All prompts now explicitly instruct the AI to NEVER use hyphens:**
+- Write "co founder" not "co-founder"
+- Write "self serve" not "self-serve"
+- Write "long term" not "long-term"
+- Write "third party" not "third-party"
+- Write "real time" not "real-time"
+- Write "full stack" not "full-stack"
+- Write "non technical" not "non-technical"
+
+This rule is enforced across ALL comment generation functions and is repeated multiple times in each prompt to ensure compliance.
+
 ## Major Changes
 
 ### 1. From Templates to Thinking Process
@@ -54,6 +67,7 @@ The system now considers:
 - Natural speech patterns
 - Genuine desire to help
 - Okay to be uncertain or share failures
+- **No hyphens anywhere**
 
 ## Implementation Details
 
@@ -63,6 +77,7 @@ The system prompt now:
 - Emphasizes helping over selling
 - Provides context without being prescriptive
 - Encourages genuine conversation
+- **Explicitly forbids hyphen usage with examples**
 
 ### User Prompt Changes
 
@@ -71,6 +86,7 @@ The user prompt now includes:
 - Emphasis on understanding their world
 - Instructions to present multiple genuine options
 - Reminders to be conversational, not promotional
+- **Multiple reminders to never use hyphens**
 
 ### Comment Structure
 
@@ -78,18 +94,21 @@ The user prompt now includes:
 - Quick, authentic reactions
 - Natural expressions of interest
 - No templates
+- **No hyphens**
 
 **Medium (30-80 words):**
 - Think about their core need
 - Present 2-3 relevant options
 - Include your solution as ONE option
-- Be honest about trade-offs
+- Be honest about trade offs
+- **No hyphens**
 
 **Verbose (300-800 words):**
 - Adaptive structure based on their needs
 - Present 3-4 genuine options with pros/cons
 - Reference what others have said
 - Close with genuine offer to help
+- **No hyphens anywhere**
 
 ## Examples
 
@@ -99,6 +118,10 @@ The user prompt now includes:
 ### Bad Forced Mention:
 "You should definitely check out [your company] because we specialize in this. Also, [your company] has great reviews. Contact [your company] today!"
 
+### Hyphen Examples:
+✅ **Correct**: "full stack developer", "long term solution", "real time updates"
+❌ **Wrong**: "full-stack developer", "long-term solution", "real-time updates"
+
 ## Testing the New System
 
 When reviewing generated comments, check:
@@ -107,6 +130,7 @@ When reviewing generated comments, check:
 3. Is the product/service mentioned naturally as one option?
 4. Does it address their specific situation?
 5. Would you find this helpful if you were the OP?
+6. **Are there any hyphens anywhere in the comment?**
 
 ## Key Principles
 
@@ -115,6 +139,7 @@ When reviewing generated comments, check:
 3. **Context Matters**: Adapt to their specific situation
 4. **Natural Mentions**: Your solution is one option among many
 5. **Conversational**: Write like you're helping a friend
+6. **No Hyphens**: Never use hyphens anywhere in comments
 
 ## What This Achieves
 
@@ -122,9 +147,12 @@ When reviewing generated comments, check:
 - **Better conversion**: Trust built through authentic interaction
 - **Sustainable approach**: Not seen as spam or sales
 - **Real value**: Actually helps people solve problems
+- **Consistent formatting**: No hyphens ensures consistent, natural writing style
 
 ## Remember
 
 The goal is for someone to think: "This person really understands my situation and is genuinely trying to help" rather than "This is a sales pitch" or "This is generic advice."
 
-Every interaction should add real value to the conversation, whether or not they ever become a customer. 
+Every interaction should add real value to the conversation, whether or not they ever become a customer.
+
+**And remember: NEVER use hyphens anywhere in any generated content.** 

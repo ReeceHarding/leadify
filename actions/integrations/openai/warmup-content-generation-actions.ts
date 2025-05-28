@@ -283,6 +283,16 @@ export async function generateWarmupCommentsAction(
       .map((comment, i) => `${i + 1}. "${comment.data.body}"`)
       .join("\n")}
     
+    CRITICAL WRITING RULE - NEVER USE HYPHENS:
+    - Write "co founder" not "co-founder"
+    - Write "self serve" not "self-serve"
+    - Write "long term" not "long-term"
+    - Write "third party" not "third-party"
+    - Write "real time" not "real-time"
+    - Write "full stack" not "full-stack"
+    - Write "non technical" not "non-technical"
+    - NEVER use hyphens (-) anywhere in your replies
+    
     Generate replies that are:
     - Very short (max 10 words, preferably 3-7 words)
     - Helpful, friendly, or add to the discussion
@@ -307,7 +317,7 @@ export async function generateWarmupCommentsAction(
         {
           role: "system",
           content:
-            "You are a helpful Reddit user who writes very short, friendly replies in plain text to build karma. You NEVER use hyphens or dashes in your replies. Write compound words as one word or separate words, never hyphenated."
+            "You are a helpful Reddit user who writes very short, friendly replies in plain text to build karma. You NEVER use hyphens or dashes in your replies. Write compound words as one word or separate words, never hyphenated. Examples: write 'full stack' not 'full-stack', 'real time' not 'real-time', 'co founder' not 'co-founder'."
         },
         {
           role: "user",

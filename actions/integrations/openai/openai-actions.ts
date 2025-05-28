@@ -154,6 +154,15 @@ ${websiteContent}
 ${existingComments && existingComments.length > 0 ? `\nWHAT OTHERS HAVE SAID:
 ${existingComments.slice(0, 5).map((comment, i) => `${i + 1}. "${comment}"`).join("\n\n")}` : ""}
 
+CRITICAL WRITING RULE - NEVER USE HYPHENS:
+- Write "co founder" not "co-founder"
+- Write "self serve" not "self-serve"
+- Write "long term" not "long-term"
+- Write "third party" not "third-party"
+- Write "real time" not "real-time"
+- Write "full stack" not "full-stack"
+- NEVER use hyphens (-) anywhere in your comments
+
 YOUR THINKING PROCESS:
 
 1. UNDERSTAND THEIR WORLD
@@ -189,6 +198,7 @@ If score is 70+, generate three authentic comments:
    - Quick, genuine reaction
    - Express authentic interest in helping
    - Natural and conversational
+   - NEVER use hyphens
 
 2. MEDIUM (30-80 words):
    - Connect to their specific situation
@@ -196,6 +206,7 @@ If score is 70+, generate three authentic comments:
    - Mention 2-3 relevant approaches
    - Be honest about trade-offs
    - Natural offer to help further
+   - NEVER use hyphens
 
 3. VERBOSE (300-500 words):
    Think through:
@@ -210,6 +221,7 @@ If score is 70+, generate three authentic comments:
    - Reference what others have suggested
    - Explain WHY each option fits (or doesn't fit) their situation
    - Close with genuine offer to help
+   - NEVER use hyphens anywhere
    
 CRITICAL REMINDERS:
 - Write like you're helping a friend
@@ -220,6 +232,7 @@ CRITICAL REMINDERS:
 - Be honest about limitations
 - Focus on helping them think through their decision
 - Avoid all marketing language
+- NEVER USE HYPHENS - write compound words as separate words or as one word
 
 Return a JSON object with this structure:
 {
@@ -659,6 +672,16 @@ ${toneAnalysis ? `\nCommunity style: ${toneAnalysis}\n` : ""}
 
 USER'S TONE REQUEST: ${toneInstruction}
 
+CRITICAL WRITING RULE - NEVER USE HYPHENS:
+- Write "co founder" not "co-founder"
+- Write "self serve" not "self-serve"
+- Write "long term" not "long-term"
+- Write "third party" not "third-party"
+- Write "real time" not "real-time"
+- Write "full stack" not "full-stack"
+- Write "non technical" not "non-technical"
+- NEVER use hyphens (-) anywhere in your comments
+
 CORE PRINCIPLES:
 - Share YOUR experiences, not generic advice
 - Use "I" statements and personal anecdotes
@@ -667,7 +690,8 @@ CORE PRINCIPLES:
 - Write conversationally, like helping a friend
 - All lowercase, natural flow
 - 1 typo in longer comments
-- No lists, bullets, or marketing language`
+- No lists, bullets, or marketing language
+- NEVER use hyphens`
 
     let userPrompt = ""
     
@@ -691,6 +715,7 @@ The user has provided a very detailed tone instruction with examples. Based on t
 ${hasMicroExample ? "- Follow the casual, helpful style from their example" : "- Super brief and casual"}
 - Mention trying different solutions
 - All lowercase, casual tone
+- NEVER use hyphens
 
 2. Medium Comment (30-80 words):
 - Start casually ("hey man", "tbh", etc)
@@ -698,6 +723,7 @@ ${hasMicroExample ? "- Follow the casual, helpful style from their example" : "-
 - Include honest pros/cons for each
 - 1 spelling mistake
 - All lowercase
+- NEVER use hyphens
 
 3. Verbose Comment (800-1200 words):
 ${hasVerboseExample ? `Follow the EXACT structure from their example:
@@ -711,7 +737,7 @@ ${hasVerboseExample ? `Follow the EXACT structure from their example:
 - 2-3 line breaks between sections
 - Casual abbreviations (bc, w/, lmk)
 - 1-2 spelling mistakes
-- No hyphens
+- NEVER use hyphens anywhere
 
 Return ONLY a JSON object with microComment, mediumComment, and verboseComment fields.`
     } else {
@@ -726,12 +752,14 @@ Generate three comments sharing your personal experience:
 
 1. MICRO (5-15 words): genuine quick reaction
    Example: "oh man i've been there! happy to share what worked"
+   - NEVER use hyphens
 
 2. MEDIUM (30-80 words): brief personal story
    - Start with empathy/connection
    - Share what you learned
    - Mention 2-3 things you tried
    - Natural offer to help
+   - NEVER use hyphens
 
 3. VERBOSE (300-500 words): detailed personal journey
    
@@ -741,6 +769,7 @@ Generate three comments sharing your personal experience:
    - Specific things that worked/didn't work
    - Why certain solutions fit certain situations
    - Genuine offer to discuss further
+   - NEVER use hyphens anywhere
    
    Remember: You're sharing YOUR story to help them with theirs.
 
@@ -882,6 +911,16 @@ CONTEXT ABOUT YOU:
 - You shared your genuine experience to help others
 - You want to continue being helpful without being pushy
 
+CRITICAL WRITING RULE - NEVER USE HYPHENS:
+- Write "co founder" not "co-founder"
+- Write "self serve" not "self-serve"
+- Write "long term" not "long-term"
+- Write "third party" not "third-party"
+- Write "real time" not "real-time"
+- Write "full stack" not "full-stack"
+- Write "non technical" not "non-technical"
+- NEVER use hyphens (-) anywhere in your reply
+
 YOUR TASK:
 Generate a natural, conversational reply that:
 1. Acknowledges their response appropriately
@@ -903,6 +942,7 @@ CRITICAL RULES:
 - never use marketing speak or superlatives
 - be honest about any downsides if they ask
 - NEVER mention their username - just respond naturally to what they said
+- NEVER use hyphens anywhere in your reply
 
 The reply should feel like a natural continuation of the conversation from someone who genuinely wants to help.`
 
@@ -1288,6 +1328,16 @@ ${voicePrompt}` : ""}
 ${toneAnalysis ? `\nCommunity context - how people communicate here:
 ${toneAnalysis}` : ""}
 
+CRITICAL WRITING RULE - NEVER USE HYPHENS:
+- Write "co founder" not "co-founder"
+- Write "self serve" not "self-serve"
+- Write "long term" not "long-term"
+- Write "third party" not "third-party"
+- Write "real time" not "real-time"
+- Write "full stack" not "full-stack"
+- Write "non technical" not "non-technical"
+- NEVER use hyphens (-) anywhere in your comments
+
 IMPORTANT: You're here to help, not to sell. Think deeply about their specific situation and how your experience can genuinely help them.`
 
     const userPrompt = `Thread: "${threadTitle}"
@@ -1337,6 +1387,7 @@ MICRO (5-15 words):
 - Quick, authentic reaction
 - Express genuine interest in helping
 - Natural and conversational
+- NEVER use hyphens
 
 MEDIUM (30-80 words):
 Think about:
@@ -1349,6 +1400,7 @@ Structure:
 - Mention 2-3 relevant approaches (including ${brandNameToUse || 'various solutions'} as ONE option among others)
 - Be honest about trade-offs
 - Natural offer to help further
+- NEVER use hyphens
 
 VERBOSE (300-800 words):
 Adaptive structure based on their needs:
@@ -1367,6 +1419,7 @@ Present 3-4 genuine options:
 - Reference what others have suggested
 - ${brandNameToUse ? `Include ${brandNameToUse} as ONE natural option where it genuinely fits` : 'Include various solutions you have experience with'}
 - Explain WHY each option fits (or doesn't fit) their situation
+- NEVER use hyphens anywhere
 
 Close with genuine offer to help based on their specific project.
 
@@ -1378,6 +1431,7 @@ CRITICAL REMINDERS:
 - Write like you're helping a friend
 - Don't force solutions where they don't fit
 - Avoid all marketing language
+- NEVER USE HYPHENS - write compound words as separate words or as one word
 
 Return JSON:
 {
@@ -1514,6 +1568,16 @@ ${oldInformation}
 NEW INFORMATION TO ADD:
 ${newInformation}
 
+CRITICAL WRITING RULE - NEVER USE HYPHENS:
+- Write "co founder" not "co-founder"
+- Write "self serve" not "self-serve"
+- Write "long term" not "long-term"
+- Write "third party" not "third-party"
+- Write "real time" not "real-time"
+- Write "full stack" not "full-stack"
+- Write "non technical" not "non-technical"
+- NEVER use hyphens (-) anywhere in your output
+
 YOUR TASK:
 Combine the old and new information into a comprehensive, well-organized description. Follow these guidelines:
 
@@ -1523,10 +1587,11 @@ Combine the old and new information into a comprehensive, well-organized descrip
 4. ORGANIZE LOGICALLY: Structure the combined information in a logical flow
 5. REMOVE REDUNDANCY: Eliminate duplicate information while preserving nuance
 6. MAINTAIN COMPLETENESS: Ensure no important details are lost
+7. NEVER USE HYPHENS: Write compound words as separate words or as one word
 
 The result should be a comprehensive, well-written description that incorporates the best of both sources.
 
-IMPORTANT: Return only the combined information text, no additional commentary or formatting.`
+IMPORTANT: Return only the combined information text, no additional commentary or formatting. Do not use any hyphens in your response.`
 
     const { object } = await generateObject({
       model: openai("o3-mini"),
