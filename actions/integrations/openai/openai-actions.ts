@@ -83,7 +83,9 @@ This person was found when searching for keywords related to our solution. We wa
 ${websiteContent}
 
 ${existingComments && existingComments.length > 0 ? `\nEXISTING COMMENTS IN THIS THREAD (reference these naturally in your response):
-${existingComments.slice(0, 5).map((comment, i) => `Comment ${i + 1}: "${comment}"`).join("\n\n")}` : ""}
+${existingComments.slice(0, 5).map((comment, i) => `Comment ${i + 1}: "${comment}"`).join("\n\n")}
+
+IMPORTANT: The comment numbers above are just for your reference. When mentioning these comments in your response, NEVER say "comment1" or "comment3". Instead, reference them naturally like "some people mentioned [tool]" or "i saw folks talking about [topic]".` : ""}
 
 IMPORTANT: People rarely directly ask for solutions. Read between the lines and look for indirect signals like:
 - Expressing frustration or challenges
@@ -131,14 +133,20 @@ If the score is 40 or above, generate three authentic Reddit comments as someone
    
    BACKGROUND SECTION:
    - Use "so for a little background:" as transition
-   ${existingComments && existingComments.length > 0 ? `- Reference specific comments: "i see a few people mentioned [specific thing], and that resonates bc..."` : ""}
+   ${existingComments && existingComments.length > 0 ? `- Reference specific comments: "i see a few people mentioned [specific thing], and that resonates bc..."
+   - NEVER use "comment1", "comment2", "comment3" etc. Instead say:
+     * "some folks here mentioned wordpress/wix"
+     * "i noticed people talking about bubble"
+     * "saw someone bring up [specific tool]"
+     * "others have said [X]"` : ""}
    - Share 7+ years of specific experience
    - List multiple failed ventures before success
    - Be vulnerable about failures
    
    MAIN LESSON:
    - State core lesson about time vs money tradeoff
-   ${existingComments && existingComments.length > 0 ? `- Acknowledge different perspectives: "i know some folks here are saying [X], and they're not wrong, but..."` : ""}
+   ${existingComments && existingComments.length > 0 ? `- Acknowledge different perspectives: "i know some folks here are saying [X], and they're not wrong, but..."
+   - NEVER reference comments by number` : ""}
    - Frame as two paths to choose from
    
    PATH EXPLANATIONS:
@@ -1229,6 +1237,8 @@ This person was found when searching for "${campaignKeywords.join(", ")}". We wa
 ${existingComments && existingComments.length > 0 ? `\nEXISTING COMMENTS IN THIS THREAD (reference these naturally in your response):
 ${existingComments.slice(0, 5).map((comment, i) => `Comment ${i + 1}: "${comment}"`).join("\n\n")}` : ""}
 
+IMPORTANT: The comment numbers above are just for your reference. When mentioning these comments in your response, NEVER say "comment1" or "comment3". Instead, reference them naturally like "some people mentioned [tool]" or "i saw folks talking about [topic]".
+
 Score this thread from 0-100 based on:
 - How closely they match the ICP description
 - How clearly they express a problem or need related to ${campaignKeywords.join(", ")} (directly or indirectly)
@@ -1272,14 +1282,20 @@ If the score is 40 or above, generate three comments:
    
    BACKGROUND SECTION:
    - Use "so for a little background:" as transition
-   ${existingComments && existingComments.length > 0 ? `- Reference specific comments: "i see a few people mentioned [specific thing], and that resonates bc..."` : ""}
+   ${existingComments && existingComments.length > 0 ? `- Reference specific comments: "i see a few people mentioned [specific thing], and that resonates bc..."
+   - NEVER use "comment1", "comment2", "comment3" etc. Instead say:
+     * "some folks here mentioned wordpress/wix"
+     * "i noticed people talking about bubble"
+     * "saw someone bring up [specific tool]"
+     * "others have said [X]"` : ""}
    - Share 7+ years of specific experience
    - List multiple failed ventures before success
    - Be vulnerable about failures
    
    MAIN LESSON:
    - State core lesson about time vs money tradeoff
-   ${existingComments && existingComments.length > 0 ? `- Acknowledge different perspectives: "i know some folks here are saying [X], and they're not wrong, but..."` : ""}
+   ${existingComments && existingComments.length > 0 ? `- Acknowledge different perspectives: "i know some folks here are saying [X], and they're not wrong, but..."
+   - NEVER reference comments by number` : ""}
    - Frame as two paths to choose from
    
    PATH EXPLANATIONS:
