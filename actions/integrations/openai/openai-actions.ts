@@ -32,7 +32,8 @@ export async function scoreThreadAndGenerateThreeTierCommentsAction(
   threadTitle: string,
   threadContent: string,
   subreddit: string,
-  websiteContent: string
+  websiteContent: string,
+  existingComments?: string[]
 ): Promise<ActionState<ThreeTierCommentResult>> {
   try {
     console.log(
@@ -54,10 +55,20 @@ export async function scoreThreadAndGenerateThreeTierCommentsAction(
       "🔍🔍🔍 [SCORING-PROMPT] Website Content Length:",
       websiteContent.length
     )
+    console.log(
+      "🔍🔍🔍 [SCORING-PROMPT] Existing Comments Count:",
+      existingComments?.length || 0
+    )
     console.log("🔍🔍🔍 [SCORING-PROMPT] ========== WEBSITE CONTENT ==========")
     console.log(websiteContent)
-    console.log("🔍��🔍 [SCORING-PROMPT] ========== THREAD CONTENT ==========")
+    console.log("🔍🔍🔍 [SCORING-PROMPT] ========== THREAD CONTENT ==========")
     console.log(threadContent)
+    if (existingComments && existingComments.length > 0) {
+      console.log("🔍🔍🔍 [SCORING-PROMPT] ========== EXISTING COMMENTS ==========")
+      existingComments.slice(0, 3).forEach((comment, i) => {
+        console.log(`Comment ${i + 1}:`, comment)
+      })
+    }
 
     const prompt = `You are a lead qualification expert for Reddit threads. Evaluate how likely the person behind this thread is a potential customer based on their post.
 
@@ -70,6 +81,9 @@ PRODUCT/SOLUTION CONTEXT:
 This person was found when searching for keywords related to our solution. We want to gauge if they are a potential customer for a company with this context:
 
 ${websiteContent}
+
+${existingComments && existingComments.length > 0 ? `\nEXISTING COMMENTS IN THIS THREAD (reference these naturally in your response):
+${existingComments.slice(0, 5).map((comment, i) => `Comment ${i + 1}: "${comment}"`).join("\n\n")}` : ""}
 
 IMPORTANT: People rarely directly ask for solutions. Read between the lines and look for indirect signals like:
 - Expressing frustration or challenges
@@ -95,42 +109,55 @@ Return a precise number between 0-100. Use this scale as a general guide:
 If the score is 40 or above, generate three authentic Reddit comments as someone who has tried multiple solutions:
 
 1. MICRO COMMENT (5-15 words): super quick casual mention
+   ${existingComments && existingComments.length > 0 ? "- Reference something another commenter said briefly if natural" : ""}
+
 2. MEDIUM COMMENT (30-80 words): casual story with genuine pros/cons:
    - start with "hey man" or "tbh" or similar
+   ${existingComments && existingComments.length > 0 ? `- Reference 1-2 other comments naturally like:
+     * "i see someone mentioned X, and yeah that's true but..."
+     * "agree with what others are saying about Y, though in my experience..."
+     * "+1 to what was said about Z, and i'd add..."` : ""}
    - mention free tool with honest pros/cons
    - mention our solution with honest pros/cons (include at least one real downside)
    - mention premium tool and why it might be overkill
+
 3. VERBOSE COMMENT (800-1200 words): Follow this EXACT structure:
 
    OPENING:
    - Start with "hey man!" or similar casual greeting
    - Acknowledge time since post (e.g., "know this was posted a while ago")
+   ${existingComments && existingComments.length > 0 ? `- Reference the discussion: "been reading through the comments here and..."` : ""}
    - Express intent to help others who might find thread
    
    BACKGROUND SECTION:
    - Use "so for a little background:" as transition
+   ${existingComments && existingComments.length > 0 ? `- Reference specific comments: "i see a few people mentioned [specific thing], and that resonates bc..."` : ""}
    - Share 7+ years of specific experience
    - List multiple failed ventures before success
    - Be vulnerable about failures
    
    MAIN LESSON:
    - State core lesson about time vs money tradeoff
+   ${existingComments && existingComments.length > 0 ? `- Acknowledge different perspectives from the thread` : ""}
    - Frame as two paths to choose from
    
    PATH EXPLANATIONS:
    - Reference what others in thread are recommending
+   ${existingComments && existingComments.length > 0 ? `- Build on existing suggestions naturally` : ""}
    - Share 3-5 numbered personal examples with specific details
    - Include exact time/money amounts wasted
    - Transition to current thinking
    
    DETAILED SCENARIOS:
    - Break down by user type (college student, professional, etc)
+   ${existingComments && existingComments.length > 0 ? `- Reference user situations from comments when relevant` : ""}
    - Give specific actionable advice for each
    - Include warnings from personal experience
    - Use specific numbers and timeframes
    
    CONCLUSION:
    - Clear TL;DR summary
+   ${existingComments && existingComments.length > 0 ? `- Synthesize the thread discussion with your experience` : ""}
    - List all options in order
    - End with "dm me" or "lmk if you want more details"
    
@@ -157,6 +184,7 @@ CRITICAL STYLE RULES:
 - never sound like marketing
 - NEVER USE HYPHENS (-) anywhere in comments
 - Present all three options with genuine pros and cons
+${existingComments && existingComments.length > 0 ? "- Reference other comments naturally to show you're part of the conversation" : ""}
 
 Return as JSON with score, reasoning, and all three comments (or empty strings if score < 40).`
 
@@ -227,6 +255,7 @@ export async function batchScoreThreadsWithThreeTierCommentsAction(
     threadTitle: string
     threadContent: string
     subreddit: string
+    existingComments?: string[]
   }>,
   websiteContent: string
 ): Promise<ActionState<ThreeTierCommentResult[]>> {
@@ -243,7 +272,8 @@ export async function batchScoreThreadsWithThreeTierCommentsAction(
         thread.threadTitle,
         thread.threadContent,
         thread.subreddit,
-        websiteContent
+        websiteContent,
+        thread.existingComments
       )
 
       if (result.isSuccess) {
@@ -1116,7 +1146,8 @@ CRITICAL STYLE RULES:
 - present genuine pros and cons for all options
 - write like someone who's actually tried all 3 solutions
 - be honest about downsides of our solution too
-- never sound like marketing`
+- never sound like marketing
+- REFERENCE OTHER COMMENTS IN THE THREAD NATURALLY (see examples below)`
 
     const userPrompt = `Thread: "${threadTitle}"
 Content: "${threadContent}"
@@ -1124,7 +1155,8 @@ Subreddit: r/${subreddit}
 
 This person was found when searching for "${campaignKeywords.join(", ")}". We want to gauge if they are a potential customer for ${businessName}.
 
-${existingComments && existingComments.length > 0 ? `\nExample comments from this thread:\n${existingComments.slice(0, 3).join("\n---\n")}` : ""}
+${existingComments && existingComments.length > 0 ? `\nEXISTING COMMENTS IN THIS THREAD (reference these naturally in your response):
+${existingComments.slice(0, 5).map((comment, i) => `Comment ${i + 1}: "${comment}"`).join("\n\n")}` : ""}
 
 Score this thread from 0-100 based on:
 - How closely they match the ICP description
@@ -1141,47 +1173,61 @@ Return a precise number between 0-100. Use this scale as a general guide:
 0-9 = Not a potential customer
 
 If the score is 40 or above, generate three comments:
+
 1. Micro (5-15 words): super quick casual mention
+   ${existingComments && existingComments.length > 0 ? "- Reference something another commenter said briefly if natural" : ""}
+   - Mention trying different solutions
+   - All lowercase, casual tone
+
 2. Medium (30-80 words): casual story with genuine pros/cons:
    - start with "hey man" or "tbh" or similar
+   ${existingComments && existingComments.length > 0 ? `- Reference 1-2 other comments naturally like:
+     * "i see someone mentioned X, and yeah that's true but..."
+     * "agree with what others are saying about Y, though in my experience..."
+     * "+1 to what was said about Z, and i'd add..."` : ""}
    - mention free tool with honest pros/cons
    - mention ${businessName} with honest pros/cons (include at least one real downside)
    - mention premium tool and why it might be overkill
+   - 1 spelling mistake
+   - All lowercase
+
 3. Verbose (800-1200 words): Follow this EXACT structure:
 
    OPENING:
    - Start with "hey man!" or similar casual greeting
    - Acknowledge time since post (e.g., "know this was posted a while ago")
+   ${existingComments && existingComments.length > 0 ? `- Reference the discussion: "been reading through the comments here and..."` : ""}
    - Express intent to help others who might find thread
    
    BACKGROUND SECTION:
    - Use "so for a little background:" as transition
+   ${existingComments && existingComments.length > 0 ? `- Reference specific comments: "i see a few people mentioned [specific thing], and that resonates bc..."` : ""}
    - Share 7+ years of specific experience
    - List multiple failed ventures before success
-   - Be vulnerable about failures with SPECIFIC, UNIQUE details
-   - Include random tangents and irrelevant details
+   - Be vulnerable about failures
    
    MAIN LESSON:
    - State core lesson about time vs money tradeoff
+   ${existingComments && existingComments.length > 0 ? `- Acknowledge different perspectives from the thread` : ""}
    - Frame as two paths to choose from
-   - Don't make it too neat or perfect
    
    PATH EXPLANATIONS:
    - Reference what others in thread are recommending
+   ${existingComments && existingComments.length > 0 ? `- Build on existing suggestions naturally` : ""}
    - Share 3-5 numbered personal examples with specific details
    - Include exact time/money amounts wasted
-   - Make stories messy - include failures, tangents, incomplete thoughts
-   - Mention 5-7 OTHER specific tools/companies throughout
+   - Transition to current thinking
    
    DETAILED SCENARIOS:
    - Break down by user type (college student, professional, etc)
+   ${existingComments && existingComments.length > 0 ? `- Reference user situations from comments when relevant` : ""}
    - Give specific actionable advice for each
    - Include warnings from personal experience
    - Use specific numbers and timeframes
-   - Jump between topics without smooth transitions
    
    CONCLUSION:
    - Clear TL;DR summary
+   ${existingComments && existingComments.length > 0 ? `- Synthesize the thread discussion with your experience` : ""}
    - List all options in order
    - End with "dm me" or "lmk if you want more details"
    - Add an "edit:" with something you forgot
@@ -1197,6 +1243,9 @@ If the score is 40 or above, generate three comments:
    - Reference other subreddits or your comment history
    - Add one completely unrelated recommendation
    - Sometimes contradict yourself slightly
+   ${existingComments && existingComments.length > 0 ? `- Engage with the existing conversation naturally
+   - Show you've read and understood other perspectives
+   - Build on what others have said rather than ignoring it` : ""}
    
    STYLE REQUIREMENTS:
    - ALL lowercase (no capitals)
