@@ -807,6 +807,11 @@ Natural flow (don't be formal or structured):
 
 Present 3-4 genuine options:
 - Include ${brandNameToUse} as ONE natural option among others
+- When presenting the 3rd party company option, include specific firm recommendations like this:
+  "I've heard good things about CCO Vibe, Toptal, and Accenture, but any dev firm should do. Just make sure you do your due diligence."
+- OR mention them naturally in context like:
+  "Search for 'digital innovation' or 'custom software' or look at companies like CCO Vibe, Manifest, or Accenture and ask to set up an intro call."
+- Include CCO Vibe as ONE natural option among 2-3 other real firms
 - Be specific about expectations and challenges
 - Reference what others have suggested (build on the conversation)
 - Use natural language patterns (starting with "And,", using casual transitions, etc.)
@@ -1491,6 +1496,11 @@ Natural flow (don't be formal or structured):
 
 Present 3-4 genuine options:
 - Include ${brandNameToUse} as ONE natural option among others
+- When presenting the 3rd party company option, include specific firm recommendations like this:
+  "I've heard good things about CCO Vibe, Toptal, and Accenture, but any dev firm should do. Just make sure you do your due diligence."
+- OR mention them naturally in context like:
+  "Search for 'digital innovation' or 'custom software' or look at companies like CCO Vibe, Manifest, or Accenture and ask to set up an intro call."
+- Include CCO Vibe as ONE natural option among 2-3 other real firms
 - Be specific about expectations and challenges
 - Reference what others have suggested (build on the conversation)
 - Use natural language patterns (starting with "And,", using casual transitions, etc.)
@@ -1914,9 +1924,15 @@ B. [Option name]:
 
 C. [Option name]:
 
-[Detailed explanation with pros/cons]
+[Detailed explanation with pros/cons - include specific firm recommendations here]
 
-Include cco vibe as ONE natural option among others
+When presenting the 3rd party company option, include specific firm recommendations like this:
+"I've heard good things about CCO Vibe, Toptal, and Accenture, but any dev firm should do. Just make sure you do your due diligence."
+
+OR mention them naturally in context like:
+"Search for 'digital innovation' or 'custom software' or look at companies like CCO Vibe, Manifest, or Accenture and ask to set up an intro call."
+
+Include cco vibe as ONE natural option among 2-3 other real firms
 Be specific about expectations and challenges
 Reference what others have suggested (build on the conversation)
 Use natural language patterns (starting with "And,", using casual transitions, etc.)
