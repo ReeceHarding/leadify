@@ -26,6 +26,7 @@ import {
   Timestamp
 } from "firebase/firestore"
 import { toISOString } from "@/lib/utils/timestamp-utils"
+import { semanticMatchAction } from "@/actions/integrations/openai/semantic-search-actions"
 
 // Serialization helper functions
 function serializeRedditThreadDocument(
@@ -193,13 +194,45 @@ export async function getRedditThreadsByOrganizationAction(
     const querySnapshot = await getDocs(q)
     let threads = querySnapshot.docs.map(doc => doc.data() as RedditThreadDocument)
     
-    // Filter by keywords if provided
+    // Filter by keywords using semantic search if provided
     if (options.keywords && options.keywords.length > 0) {
-      threads = threads.filter(thread => 
-        thread.keywords.some(keyword => 
-          options.keywords!.includes(keyword)
-        )
-      )
+      console.log("🧵 [GET-THREADS] Applying semantic keyword filtering...")
+      console.log("🧵 [GET-THREADS] Keywords to match:", options.keywords)
+      
+      const filteredThreads: RedditThreadDocument[] = []
+      
+      for (const thread of threads) {
+        // Create searchable content from thread
+        const searchableContent = [
+          thread.title,
+          thread.content,
+          thread.contentSnippet,
+          thread.keywords.join(" ")
+        ].filter(Boolean).join(" ")
+        
+        // Check if thread content semantically matches any of the keywords
+        let isMatch = false
+        for (const keyword of options.keywords) {
+          const semanticResult = await semanticMatchAction(
+            keyword,
+            searchableContent,
+            `Thread from r/${thread.subreddit}`
+          )
+          
+          if (semanticResult.isSuccess && semanticResult.data.isMatch) {
+            console.log(`🧵 [GET-THREADS] Thread "${thread.title}" matches keyword "${keyword}" (score: ${semanticResult.data.relevanceScore})`)
+            isMatch = true
+            break
+          }
+        }
+        
+        if (isMatch) {
+          filteredThreads.push(thread)
+        }
+      }
+      
+      threads = filteredThreads
+      console.log("🧵 [GET-THREADS] Semantic filtering complete. Threads after filtering:", threads.length)
     }
     
     console.log("🧵 [GET-THREADS] ✅ Found threads:", threads.length)

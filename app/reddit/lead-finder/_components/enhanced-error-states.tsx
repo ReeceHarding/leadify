@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -21,14 +22,21 @@ import {
   ArrowRight,
   Clock,
   CheckCircle,
-  MessageCircle
+  MessageCircle,
+  Loader2
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { classifyErrorAction, generateErrorSolutionAction } from "@/actions/integrations/openai/intelligent-error-classification-actions"
 
 interface ErrorStateProps {
   error: string
   onRetry?: () => void
   className?: string
+  context?: {
+    component?: string
+    userAction?: string
+    systemState?: string
+  }
 }
 
 interface ErrorAction {
@@ -44,13 +52,19 @@ interface ErrorAction {
     | "destructive"
 }
 
-function getErrorInfo(error: string): {
+interface IntelligentErrorInfo {
   title: string
   description: string
   icon: React.ReactNode
   actions: ErrorAction[]
   type: "warning" | "error" | "info"
-} {
+  isLoading: boolean
+  quickFix?: string
+  stepByStepGuide?: string[]
+}
+
+// Fallback function for when LLM classification fails
+function getFallbackErrorInfo(error: string): Omit<IntelligentErrorInfo, 'isLoading'> {
   if (error.includes("No valid Reddit access token") || error.includes("Please reconnect your Reddit account")) {
     return {
       title: "Reddit Connection Required",
@@ -105,41 +119,6 @@ function getErrorInfo(error: string): {
     }
   }
 
-  if (error.includes("Reddit auth") || error.includes("authenticate")) {
-    return {
-      title: "Reddit Authentication Required",
-      description: "You need to authenticate with Reddit to post comments.",
-      icon: <ShieldAlert className="size-6" />,
-      actions: [
-        {
-          label: "Authenticate with Reddit",
-          action: () => (window.location.href = "/api/reddit/auth"),
-          icon: <ExternalLink className="size-4" />,
-          variant: "default"
-        }
-      ],
-      type: "warning"
-    }
-  }
-
-  if (error.includes("Rate limit")) {
-    return {
-      title: "Rate Limit Exceeded",
-      description:
-        "You've hit Reddit's rate limit. Please wait a few minutes before trying again.",
-      icon: <Clock className="size-6" />,
-      actions: [
-        {
-          label: "Try Again Later",
-          action: () => window.location.reload(),
-          icon: <Clock className="size-4" />,
-          variant: "outline"
-        }
-      ],
-      type: "warning"
-    }
-  }
-
   // Default error
   return {
     title: "Something went wrong",
@@ -157,12 +136,143 @@ function getErrorInfo(error: string): {
   }
 }
 
+// Hook for intelligent error classification
+function useIntelligentErrorInfo(error: string, context?: ErrorStateProps['context']): IntelligentErrorInfo {
+  const [errorInfo, setErrorInfo] = useState<IntelligentErrorInfo>(() => ({
+    ...getFallbackErrorInfo(error),
+    isLoading: true
+  }))
+
+  useEffect(() => {
+    const classifyError = async () => {
+      console.log("🚨 [ENHANCED-ERROR] Starting intelligent error classification for:", error)
+      
+      try {
+        setErrorInfo(prev => ({ ...prev, isLoading: true }))
+
+        const classificationResult = await classifyErrorAction(error, context)
+
+        if (classificationResult.isSuccess) {
+          const classification = classificationResult.data
+          console.log("🚨 [ENHANCED-ERROR] Classification successful:", classification.errorType)
+
+          // Generate solution based on classification
+          const solutionResult = await generateErrorSolutionAction(classification, {
+            technicalLevel: "intermediate",
+            preferredSolutionType: "detailed_guide",
+            timeAvailable: "few_minutes"
+          })
+
+          let actions: ErrorAction[] = []
+          
+          // Convert suggested actions to UI actions
+          if (classification.quickFix) {
+            actions.push({
+              label: "Quick Fix",
+              action: () => {
+                // For now, just show an alert with the quick fix
+                alert(classification.quickFix)
+              },
+              icon: <RefreshCw className="size-4" />,
+              variant: "default"
+            })
+          }
+
+          // Add primary suggested actions
+          classification.suggestedActions.slice(0, 2).forEach((action, index) => {
+            actions.push({
+              label: action.length > 20 ? action.substring(0, 20) + "..." : action,
+              action: () => {
+                if (action.toLowerCase().includes("refresh") || action.toLowerCase().includes("reload")) {
+                  window.location.reload()
+                } else if (action.toLowerCase().includes("reddit") && action.toLowerCase().includes("connect")) {
+                  window.location.href = "/reddit/settings"
+                } else if (action.toLowerCase().includes("onboarding") || action.toLowerCase().includes("setup")) {
+                  window.location.href = "/onboarding"
+                } else {
+                  // Generic action - show alert with full instruction
+                  alert(action)
+                }
+              },
+              icon: <ArrowRight className="size-4" />,
+              variant: index === 0 ? "default" : "outline"
+            })
+          })
+
+          // Determine icon based on error type
+          let icon: React.ReactNode
+          switch (classification.errorType) {
+            case "authentication":
+            case "authorization":
+              icon = <ShieldAlert className="size-6" />
+              break
+            case "network":
+              icon = <WifiOff className="size-6" />
+              break
+            case "rate_limit":
+              icon = <Clock className="size-6" />
+              break
+            case "validation":
+            case "user_error":
+              icon = <FileWarning className="size-6" />
+              break
+            case "configuration":
+              icon = <Settings className="size-6" />
+              break
+            default:
+              icon = <AlertCircle className="size-6" />
+          }
+
+          // Determine type based on severity
+          let type: "warning" | "error" | "info"
+          switch (classification.severity) {
+            case "critical":
+            case "high":
+              type = "error"
+              break
+            case "medium":
+              type = "warning"
+              break
+            case "low":
+              type = "info"
+              break
+            default:
+              type = "error"
+          }
+
+          setErrorInfo({
+            title: classification.userFriendlyMessage.split('.')[0] || "Error Occurred",
+            description: classification.userFriendlyMessage,
+            icon,
+            actions,
+            type,
+            isLoading: false,
+            quickFix: classification.quickFix,
+            stepByStepGuide: solutionResult.isSuccess ? solutionResult.data.stepByStepGuide : undefined
+          })
+        } else {
+          console.warn("🚨 [ENHANCED-ERROR] Classification failed, using fallback")
+          setErrorInfo(prev => ({ ...getFallbackErrorInfo(prev.title), isLoading: false }))
+        }
+      } catch (error) {
+        console.error("🚨 [ENHANCED-ERROR] Error in classification:", error)
+        setErrorInfo(prev => ({ ...getFallbackErrorInfo(prev.title), isLoading: false }))
+      }
+    }
+
+    classifyError()
+  }, [error, context])
+
+  return errorInfo
+}
+
 export function EnhancedErrorState({
   error,
   onRetry,
-  className
+  className,
+  context
 }: ErrorStateProps) {
-  const errorInfo = getErrorInfo(error)
+  const errorInfo = useIntelligentErrorInfo(error, context)
 
   return (
     <Card
@@ -188,9 +298,13 @@ export function EnhancedErrorState({
                 "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
             )}
           >
-            {errorInfo.icon}
+            {errorInfo.isLoading ? (
+              <Loader2 className="size-6 animate-spin" />
+            ) : (
+              errorInfo.icon
+            )}
           </div>
-          <div className="space-y-1">
+          <div className="flex-1 space-y-1">
             <CardTitle
               className={cn(
                 "text-lg",
@@ -200,7 +314,7 @@ export function EnhancedErrorState({
                 errorInfo.type === "info" && "text-blue-900 dark:text-blue-100"
               )}
             >
-              {errorInfo.title}
+              {errorInfo.isLoading ? "Analyzing error..." : errorInfo.title}
             </CardTitle>
             <CardDescription
               className={cn(
@@ -210,14 +324,46 @@ export function EnhancedErrorState({
                 errorInfo.type === "info" && "text-blue-700 dark:text-blue-300"
               )}
             >
-              {errorInfo.description}
+              {errorInfo.isLoading 
+                ? "Please wait while we analyze the error and provide helpful solutions..."
+                : errorInfo.description
+              }
             </CardDescription>
+            
+            {/* Show quick fix if available */}
+            {!errorInfo.isLoading && errorInfo.quickFix && (
+              <div className="mt-3 rounded-md border bg-gray-50 p-3 dark:bg-gray-800">
+                <p className="mb-1 text-sm font-medium text-gray-900 dark:text-gray-100">
+                  Quick Fix:
+                </p>
+                <p className="text-sm text-gray-700 dark:text-gray-300">
+                  {errorInfo.quickFix}
+                </p>
+              </div>
+            )}
+            
+            {/* Show step-by-step guide if available */}
+            {!errorInfo.isLoading && errorInfo.stepByStepGuide && errorInfo.stepByStepGuide.length > 0 && (
+              <div className="mt-3 rounded-md border bg-gray-50 p-3 dark:bg-gray-800">
+                <p className="mb-2 text-sm font-medium text-gray-900 dark:text-gray-100">
+                  Step-by-step solution:
+                </p>
+                <ol className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                  {errorInfo.stepByStepGuide.map((step, index) => (
+                    <li key={index} className="flex gap-2">
+                      <span className="font-medium">{index + 1}.</span>
+                      <span>{step}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
           </div>
         </div>
       </CardHeader>
       <CardContent className="pt-0">
         <div className="flex flex-wrap gap-2">
-          {errorInfo.actions.map((action, index) => (
+          {!errorInfo.isLoading && errorInfo.actions.map((action, index) => (
             <Button
               key={index}
               variant={action.variant || "default"}
@@ -245,6 +391,12 @@ export function EnhancedErrorState({
               Custom Retry
             </Button>
           )}
+          {errorInfo.isLoading && (
+            <Button disabled variant="outline" className="gap-2">
+              <Loader2 className="size-4 animate-spin" />
+              Analyzing...
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>
@@ -258,7 +410,7 @@ interface InlineErrorProps {
 }
 
 export function InlineError({ error, onRetry, className }: InlineErrorProps) {
-  const errorInfo = getErrorInfo(error)
+  const errorInfo = useIntelligentErrorInfo(error)
 
   return (
     <Alert

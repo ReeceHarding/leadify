@@ -160,6 +160,7 @@ import LeadGenerationProgressBar from "./dashboard/lead-generation-progress-bar"
 import { 
   checkThreadInteractionAction
 } from "@/actions/db/reddit-threads-actions"
+import { semanticFilterAction } from "@/actions/integrations/openai/semantic-search-actions"
 
 const ITEMS_PER_PAGE = 20
 const POLLING_INTERVAL = 5000 // 5 seconds
@@ -277,7 +278,50 @@ const filterByDate = (lead: LeadResult, dateFilter: string): boolean => {
   }
 }
 
-// Add text search helper function
+// Replace text search helper function with semantic search
+const performSemanticSearch = async (leads: LeadResult[], query: string): Promise<LeadResult[]> => {
+  if (!query.trim()) return leads
+
+  console.log("🔍 [LEAD-FINDER] Performing semantic search for:", query)
+  
+  // Convert leads to ContentItem format for semantic filtering
+  const contentItems = leads.map(lead => ({
+    id: lead.id || `${lead.postTitle}-${lead.postAuthor}`,
+    title: lead.postTitle,
+    content: lead.postContentSnippet,
+    author: lead.postAuthor,
+    subreddit: lead.subreddit,
+    keyword: lead.keyword,
+    // Include the full lead object for later retrieval
+    originalLead: lead
+  }))
+
+  try {
+    const semanticResult = await semanticFilterAction(query, contentItems, {
+      minRelevanceScore: 30, // Lower threshold for broader matching
+      maxResults: leads.length, // Don't limit results
+      includeInsights: false // Skip insights for performance
+    })
+
+    if (semanticResult.isSuccess) {
+      console.log("🔍 [LEAD-FINDER] Semantic search found:", semanticResult.data.totalMatches, "matches")
+      
+      // Extract the original leads from the matched items
+      const matchedLeads = semanticResult.data.matchedItems.map((item: any) => item.originalLead as LeadResult)
+      return matchedLeads
+    } else {
+      console.warn("🔍 [LEAD-FINDER] Semantic search failed, falling back to basic search")
+      // Fallback to basic string matching
+      return leads.filter(lead => matchesSearchQuery(lead, query))
+    }
+  } catch (error) {
+    console.error("🔍 [LEAD-FINDER] Semantic search error:", error)
+    // Fallback to basic string matching
+    return leads.filter(lead => matchesSearchQuery(lead, query))
+  }
+}
+
+// Keep the original function as fallback
 const matchesSearchQuery = (lead: LeadResult, query: string): boolean => {
   if (!query.trim()) return true
 
@@ -1719,81 +1763,119 @@ export default function LeadFinderDashboard() {
     return Array.from(keywords).sort()
   }, [state.leads])
 
-  // Filter and sort leads
-  const filteredLeads = useMemo(() => {
-    let filtered = [...state.leads]
+  // Filter and sort leads with semantic search
+  const [filteredLeads, setFilteredLeads] = useState<LeadResult[]>([])
+  const [isFiltering, setIsFiltering] = useState(false)
 
-    // Apply text search filter
-    filtered = filtered.filter(lead =>
-      matchesSearchQuery(lead, state.searchQuery)
-    )
+  // Update filtered leads when search criteria change
+  useEffect(() => {
+    const applyFilters = async () => {
+      setIsFiltering(true)
+      try {
+        let filtered = [...state.leads]
 
-    // Apply keyword filter
-    if (state.selectedKeyword) {
-      filtered = filtered.filter(lead => lead.keyword === state.selectedKeyword)
+        // Apply semantic text search filter
+        if (state.searchQuery.trim()) {
+          console.log("🔍 [LEAD-FINDER] Applying semantic search filter")
+          filtered = await performSemanticSearch(filtered, state.searchQuery)
+        }
+
+        // Apply keyword filter
+        if (state.selectedKeyword) {
+          filtered = filtered.filter(lead => lead.keyword === state.selectedKeyword)
+        }
+
+        // Apply score filter
+        if (state.filterScore > 0) {
+          filtered = filtered.filter(
+            lead => lead.relevanceScore >= state.filterScore
+          )
+        }
+
+        // Apply date filter
+        filtered = filtered.filter(lead => filterByDate(lead, state.dateFilter))
+
+        // Apply tab filter
+        if (state.activeTab === "queue") {
+          filtered = filtered.filter(lead => lead.status === "queued")
+        }
+
+        // Sort
+        switch (state.sortBy) {
+          case "relevance":
+            filtered.sort((a, b) => b.relevanceScore - a.relevanceScore)
+            break
+          case "upvotes":
+            filtered.sort((a, b) => (b.postScore || 0) - (a.postScore || 0))
+            break
+          case "time":
+            filtered.sort((a, b) => {
+              const dateA = a.postCreatedAt
+                ? new Date(a.postCreatedAt).getTime()
+                : 0
+              const dateB = b.postCreatedAt
+                ? new Date(b.postCreatedAt).getTime()
+                : 0
+              return dateB - dateA
+            })
+            break
+          case "posted":
+            // Sort by Reddit post creation date (newest first)
+            filtered.sort((a, b) => {
+              const dateA = a.postCreatedAt
+                ? new Date(a.postCreatedAt).getTime()
+                : 0
+              const dateB = b.postCreatedAt
+                ? new Date(b.postCreatedAt).getTime()
+                : 0
+              return dateB - dateA
+            })
+            break
+          case "fetched":
+            // Sort by when we found the lead (newest first)
+            filtered.sort((a, b) => {
+              const dateA = a.createdAt
+                ? new Date(a.createdAt).getTime()
+                : 0
+              const dateB = b.createdAt
+                ? new Date(b.createdAt).getTime()
+                : 0
+              return dateB - dateA
+            })
+            break
+        }
+
+        setFilteredLeads(filtered)
+      } catch (error) {
+        console.error("🔍 [LEAD-FINDER] Error applying filters:", error)
+        // Fallback to basic filtering
+        let filtered = [...state.leads]
+        
+        if (state.searchQuery.trim()) {
+          filtered = filtered.filter(lead => matchesSearchQuery(lead, state.searchQuery))
+        }
+        
+        if (state.selectedKeyword) {
+          filtered = filtered.filter(lead => lead.keyword === state.selectedKeyword)
+        }
+        
+        if (state.filterScore > 0) {
+          filtered = filtered.filter(lead => lead.relevanceScore >= state.filterScore)
+        }
+        
+        filtered = filtered.filter(lead => filterByDate(lead, state.dateFilter))
+        
+        if (state.activeTab === "queue") {
+          filtered = filtered.filter(lead => lead.status === "queued")
+        }
+        
+        setFilteredLeads(filtered)
+      } finally {
+        setIsFiltering(false)
+      }
     }
 
-    // Apply score filter
-    if (state.filterScore > 0) {
-      filtered = filtered.filter(
-        lead => lead.relevanceScore >= state.filterScore
-      )
-    }
-
-    // Apply date filter
-    filtered = filtered.filter(lead => filterByDate(lead, state.dateFilter))
-
-    // Apply tab filter
-    if (state.activeTab === "queue") {
-      filtered = filtered.filter(lead => lead.status === "queued")
-    }
-
-    // Sort
-    switch (state.sortBy) {
-      case "relevance":
-        filtered.sort((a, b) => b.relevanceScore - a.relevanceScore)
-        break
-      case "upvotes":
-        filtered.sort((a, b) => (b.postScore || 0) - (a.postScore || 0))
-        break
-      case "time":
-        filtered.sort((a, b) => {
-          const dateA = a.postCreatedAt
-            ? new Date(a.postCreatedAt).getTime()
-            : 0
-          const dateB = b.postCreatedAt
-            ? new Date(b.postCreatedAt).getTime()
-            : 0
-          return dateB - dateA
-        })
-        break
-      case "posted":
-        // Sort by Reddit post creation date (newest first)
-        filtered.sort((a, b) => {
-          const dateA = a.postCreatedAt
-            ? new Date(a.postCreatedAt).getTime()
-            : 0
-          const dateB = b.postCreatedAt
-            ? new Date(b.postCreatedAt).getTime()
-            : 0
-          return dateB - dateA
-        })
-        break
-      case "fetched":
-        // Sort by when we found the lead (newest first)
-        filtered.sort((a, b) => {
-          const dateA = a.createdAt
-            ? new Date(a.createdAt).getTime()
-            : 0
-          const dateB = b.createdAt
-            ? new Date(b.createdAt).getTime()
-            : 0
-          return dateB - dateA
-        })
-        break
-    }
-
-    return filtered
+    applyFilters()
   }, [
     state.leads,
     state.searchQuery,

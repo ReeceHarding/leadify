@@ -129,6 +129,7 @@ import {
   getRedditThreadsByOrganizationAction
 } from "@/actions/db/reddit-threads-actions"
 import { RedditThreadDocument } from "@/db/firestore/reddit-threads-collections"
+import { semanticFilterAction } from "@/actions/integrations/openai/semantic-search-actions"
 
 const ITEMS_PER_PAGE = 20
 const POLLING_INTERVAL = 5000 // 5 seconds
@@ -201,6 +202,50 @@ const filterByDate = (post: DMPost, dateFilter: string): boolean => {
   }
 }
 
+// Replace text search helper function with semantic search
+const performSemanticSearch = async (posts: DMPost[], query: string): Promise<DMPost[]> => {
+  if (!query.trim()) return posts
+
+  console.log("🔍 [DM-FINDER] Performing semantic search for:", query)
+  
+  // Convert posts to ContentItem format for semantic filtering
+  const contentItems = posts.map(post => ({
+    id: post.id,
+    title: post.title,
+    content: post.selftext,
+    author: post.author,
+    subreddit: post.subreddit,
+    keyword: post.keywords?.join(" "),
+    // Include the full post object for later retrieval
+    originalPost: post
+  }))
+
+  try {
+    const semanticResult = await semanticFilterAction(query, contentItems, {
+      minRelevanceScore: 30, // Lower threshold for broader matching
+      maxResults: posts.length, // Don't limit results
+      includeInsights: false // Skip insights for performance
+    })
+
+    if (semanticResult.isSuccess) {
+      console.log("🔍 [DM-FINDER] Semantic search found:", semanticResult.data.totalMatches, "matches")
+      
+      // Extract the original posts from the matched items
+      const matchedPosts = semanticResult.data.matchedItems.map((item: any) => item.originalPost as DMPost)
+      return matchedPosts
+    } else {
+      console.warn("🔍 [DM-FINDER] Semantic search failed, falling back to basic search")
+      // Fallback to basic string matching
+      return posts.filter(post => matchesSearchQuery(post, query))
+    }
+  } catch (error) {
+    console.error("🔍 [DM-FINDER] Semantic search error:", error)
+    // Fallback to basic string matching
+    return posts.filter(post => matchesSearchQuery(post, query))
+  }
+}
+
+// Keep the original function as fallback
 const matchesSearchQuery = (post: DMPost, query: string): boolean => {
   if (!query.trim()) return true
 
@@ -380,7 +425,7 @@ export default function DMFinderDashboard() {
       const threads = threadsResult.data || []
       
       // Transform threads to DMPost format
-      const posts: DMPost[] = threads.map((thread: RedditThreadDocument) => ({
+      const posts: DMPost[] = threads.map((thread: any) => ({
         id: thread.id,
         threadId: thread.id,
         title: thread.title,
@@ -682,69 +727,117 @@ export default function DMFinderDashboard() {
     })
   }
 
-  // Filter and sort posts
-  const filteredAndSortedPosts = useMemo(() => {
-    let filtered = state.posts
+  // Filter and sort posts with semantic search
+  const [filteredPosts, setFilteredPosts] = useState<DMPost[]>([])
+  const [isFiltering, setIsFiltering] = useState(false)
 
-    // Apply search filter
-    if (state.searchQuery) {
-      filtered = filtered.filter(post => matchesSearchQuery(post, state.searchQuery))
-    }
+  // Update filtered posts when search criteria change
+  useEffect(() => {
+    const applyFilters = async () => {
+      setIsFiltering(true)
+      try {
+        let filtered = [...state.posts]
 
-    // Apply keyword filter
-    if (state.selectedKeyword) {
-      filtered = filtered.filter(post =>
-        post.keywords?.includes(state.selectedKeyword!)
-      )
-    }
+        // Apply semantic search filter
+        if (state.searchQuery.trim()) {
+          console.log("🔍 [DM-FINDER] Applying semantic search filter")
+          filtered = await performSemanticSearch(filtered, state.searchQuery)
+        }
 
-    // Apply date filter
-    filtered = filtered.filter(post => filterByDate(post, state.dateFilter))
+        // Apply keyword filter
+        if (state.selectedKeyword) {
+          filtered = filtered.filter(post =>
+            post.keywords?.includes(state.selectedKeyword!)
+          )
+        }
 
-    // Apply score filter
-    if (state.filterScore > 0) {
-      filtered = filtered.filter(
-        post => (post.relevanceScore || 0) >= state.filterScore
-      )
-    }
+        // Apply date filter
+        filtered = filtered.filter(post => filterByDate(post, state.dateFilter))
 
-    // Apply tab filter
-    if (state.activeTab === "queue") {
-      filtered = filtered.filter(post => post.dmStatus === "queued")
-    } else if (state.activeTab === "sent") {
-      filtered = filtered.filter(post => post.dmStatus === "sent")
-    }
+        // Apply score filter
+        if (state.filterScore > 0) {
+          filtered = filtered.filter(
+            post => (post.relevanceScore || 0) >= state.filterScore
+          )
+        }
 
-    // Sort
-    const sorted = [...filtered].sort((a, b) => {
-      switch (state.sortBy) {
-        case "relevance":
-          return (b.relevanceScore || 0) - (a.relevanceScore || 0)
-        case "upvotes":
-          return b.score - a.score
-        case "time":
-          return b.created_utc - a.created_utc
-        case "fetched":
-          return b.id.localeCompare(a.id)
-        case "posted":
-          const aPosted = a.dmSentAt ? new Date(a.dmSentAt).getTime() : 0
-          const bPosted = b.dmSentAt ? new Date(b.dmSentAt).getTime() : 0
-          return bPosted - aPosted
-        default:
-          return 0
+        // Apply tab filter
+        if (state.activeTab === "queue") {
+          filtered = filtered.filter(post => post.dmStatus === "queued")
+        } else if (state.activeTab === "sent") {
+          filtered = filtered.filter(post => post.dmStatus === "sent")
+        }
+
+        // Sort
+        const sorted = [...filtered].sort((a, b) => {
+          switch (state.sortBy) {
+            case "relevance":
+              return (b.relevanceScore || 0) - (a.relevanceScore || 0)
+            case "upvotes":
+              return b.score - a.score
+            case "time":
+              return b.created_utc - a.created_utc
+            case "fetched":
+              return b.id.localeCompare(a.id)
+            case "posted":
+              const aPosted = a.dmSentAt ? new Date(a.dmSentAt).getTime() : 0
+              const bPosted = b.dmSentAt ? new Date(b.dmSentAt).getTime() : 0
+              return bPosted - aPosted
+            default:
+              return 0
+          }
+        })
+
+        setFilteredPosts(sorted)
+      } catch (error) {
+        console.error("🔍 [DM-FINDER] Error applying filters:", error)
+        // Fallback to basic filtering
+        let filtered = [...state.posts]
+        
+        if (state.searchQuery.trim()) {
+          filtered = filtered.filter(post => matchesSearchQuery(post, state.searchQuery))
+        }
+        
+        if (state.selectedKeyword) {
+          filtered = filtered.filter(post => post.keywords?.includes(state.selectedKeyword!))
+        }
+        
+        filtered = filtered.filter(post => filterByDate(post, state.dateFilter))
+        
+        if (state.filterScore > 0) {
+          filtered = filtered.filter(post => (post.relevanceScore || 0) >= state.filterScore)
+        }
+        
+        if (state.activeTab === "queue") {
+          filtered = filtered.filter(post => post.dmStatus === "queued")
+        } else if (state.activeTab === "sent") {
+          filtered = filtered.filter(post => post.dmStatus === "sent")
+        }
+        
+        setFilteredPosts(filtered)
+      } finally {
+        setIsFiltering(false)
       }
-    })
+    }
 
-    return sorted
-  }, [state.posts, state.searchQuery, state.selectedKeyword, state.dateFilter, state.filterScore, state.activeTab, state.sortBy])
+    applyFilters()
+  }, [
+    state.posts,
+    state.searchQuery,
+    state.selectedKeyword,
+    state.dateFilter,
+    state.filterScore,
+    state.activeTab,
+    state.sortBy
+  ])
 
   // Paginated posts
   const paginatedPosts = useMemo(() => {
     const startIndex = (state.currentPage - 1) * ITEMS_PER_PAGE
-    return filteredAndSortedPosts.slice(startIndex, startIndex + ITEMS_PER_PAGE)
-  }, [filteredAndSortedPosts, state.currentPage])
+    return filteredPosts.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+  }, [filteredPosts, state.currentPage])
 
-  const totalPages = Math.ceil(filteredAndSortedPosts.length / ITEMS_PER_PAGE)
+  const totalPages = Math.ceil(filteredPosts.length / ITEMS_PER_PAGE)
 
   // Get unique keywords from posts
   const uniqueKeywords = useMemo(() => {

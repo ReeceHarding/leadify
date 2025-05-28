@@ -1689,22 +1689,6 @@ export async function scoreThreadAndGenerateAuthenticCommentsAction(
       if (kb.customInformation) {
         contentParts.push("Business Information:")
         contentParts.push(kb.customInformation)
-        
-        // Try to extract industry and expertise from custom information
-        const customInfo = kb.customInformation.toLowerCase()
-        if (customInfo.includes("software") || customInfo.includes("tech") || customInfo.includes("development")) {
-          clientIndustry = "technology"
-          expertiseArea = "software development"
-          serviceOffering = "custom software development"
-        } else if (customInfo.includes("marketing") || customInfo.includes("digital")) {
-          clientIndustry = "marketing"
-          expertiseArea = "digital marketing"
-          serviceOffering = "marketing solutions"
-        } else if (customInfo.includes("finance") || customInfo.includes("accounting")) {
-          clientIndustry = "finance"
-          expertiseArea = "financial consulting"
-          serviceOffering = "financial services"
-        }
       }
       if (kb.summary) {
         contentParts.push("Summary:")
@@ -1716,6 +1700,34 @@ export async function scoreThreadAndGenerateAuthenticCommentsAction(
       }
       
       knowledgeBaseContent = contentParts.join("\n\n")
+      
+      // Use intelligent analysis for knowledge base industry classification
+      if (kb.customInformation) {
+        console.log("🎯 [AUTHENTIC-COMMENTS] Analyzing knowledge base for industry classification...")
+        const kbAnalysisResult = await analyzeThreadIndustryAndExpertiseAction(
+          "Business Analysis",
+          kb.customInformation,
+          "business",
+          ["business analysis", "industry classification"],
+          knowledgeBaseContent
+        )
+        
+        if (kbAnalysisResult.isSuccess) {
+          const kbAnalysis = kbAnalysisResult.data
+          clientIndustry = kbAnalysis.clientIndustry
+          expertiseArea = kbAnalysis.expertiseArea
+          serviceOffering = kbAnalysis.serviceOffering
+          
+          console.log("🎯 [AUTHENTIC-COMMENTS] Knowledge base analysis:")
+          console.log("🎯 [AUTHENTIC-COMMENTS] - KB Industry:", clientIndustry)
+          console.log("🎯 [AUTHENTIC-COMMENTS] - KB Expertise:", expertiseArea)
+          console.log("🎯 [AUTHENTIC-COMMENTS] - KB Service:", serviceOffering)
+          console.log("🎯 [AUTHENTIC-COMMENTS] - KB Confidence:", kbAnalysis.confidence)
+        } else {
+          console.warn("🎯 [AUTHENTIC-COMMENTS] Knowledge base analysis failed, using defaults")
+        }
+      }
+      
       serviceOffering = brandNameToUse // Use brand name as service offering
     } else {
       brandNameToUse = (organization.name || campaignName || "our solution").toLowerCase()
