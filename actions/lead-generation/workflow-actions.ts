@@ -870,7 +870,45 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
         },
         totalProgress: 90
       });
-      // The rest of the workflow will proceed to finalization with 0 comments.
+      
+      // Complete the workflow with 0 comments
+      await updateLeadGenerationProgressAction(campaignId, {
+        currentStage: "Finalizing Results",
+        stageUpdate: {
+          stageName: "Finalizing Results",
+          status: "completed",
+          message: "No comments generated - no valid threads found"
+        },
+        totalProgress: 100,
+        status: "completed"
+      });
+
+      await updateCampaignAction(campaignId, {
+        totalCommentsGenerated: 0,
+        status: "completed"
+      });
+
+      progress.currentStep = "Workflow complete"
+      progress.isComplete = true
+      progress.completedSteps++
+
+      progress.results.push({
+        step: "Workflow Complete",
+        success: true,
+        message: "Lead generation workflow completed - no valid threads found for comment generation",
+        data: {
+          totalSearchResults: allSearchResults.length,
+          totalThreadsAnalyzed: 0,
+          totalCommentsGenerated: 0,
+          keywordLimits: Object.keys(keywordLimits).length > 0 ? keywordLimits : "All keywords processed"
+        }
+      });
+
+      return {
+        isSuccess: true,
+        message: "Lead generation workflow completed - no valid threads found for comment generation",
+        data: progress
+      };
     }
   } catch (error) {
     logger.error("Error in lead generation workflow:", error)
