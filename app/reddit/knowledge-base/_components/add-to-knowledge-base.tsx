@@ -43,13 +43,17 @@ export default function AddToKnowledgeBase({
   const [editableOldInfo, setEditableOldInfo] = useState(
     knowledgeBase?.customInformation || ""
   )
+  const [brandNameOverride, setBrandNameOverride] = useState(
+    knowledgeBase?.brandNameOverride || ""
+  )
   const [showScrapeDialog, setShowScrapeDialog] = useState(false)
   const { toast } = useToast()
 
   // Update editable old info when knowledge base changes
   useEffect(() => {
     setEditableOldInfo(knowledgeBase?.customInformation || "")
-  }, [knowledgeBase?.customInformation])
+    setBrandNameOverride(knowledgeBase?.brandNameOverride || "")
+  }, [knowledgeBase?.customInformation, knowledgeBase?.brandNameOverride])
 
   const handleReplaceInformation = async () => {
     if (!newInformation.trim()) {
@@ -69,7 +73,8 @@ export default function AddToKnowledgeBase({
           "@/actions/db/personalization-actions"
         )
         const result = await updateKnowledgeBaseAction(knowledgeBase.id, {
-          customInformation: newInformation
+          customInformation: newInformation,
+          brandNameOverride: brandNameOverride
         })
 
         if (result.isSuccess) {
@@ -96,6 +101,7 @@ export default function AddToKnowledgeBase({
           userId,
           organizationId,
           customInformation: newInformation,
+          brandNameOverride: brandNameOverride,
           websiteUrl: currentOrganization?.website
         })
 
@@ -166,7 +172,8 @@ export default function AddToKnowledgeBase({
             "@/actions/db/personalization-actions"
           )
           const result = await updateKnowledgeBaseAction(knowledgeBase.id, {
-            customInformation: combineResult.data.combinedInformation
+            customInformation: combineResult.data.combinedInformation,
+            brandNameOverride: brandNameOverride
           })
 
           if (result.isSuccess) {
@@ -193,6 +200,7 @@ export default function AddToKnowledgeBase({
             userId,
             organizationId,
             customInformation: combineResult.data.combinedInformation,
+            brandNameOverride: brandNameOverride,
             websiteUrl: currentOrganization?.website
           })
 
@@ -239,7 +247,8 @@ export default function AddToKnowledgeBase({
           "@/actions/db/personalization-actions"
         )
         const result = await updateKnowledgeBaseAction(knowledgeBase.id, {
-          customInformation: editableOldInfo
+          customInformation: editableOldInfo,
+          brandNameOverride: brandNameOverride
         })
 
         if (result.isSuccess) {
@@ -310,6 +319,22 @@ export default function AddToKnowledgeBase({
                 Connect a website in your profile to enable page scraping.
               </p>
             )}
+          </div>
+
+          {/* Brand Name Override */}
+          <div className="space-y-2">
+            <Label htmlFor="brand-name">Brand Name Override</Label>
+            <Input
+              id="brand-name"
+              placeholder={`How to reference your brand (e.g., "zoho" instead of "${currentOrganization?.name || 'Your Brand'}")`}
+              value={brandNameOverride}
+              onChange={e => setBrandNameOverride(e.target.value)}
+              className="font-mono"
+            />
+            <p className="text-sm text-gray-600">
+              Override how your brand is referenced in comments. Leave empty to use organization name.
+              This will be converted to lowercase automatically.
+            </p>
           </div>
 
           {/* Edit Existing Information */}

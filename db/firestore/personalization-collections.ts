@@ -22,6 +22,7 @@ export interface KnowledgeBaseDocument {
   organizationId: string
   websiteUrl?: string
   customInformation?: string
+  brandNameOverride?: string
   scrapedPages?: string[]
   summary?: string
   keyFacts?: string[]
@@ -34,6 +35,7 @@ export interface CreateKnowledgeBaseData {
   organizationId: string
   websiteUrl?: string
   customInformation?: string
+  brandNameOverride?: string
   scrapedPages?: string[]
   summary?: string
   keyFacts?: string[]
@@ -42,6 +44,7 @@ export interface CreateKnowledgeBaseData {
 export interface UpdateKnowledgeBaseData {
   websiteUrl?: string
   customInformation?: string
+  brandNameOverride?: string
   scrapedPages?: string[]
   summary?: string
   keyFacts?: string[]

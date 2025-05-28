@@ -185,6 +185,8 @@ CRITICAL STYLE RULES:
 - never sound like marketing
 - NEVER USE HYPHENS (-) anywhere in comments
 - Present all three options with genuine pros and cons
+- NEVER hyphenate words (write "ecommerce" not "e-commerce", "builtin" not "built-in")
+- Reference brands casually without full names (just "zoho" not "Zoho CRM", "slack" not "Slack App")
 ${existingComments && existingComments.length > 0 ? "- Reference other comments naturally to show you're part of the conversation" : ""}
 
 Return as JSON with score, reasoning, and all three comments (or empty strings if score < 40).`
@@ -918,28 +920,20 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
 
     const organization = orgResult.data
     const businessWebsiteUrl = organization.website || ""
-    // Use campaign name if provided, otherwise fall back to organization name
-    const businessName = campaignName || organization.name || "our solution"
-
-    console.log(
-      "🤖 [OPENAI-PERSONALIZED] Business name being used:",
-      businessName
-    )
-    console.log(
-      "🤖 [OPENAI-PERSONALIZED] Organization website:",
-      businessWebsiteUrl
-    )
-    console.log(
-      "🤖 [OPENAI-PERSONALIZED] Campaign website content provided:",
-      !!campaignWebsiteContent
-    )
-
-    // Get knowledge base for the organization
+    
+    // Get knowledge base for brand name override
     const knowledgeBaseResult =
       await getKnowledgeBaseByOrganizationIdAction(organizationId)
     let knowledgeBaseContent = ""
+    let brandNameToUse = ""
+    
     if (knowledgeBaseResult.isSuccess && knowledgeBaseResult.data) {
       const kb = knowledgeBaseResult.data
+      
+      // Use brand name override if available, otherwise use campaign name or organization name
+      brandNameToUse = kb.brandNameOverride || campaignName || organization.name || "our solution"
+      // Always convert to lowercase for natural Reddit style
+      brandNameToUse = brandNameToUse.toLowerCase()
       
       // Combine all knowledge base content
       const contentParts = []
@@ -964,6 +958,17 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
       console.log(
         "✅ [OPENAI-PERSONALIZED] Found knowledge base for organization with content length:",
         knowledgeBaseContent.length
+      )
+      console.log(
+        "✅ [OPENAI-PERSONALIZED] Brand name to use:",
+        brandNameToUse
+      )
+    } else {
+      // No knowledge base, use campaign name or organization name
+      brandNameToUse = (campaignName || organization.name || "our solution").toLowerCase()
+      console.log(
+        "⚠️ [OPENAI-PERSONALIZED] No knowledge base found, using default brand name:",
+        brandNameToUse
       )
     }
 
@@ -1067,7 +1072,7 @@ Provide a brief analysis of:
     )
     console.log(
       "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Business Name:",
-      businessName
+      brandNameToUse
     )
     console.log(
       "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Content Source:",
@@ -1119,6 +1124,15 @@ Provide a brief analysis of:
       })
     }
 
+    console.log(
+      "🤖 [OPENAI-PERSONALIZED] Organization website:",
+      businessWebsiteUrl
+    )
+    console.log(
+      "🤖 [OPENAI-PERSONALIZED] Campaign website content provided:",
+      !!campaignWebsiteContent
+    )
+
     const systemPrompt = `You are a lead qualification expert for Reddit threads. Your job is to:
 1. Score how likely the person behind the thread is a potential customer
 2. Generate natural, authentic Reddit comments if they are a good lead
@@ -1149,13 +1163,26 @@ CRITICAL STYLE RULES:
 - write like someone who's actually tried all 3 solutions
 - be honest about downsides of our solution too
 - never sound like marketing
-- REFERENCE OTHER COMMENTS IN THE THREAD NATURALLY (see examples below)`
+- REFERENCE OTHER COMMENTS IN THE THREAD NATURALLY (see examples below)
+- NEVER USE HYPHENS (-) anywhere in comments
+- NEVER hyphenate words (write "ecommerce" not "e-commerce", "builtin" not "built-in")
+- Reference brands casually without full names (just "zoho" not "Zoho CRM", "slack" not "Slack App")
+
+Return as JSON:
+{
+  "score": number,
+  "reasoning": "brief explanation of the score",
+  "microComment": "comment text" (or empty string if score < 40),
+  "mediumComment": "comment text" (or empty string if score < 40),
+  "verboseComment": "comment text" (or empty string if score < 40),
+  "derivedSpecificKeywords": ["phrase 1", "phrase 2", ...] (empty array if score < 40 or no specific phrases found)
+}`
 
     const userPrompt = `Thread: "${threadTitle}"
 Content: "${threadContent}"
 Subreddit: r/${subreddit}
 
-This person was found when searching for "${campaignKeywords.join(", ")}". We want to gauge if they are a potential customer for ${businessName}.
+This person was found when searching for "${campaignKeywords.join(", ")}". We want to gauge if they are a potential customer for ${brandNameToUse}.
 
 ${existingComments && existingComments.length > 0 ? `\nEXISTING COMMENTS IN THIS THREAD (reference these naturally in your response):
 ${existingComments.slice(0, 5).map((comment, i) => `Comment ${i + 1}: "${comment}"`).join("\n\n")}` : ""}
@@ -1188,7 +1215,7 @@ If the score is 40 or above, generate three comments:
      * "agree with what people are saying about Y, though in my experience..."
      * "adding to what was mentioned earlier about Z..."` : ""}
    - mention free tool with honest pros/cons
-   - mention ${businessName} with honest pros/cons (include at least one real downside)
+   - mention ${brandNameToUse} with honest pros/cons (include at least one real downside)
    - mention premium tool and why it might be overkill
    - 1 spelling mistake
    - All lowercase
@@ -1262,7 +1289,7 @@ If the score is 40 or above, generate three comments:
 
    CRITICAL: You MUST mention THREE different solutions in each comment:
    1. A FREE tool/solution (be specific and honest about limitations)
-   2. ${businessName} (our solution - mention casually, include real downsides, sometimes forget exact name)
+   2. ${brandNameToUse} (our solution - mention casually, include real downsides, sometimes forget exact name)
    3. A PREMIUM/EXPENSIVE tool (be fair about when it's actually worth it)
    
    Present all three with genuine pros and cons. Make the comment feel like a real person's messy experience, not a structured pitch.

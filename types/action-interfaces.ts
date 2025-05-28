@@ -39,6 +39,7 @@ export interface SerializedKnowledgeBaseDocument {
   organizationId: string
   websiteUrl?: string
   customInformation?: string
+  brandNameOverride?: string
   scrapedPages?: string[]
   summary?: string
   keyFacts?: string[]
