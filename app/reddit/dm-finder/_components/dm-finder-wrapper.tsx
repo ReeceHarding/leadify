@@ -44,13 +44,7 @@ export default function DMFinderWrapper({ userId }: DMFinderWrapperProps) {
 
   console.log("📨 [DM-FINDER-WRAPPER] Rendering DM finder with organization:", currentOrganization.id)
   
-  return (
-    <DMFinderDashboard
-      organizationId={currentOrganization.id}
-      userId={userId}
-      organization={currentOrganization}
-    />
-  )
+  return <DMFinderDashboard />
 }
 
 function DMFinderSkeleton() {
