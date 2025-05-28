@@ -4794,3 +4794,207 @@
 [2025-05-28T01:56:46.740Z] ==================================================
 [2025-05-28T01:56:46.741Z] COMMAND FINISHED: prettier --write {app,lib,components}/**/*.{ts,tsx} db/**/*.ts types/**/*.ts --cache --ignore-unknown (exit code: 0)
 [2025-05-28T01:56:46.741Z] ==================================================
+[2025-05-28T01:56:53.957Z] ==================================================
+[2025-05-28T01:56:53.958Z] COMMAND STARTED: next build
+[2025-05-28T01:56:53.958Z] ==================================================
+[2025-05-28T01:56:54.209Z] STDOUT: ▲ Next.js 15.3.2
+[2025-05-28T01:56:54.210Z] STDOUT: - Environments: .env.local
+[2025-05-28T01:56:54.264Z] STDOUT: Creating an optimized production build ...
+[2025-05-28T01:57:00.345Z] STDOUT: ✓ Compiled successfully in 4.0s
+[2025-05-28T01:57:00.347Z] STDOUT: Linting and checking validity of types ...
+[2025-05-28T01:57:05.127Z] STDOUT: Collecting page data ...
+[2025-05-28T01:57:07.299Z] STDOUT: Generating static pages (0/36) ...
+[2025-05-28T01:57:07.831Z] STDOUT: Generating static pages (9/36)
+[2025-05-28T01:57:07.981Z] STDOUT: Generating static pages (18/36)
+[2025-05-28T01:57:07.981Z] STDOUT: Generating static pages (27/36)
+[2025-05-28T01:57:07.981Z] STDOUT: ✓ Generating static pages (36/36)
+[2025-05-28T01:57:07.983Z] STDOUT: 📨 [DM-FINDER-PAGE] Loading DM finder page...
+[2025-05-28T01:57:07.983Z] STDOUT: 🔥🔥🔥 [LEAD-FINDER-PAGE] Rendering LeadFinderPage
+[2025-05-28T01:57:07.983Z] STDOUT: 🔥🔥🔥 [LEAD-FINDER-PAGE] Environment: production
+[2025-05-28T01:57:07.983Z] STDOUT: 🔥🔥🔥 [LEAD-FINDER-PAGE] Time: 2025-05-28T01:57:07.946Z
+[2025-05-28T01:57:07.983Z] STDOUT: 🔥🔥🔥 [LEAD-FINDER-PAGE] Rendering LeadFinderDashboard inside Suspense
+[2025-05-28T01:57:08.489Z] STDOUT: Finalizing page optimization ...
+[2025-05-28T01:57:08.490Z] STDOUT: Collecting build traces ...
+[2025-05-28T01:57:09.931Z] STDOUT: Route (app)                                      Size  First Load JS
+[2025-05-28T01:57:09.931Z] STDOUT: ┌ ƒ /                                         7.31 kB         235 kB
+[2025-05-28T01:57:09.931Z] STDOUT: ├ ƒ /_not-found                                 990 B         103 kB
+[2025-05-28T01:57:09.931Z] STDOUT: ├ ƒ /about                                      204 B         102 kB
+[2025-05-28T01:57:09.931Z] STDOUT: ├ ƒ /api/lead-generation/start                  204 B         102 kB
+[2025-05-28T01:57:09.931Z] STDOUT: ├ ƒ /api/queue/check-warmup-comments            204 B         102 kB
+[2025-05-28T01:57:09.931Z] STDOUT: ├ ƒ /api/queue/process-dm-automations           204 B         102 kB
+[2025-05-28T01:57:09.931Z] STDOUT: ├ ƒ /api/queue/process-posts                    204 B         102 kB
+[2025-05-28T01:57:09.931Z] STDOUT: ├ ƒ /api/queue/process-warmup                   204 B         102 kB
+[2025-05-28T01:57:09.931Z] STDOUT: ├ ƒ /api/reddit/auth                            204 B         102 kB
+[2025-05-28T01:57:09.931Z] STDOUT: ├ ƒ /api/reddit/callback                        204 B         102 kB
+[2025-05-28T01:57:09.931Z] STDOUT: ├ ƒ /api/reddit/comments                        204 B         102 kB
+[2025-05-28T01:57:09.931Z] STDOUT: ├ ƒ /api/reddit/comments/[commentId]/replies    204 B         102 kB
+[2025-05-28T01:57:09.931Z] STDOUT: ├ ƒ /api/stripe/webhooks                        204 B         102 kB
+[2025-05-28T01:57:09.931Z] STDOUT: ├ ƒ /api/test-twitter-analysis                  204 B         102 kB
+[2025-05-28T01:57:09.931Z] STDOUT: ├ ƒ /api/test-twitter-direct                    204 B         102 kB
+[2025-05-28T01:57:09.931Z] STDOUT: ├ ƒ /api/warmup/generate-posts                  204 B         102 kB
+[2025-05-28T01:57:09.931Z] STDOUT: ├ ƒ /api/warmup/reset-daily-counters            204 B         102 kB
+[2025-05-28T01:57:09.931Z] STDOUT: ├ ƒ /contact                                    204 B         102 kB
+[2025-05-28T01:57:09.931Z] STDOUT: ├ ƒ /dashboard                                  204 B         102 kB
+[2025-05-28T01:57:09.931Z] STDOUT: ├ ƒ /debug/lead-generation-debug              1.88 kB         111 kB
+[2025-05-28T01:57:09.931Z] STDOUT: ├ ƒ /debug/test-page                            204 B         102 kB
+[2025-05-28T01:57:09.931Z] STDOUT: ├ ƒ /firebase-test                             5.2 kB         252 kB
+[2025-05-28T01:57:09.931Z] STDOUT: ├ ○ /icon.png                                     0 B            0 B
+[2025-05-28T01:57:09.931Z] STDOUT: ├ ƒ /login/[[...login]]                         395 B         135 kB
+[2025-05-28T01:57:09.931Z] STDOUT: ├ ƒ /onboarding                               14.8 kB         186 kB
+[2025-05-28T01:57:09.931Z] STDOUT: ├ ƒ /pricing                                    204 B         102 kB
+[2025-05-28T01:57:09.931Z] STDOUT: ├ ƒ /reddit-auth                               4.6 kB         138 kB
+[2025-05-28T01:57:09.931Z] STDOUT: ├ ƒ /reddit-test                              3.52 kB         137 kB
+[2025-05-28T01:57:09.931Z] STDOUT: ├ ƒ /reddit/dm-finder                         12.3 kB         407 kB
+[2025-05-28T01:57:09.931Z] STDOUT: ├ ƒ /reddit/knowledge-base                    10.8 kB         161 kB
+[2025-05-28T01:57:09.931Z] STDOUT: ├ ƒ /reddit/lead-finder                       48.4 kB         503 kB
+[2025-05-28T01:57:09.932Z] STDOUT: ├ ƒ /reddit/my-posts                             9 kB         151 kB
+[2025-05-28T01:57:09.932Z] STDOUT: ├ ƒ /reddit/personalization                   3.31 kB         116 kB
+[2025-05-28T01:57:09.932Z] STDOUT: ├ ƒ /reddit/settings                          6.11 kB         145 kB
+[2025-05-28T01:57:09.932Z] STDOUT: ├ ƒ /reddit/voice-settings                    9.28 kB         187 kB
+[2025-05-28T01:57:09.932Z] STDOUT: ├ ƒ /reddit/warm-up                           20.7 kB         193 kB
+[2025-05-28T01:57:09.932Z] STDOUT: └ ƒ /signup/[[...signup]]                       392 B         135 kB
+[2025-05-28T01:57:09.932Z] STDOUT: + First Load JS shared by all                  102 kB
+[2025-05-28T01:57:09.932Z] STDOUT: ├ chunks/1684-8fa040d7b4455d38.js           46.4 kB
+[2025-05-28T01:57:09.932Z] STDOUT: ├ chunks/4bd1b696-72d041b606c6bd53.js       53.2 kB
+[2025-05-28T01:57:09.932Z] STDOUT: └ other shared chunks (total)               2.31 kB
+[2025-05-28T01:57:09.932Z] STDOUT: ƒ Middleware                                  75.7 kB
+[2025-05-28T01:57:09.932Z] STDOUT: ○  (Static)   prerendered as static content
+[2025-05-28T01:57:09.932Z] STDOUT: ƒ  (Dynamic)  server-rendered on demand
+[2025-05-28T01:57:09.944Z] ==================================================
+[2025-05-28T01:57:09.944Z] COMMAND FINISHED: next build (exit code: 0)
+[2025-05-28T01:57:09.944Z] ==================================================
+[2025-05-28T01:57:17.515Z] ==================================================
+[2025-05-28T01:57:17.516Z] COMMAND STARTED: next lint --fix
+[2025-05-28T01:57:17.516Z] ==================================================
+[2025-05-28T01:57:18.487Z] STDOUT: ✔ No ESLint warnings or errors
+[2025-05-28T01:57:18.540Z] ==================================================
+[2025-05-28T01:57:18.540Z] COMMAND FINISHED: next lint --fix (exit code: 0)
+[2025-05-28T01:57:18.540Z] ==================================================
+[2025-05-28T01:57:18.752Z] ==================================================
+[2025-05-28T01:57:18.753Z] COMMAND STARTED: prettier --write {app,lib,components}/**/*.{ts,tsx} db/**/*.ts types/**/*.ts --cache --ignore-unknown
+[2025-05-28T01:57:18.753Z] ==================================================
+[2025-05-28T01:57:18.832Z] STDOUT: app/api/lead-generation/start/route.ts 1ms (unchanged) (cached)
+[2025-05-28T01:57:18.834Z] STDOUT: app/api/queue/check-warmup-comments/route.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.835Z] STDOUT: app/api/queue/process-dm-automations/route.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.837Z] STDOUT: app/api/queue/process-posts/route.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.838Z] STDOUT: app/api/queue/process-warmup/route.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.840Z] STDOUT: app/api/reddit/auth/route.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.841Z] STDOUT: app/api/reddit/callback/route.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.843Z] STDOUT: app/api/reddit/comments/[commentId]/replies/route.ts 1ms (unchanged) (cached)
+[2025-05-28T01:57:18.843Z] STDOUT: app/api/reddit/comments/route.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.845Z] STDOUT: app/api/stripe/webhooks/route.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.846Z] STDOUT: app/api/test-twitter-analysis/route.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.847Z] STDOUT: app/api/test-twitter-direct/route.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.848Z] STDOUT: app/api/warmup/generate-posts/route.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.849Z] STDOUT: app/api/warmup/reset-daily-counters/route.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.851Z] STDOUT: app/reddit/dm-finder/_components/dashboard/types.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.853Z] STDOUT: app/reddit/lead-finder/_components/dashboard/types.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.853Z] STDOUT: app/reddit/lead-finder/_components/dashboard/utils.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.856Z] STDOUT: app/(auth)/layout.tsx 1ms (unchanged) (cached)
+[2025-05-28T01:57:18.857Z] STDOUT: app/(marketing)/layout.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.858Z] STDOUT: app/(marketing)/page.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.861Z] STDOUT: app/dashboard/layout.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.862Z] STDOUT: app/dashboard/page.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.863Z] STDOUT: app/firebase-test/page.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.864Z] STDOUT: app/onboarding/layout.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.865Z] STDOUT: app/onboarding/page.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.867Z] STDOUT: app/reddit-auth/page.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.868Z] STDOUT: app/reddit-test/page.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.869Z] STDOUT: app/reddit/layout.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.871Z] STDOUT: lib/config/keyword-config.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.872Z] STDOUT: lib/config/reddit-config.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.874Z] STDOUT: lib/hooks/use-toast.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.877Z] STDOUT: lib/reddit/reddit-api-client.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.878Z] STDOUT: lib/utils/firestore-batch-utils.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.879Z] STDOUT: lib/utils/organization-utils.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.880Z] STDOUT: lib/utils/theme-utils.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.881Z] STDOUT: lib/utils/timestamp-utils.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.882Z] STDOUT: lib/hooks/use-copy-to-clipboard.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.883Z] STDOUT: lib/hooks/use-mobile.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.885Z] STDOUT: components/ui/use-toast.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.886Z] STDOUT: components/landing/hero.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.886Z] STDOUT: components/landing/logo-carousel.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.887Z] STDOUT: components/landing/testimonials.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.889Z] STDOUT: components/magicui/animated-gradient-text.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.889Z] STDOUT: components/magicui/hero-video-dialog.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.890Z] STDOUT: components/sidebar/app-sidebar.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.891Z] STDOUT: components/sidebar/create-organization-dialog.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.892Z] STDOUT: components/sidebar/nav-main.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.893Z] STDOUT: components/sidebar/nav-projects.tsx 1ms (unchanged) (cached)
+[2025-05-28T01:57:18.893Z] STDOUT: components/sidebar/nav-user.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.894Z] STDOUT: components/sidebar/team-switcher.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.895Z] STDOUT: components/sidebar/user-profile-dialog.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.896Z] STDOUT: components/ui/accordion.tsx 1ms (unchanged) (cached)
+[2025-05-28T01:57:18.896Z] STDOUT: components/ui/alert-dialog.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.897Z] STDOUT: components/ui/alert.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.898Z] STDOUT: components/ui/aspect-ratio.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.899Z] STDOUT: components/ui/avatar.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.900Z] STDOUT: components/ui/badge.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.901Z] STDOUT: components/ui/breadcrumb.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.902Z] STDOUT: components/ui/button.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.903Z] STDOUT: components/ui/calendar.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.903Z] STDOUT: components/ui/card.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.904Z] STDOUT: components/ui/carousel.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.905Z] STDOUT: components/ui/chart.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.906Z] STDOUT: components/ui/checkbox.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.907Z] STDOUT: components/ui/collapsible.tsx 1ms (unchanged) (cached)
+[2025-05-28T01:57:18.907Z] STDOUT: components/ui/command.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.908Z] STDOUT: components/ui/context-menu.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.909Z] STDOUT: components/ui/dialog.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.910Z] STDOUT: components/ui/drawer.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.911Z] STDOUT: components/ui/dropdown-menu.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.912Z] STDOUT: components/ui/form.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.912Z] STDOUT: components/ui/hover-card.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.913Z] STDOUT: components/ui/input-otp.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.914Z] STDOUT: components/ui/input.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.914Z] STDOUT: components/ui/label.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.915Z] STDOUT: components/ui/loading-skeleton.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.916Z] STDOUT: components/ui/menubar.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.916Z] STDOUT: components/ui/navigation-menu.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.917Z] STDOUT: components/ui/pagination.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.918Z] STDOUT: components/ui/popover.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.919Z] STDOUT: components/ui/progress.tsx 1ms (unchanged) (cached)
+[2025-05-28T01:57:18.919Z] STDOUT: components/ui/radio-group.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.921Z] STDOUT: components/ui/resizable.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.921Z] STDOUT: components/ui/scroll-area.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.922Z] STDOUT: components/ui/select.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.923Z] STDOUT: components/ui/separator.tsx 1ms (unchanged) (cached)
+[2025-05-28T01:57:18.923Z] STDOUT: components/ui/sheet.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.924Z] STDOUT: components/ui/sidebar.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.924Z] STDOUT: components/ui/skeleton.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.925Z] STDOUT: components/ui/slider.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.926Z] STDOUT: components/ui/sonner.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.926Z] STDOUT: components/ui/switch.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.927Z] STDOUT: components/ui/table.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.928Z] STDOUT: components/ui/tabs.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.929Z] STDOUT: components/ui/textarea.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.930Z] STDOUT: components/ui/toast.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.930Z] STDOUT: components/ui/toaster.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.931Z] STDOUT: components/ui/toggle-group.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.931Z] STDOUT: components/ui/toggle.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.932Z] STDOUT: components/ui/tooltip.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.933Z] STDOUT: components/utilities/organization-provider.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.933Z] STDOUT: components/utilities/organization-selector.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.934Z] STDOUT: components/utilities/providers.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.935Z] STDOUT: components/utilities/tailwind-indicator.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.936Z] STDOUT: components/utilities/theme-switcher.tsx 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.937Z] STDOUT: db/firestore/collections.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.938Z] STDOUT: db/firestore/dm-collections.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.940Z] STDOUT: db/firestore/dm-progress-collections.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.940Z] STDOUT: db/firestore/keyword-performance-collections.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.941Z] STDOUT: db/firestore/lead-generation-collections.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.942Z] STDOUT: db/firestore/organizations-collections.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.943Z] STDOUT: db/firestore/personalization-collections.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.944Z] STDOUT: db/firestore/posting-queue-collections.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.944Z] STDOUT: db/firestore/reddit-threads-collections.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.945Z] STDOUT: db/firestore/warmup-collections.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.946Z] STDOUT: db/schema/index.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.948Z] STDOUT: types/action-interfaces.ts 1ms (unchanged) (cached)
+[2025-05-28T01:57:18.948Z] STDOUT: types/index.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.949Z] STDOUT: types/lead-generation-types.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.949Z] STDOUT: types/organization-types.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.950Z] STDOUT: types/profile-types.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.950Z] STDOUT: types/server-action-types.ts 0ms (unchanged) (cached)
+[2025-05-28T01:57:18.958Z] ==================================================
+[2025-05-28T01:57:18.959Z] COMMAND FINISHED: prettier --write {app,lib,components}/**/*.{ts,tsx} db/**/*.ts types/**/*.ts --cache --ignore-unknown (exit code: 0)
+[2025-05-28T01:57:18.959Z] ==================================================
