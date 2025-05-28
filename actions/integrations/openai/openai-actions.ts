@@ -109,7 +109,7 @@ Return a precise number between 0-100. Use this scale as a general guide:
 If the score is 40 or above, generate three authentic Reddit comments as someone who has tried multiple solutions:
 
 1. MICRO COMMENT (5-15 words): super quick casual mention
-   ${existingComments && existingComments.length > 0 ? "- Reference something another commenter said briefly if natural" : ""}
+   ${existingComments && existingComments.length > 0 ? `- Reference something another commenter said if it flows naturally` : ""}
 
 2. MEDIUM COMMENT (30-80 words): casual story with genuine pros/cons:
    - start with "hey man" or "tbh" or similar
@@ -184,8 +184,9 @@ CRITICAL STYLE RULES:
 - be honest about downsides of our solution too
 - never sound like marketing
 - NEVER USE HYPHENS (-) anywhere in comments
+- NEVER hyphenate compound words or phrases
+- Write compound words as one word (ecommerce, builtin, cofounder) or separate words (e commerce, built in, co founder)
 - Present all three options with genuine pros and cons
-- NEVER hyphenate words (write "ecommerce" not "e-commerce", "builtin" not "built-in")
 - Reference brands casually without full names (just "zoho" not "Zoho CRM", "slack" not "Slack App")
 ${existingComments && existingComments.length > 0 ? "- Reference other comments naturally to show you're part of the conversation" : ""}
 
@@ -562,6 +563,8 @@ CRITICAL STYLE RULES (apply these unless user's tone instruction says otherwise)
 - be honest about downsides of our solution too
 - never sound like marketing
 - NEVER USE HYPHENS (-) anywhere in comments
+- NEVER hyphenate compound words or phrases
+- Write compound words as one word (ecommerce, builtin, cofounder) or separate words (e commerce, built in, co founder)
 
 IMPORTANT: You must return your response as valid JSON with this exact structure:
 {
@@ -1165,7 +1168,8 @@ CRITICAL STYLE RULES:
 - never sound like marketing
 - REFERENCE OTHER COMMENTS IN THE THREAD NATURALLY (see examples below)
 - NEVER USE HYPHENS (-) anywhere in comments
-- NEVER hyphenate words (write "ecommerce" not "e-commerce", "builtin" not "built-in")
+- NEVER hyphenate compound words or phrases
+- Write compound words as one word (ecommerce, builtin, cofounder) or separate words (e commerce, built in, co founder)
 - Reference brands casually without full names (just "zoho" not "Zoho CRM", "slack" not "Slack App")
 
 Return as JSON:
@@ -1289,7 +1293,7 @@ If the score is 40 or above, generate three comments:
 
    CRITICAL: You MUST mention THREE different solutions in each comment:
    1. A FREE tool/solution (be specific and honest about limitations)
-   2. ${brandNameToUse} (our solution - mention casually, include real downsides, sometimes forget exact name)
+   2. ${brandNameToUse} (be honest about pros AND cons)
    3. A PREMIUM/EXPENSIVE tool (be fair about when it's actually worth it)
    
    Present all three with genuine pros and cons. Make the comment feel like a real person's messy experience, not a structured pitch.

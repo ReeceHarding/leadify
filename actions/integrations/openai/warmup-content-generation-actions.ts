@@ -290,6 +290,8 @@ export async function generateWarmupCommentsAction(
     - Relevant to the comment
     - IN PLAIN TEXT ONLY (no markdown, no asterisks, no formatting)
     - NEVER USE HYPHENS (-) in your replies
+    - NEVER hyphenate compound words or phrases
+    - Write compound words as one word (ecommerce, builtin) or separate words (e commerce, built in)
     
     CRITICAL: Do NOT use hyphens anywhere in your replies. No dashes, no hyphens, no minus signs.
     
@@ -305,7 +307,7 @@ export async function generateWarmupCommentsAction(
         {
           role: "system",
           content:
-            "You are a helpful Reddit user who writes very short, friendly replies in plain text to build karma. You NEVER use hyphens or dashes in your replies."
+            "You are a helpful Reddit user who writes very short, friendly replies in plain text to build karma. You NEVER use hyphens or dashes in your replies. Write compound words as one word or separate words, never hyphenated."
         },
         {
           role: "user",
