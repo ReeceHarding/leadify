@@ -36,7 +36,8 @@ import {
   Building2,
   Info,
   ExternalLink,
-  MessageSquare
+  MessageSquare,
+  Hash
 } from "lucide-react"
 import { createCampaignAction } from "@/actions/db/campaign-actions"
 import { runLeadGenerationWorkflowWithLimitsAction } from "@/actions/lead-generation/workflow-actions"
@@ -49,6 +50,14 @@ import { normalizeUrl, isValidUrl } from "@/lib/utils"
 import { useOrganization } from "@/components/utilities/organization-provider"
 import { getKnowledgeBaseByOrganizationIdAction } from "@/actions/db/personalization-actions"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select"
+import { Label } from "@/components/ui/label"
 
 const campaignSchema = z.object({
   name: z
@@ -601,6 +610,35 @@ export default function CreateCampaignDialog({
                         </Button>
                       </div>
 
+                      {/* Posts per keyword selector - moved up for better visibility */}
+                      {keywords.length === 0 && (
+                        <div className="space-y-2">
+                          <Label className="flex items-center gap-2">
+                            <Hash className="size-4" />
+                            Posts per keyword
+                          </Label>
+                          <Select
+                            value={threadsPerKeyword.toString()}
+                            onValueChange={(value) => setThreadsPerKeyword(parseInt(value))}
+                            disabled={isCreating}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="5">5 posts per keyword</SelectItem>
+                              <SelectItem value="10">10 posts per keyword (Recommended)</SelectItem>
+                              <SelectItem value="15">15 posts per keyword</SelectItem>
+                              <SelectItem value="20">20 posts per keyword</SelectItem>
+                              <SelectItem value="25">25 posts per keyword</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <p className="text-muted-foreground text-xs">
+                            How many Reddit posts to analyze for each keyword
+                          </p>
+                        </div>
+                      )}
+
                       {/* AI Generation Button */}
                       <div className="space-y-3">
                         {/* AI Instructions Input */}
@@ -710,35 +748,50 @@ export default function CreateCampaignDialog({
 
               {keywords.length > 0 && (
                 <div className="space-y-2">
-                  <FormLabel>Estimated Threads</FormLabel>
+                  <FormLabel>Search Configuration</FormLabel>
                   <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <p className="text-muted-foreground text-sm">
-                        {estimatedThreads} threads
-                      </p>
-                      <p className="text-muted-foreground text-sm">
-                        across {keywords.length} keywords
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <label className="text-muted-foreground text-sm">
-                        Threads per keyword:
-                      </label>
-                      <Input
-                        type="number"
-                        min={1}
-                        max={20}
-                        value={threadsPerKeyword}
-                        onChange={e => {
-                          const value = parseInt(e.target.value)
-                          if (!isNaN(value) && value >= 1 && value <= 20) {
-                            setThreadsPerKeyword(value)
-                          }
-                        }}
+                    {/* Posts per keyword selector */}
+                    <div className="space-y-2">
+                      <Label className="flex items-center gap-2">
+                        <Hash className="size-4" />
+                        Posts per keyword
+                      </Label>
+                      <Select
+                        value={threadsPerKeyword.toString()}
+                        onValueChange={(value) => setThreadsPerKeyword(parseInt(value))}
                         disabled={isCreating}
-                        className="w-20"
-                      />
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="5">5 posts per keyword</SelectItem>
+                          <SelectItem value="10">10 posts per keyword (Recommended)</SelectItem>
+                          <SelectItem value="15">15 posts per keyword</SelectItem>
+                          <SelectItem value="20">20 posts per keyword</SelectItem>
+                          <SelectItem value="25">25 posts per keyword</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-muted-foreground text-xs">
+                        How many Reddit posts to analyze for each keyword
+                      </p>
                     </div>
+                    
+                    {/* Summary */}
+                    <Alert className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/30">
+                      <Target className="size-4 text-blue-600 dark:text-blue-400" />
+                      <AlertDescription>
+                        <strong className="text-blue-900 dark:text-blue-100">
+                          Total threads to analyze:
+                        </strong>{" "}
+                        <span className="text-blue-800 dark:text-blue-200">
+                          {estimatedThreads} threads
+                        </span>
+                        <span className="text-muted-foreground mt-1 block text-xs">
+                          ({keywords.length} keywords × {threadsPerKeyword} posts each)
+                        </span>
+                      </AlertDescription>
+                    </Alert>
                   </div>
                 </div>
               )}
