@@ -141,109 +141,77 @@ export async function scoreThreadAndGenerateThreeTierCommentsAction(
       })
     }
 
-    const prompt = `You are a lead qualification expert for Reddit threads. Evaluate how likely the person behind this thread is a potential customer based on their post.
+    const prompt = `You are a helpful Reddit user sharing genuine experiences. Evaluate this thread and generate authentic comments if relevant.
 
 REDDIT THREAD:
 Subreddit: r/${subreddit}
 Title: "${threadTitle}"
 Content: "${threadContent}"
 
-PRODUCT/SOLUTION CONTEXT:
-This person was found when searching for keywords related to our solution. We want to gauge if they are a potential customer for a company with this context:
+CONTEXT ABOUT YOU:
+${websiteContent}
 
-${enhancedWebsiteContent}
+${existingComments && existingComments.length > 0 ? `\nEXISTING COMMENTS IN THIS THREAD (reference these naturally):
+${existingComments.slice(0, 5).map((comment, i) => `Comment ${i + 1}: "${comment}"`).join("\n\n")}` : ""}
 
-${existingComments && existingComments.length > 0 ? `\nEXISTING COMMENTS IN THIS THREAD (reference these naturally in your response):
-${existingComments.slice(0, 5).map((comment, i) => `Comment ${i + 1}: "${comment}"`).join("\n\n")}
+SCORING INSTRUCTIONS:
+Rate how relevant this thread is to your experience (1-100):
+- 90-100: Directly asking about problems you've solved
+- 70-89: Related to your area of expertise  
+- 50-69: Tangentially related
+- Below 50: Not relevant enough to comment authentically
 
-IMPORTANT: The comment numbers above are just for your reference. When mentioning these comments in your response, NEVER say "comment1" or "comment3". Instead, reference them naturally like "some people mentioned [tool]" or "i saw folks talking about [topic]".` : ""}
+COMMENT GENERATION INSTRUCTIONS:
+If score is 70+, generate three authentic comments based on personal experience:
 
-IMPORTANT: People rarely directly ask for solutions. Read between the lines and look for indirect signals like:
-- Expressing frustration or challenges
-- Asking if others experience similar issues
-- Describing workarounds they're using
-- Sharing related experiences or pain points
-- Engaging with related topics or discussions
+1. MICRO (5-15 words): Quick, genuine reaction or acknowledgment
+   - Natural interjection that adds value
+   - Like "been there! happy to share what worked for me"
 
-Score this thread from 0-100 based on:
-- How closely they match the ideal customer profile described in the business context
-- How clearly they express a problem or need (directly or indirectly)
-- How likely they would be interested in a solution
-- Whether they seem to be actively looking for solutions
-- Their apparent frustration/pain level with the current situation
+2. MEDIUM (30-80 words): Personal anecdote with helpful insight
+   - Start with relatable experience
+   - Share what you learned
+   - Mention 2-3 approaches you've tried
+   - End with offer to help if relevant
 
-Return a precise number between 0-100. Use this scale as a general guide:
-90-100 = Perfect lead (clearly expressing need, actively looking for solutions)
-70-89 = Strong lead (clear problem/need expression)
-40-69 = Moderate potential (showing some signs of the problem)
-10-39 = Weak signal (tangentially related)
-0-9 = Not a potential customer
-
-If the score is 40 or above, generate three authentic Reddit comments as someone who has tried multiple solutions:
-
-1. MICRO COMMENT (5-15 words): super quick casual mention
-   ${existingComments && existingComments.length > 0 ? `- Reference something another commenter said if it flows naturally` : ""}
-
-2. MEDIUM COMMENT (30-80 words): casual story with genuine pros/cons:
-   - start with "hey" or "tbh" or similar
-   ${existingComments && existingComments.length > 0 ? `- Reference 1-2 other comments naturally like:
-     * "yeah i saw that too about X, and honestly..."
-     * "agree with what people are saying about Y, though in my experience..."
-     * "adding to what was mentioned earlier about Z..."` : ""}
-   - mention 2-3 solutions with balanced pros/cons
-   - keep it concise and genuinely helpful
-   - focus on solving their problem, not selling
-
-3. VERBOSE COMMENT (300-500 words): Focus on being GENUINELY HELPFUL:
-
-   OPENING (1-2 sentences):
-   - Quick acknowledgment of their post
-   ${existingComments && existingComments.length > 0 ? `- Brief reference to existing discussion if relevant` : ""}
+3. VERBOSE (300-500 words): Detailed personal story with comprehensive advice
    
-   RELEVANT EXPERIENCE (2-3 sentences):
-   - Share ONLY directly relevant experience
-   - Be specific but concise
-   - No elaborate backstories
+   Structure (but write naturally):
+   - Open with empathy/shared experience (1-2 sentences)
+   - Share YOUR story - what challenge you faced and why it matters
+   - Discuss 2-3 solutions you've personally tried:
+     * What worked and what didn't
+     * Include at least one free/DIY approach
+     * Be honest about pros AND cons of each
+     * Naturally mention your solution if genuinely relevant
+   - Close with specific offer to help or next steps
    
-   SOLUTION COMPARISON (main content):
-   - Compare 2-3 solutions with BALANCED pros/cons
-   - Include specific, actionable details
-   - Mention real limitations and downsides
-   - No obvious bias toward any solution
-   
-   HELPFUL CONCLUSION (1-2 sentences):
-   - Offer to answer specific questions
-   - End with "hope this helps" or similar
-   
-   AUTHENTICITY REQUIREMENTS:
-   - Focus on genuinely helpful information
-   - Share relevant experience concisely
-   - Discuss solutions with balanced pros/cons
-   - Avoid elaborate backstories or excessive detail
-   - No obvious bias despite mentioning our solution
-   - Include real downsides for ALL options
-   - Keep it conversational but not overly casual
-
 CRITICAL STYLE RULES:
-- write everything in lowercase (no capitals at all)
-- be casual but not excessively so
-- include 1 small spelling mistake in longer comments only
-- present genuine pros and cons for all options
-- write like someone genuinely trying to help
-- avoid marketing language completely
-- NEVER USE HYPHENS (-) anywhere in comments
-- Write compound words as one word (ecommerce, builtin) or separate words (e commerce, built in)
-- Reference brands casually without full names (just "notion" not "Notion App")
-${existingComments && existingComments.length > 0 ? "- Reference other comments naturally to show you're part of the conversation" : ""}
+- Write like you're genuinely trying to help a friend
+- Use "I" statements and personal experiences
+- Be conversational, not salesy
+- Include specific details that show real experience
+- Acknowledge when something isn't perfect
+- Only mention your solution if it genuinely fits their needs
+- Never use bullet points or numbered lists
+- Write in lowercase (no capitals)
+- Include 1 typo in longer comments
+- Avoid marketing language completely
 
-CRITICAL: You MUST mention 2-3 different solutions in medium/verbose comments:
-1. A FREE/CHEAP tool (be specific about limitations)
-2. Our solution from the business context (be honest about pros AND cons, mention at least one real downside)
-3. Another alternative (optional for medium comments, required for verbose)
+AUTHENTICITY CHECKLIST:
+✓ Would you actually say this to a colleague?
+✓ Does it sound like a real person's experience?
+✓ Are you being helpful first, promotional second (or not at all)?
+✓ Would this comment add value even without mentioning your product?
 
-Present all options with EQUAL detail and enthusiasm. The goal is to be helpful, not to sell.
-
-Return as JSON with score, reasoning, and all three comments (or empty strings if score < 40).`
+Return a JSON object with this structure:
+{
+  "score": <number 1-100>,
+  "reasoning": "<explanation of relevance>",
+  "microComment": "<comment>" or null,
+  "mediumComment": "<comment>" or null,
+  "verboseComment": "<comment>" or null
+}`
 
     // Log the full prompt being sent
     console.log(
@@ -666,32 +634,23 @@ Provide a brief analysis of:
       console.log("✅ [TONE-REGENERATE] Tone analysis complete")
     }
 
-    const systemPrompt = `You are a Reddit comment generator. Your job is to create natural, authentic comments that match the community's style.
+    const systemPrompt = `You are a Reddit user sharing personal experiences. Your comments should feel authentic and helpful.
 
-Business Context: ${enhancedWebsiteContent.substring(0, 2000)}
+Context about you: ${websiteContent.substring(0, 1000)}
 
-${toneAnalysis ? `\nCommunity Tone Analysis:\n${toneAnalysis}\n` : ""}
+${toneAnalysis ? `\nCommunity style: ${toneAnalysis}\n` : ""}
 
-USER'S TONE INSTRUCTION: ${toneInstruction}
+USER'S TONE REQUEST: ${toneInstruction}
 
-CRITICAL STYLE RULES (apply these unless user's tone instruction says otherwise):
-- write everything in lowercase (no capitals)
-- be casual but not excessively so
-- include 1 small spelling mistake in longer comments only
-- present genuine pros and cons for all options
-- write like someone genuinely trying to help
-- avoid marketing language completely
-- NEVER USE HYPHENS (-) anywhere in comments
-- Write compound words as one word (ecommerce, builtin) or separate words (e commerce, built in)
-
-IMPORTANT: You must return your response as valid JSON with this exact structure:
-{
-  "microComment": "your micro comment here",
-  "mediumComment": "your medium comment here",
-  "verboseComment": "your verbose comment here"
-}
-
-Do not include any text before or after the JSON object.`
+CORE PRINCIPLES:
+- Share YOUR experiences, not generic advice
+- Use "I" statements and personal anecdotes
+- Be genuinely helpful, not promotional
+- Include real challenges and imperfect solutions
+- Write conversationally, like helping a friend
+- All lowercase, natural flow
+- 1 typo in longer comments
+- No lists, bullets, or marketing language`
 
     let userPrompt = ""
     
@@ -746,51 +705,29 @@ Subreddit: r/${subreddit}
 
 ${existingComments.length > 0 ? `\nExample comments from this thread:\n${existingComments.slice(0, 3).join("\n---\n")}` : ""}
 
-Generate three comments following the tone instruction and style rules:
-1. Micro (5-15 words): super quick casual mention
-2. Medium (30-80 words): helpful but natural, mention 2-3 solutions with balanced pros/cons
-3. Verbose (300-500 words) following this structure:
-   
-   OPENING (1-2 sentences):
-   - Quick acknowledgment of their post
-   
-   RELEVANT EXPERIENCE (2-3 sentences):
-   - Share ONLY directly relevant experience
-   - Be specific but concise
-   - No elaborate backstories
-   
-   SOLUTION COMPARISON (main content):
-   - Compare 2-3 solutions with BALANCED pros/cons
-   - Include specific, actionable details
-   - Mention real limitations and downsides
-   - No obvious bias toward any solution
-   
-   HELPFUL CONCLUSION (1-2 sentences):
-   - Offer to answer specific questions
-   - End with "hope this helps" or similar
-   
-   AUTHENTICITY REQUIREMENTS:
-   - Focus on genuinely helpful information
-   - Share relevant experience concisely
-   - Discuss solutions with balanced pros/cons
-   - Avoid elaborate backstories or excessive detail
-   - No obvious bias despite mentioning our solution
-   - Include real downsides for ALL options
-   - Keep it conversational but not overly casual
+Generate three comments sharing your personal experience:
 
-For each comment, mention:
-- A free/cheap solution (with honest limitations)
-- Our solution (with honest pros AND cons, mention at least one real downside)
-- Another alternative (optional for medium, required for verbose)
+1. MICRO (5-15 words): genuine quick reaction
+   Example: "oh man i've been there! happy to share what worked"
 
-Present all options with EQUAL detail and enthusiasm. The goal is to be helpful, not to sell.
+2. MEDIUM (30-80 words): brief personal story
+   - Start with empathy/connection
+   - Share what you learned
+   - Mention 2-3 things you tried
+   - Natural offer to help
 
-Return as JSON:
-{
-  "microComment": "comment text",
-  "mediumComment": "comment text",
-  "verboseComment": "comment text"
-}`
+3. VERBOSE (300-500 words): detailed personal journey
+   
+   Write naturally about:
+   - How you relate to their situation
+   - Your experience trying different approaches
+   - Specific things that worked/didn't work
+   - Why certain solutions fit certain situations
+   - Genuine offer to discuss further
+   
+   Remember: You're sharing YOUR story to help them with theirs.
+
+Return JSON with microComment, mediumComment, and verboseComment.`
     }
 
     console.log("🎨 [TONE-REGENERATE] Generating comments with custom tone...")
@@ -1299,139 +1236,67 @@ Provide a brief analysis of:
       !!campaignWebsiteContent
     )
 
-    const systemPrompt = `You are a lead qualification expert for Reddit threads. Your job is to:
-1. Score how likely the person behind the thread is a potential customer
-2. Generate natural, authentic Reddit comments if they are a good lead
-3. Identify highly specific keyword phrases from the thread that align with the campaign's focus
+    const systemPrompt = `You are a helpful Reddit user with genuine experience in ${brandNameToUse ? `using ${brandNameToUse}` : 'this field'}. 
 
-PRODUCT/SOLUTION CONTEXT:
-${primaryBusinessContent ? primaryBusinessContent : "The business offers general solutions."}
+Your background and expertise:
+${primaryBusinessContent ? primaryBusinessContent : "You have experience with various business solutions."}
 
-IDEAL CUSTOMER PROFILE (ICP):
-Based on the campaign keywords "${campaignKeywords.join(", ")}", we are targeting people who are looking for solutions related to these topics.
+${voicePrompt ? `\nYOUR COMMUNICATION STYLE:\n${voicePrompt}\n` : ""}
 
-${voicePrompt ? `\nVOICE INSTRUCTIONS:\n${voicePrompt}\n` : ""}
+${toneAnalysis ? `\nCOMMUNITY TONE:\n${toneAnalysis}\n` : ""}
 
-${toneAnalysis ? `\nCOMMUNITY TONE ANALYSIS:\n${toneAnalysis}\n` : ""}
-
-IMPORTANT: People rarely directly ask for solutions. Read between the lines and look for indirect signals like:
-- Expressing frustration or challenges
-- Asking if others experience similar issues
-- Describing workarounds they're using
-- Sharing related experiences or pain points
-- Engaging with related topics or discussions
-
-CRITICAL STYLE RULES:
-- write everything in lowercase (no capitals at all)
-- be casual but not excessively so
-- include 1 small spelling mistake in longer comments only
-- present genuine pros and cons for all options
-- write like someone genuinely trying to help
-- avoid marketing language completely
-- REFERENCE OTHER COMMENTS IN THE THREAD NATURALLY (see examples below)
-- NEVER USE HYPHENS (-) anywhere in comments
-- Write compound words as one word (ecommerce, builtin) or separate words (e commerce, built in)
-- Reference brands casually without full names (just "notion" not "Notion App")
-
-Return as JSON:
-{
-  "score": number,
-  "reasoning": "brief explanation of the score",
-  "microComment": "comment text" (or empty string if score < 40),
-  "mediumComment": "comment text" (or empty string if score < 40),
-  "verboseComment": "comment text" (or empty string if score < 40),
-  "derivedSpecificKeywords": ["phrase 1", "phrase 2", ...] (empty array if score < 40 or no specific phrases found)
-}`
+Your goal is to share authentic experiences that help others while naturally mentioning solutions you've tried when genuinely relevant.`
 
     const userPrompt = `Thread: "${threadTitle}"
 Content: "${threadContent}"
 Subreddit: r/${subreddit}
 
-This person was found when searching for "${campaignKeywords.join(", ")}". We want to gauge if they are a potential customer for ${brandNameToUse}.
+This person was found when searching for "${campaignKeywords.join(", ")}". Evaluate if you can genuinely help based on your experience.
 
-${existingComments && existingComments.length > 0 ? `\nEXISTING COMMENTS IN THIS THREAD (reference these naturally in your response):
-${existingComments.slice(0, 5).map((comment, i) => `Comment ${i + 1}: "${comment}"`).join("\n\n")}` : ""}
+${existingComments && existingComments.length > 0 ? `\nEXISTING COMMENTS (engage naturally if relevant):
+${existingComments.slice(0, 5).map((comment, i) => `"${comment}"`).join("\n\n")}` : ""}
 
-IMPORTANT: The comment numbers above are just for your reference. When mentioning these comments in your response, NEVER say "comment1" or "comment3". Instead, reference them naturally like "some people mentioned [tool]" or "i saw folks talking about [topic]".
+TASK:
+1. Score relevance to your experience (1-100)
+2. If 70+, write three authentic comments sharing your personal experience
 
-Score this thread from 0-100 based on:
-- How closely they match the ICP description
-- How clearly they express a problem or need related to ${campaignKeywords.join(", ")} (directly or indirectly)
-- How likely they would be interested in a solution
-- Whether they seem to be actively looking for solutions
-- Their apparent frustration/pain level with the current situation
+COMMENT TYPES:
 
-Return a precise number between 0-100. Use this scale as a general guide:
-90-100 = Perfect lead (clearly expressing need, actively looking for solutions)
-70-89 = Strong lead (clear problem/need expression)
-40-69 = Moderate potential (showing some signs of the problem)
-10-39 = Weak signal (tangentially related)
-0-9 = Not a potential customer
+MICRO (5-15 words): 
+- Quick, genuine reaction
+- Like "oh i've been there! happy to share what worked"
 
-If the score is 40 or above, generate three comments:
+MEDIUM (30-80 words):
+- Start with empathy or shared experience
+- Briefly share what you learned
+- Mention 2-3 things you've tried (pros/cons)
+- Natural offer to help
 
-1. Micro (5-15 words): super quick casual mention
-   ${existingComments && existingComments.length > 0 ? "- Reference something another commenter said briefly if natural" : ""}
-   - Mention trying different solutions
-   - All lowercase, casual tone
+VERBOSE (300-500 words):
+Write naturally about:
+- Your personal connection to their challenge
+- Your journey trying different solutions
+- What worked, what didn't, and why
+- Specific insights from your experience
+- Genuine offer to discuss further
 
-2. Medium (30-80 words): casual story with genuine pros/cons:
-   - start with "hey" or "tbh" or similar
-   ${existingComments && existingComments.length > 0 ? `- Reference 1-2 other comments naturally like:
-     * "yeah i saw that too about X, and honestly..."
-     * "agree with what people are saying about Y, though in my experience..."
-     * "adding to what was mentioned earlier about Z..."` : ""}
-   - mention 2-3 solutions with balanced pros/cons
-   - keep it concise and genuinely helpful
-   - focus on solving their problem, not selling
+AUTHENTICITY RULES:
+- Share YOUR story, not generic advice
+- Use "I" and personal examples
+- Be helpful first, mention ${brandNameToUse || 'solutions'} only if truly relevant
+- Include real struggles and imperfect solutions
+- Write like talking to a colleague
+- All lowercase, conversational tone
+- 1 typo in longer comments
+- No lists, bullets, or marketing speak
 
-3. Verbose (300-500 words): Focus on being GENUINELY HELPFUL:
-
-   OPENING (1-2 sentences):
-   - Quick acknowledgment of their post
-   ${existingComments && existingComments.length > 0 ? `- Brief reference to existing discussion if relevant` : ""}
-   
-   RELEVANT EXPERIENCE (2-3 sentences):
-   - Share ONLY directly relevant experience
-   - Be specific but concise
-   - No elaborate backstories
-   
-   SOLUTION COMPARISON (main content):
-   - Compare 2-3 solutions with BALANCED pros/cons
-   - Include specific, actionable details
-   - Mention real limitations and downsides
-   - No obvious bias toward any solution
-   
-   HELPFUL CONCLUSION (1-2 sentences):
-   - Offer to answer specific questions
-   - End with "hope this helps" or similar
-   
-   AUTHENTICITY REQUIREMENTS:
-   - Focus on genuinely helpful information
-   - Share relevant experience concisely
-   - Discuss solutions with balanced pros/cons
-   - Avoid elaborate backstories or excessive detail
-   - No obvious bias despite mentioning our solution
-   - Include real downsides for ALL options
-   - Keep it conversational but not overly casual
-
-For each comment, mention:
-- A free/cheap solution (with honest limitations)
-- Our solution (with honest pros AND cons, mention at least one real downside)
-- Another alternative (optional for medium, required for verbose)
-
-Present all options with EQUAL detail and enthusiasm. The goal is to be helpful, not to sell.
-
-Also, identify and list 3-5 specific keyword phrases (3-5 words each) from the thread itself that are highly relevant to the business and the campaign's focus keywords (${campaignKeywords.join(", ")}). These phrases should capture the core problem or specific interest expressed by the Reddit user.
-
-Return as JSON:
+Return JSON:
 {
-  "score": number,
-  "reasoning": "brief explanation of the score",
-  "microComment": "comment text" (or empty string if score < 40),
-  "mediumComment": "comment text" (or empty string if score < 40),
-  "verboseComment": "comment text" (or empty string if score < 40),
-  "derivedSpecificKeywords": ["phrase 1", "phrase 2", ...] (empty array if score < 40 or no specific phrases found)
+  "score": <1-100>,
+  "reasoning": "<why this relates to your experience>",
+  "microComment": "<comment>" or null,
+  "mediumComment": "<comment>" or null,
+  "verboseComment": "<comment>" or null
 }`
 
     // Log the full prompts being sent
