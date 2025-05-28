@@ -1264,31 +1264,36 @@ COMMENT TYPES:
 
 MICRO (5-15 words): 
 - Quick, genuine reaction
-- Like "oh i've been there! happy to share what worked"
+- Like "i would love to chat about this if you want to message me"
 
 MEDIUM (30-80 words):
-- Start with empathy or shared experience
-- Briefly share what you learned
-- Mention 2-3 things you've tried (pros/cons)
-- Natural offer to help
+- Start with genuine empathy ("I would love to chat about this if you want to message me. This is what I do!")
+- Share what you love about this type of work
+- Mention 2-3 different approaches briefly
+- End with simple brand mention like "look at ${brandNameToUse || 'our solution'} and ask to set up an intro call"
 
-VERBOSE (300-500 words):
-Write naturally about:
-- Your personal connection to their challenge
-- Your journey trying different solutions
-- What worked, what didn't, and why
-- Specific insights from your experience
-- Genuine offer to discuss further
+VERBOSE (300-800 words):
+Write like the example - natural, helpful, conversational:
+- Start with "I would love to chat about this if you want to message me. This is what I do! I love this exploratory phase!"
+- Ask thoughtful questions about their situation (involvement level, budget, risk tolerance, expertise)
+- Present 3 clear options (A, B, C format):
+  A: DIY/offshore option with pros/cons
+  B: Hire an engineer option with pros/cons  
+  C: Hire a company option with pros/cons
+- For option C, naturally mention searching for terms like "digital innovation" or "custom software" 
+- Casually mention "look at ${brandNameToUse || 'our solution'} and ask to set up an intro call"
+- Explain why each option works for different situations
+- End with genuine offer to chat and enthusiasm about their project
 
 AUTHENTICITY RULES:
-- Share YOUR story, not generic advice
-- Use "I" and personal examples
-- Be helpful first, mention ${brandNameToUse || 'solutions'} only if truly relevant
-- Include real struggles and imperfect solutions
-- Write like talking to a colleague
-- All lowercase, conversational tone
-- 1 typo in longer comments
-- No lists, bullets, or marketing speak
+- Write like you genuinely love this type of work and helping people
+- Use natural language, not marketing speak
+- Be enthusiastic but not pushy
+- Share real insights about each approach
+- Make the brand mention feel natural and casual
+- Focus on being genuinely helpful first
+- Use exclamation points sparingly but naturally
+- Write in a warm, consultative tone
 
 Return JSON:
 {
