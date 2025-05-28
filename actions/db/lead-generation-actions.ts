@@ -116,7 +116,7 @@ function removeUndefinedValues(obj: any): any {
 
 export async function createSearchResultAction(
   data: CreateSearchResultData
-): Promise<ActionState<SearchResultDocument>> {
+): Promise<ActionState<SerializedSearchResultDocument>> {
   try {
     const searchResultRef = doc(collection(db, LEAD_COLLECTIONS.SEARCH_RESULTS))
 
@@ -137,10 +137,19 @@ export async function createSearchResultAction(
     await setDoc(searchResultRef, removeUndefinedValues(searchResultData))
 
     const createdDoc = await getDoc(searchResultRef)
+    if (!createdDoc.exists()) {
+      console.error(`❌ [LEAD-GEN-DB] Search result not found after creation!`)
+      return {
+        isSuccess: false,
+        message: "Search result not found after creation"
+      }
+    }
     return {
       isSuccess: true,
       message: "Search result created successfully",
-      data: createdDoc.data() as SearchResultDocument
+      data: serializeSearchResultDocument(
+        createdDoc.data() as SearchResultDocument
+      )
     }
   } catch (error) {
     console.error("Error creating search result:", error)
@@ -152,7 +161,7 @@ export async function createSearchResultAction(
 
 export async function createRedditThreadAction(
   data: CreateRedditThreadData
-): Promise<ActionState<RedditThreadDocument>> {
+): Promise<ActionState<SerializedRedditThreadDocument>> {
   try {
     const threadRef = doc(collection(db, LEAD_COLLECTIONS.REDDIT_THREADS))
 
@@ -176,10 +185,19 @@ export async function createRedditThreadAction(
     await setDoc(threadRef, removeUndefinedValues(threadData))
 
     const createdDoc = await getDoc(threadRef)
+    if (!createdDoc.exists()) {
+      console.error(`❌ [LEAD-GEN-DB] Reddit thread not found after creation!`)
+      return {
+        isSuccess: false,
+        message: "Reddit thread not found after creation"
+      }
+    }
     return {
       isSuccess: true,
       message: "Reddit thread created successfully",
-      data: createdDoc.data() as RedditThreadDocument
+      data: serializeRedditThreadDocument(
+        createdDoc.data() as RedditThreadDocument
+      )
     }
   } catch (error) {
     console.error("Error creating Reddit thread:", error)
@@ -427,7 +445,7 @@ export async function getGeneratedCommentsByCampaignAction(
 
 export async function getGeneratedCommentByIdAction(
   id: string
-): Promise<ActionState<GeneratedCommentDocument>> {
+): Promise<ActionState<SerializedGeneratedCommentDocument>> {
   try {
     console.log(`📖 [LEAD-GEN] Fetching comment by ID: ${id}`)
     
@@ -447,7 +465,7 @@ export async function getGeneratedCommentByIdAction(
     return {
       isSuccess: true,
       message: "Comment retrieved successfully",
-      data: comment
+      data: serializeGeneratedCommentDocument(comment)
     }
   } catch (error) {
     console.error("Error getting comment by ID:", error)
@@ -487,7 +505,7 @@ export async function updateGeneratedCommentLengthAction(
 
 export async function createBatchRedditThreadsAction(
   threads: CreateRedditThreadData[]
-): Promise<ActionState<RedditThreadDocument[]>> {
+): Promise<ActionState<SerializedRedditThreadDocument[]>> {
   try {
     const batch = writeBatch(db)
     const threadRefs: any[] = []
@@ -507,17 +525,24 @@ export async function createBatchRedditThreadsAction(
     await batch.commit()
 
     // Fetch the created documents
-    const createdDocs = await Promise.all(
+    const createdDocsData = await Promise.all(
       threadRefs.map(async ({ ref }) => {
-        const doc = await getDoc(ref)
-        return doc.data() as RedditThreadDocument
+        const docSnap = await getDoc(ref)
+        if (docSnap.exists()) {
+          return serializeRedditThreadDocument(
+            docSnap.data() as RedditThreadDocument
+          )
+        }
+        return null
       })
     )
+    
+    const filteredDocs = createdDocsData.filter(doc => doc !== null) as SerializedRedditThreadDocument[];
 
     return {
       isSuccess: true,
-      message: `Created ${createdDocs.length} Reddit threads successfully`,
-      data: createdDocs
+      message: `Created ${filteredDocs.length} Reddit threads successfully`,
+      data: filteredDocs
     }
   } catch (error) {
     console.error("Error creating batch Reddit threads:", error)
@@ -527,7 +552,7 @@ export async function createBatchRedditThreadsAction(
 
 export async function createBatchGeneratedCommentsAction(
   comments: CreateGeneratedCommentData[]
-): Promise<ActionState<GeneratedCommentDocument[]>> {
+): Promise<ActionState<SerializedGeneratedCommentDocument[]>> {
   try {
     const batch = writeBatch(db)
     const commentRefs: any[] = []
@@ -539,28 +564,35 @@ export async function createBatchGeneratedCommentsAction(
       const data = {
         id: commentRef.id,
         ...commentData,
-
+        status: commentData.status || "new",
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       }
       batch.set(commentRef, removeUndefinedValues(data))
-      commentRefs.push({ ref: commentRef, data })
+      commentRefs.push({ ref: commentRef })
     })
 
     await batch.commit()
 
     // Fetch the created documents
-    const createdDocs = await Promise.all(
+    const createdDocsData = await Promise.all(
       commentRefs.map(async ({ ref }) => {
-        const doc = await getDoc(ref)
-        return doc.data() as GeneratedCommentDocument
+        const docSnap = await getDoc(ref)
+        if (docSnap.exists()){
+           return serializeGeneratedCommentDocument(
+            docSnap.data() as GeneratedCommentDocument
+          );
+        }
+        return null;
       })
     )
+    
+    const filteredDocs = createdDocsData.filter(doc => doc !== null) as SerializedGeneratedCommentDocument[];
 
     return {
       isSuccess: true,
-      message: `Created ${createdDocs.length} generated comments successfully`,
-      data: createdDocs
+      message: `Created ${filteredDocs.length} generated comments successfully`,
+      data: filteredDocs
     }
   } catch (error) {
     console.error("Error creating batch generated comments:", error)
