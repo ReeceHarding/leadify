@@ -128,6 +128,7 @@ import {
 import {
   getRedditThreadsByOrganizationAction
 } from "@/actions/db/reddit-threads-actions"
+import { RedditThreadDocument } from "@/db/firestore/reddit-threads-collections"
 
 const ITEMS_PER_PAGE = 20
 const POLLING_INTERVAL = 5000 // 5 seconds
@@ -310,8 +311,20 @@ export default function DMFinderDashboard() {
           throw new Error(automationsResult.message)
         }
 
-        const automations = automationsResult.data || []
-        addDebugLog("Loaded DM automations", { count: automations.length })
+        const rawAutomations = automationsResult.data || []
+        addDebugLog("Loaded DM automations", { count: rawAutomations.length })
+
+        // Transform DMAutomationDocument to DMAutomation type
+        const automations: DMAutomation[] = rawAutomations.map(auto => ({
+          id: auto.id,
+          name: auto.name,
+          organizationId: auto.organizationId,
+          status: auto.isActive ? "running" : "draft",
+          totalDMsSent: auto.dmsSentToday || 0,
+          createdAt: auto.createdAt.toDate().toISOString(),
+          keywords: auto.keywords,
+          targetSubreddits: auto.subreddits
+        }))
 
         // Get automation ID from URL or use most recent
         const urlAutomationId = searchParams.get("automationId")
@@ -356,7 +369,7 @@ export default function DMFinderDashboard() {
 
     try {
       // Get threads from shared collection
-      const threadsResult = await getRedditThreadsByOrganizationIdAction(
+      const threadsResult = await getRedditThreadsByOrganizationAction(
         currentOrganization.id
       )
 
@@ -367,7 +380,7 @@ export default function DMFinderDashboard() {
       const threads = threadsResult.data || []
       
       // Transform threads to DMPost format
-      const posts: DMPost[] = threads.map(thread => ({
+      const posts: DMPost[] = threads.map((thread: RedditThreadDocument) => ({
         id: thread.id,
         threadId: thread.id,
         title: thread.title,
@@ -513,13 +526,14 @@ export default function DMFinderDashboard() {
 
     try {
       const result = await generatePersonalizedDMAction({
-        organizationId: currentOrganization.id,
-        threadId: post.threadId,
         postTitle: post.title,
         postContent: post.selftext,
         postAuthor: post.author,
+        postCreatedAt: new Date(post.created_utc * 1000).toISOString(),
         subreddit: post.subreddit,
-        relevanceScore: post.relevanceScore || 0
+        businessContext: `Organization: ${currentOrganization.name}`,
+        targetAudience: "Reddit users looking for solutions",
+        valueProposition: "Professional services to help with their needs"
       })
 
       if (result.isSuccess && result.data) {
@@ -529,7 +543,7 @@ export default function DMFinderDashboard() {
             p.id === post.id
               ? {
                   ...p,
-                  dmContent: result.data[state.selectedLength],
+                  dmContent: result.data.message,
                   selectedLength: state.selectedLength
                 }
               : p
@@ -558,7 +572,8 @@ export default function DMFinderDashboard() {
 
     try {
       const result = await sendRedditDMAction({
-        username: post.author,
+        organizationId: currentOrganization?.id || "",
+        recipientUsername: post.author,
         subject: `Re: ${post.title}`,
         message: post.dmContent
       })

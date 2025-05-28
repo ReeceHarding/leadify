@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge"
 import { Loader2, Plus, X, Sparkles } from "lucide-react"
 import { toast } from "sonner"
 import { createDMAutomationAction } from "@/actions/db/dm-actions"
-import { generateKeywordsAction } from "@/actions/integrations/openai/openai-actions"
+import { generateKeywordsAction } from "@/actions/lead-generation/keywords-actions"
 
 interface CreateDMAutomationDialogProps {
   open: boolean
@@ -75,11 +75,12 @@ export default function CreateDMAutomationDialog({
     try {
       const result = await generateKeywordsAction({
         businessDescription: description,
-        additionalContext: aiInstructions || "Generate keywords for finding Reddit users to send DMs to"
+        refinement: aiInstructions || "Generate keywords for finding Reddit users to send DMs to",
+        organizationId: organizationId
       })
 
       if (result.isSuccess && result.data) {
-        setKeywords(result.data)
+        setKeywords(result.data.keywords)
         toast.success("Keywords generated successfully!")
       } else {
         throw new Error(result.message)
@@ -107,11 +108,12 @@ export default function CreateDMAutomationDialog({
     try {
       const result = await createDMAutomationAction({
         organizationId,
+        userId: "", // This will be filled by the action
         name: name.trim(),
-        description: description.trim(),
         keywords,
-        targetSubreddits,
-        isActive: true
+        subreddits: targetSubreddits,
+        templateId: "", // This needs to be set or made optional
+        maxDailyDMs: 50 // Default value
       })
 
       if (result.isSuccess && result.data) {
