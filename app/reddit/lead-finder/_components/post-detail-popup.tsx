@@ -34,6 +34,7 @@ import {
 import { fetchRedditThreadAction } from "@/actions/integrations/reddit/reddit-actions"
 import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
+import { useOrganization } from "@/components/utilities/organization-provider"
 
 interface PostDetailPopupProps {
   open: boolean
@@ -85,6 +86,7 @@ export default function PostDetailPopup({
   const [comments, setComments] = useState<RedditComment[]>([])
   const [loadingComments, setLoadingComments] = useState(false)
   const [isAnalysisOpen, setIsAnalysisOpen] = useState(false)
+  const { currentOrganization } = useOrganization()
 
   useEffect(() => {
     if (open && lead.postUrl) {
@@ -101,6 +103,14 @@ export default function PostDetailPopup({
       return
     }
 
+    // Check if we have organization context
+    if (!currentOrganization) {
+      console.error("❌ No organization context available")
+      setError("Organization context not available")
+      setFullContent(lead.postContentSnippet)
+      return
+    }
+
     setIsLoading(true)
     setError(null)
 
@@ -113,9 +123,13 @@ export default function PostDetailPopup({
         return
       }
 
-      console.log(`🔍 Fetching full content for thread: ${threadId}`)
+      console.log(`🔍 Fetching full content for thread: ${threadId} in org: ${currentOrganization.id}`)
 
-      const result = await fetchRedditThreadAction(threadId, lead.subreddit)
+      const result = await fetchRedditThreadAction(
+        currentOrganization.id,
+        threadId,
+        lead.subreddit
+      )
 
       if (result.isSuccess) {
         setFullContent(result.data.content || result.data.title)
