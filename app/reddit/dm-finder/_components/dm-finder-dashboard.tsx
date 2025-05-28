@@ -19,7 +19,8 @@ import {
   CalendarDays,
   ChevronRight,
   ChevronDown,
-  RefreshCw
+  RefreshCw,
+  TrendingUp
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -92,6 +93,7 @@ interface RedditPost {
   reasoning?: string
   hasComment?: boolean
   hasDM?: boolean
+  keywords?: string[]
 }
 
 interface DMResult {
@@ -130,9 +132,11 @@ interface DashboardState {
   
   // UI state
   currentPage: number
-  sortBy: "recent" | "upvotes"
-  dateFilter: "all" | "today" | "week" | "month"
+  sortBy: "relevance" | "upvotes" | "time" | "posted" | "fetched"
+  dateFilter: "all" | "today" | "week" | "month" | "3months"
   searchPostsQuery: string
+  selectedKeyword: string | null
+  filterScore: number
 }
 
 const initialState: DashboardState = {
@@ -148,9 +152,11 @@ const initialState: DashboardState = {
   dmHistory: [],
   isLoadingHistory: true,
   currentPage: 1,
-  sortBy: "recent",
+  sortBy: "relevance",
   dateFilter: "all",
-  searchPostsQuery: ""
+  searchPostsQuery: "",
+  selectedKeyword: null,
+  filterScore: 0
 }
 
 const ITEMS_PER_PAGE = 20
@@ -187,11 +193,18 @@ const getTimeAgo = (timestamp: number | string): string => {
   }
 }
 
-const filterByDate = (item: { createdAt?: string }, dateFilter: string): boolean => {
+const filterByDate = (item: { createdAt?: string; created_utc?: number }, dateFilter: string): boolean => {
   if (dateFilter === "all") return true
-  if (!item.createdAt) return true
 
-  const itemDate = new Date(item.createdAt)
+  let itemDate: Date
+  if ('created_utc' in item && item.created_utc) {
+    itemDate = new Date(item.created_utc * 1000)
+  } else if (item.createdAt) {
+    itemDate = new Date(item.createdAt)
+  } else {
+    return true
+  }
+
   const now = new Date()
   const daysDiff = Math.floor(
     (now.getTime() - itemDate.getTime()) / (1000 * 60 * 60 * 24)
@@ -204,6 +217,8 @@ const filterByDate = (item: { createdAt?: string }, dateFilter: string): boolean
       return daysDiff <= 7
     case "month":
       return daysDiff <= 30
+    case "3months":
+      return daysDiff <= 90
     default:
       return true
   }
@@ -257,7 +272,7 @@ export default function DMFinderDashboard({
         organizationId,
         {
           minScore: 50, // Only show threads with decent relevance
-          limitCount: 50
+          limitCount: 100 // Get more threads for DM finder
         }
       )
 
@@ -279,7 +294,8 @@ export default function DMFinderDashboard({
           relevanceScore: thread.relevanceScore,
           reasoning: thread.reasoning,
           hasComment: thread.hasComment,
-          hasDM: thread.hasDM
+          hasDM: thread.hasDM,
+          keywords: thread.keywords
         }))
         
         updateState({ searchResults: postsWithTimeAgo })
@@ -525,6 +541,17 @@ export default function DMFinderDashboard({
     toast.success("DM copied to clipboard")
   }
 
+  // Get unique keywords from posts
+  const uniqueKeywords = useMemo(() => {
+    const keywords = new Set<string>()
+    state.searchResults.forEach(post => {
+      if (post.keywords) {
+        post.keywords.forEach(keyword => keywords.add(keyword))
+      }
+    })
+    return Array.from(keywords).sort()
+  }, [state.searchResults])
+
   // Filtered and sorted results
   const filteredResults = useMemo(() => {
     let filtered = [...state.searchResults]
@@ -532,13 +559,47 @@ export default function DMFinderDashboard({
     // Apply search filter
     filtered = filtered.filter(post => matchesSearchQuery(post, state.searchPostsQuery))
 
+    // Apply keyword filter
+    if (state.selectedKeyword) {
+      filtered = filtered.filter(post => 
+        post.keywords && post.keywords.includes(state.selectedKeyword!)
+      )
+    }
+
+    // Apply score filter
+    if (state.filterScore > 0) {
+      filtered = filtered.filter(post => 
+        (post.relevanceScore || 0) >= state.filterScore
+      )
+    }
+
+    // Apply date filter
+    filtered = filtered.filter(post => filterByDate(post, state.dateFilter))
+
     // Sort
-    if (state.sortBy === "upvotes") {
-      filtered.sort((a, b) => b.score - a.score)
+    switch (state.sortBy) {
+      case "relevance":
+        filtered.sort((a, b) => (b.relevanceScore || 0) - (a.relevanceScore || 0))
+        break
+      case "upvotes":
+        filtered.sort((a, b) => b.score - a.score)
+        break
+      case "posted":
+        // Sort by Reddit post creation date (newest first)
+        filtered.sort((a, b) => b.created_utc - a.created_utc)
+        break
+      case "fetched":
+        // For DM finder, this is same as relevance since we don't track fetch time
+        filtered.sort((a, b) => (b.relevanceScore || 0) - (a.relevanceScore || 0))
+        break
+      case "time":
+        // Recent activity
+        filtered.sort((a, b) => b.created_utc - a.created_utc)
+        break
     }
 
     return filtered
-  }, [state.searchResults, state.searchPostsQuery, state.sortBy])
+  }, [state.searchResults, state.searchPostsQuery, state.selectedKeyword, state.filterScore, state.dateFilter, state.sortBy])
 
   // Filtered history
   const filteredHistory = useMemo(() => {
@@ -648,41 +709,123 @@ export default function DMFinderDashboard({
               </div>
             </CollapsibleContent>
           </Collapsible>
+        </CardContent>
+      </Card>
 
-          {/* Filters */}
-          {state.searchResults.length > 0 && (
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Filter className="size-4 text-gray-500" />
+      {/* Filters Section - Identical to Lead Finder */}
+      {state.searchResults.length > 0 && (
+        <div className="bg-card rounded-lg border p-4 shadow-sm dark:border-gray-700">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="flex grow items-center gap-2">
+                <Filter className="size-4 shrink-0 text-gray-500 dark:text-gray-400" />
                 <Input
-                  placeholder="Filter results..."
+                  placeholder="Search by title, body, username..."
                   value={state.searchPostsQuery}
                   onChange={e => updateState({ searchPostsQuery: e.target.value })}
-                  className="w-64"
+                  className="h-9 grow"
                 />
               </div>
+
+              {/* Keyword Filter */}
               <div className="flex items-center gap-2">
-                <ArrowUpDown className="size-4 text-gray-500" />
+                <Hash className="size-4 shrink-0 text-gray-500 dark:text-gray-400" />
                 <Select
-                  value={state.sortBy}
-                  onValueChange={(value: any) => updateState({ sortBy: value })}
+                  value={state.selectedKeyword ?? "all"}
+                  onValueChange={(value: string) =>
+                    updateState({
+                      selectedKeyword: value === "all" ? null : value
+                    })
+                  }
                 >
-                  <SelectTrigger className="w-32">
-                    <SelectValue />
+                  <SelectTrigger className="h-9 w-[200px]">
+                    <SelectValue placeholder="All Keywords" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="recent">Most Recent</SelectItem>
-                    <SelectItem value="upvotes">Most Upvotes</SelectItem>
+                    <SelectItem value="all">All Keywords</SelectItem>
+                    {uniqueKeywords.map(keyword => (
+                      <SelectItem key={keyword} value={keyword}>
+                        {keyword}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
-              <div className="ml-auto text-sm text-gray-500">
+
+              {/* Date Filter */}
+              <div className="flex items-center gap-2">
+                <Calendar className="size-4 shrink-0 text-gray-500 dark:text-gray-400" />
+                <Select
+                  value={state.dateFilter}
+                  onValueChange={(value: any) =>
+                    updateState({ dateFilter: value })
+                  }
+                >
+                  <SelectTrigger className="h-9 w-[140px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Time</SelectItem>
+                    <SelectItem value="today">Today</SelectItem>
+                    <SelectItem value="week">Past 7 Days</SelectItem>
+                    <SelectItem value="month">Past 30 Days</SelectItem>
+                    <SelectItem value="3months">Past 3 Months</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Score Filter */}
+              <div className="flex items-center gap-2">
+                <TrendingUp className="size-4 shrink-0 text-gray-500 dark:text-gray-400" />
+                <Select
+                  value={state.filterScore.toString()}
+                  onValueChange={value =>
+                    updateState({ filterScore: parseInt(value) })
+                  }
+                >
+                  <SelectTrigger className="h-9 w-[160px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0">All Scores</SelectItem>
+                    <SelectItem value="50">50%+ Match</SelectItem>
+                    <SelectItem value="70">70%+ Match</SelectItem>
+                    <SelectItem value="80">80%+ Match</SelectItem>
+                    <SelectItem value="90">90%+ Match</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Sort and Results Count */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <ArrowUpDown className="size-4 shrink-0 text-gray-500 dark:text-gray-400" />
+                <Select
+                  value={state.sortBy}
+                  onValueChange={(value: "relevance" | "upvotes" | "time" | "posted" | "fetched") =>
+                    updateState({ sortBy: value })
+                  }
+                >
+                  <SelectTrigger className="h-9 w-[180px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="relevance">Best Match</SelectItem>
+                    <SelectItem value="upvotes">Highest Score</SelectItem>
+                    <SelectItem value="posted">Most Recently Posted</SelectItem>
+                    <SelectItem value="fetched">Most Recently Fetched</SelectItem>
+                    <SelectItem value="time">Recent Activity</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
                 Showing {filteredResults.length} of {state.searchResults.length} posts
               </div>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </div>
+        </div>
+      )}
 
       {/* Results */}
       {state.isSearching ? (
@@ -864,13 +1007,18 @@ export default function DMFinderDashboard({
                     <Button
                       size="sm"
                       onClick={() => handleGenerateDM(post)}
-                      disabled={state.isGeneratingDM}
+                      disabled={state.isGeneratingDM || post.hasDM}
                       className="flex-1 bg-blue-600 text-white hover:bg-blue-700"
                     >
                       {state.isGeneratingDM && state.selectedPost?.id === post.id ? (
                         <>
                           <Loader2 className="mr-2 size-4 animate-spin" />
                           Generating...
+                        </>
+                      ) : post.hasDM ? (
+                        <>
+                          <Check className="mr-2 size-4" />
+                          DM Sent
                         </>
                       ) : (
                         <>
