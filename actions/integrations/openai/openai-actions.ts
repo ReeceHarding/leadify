@@ -1269,6 +1269,11 @@ ${voicePrompt ? `\nYOUR COMMUNICATION STYLE:\n${voicePrompt}\n` : ""}
 
 ${toneAnalysis ? `\nCOMMUNITY TONE:\n${toneAnalysis}\n` : ""}
 
+CRITICAL WRITING RULES:
+- NEVER use hyphenated words. Write "co founder" not "co-founder", "self serve" not "self-serve", "long term" not "long-term", etc.
+- Look for indirect signals of problems, not just direct requests for help
+- For posts over 1 year old, acknowledge the time gap appropriately
+
 Your goal is to share authentic experiences that help others while naturally mentioning solutions you've tried when genuinely relevant.`
 
     const userPrompt = `Thread: "${threadTitle}"
@@ -1281,6 +1286,14 @@ This person was found when searching for "${campaignKeywords.join(", ")}". Evalu
 ${existingComments && existingComments.length > 0 ? `\nEXISTING COMMENTS IN THIS THREAD:
 ${existingComments.slice(0, 10).map((comment, i) => `Comment ${i + 1}: "${comment}"`).join("\n\n")}` : ""}
 
+LEAD QUALIFICATION CONTEXT:
+People rarely directly ask for solutions. Read between the lines and look for indirect signals like:
+- Expressing frustration or challenges
+- Asking if others experience similar issues
+- Describing workarounds they're using
+- Sharing related experiences or pain points
+- Engaging with related topics or discussions
+
 CONTEXT TO CONSIDER:
 - What specific problem are they trying to solve?
 - What constraints have they mentioned (budget, timeline, expertise)?
@@ -1289,14 +1302,24 @@ CONTEXT TO CONSIDER:
 ${postAgeContext ? `- Consider the post timing: ${postAgeContext} (adjust urgency/tone accordingly)` : ''}
 
 YOUR TASK:
-1. Score relevance (1-100) based on whether you can genuinely help
+1. Score relevance (0-100) based on lead qualification:
+   - 90-100 = Perfect lead (clearly expressing need, actively looking for solutions)
+   - 70-89 = Strong lead (clear problem/need expression)
+   - 40-69 = Moderate potential (showing some signs of the problem)
+   - 10-39 = Weak signal (tangentially related)
+   - 0-9 = Not a potential customer
+
 2. If 70+, write three authentic comments that respond to THEIR specific situation
+
+SPECIAL HANDLING FOR OLD POSTS:
+${postAgeContext && postAgeContext.includes('year') ? `- This post is over a year old. Start verbose comments with something like "i hope you figured this out by now but wanted to drop this here in case anyone else is going through the same situation..."` : ''}
 
 COMMENT FRAMEWORK (adapt to their specific needs):
 
 MICRO (5-15 words): 
 - Express genuine interest in helping
 - Should feel like a natural reaction to their specific post
+- NEVER use hyphens in any words
 
 MEDIUM (30-80 words):
 - Start with enthusiasm about their specific project/problem
@@ -1304,10 +1327,11 @@ MEDIUM (30-80 words):
 - Briefly outline 2-3 approaches that fit THEIR situation
 - Include a natural mention of ${brandNameToUse || 'your solution'} as one option
 - End with offer to discuss further
+- NEVER use hyphens in any words
 
 VERBOSE (300-800 words):
 Follow this thinking process:
-1. Open with genuine enthusiasm about their specific challenge
+1. ${postAgeContext && postAgeContext.includes('year') ? 'Acknowledge the post age: "i hope you figured this out by now but wanted to drop this here in case anyone else is going through the same situation..."' : 'Open with genuine enthusiasm about their specific challenge'}
 2. Ask clarifying questions relevant to THEIR situation (not generic)
 3. Present options that make sense for THEIR specific context:
    - Structure as A, B, C (or similar) based on their needs
@@ -1315,6 +1339,7 @@ Follow this thinking process:
    - Include pros/cons specific to their situation
    - Naturally mention ${brandNameToUse || 'your solution'} where it fits
 4. Close with genuine offer to help
+5. NEVER use hyphens in any words (write "co founder" not "co-founder", "self serve" not "self-serve", etc.)
 
 CRITICAL THINKING GUIDELINES:
 - Respond to THEIR specific situation, not a generic template
@@ -1323,17 +1348,20 @@ CRITICAL THINKING GUIDELINES:
 - Only mention solutions that genuinely fit their needs
 - Use natural transitions and conversational flow
 - Show you've read and understood their unique challenge
+- Look for indirect signals of pain points, not just direct requests
 
 AUTHENTICITY CHECKLIST:
 ✓ Does this respond to their SPECIFIC situation?
 ✓ Have you acknowledged what others have already said?
 ✓ Are your suggestions tailored to their constraints?
 ✓ Does it feel like a genuine conversation, not a template?
+✓ Did you avoid ALL hyphenated words?
+✓ For old posts, did you acknowledge the time gap appropriately?
 
 Return JSON:
 {
-  "score": <1-100>,
-  "reasoning": "<why you can help with their specific situation>",
+  "score": <0-100>,
+  "reasoning": "<why you can help with their specific situation, considering indirect signals>",
   "microComment": "<comment>" or null,
   "mediumComment": "<comment>" or null,
   "verboseComment": "<comment>" or null
