@@ -153,7 +153,7 @@ import { validateOrganizationId, resolveOrganizationId } from "@/lib/utils/organ
 import { LeadResult } from "./dashboard/types"
 import { getTimeAgo, serializeTimestampToISO } from "./dashboard/utils"
 import {
-  LeadGenerationProgress as WorkflowProgress,
+  LeadGenerationProgress,
   LEAD_GENERATION_STAGES
 } from "@/types"
 import LeadGenerationProgressBar from "./dashboard/lead-generation-progress-bar"
@@ -311,7 +311,7 @@ export default function LeadFinderDashboard() {
   const newLeadIds = useRef(new Set<string>())
   const searchParams = useSearchParams()
   const [liveFirestoreProgress, setLiveFirestoreProgress] =
-    useState<WorkflowProgress | null>(null)
+    useState<LeadGenerationProgress | null>(null)
   const [redditConnected, setRedditConnected] = useState<boolean | null>(null)
   const posthog = usePostHog()
 
@@ -319,7 +319,37 @@ export default function LeadFinderDashboard() {
   const addDebugLog = useCallback(
     (message: string, data?: any) => {
       const timestamp = new Date().toISOString()
-      const logEntry = `[${timestamp}] ${message}${data ? `: ${JSON.stringify(data, null, 2)}` : ""}`
+      let dataString = ""
+      
+      if (data) {
+        try {
+          // Create a safe version of the data for logging
+          const safeData = JSON.parse(JSON.stringify(data, (key, value) => {
+            // Handle Firestore Timestamp objects
+            if (value && typeof value === 'object' && 'toDate' in value && typeof value.toDate === 'function') {
+              return value.toDate().toISOString()
+            }
+            // Handle circular references by returning a placeholder
+            if (value && typeof value === 'object' && value.constructor === Object) {
+              const seen = new WeakSet()
+              return JSON.parse(JSON.stringify(value, (k, v) => {
+                if (typeof v === 'object' && v !== null) {
+                  if (seen.has(v)) return '[Circular]'
+                  seen.add(v)
+                }
+                return v
+              }))
+            }
+            return value
+          }))
+          dataString = `: ${JSON.stringify(safeData, null, 2)}`
+        } catch (e) {
+          // If all else fails, just use toString
+          dataString = `: [Complex Object - ${e instanceof Error ? e.message : 'Serialization failed'}]`
+        }
+      }
+      
+      const logEntry = `[${timestamp}] ${message}${dataString}`
       console.log(`🐛 ${logEntry}`)
 
       if (state.debugMode) {
@@ -485,9 +515,29 @@ export default function LeadFinderDashboard() {
       progressDocRef,
       docSnapshot => {
         if (docSnapshot.exists()) {
-          const progressData = docSnapshot.data() as WorkflowProgress
+          const rawProgressData = docSnapshot.data()
+          
+          // Serialize the progress data to avoid circular structure issues
+          const progressData: LeadGenerationProgress = {
+            campaignId: rawProgressData.campaignId,
+            status: rawProgressData.status,
+            currentStage: rawProgressData.currentStage,
+            totalProgress: rawProgressData.totalProgress,
+            startedAt: rawProgressData.startedAt, // Keep as Timestamp for now
+            completedAt: rawProgressData.completedAt, // Keep as Timestamp for now
+            error: rawProgressData.error,
+            results: rawProgressData.results,
+            // Serialize stage timestamps if they exist
+            stages: rawProgressData.stages?.map((stage: any) => ({
+              ...stage,
+              startedAt: stage.startedAt, // Keep as Timestamp
+              completedAt: stage.completedAt // Keep as Timestamp
+            })) || []
+          }
+          
           addDebugLog("Workflow progress snapshot received", {
-            data: progressData
+            status: progressData.status,
+            totalProgress: progressData.totalProgress
           })
           setLiveFirestoreProgress(progressData)
 
@@ -556,8 +606,9 @@ export default function LeadFinderDashboard() {
           docSnap => {
             const comment = docSnap.data() as GeneratedCommentDocument
             
-            // Use centralized timestamp utility
-            const createdAtISO = toISOString(comment.createdAt) || undefined
+            // Use centralized timestamp utility to ensure proper serialization
+            const createdAtISO = toISOString(comment.createdAt) || new Date().toISOString()
+            const updatedAtISO = toISOString(comment.updatedAt) || new Date().toISOString()
             const postCreatedAtISO = toISOString(comment.postCreatedAt) || undefined
 
             return {
@@ -569,6 +620,7 @@ export default function LeadFinderDashboard() {
               postTitle: comment.postTitle || "Untitled Post",
               postAuthor: comment.postAuthor || "Unknown Author",
               postContentSnippet: comment.postContentSnippet || "",
+              postContent: comment.postContent,
               subreddit: comment.postUrl?.match(/r\/([^/]+)/)?.[1] || "Unknown",
               relevanceScore: comment.relevanceScore || 0,
               reasoning: comment.reasoning || "",
@@ -579,21 +631,15 @@ export default function LeadFinderDashboard() {
               selectedLength: comment.selectedLength || "medium",
               timeAgo: postCreatedAtISO
                 ? getTimeAgo(postCreatedAtISO)
-                : createdAtISO
-                  ? getTimeAgo(createdAtISO)
-                  : "Unknown",
-              originalData: {
-                ...comment,
-                id: docSnap.id,
-                createdAt: createdAtISO || "",
-                updatedAt: toISOString(comment.updatedAt) || "",
-                postCreatedAt: postCreatedAtISO || ""
-              },
+                : getTimeAgo(createdAtISO),
+              // Remove originalData as it contains Firestore Timestamp objects
               postScore: comment.postScore || 0,
               keyword: comment.keyword || "",
               createdAt: createdAtISO,
+              updatedAt: updatedAtISO,
               postCreatedAt: postCreatedAtISO,
-              postedCommentUrl: comment.postedCommentUrl || undefined
+              postedCommentUrl: comment.postedCommentUrl || undefined,
+              hasDM: false // Will be updated by checkDMStatus effect
             }
           }
         )
