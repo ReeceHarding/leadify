@@ -500,215 +500,157 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
       .map(result => ({
         threadId: result.threadId!,
         subreddit: result.redditUrl.match(/\/r\/([^\/]+)\//)?.[1],
-        keyword: result.keyword, // Track which keyword led to this thread
-        searchResultId: result.redditUrl // Use URL as temporary ID
-      }))
+        keyword: result.keyword
+      }));
 
-    let commentsGeneratedCount = 0
-    let totalScoreSum = 0
-    let threadsProcessed = 0
+    let fetchedThreadsData: RedditThreadDocument[] = [];
+    if (threadsToFetch.length > 0) {
+      const fetchThreadsResult = await fetchMultipleRedditThreadsAction(
+        organizationId,
+        threadsToFetch.map(t => ({ threadId: t.threadId, subreddit: t.subreddit }))
+      );
 
-    // Process threads one by one
-    for (const threadToFetch of threadsToFetch) {
-      try {
-        logger.info(
-          `\n🔍 [WORKFLOW] Processing thread ${threadsProcessed + 1}/${threadsToFetch.length}`
-        )
-        logger.info(
-          `🔍 [WORKFLOW] Thread ID: ${threadToFetch.threadId}, Subreddit: ${threadToFetch.subreddit || "unknown"}, Keyword: ${threadToFetch.keyword}`
-        )
+      if (fetchThreadsResult.isSuccess && fetchThreadsResult.data) {
+        fetchedThreadsData = fetchThreadsResult.data.map(fetchedThread => {
+          const originalThreadInfo = threadsToFetch.find(t => t.threadId === fetchedThread.id);
+          return {
+            ...fetchedThread,
+            keyword: originalThreadInfo?.keyword || "unknown"
+          };
+        });
 
-        // Update progress for retrieving
-        const retrievalProgress =
-          45 + (threadsProcessed / threadsToFetch.length) * 10
-        await updateLeadGenerationProgressAction(campaignId, {
-          stageUpdate: {
-            stageName: "Retrieving Threads",
-            status: "in_progress",
-            message: `Processing thread ${threadsProcessed + 1} of ${threadsToFetch.length}`,
-            progress: (threadsProcessed / threadsToFetch.length) * 100
-          },
-          totalProgress: Math.round(retrievalProgress)
-        })
-
-        // Fetch individual thread
-        const { fetchRedditThreadAction } = await import(
-          "@/actions/integrations/reddit/reddit-actions"
-        )
-        const fetchResult = await fetchRedditThreadAction(
-          organizationId, // Add organizationId parameter
-          threadToFetch.threadId,
-          threadToFetch.subreddit
-        )
-
-        if (!fetchResult.isSuccess) {
-          logger.error(
-            `❌ [WORKFLOW] Failed to fetch thread ${threadToFetch.threadId}: ${fetchResult.message}`
-          )
-          continue
-        }
-
-        const apiThread = fetchResult.data
-        logger.info(
-          `✅ [WORKFLOW] Fetched thread: "${apiThread.title}" by u/${apiThread.author}, Score: ${apiThread.score}`
-        )
-
-        // Update to analyzing stage when we start scoring
-        if (threadsProcessed === 0) {
+        logger.info(`📖 [WORKFLOW] Successfully fetched ${fetchedThreadsData.length} of ${threadsToFetch.length} threads.`);
+        if (fetchedThreadsData.length < threadsToFetch.length) {
+          logger.warn(`📖 [WORKFLOW] Some threads failed to fetch: ${fetchThreadsResult.message}`);
           await updateLeadGenerationProgressAction(campaignId, {
             stageUpdate: {
               stageName: "Retrieving Threads",
-              status: "completed"
-            },
-            currentStage: "Analyzing Relevance"
-          })
-
-          await updateLeadGenerationProgressAction(campaignId, {
-            stageUpdate: {
-              stageName: "Analyzing Relevance",
-              status: "in_progress",
-              message: "Analyzing thread relevance"
+              status: "completed",
+              message: `Fetched ${fetchedThreadsData.length}/${threadsToFetch.length} threads. Some failed.`
             }
-          })
+          });
         }
+      } else {
+        logger.error(
+          `❌ [WORKFLOW] Failed to fetch any Reddit threads: ${fetchThreadsResult.message}`
+        );
+        progress.results.push({
+          step: "Fetch Reddit Threads",
+          success: false,
+          message: `Failed to fetch any Reddit threads: ${fetchThreadsResult.message}`
+        });
+        await updateCampaignAction(campaignId, { status: "error" });
+        await updateLeadGenerationProgressAction(campaignId, {
+          status: "error",
+          error: `Failed to fetch any Reddit threads: ${fetchThreadsResult.message}`,
+          stageUpdate: {
+            stageName: "Retrieving Threads",
+            status: "error",
+            message: fetchThreadsResult.message
+          }
+        });
+        return {
+          isSuccess: false,
+          message: `Failed to fetch Reddit threads: ${fetchThreadsResult.message}`
+        };
+      }
+    } else {
+      logger.info("📖 [WORKFLOW] No valid thread IDs found from search results to fetch.");
+    }
 
-        // Fetch comments from the thread to analyze tone
-        logger.info(
-          `💬 [WORKFLOW] Fetching comments from thread for tone analysis...`
-        )
-        const { fetchRedditCommentsAction } = await import(
-          "@/actions/integrations/reddit/reddit-actions"
-        )
-        const commentsResult = await fetchRedditCommentsAction(
-          organizationId, // Add organizationId parameter
-          threadToFetch.threadId,
-          threadToFetch.subreddit || apiThread.subreddit,
-          "best",
-          10 // Get top 10 comments for tone analysis
-        )
+    progress.results.push({
+      step: "Fetch Reddit Threads",
+      success: true,
+      message: `Attempted to fetch ${threadsToFetch.length} threads. Successfully fetched ${fetchedThreadsData.length}.`,
+      data: { fetchedCount: fetchedThreadsData.length, attemptedCount: threadsToFetch.length }
+    });
+    progress.completedSteps++;
 
-        let existingComments: string[] = []
-        if (commentsResult.isSuccess && commentsResult.data.length > 0) {
-          existingComments = commentsResult.data
-            .filter(
-              comment =>
-                comment.body &&
-                comment.body !== "[deleted]" &&
-                comment.body !== "[removed]"
-            )
-            .map(comment => comment.body)
-            .slice(0, 10) // Take up to 10 comments
-          logger.info(
-            `✅ [WORKFLOW] Fetched ${existingComments.length} comments for tone analysis`
-          )
-        } else {
-          logger.info(`⚠️ [WORKFLOW] No comments fetched for tone analysis`)
-        }
+    await updateLeadGenerationProgressAction(campaignId, {
+      stageUpdate: {
+        stageName: "Retrieving Threads",
+        status: "completed",
+        message: `Processed ${threadsToFetch.length} search results. Fetched details for ${fetchedThreadsData.length} threads.`
+      },
+      totalProgress: 50 
+    });
 
-        // Save thread to shared Reddit threads collection
-        console.log("🧵 [WORKFLOW] Saving thread to shared collection...")
-        
-        const threadData = {
-          id: apiThread.id,
-          organizationId,
-          title: apiThread.title,
-          author: apiThread.author,
-          subreddit: apiThread.subreddit,
-          url: apiThread.url,
-          permalink: apiThread.url.replace('https://www.reddit.com', ''),
-          content: apiThread.content,
-          contentSnippet: apiThread.content.substring(0, 200),
-          score: apiThread.score,
-          numComments: apiThread.numComments,
-          createdUtc: apiThread.created,
-          relevanceScore: 0, // Will be updated after scoring
-          reasoning: "",
-          keywords: [threadToFetch.keyword]
-        }
-        
-        const upsertResult = await upsertRedditThreadAction(threadData)
-        if (!upsertResult.isSuccess) {
-          logger.error(`❌ [WORKFLOW] Failed to save thread to shared collection: ${upsertResult.message}`)
-        } else {
-          logger.info(`✅ [WORKFLOW] Thread saved to shared collection`)
-        }
+    const validFetchedThreads = fetchedThreadsData.filter(
+      thread => thread && thread.content
+    );
 
-        // Also save to the campaign-specific collection for backward compatibility
-        const threadRef = doc(collection(db, LEAD_COLLECTIONS.REDDIT_THREADS))
-        const threadDocData = {
-          id: threadRef.id,
-          campaignId,
-          searchResultId: threadToFetch.searchResultId,
-          threadId: apiThread.id,
-          subreddit: apiThread.subreddit,
-          title: apiThread.title,
-          content: apiThread.content,
-          author: apiThread.author,
-          score: apiThread.score,
-          numComments: apiThread.numComments,
-          url: apiThread.url,
-          processed: false,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
-        }
+    logger.info(`🤖 [WORKFLOW] Analyzing ${validFetchedThreads.length} valid threads with content.`);
 
-        logger.info(
-          `💾 [WORKFLOW] Saving thread to Firestore with ID: ${threadRef.id}`
-        )
-        await setDoc(threadRef, removeUndefinedValues(threadDocData))
-        logger.info(`✅ [WORKFLOW] Thread saved to Firestore`)
+    let generatedCommentsCount = 0;
+    let totalScore = 0;
 
-        // Update progress for analyzing
-        const analyzingProgress =
-          55 + (threadsProcessed / threadsToFetch.length) * 15
+    if (validFetchedThreads.length > 0) {
+      await updateLeadGenerationProgressAction(campaignId, {
+        currentStage: "Analyzing Relevance",
+        stageUpdate: {
+          stageName: "Analyzing Relevance",
+          status: "in_progress", 
+          message: `Analyzing ${validFetchedThreads.length} threads...`,
+          progress: 0
+        },
+        totalProgress: 55 
+      });
+
+      let threadsProcessedForScoring = 0;
+      for (const apiThread of validFetchedThreads) {
+        threadsProcessedForScoring++;
+        const scoringStageProgress = Math.round((threadsProcessedForScoring / validFetchedThreads.length) * 100);
         await updateLeadGenerationProgressAction(campaignId, {
           stageUpdate: {
             stageName: "Analyzing Relevance",
             status: "in_progress",
-            message: `Analyzing thread ${threadsProcessed + 1} of ${threadsToFetch.length}`,
-            progress: (threadsProcessed / threadsToFetch.length) * 100
-          },
-          totalProgress: Math.round(analyzingProgress)
-        })
-
-        // Immediately score and generate comment with tone analysis
+            message: `Analyzing thread ${threadsProcessedForScoring} of ${validFetchedThreads.length}: ${apiThread.title.substring(0,30)}...`,
+            progress: scoringStageProgress
+          }
+        });
+        
         logger.info(
-          `🤖 [WORKFLOW] Starting AI scoring for thread: "${apiThread.title}"`
-        )
+          `🤖 [WORKFLOW] Scoring thread ${threadsProcessedForScoring}/${validFetchedThreads.length}: ${apiThread.id} - ${apiThread.title.substring(0, 30)}...`
+        );
 
-        // Update to generating comments stage when appropriate
-        if (threadsProcessed === Math.floor(threadsToFetch.length * 0.5)) {
-          await updateLeadGenerationProgressAction(campaignId, {
-            stageUpdate: {
-              stageName: "Analyzing Relevance",
-              status: "completed"
-            },
-            currentStage: "Generating Comments"
-          })
-
-          await updateLeadGenerationProgressAction(campaignId, {
-            stageUpdate: {
-              stageName: "Generating Comments",
-              status: "in_progress",
-              message: "Creating personalized responses"
-            }
-          })
+        let existingComments: string[] = []
+        try {
+          const { fetchRedditCommentsAction } = await import(
+            "@/actions/integrations/reddit/reddit-actions"
+          )
+          const commentsResult = await fetchRedditCommentsAction(
+            organizationId,
+            apiThread.id,
+            apiThread.subreddit,
+            "best",
+            10 
+          )
+          if (commentsResult.isSuccess && commentsResult.data.length > 0) {
+            existingComments = commentsResult.data
+              .filter(c => c.body && c.body !== "[deleted]" && c.body !== "[removed]")
+              .map(c => c.body)
+              .slice(0, 5) 
+          }
+        } catch (commentError) {
+          logger.warn(`⚠️ [WORKFLOW] Failed to fetch comments for thread ${apiThread.id}: ${commentError}`);
         }
 
-        const { scoreThreadAndGeneratePersonalizedCommentsAction } =
-          await import("@/actions/integrations/openai/openai-actions")
+        const { scoreThreadAndGeneratePersonalizedCommentsAction } = await import(
+          "@/actions/integrations/openai/openai-actions"
+        );
+
         const scoringResult =
           await scoreThreadAndGeneratePersonalizedCommentsAction(
             apiThread.title,
             apiThread.content,
             apiThread.subreddit,
-            organizationId, // Pass organizationId instead of userId
-            campaign.keywords, // Pass campaign keywords
-            websiteContent, // Pass campaign website content (scraped or description)
-            existingComments, // Pass existing comments for tone matching
-            campaign.name, // Pass campaign name
-            apiThread.created // Pass post creation timestamp
-          )
+            organizationId, 
+            campaign.keywords, 
+            websiteContent, 
+            existingComments, 
+            campaign.name, 
+            apiThread.createdUtc
+          );
 
         if (scoringResult.isSuccess) {
           const scoringData = scoringResult.data
@@ -720,68 +662,68 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
           // Update shared thread with relevance score
           console.log("🧵 [WORKFLOW] Updating shared thread with relevance score...")
           await upsertRedditThreadAction({
-            ...threadData,
+            ...apiThread,
             relevanceScore: scoringData.score,
             reasoning: scoringData.reasoning
           })
 
           // Update progress for generating
           const generatingProgress =
-            70 + (threadsProcessed / threadsToFetch.length) * 20
+            70 + (threadsProcessedForScoring / validFetchedThreads.length) * 20
           await updateLeadGenerationProgressAction(campaignId, {
             stageUpdate: {
               stageName: "Generating Comments",
               status: "in_progress",
-              message: `Generated ${commentsGeneratedCount + 1} personalized comments`,
-              progress: (threadsProcessed / threadsToFetch.length) * 100
+              message: `Generated ${generatedCommentsCount + 1} personalized comments`,
+              progress: (threadsProcessedForScoring / validFetchedThreads.length) * 100
             },
             totalProgress: Math.round(generatingProgress)
           })
 
           // Prepare comment data with keyword tracking
-          const postCreatedAtValue = apiThread.created
-            ? Timestamp.fromDate(new Date(apiThread.created * 1000))
+          const postCreatedAtValue = apiThread.createdUtc
+            ? Timestamp.fromDate(new Date(apiThread.createdUtc * 1000))
             : undefined
           logger.info(
-            `💾 [WORKFLOW] Extracted post creation timestamp: ${apiThread.created}, Firestore Timestamp: ${postCreatedAtValue?.toDate()?.toISOString() || "undefined"}`
+            `💾 [WORKFLOW] Extracted post creation timestamp: ${apiThread.createdUtc}, Firestore Timestamp: ${postCreatedAtValue?.toDate()?.toISOString() || "undefined"}`
           )
 
           const commentPayload: CreateGeneratedCommentData = {
             campaignId,
-            organizationId, // Add organizationId to the comment
-            redditThreadId: threadRef.id,
+            organizationId,
+            redditThreadId: apiThread.id,
             threadId: apiThread.id,
             postUrl: apiThread.url,
             postTitle: apiThread.title,
             postAuthor: apiThread.author,
             postContentSnippet: apiThread.content.substring(0, 200),
-            postContent: apiThread.content, // Save full post content
+            postContent: apiThread.content,
             relevanceScore: scoringData.score,
             reasoning: scoringData.reasoning,
             microComment: scoringData.microComment,
             mediumComment: scoringData.mediumComment,
             verboseComment: scoringData.verboseComment,
             status: "new",
-            keyword: threadToFetch.keyword, // Track which keyword found this
-            postScore: apiThread.score, // Track Reddit post score
-            postCreatedAt: postCreatedAtValue // Use the derived Timestamp
+            keyword: apiThread.keyword,
+            postScore: apiThread.score,
+            postCreatedAt: postCreatedAtValue
           }
 
           logger.info(`💾 [WORKFLOW] Saving generated comment to Firestore...`)
           logger.info(
-            `💾 [WORKFLOW] With keyword: ${threadToFetch.keyword}, score: ${apiThread.score}`
+            `💾 [WORKFLOW] With keyword: ${apiThread.keyword}, score: ${apiThread.score}`
           )
           const saveCommentResult =
             await createGeneratedCommentAction(commentPayload)
 
           if (saveCommentResult.isSuccess) {
-            commentsGeneratedCount++
-            totalScoreSum += scoringData.score
+            generatedCommentsCount++
+            totalScore += scoringData.score
             logger.info(
               `✅ [WORKFLOW] Comment saved successfully for thread: "${apiThread.title}"`
             )
             logger.info(
-              `✅ [WORKFLOW] Total comments generated so far: ${commentsGeneratedCount}`
+              `✅ [WORKFLOW] Total comments generated so far: ${generatedCommentsCount}`
             )
 
             // Update shared thread to mark it as having a comment
@@ -805,8 +747,8 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
 
             // Update campaign progress
             await updateCampaignAction(campaignId, {
-              totalThreadsAnalyzed: threadsProcessed + 1,
-              totalCommentsGenerated: commentsGeneratedCount
+              totalThreadsAnalyzed: threadsProcessedForScoring,
+              totalCommentsGenerated: generatedCommentsCount
             })
           } else {
             logger.error(
@@ -818,123 +760,117 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
             `❌ [WORKFLOW] Failed to score thread: ${scoringResult.message}`
           )
         }
-
-        threadsProcessed++
-        progress.currentStep = `Processing threads (${threadsProcessed}/${threadsToFetch.length})`
-
-        // Add a small delay to avoid rate limits
-        await new Promise(resolve => setTimeout(resolve, 1000))
-      } catch (error) {
-        logger.error(
-          `❌ [WORKFLOW] Error processing thread ${threadToFetch.threadId}:`,
-          error
-        )
       }
-    }
 
-    // Mark intermediate stages as completed if they haven't been yet so that
-    // the frontend progress bar shows the correct step count.
-    await updateLeadGenerationProgressAction(campaignId, {
-      stageUpdate: {
-        stageName: "Retrieving Threads",
-        status: "completed"
-      }
-    })
+      // Complete the generating comments stage
+      await updateLeadGenerationProgressAction(campaignId, {
+        stageUpdate: {
+          stageName: "Generating Comments",
+          status: "completed",
+          message: `Generated ${generatedCommentsCount} comments`
+        },
+        totalProgress: 90
+      })
 
-    await updateLeadGenerationProgressAction(campaignId, {
-      stageUpdate: {
-        stageName: "Analyzing Relevance",
-        status: "completed"
-      }
-    })
+      // Finalize results
+      await updateLeadGenerationProgressAction(campaignId, {
+        currentStage: "Finalizing Results",
+        stageUpdate: {
+          stageName: "Finalizing Results",
+          status: "in_progress",
+          message: "Preparing your results"
+        },
+        totalProgress: 95
+      })
 
-    // Complete the generating comments stage
-    await updateLeadGenerationProgressAction(campaignId, {
-      stageUpdate: {
-        stageName: "Generating Comments",
+      // Update campaign with final counts
+      await updateCampaignAction(campaignId, {
+        totalCommentsGenerated: generatedCommentsCount,
+        status: generatedCommentsCount > 0 ? "completed" : "error"
+      })
+
+      progress.results.push({
+        step: "Score and Generate Comments",
+        success: generatedCommentsCount > 0,
+        message: `Generated ${generatedCommentsCount} comments individually`,
+        data: {
+          commentsGenerated: generatedCommentsCount,
+          averageScore:
+            generatedCommentsCount > 0
+              ? totalScore / generatedCommentsCount
+              : 0
+        }
+      })
+      progress.completedSteps++
+
+      // Step 6: Workflow complete
+      progress.currentStep = "Workflow complete"
+      progress.isComplete = true
+      progress.completedSteps++
+
+      progress.results.push({
+        step: "Workflow Complete",
+        success: true,
+        message: "Lead generation workflow completed successfully",
+        data: {
+          totalSearchResults: allSearchResults.length,
+          totalThreadsAnalyzed: threadsProcessedForScoring,
+          totalCommentsGenerated: generatedCommentsCount,
+          keywordLimits:
+            Object.keys(keywordLimits).length > 0
+              ? keywordLimits
+              : "All keywords processed"
+        }
+      })
+
+      // Complete progress tracking
+      await updateLeadGenerationProgressAction(campaignId, {
         status: "completed",
-        message: `Generated ${commentsGeneratedCount} comments`
-      },
-      totalProgress: 90
-    })
+        stageUpdate: {
+          stageName: "Finalizing Results",
+          status: "completed",
+          message: "Lead generation complete!"
+        },
+        totalProgress: 100,
+        results: {
+          totalThreadsFound: allSearchResults.length,
+          totalThreadsAnalyzed: threadsProcessedForScoring,
+          totalCommentsGenerated: generatedCommentsCount,
+          averageRelevanceScore:
+            generatedCommentsCount > 0
+              ? Math.round(totalScore / generatedCommentsCount)
+              : 0
+        }
+      })
 
-    // Finalize results
-    await updateLeadGenerationProgressAction(campaignId, {
-      currentStage: "Finalizing Results",
-      stageUpdate: {
-        stageName: "Finalizing Results",
-        status: "in_progress",
-        message: "Preparing your results"
-      },
-      totalProgress: 95
-    })
+      logger.info(`✅ Workflow completed for campaign: ${campaignId}`)
 
-    // Update campaign with final counts
-    await updateCampaignAction(campaignId, {
-      totalCommentsGenerated: commentsGeneratedCount,
-      status: commentsGeneratedCount > 0 ? "completed" : "error"
-    })
-
-    progress.results.push({
-      step: "Score and Generate Comments",
-      success: commentsGeneratedCount > 0,
-      message: `Generated ${commentsGeneratedCount} comments individually`,
-      data: {
-        commentsGenerated: commentsGeneratedCount,
-        averageScore:
-          commentsGeneratedCount > 0
-            ? totalScoreSum / commentsGeneratedCount
-            : 0
+      return {
+        isSuccess: true,
+        message: "Lead generation workflow completed successfully",
+        data: progress
       }
-    })
-    progress.completedSteps++
-
-    // Step 6: Workflow complete
-    progress.currentStep = "Workflow complete"
-    progress.isComplete = true
-    progress.completedSteps++
-
-    progress.results.push({
-      step: "Workflow Complete",
-      success: true,
-      message: "Lead generation workflow completed successfully",
-      data: {
-        totalSearchResults: allSearchResults.length,
-        totalThreadsAnalyzed: threadsProcessed,
-        totalCommentsGenerated: commentsGeneratedCount,
-        keywordLimits:
-          Object.keys(keywordLimits).length > 0
-            ? keywordLimits
-            : "All keywords processed"
-      }
-    })
-
-    // Complete progress tracking
-    await updateLeadGenerationProgressAction(campaignId, {
-      status: "completed",
-      stageUpdate: {
-        stageName: "Finalizing Results",
-        status: "completed",
-        message: "Lead generation complete!"
-      },
-      totalProgress: 100,
-      results: {
-        totalThreadsFound: allSearchResults.length,
-        totalThreadsAnalyzed: threadsProcessed,
-        totalCommentsGenerated: commentsGeneratedCount,
-        averageRelevanceScore:
-          commentsGeneratedCount > 0
-            ? Math.round(totalScoreSum / commentsGeneratedCount)
-            : 0
-      }
-    })
-
-    logger.info(`✅ Workflow completed for campaign: ${campaignId}`)
-
-    return {
-      isSuccess: true,
-      message: "Lead generation workflow completed successfully",
-      data: progress
+    } else {
+      // If no valid threads were fetched, update progress and return a specific message
+      logger.info("📖 [WORKFLOW] No valid threads with content found for comment generation.");
+      await updateLeadGenerationProgressAction(campaignId, {
+        stageUpdate: {
+          stageName: "Analyzing Relevance",
+          status: "completed",
+          message: "No valid threads found for analysis."
+        },
+        currentStage: "Generating Comments",
+        totalProgress: 70
+      });
+      await updateLeadGenerationProgressAction(campaignId, {
+        stageUpdate: {
+          stageName: "Generating Comments",
+          status: "completed",
+          message: "No comments to generate."
+        },
+        totalProgress: 90
+      });
+      // The rest of the workflow will proceed to finalization with 0 comments.
     }
   } catch (error) {
     logger.error("Error in lead generation workflow:", error)

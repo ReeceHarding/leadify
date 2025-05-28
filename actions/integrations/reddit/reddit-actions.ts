@@ -176,8 +176,8 @@ export async function fetchMultipleRedditThreadsAction(
     return { isSuccess: false, message: "Organization ID is required" };
   }
   try {
-    const results: RedditThreadData[] = []
-    const errors: string[] = []
+    const successfulResults: RedditThreadData[] = []
+    const errorMessages: string[] = []
 
     for (const { threadId, subreddit } of threadIds) {
       // Pass organizationId to fetchRedditThreadAction
@@ -186,34 +186,50 @@ export async function fetchMultipleRedditThreadsAction(
         threadId,
         subreddit
       )
-      if (result.isSuccess) {
-        results.push(result.data)
+      if (result.isSuccess && result.data) { // Ensure data exists
+        successfulResults.push(result.data)
       } else {
-        errors.push(
-          `Failed to fetch thread ${threadId}${subreddit ? ` in r/${subreddit}` : ""}: ${result.message}`
-        )
+        const errorMessage = `Failed to fetch thread ${threadId}${subreddit ? ` in r/${subreddit}` : ""}: ${result.message}`
+        console.warn(`⚠️ [MULTI-FETCH] ${errorMessage}`);
+        errorMessages.push(errorMessage)
       }
       // Optional: Add a small delay between fetches if hitting rate limits
       // await new Promise(resolve => setTimeout(resolve, 200)); 
     }
 
-    if (errors.length > 0) {
-      console.warn(
-        `部分帖子获取失败: ${errors.join("; ")}`,
-        errors
-      )
+    const totalFetched = successfulResults.length;
+    const totalFailed = errorMessages.length;
+
+    if (totalFetched === 0 && totalFailed > 0) {
+      console.error(
+        `❌ [MULTI-FETCH] All thread fetches failed. Errors: ${errorMessages.join("; ")}`
+      );
+      return {
+        isSuccess: false,
+        message: `Failed to fetch all ${totalFailed} threads. First error: ${errorMessages[0]}`
+        // data will be undefined as per ActionState for isSuccess: false
+      };
+    }
+    
+    let message = `Fetched ${totalFetched} of ${threadIds.length} threads.`;
+    if (totalFailed > 0) {
+      message += ` ${totalFailed} failed due to API issues. First error: ${errorMessages[0]}`;
+      console.warn(`⚠️ [MULTI-FETCH] ${message}`);
+    } else {
+      console.log(`✅ [MULTI-FETCH] ${message}`);
     }
 
     return {
-      isSuccess: true,
-      message: `成功获取 ${results.length} 个帖子，失败 ${errors.length} 个`,
-      data: results
+      isSuccess: true, // Still true if some succeed, but message reflects errors
+      message: message,
+      data: successfulResults
     }
   } catch (error) {
-    console.error("批量获取 Reddit 帖子时出错:", error)
+    console.error("❌ [MULTI-FETCH] Unexpected error during batch fetch:", error)
     return {
       isSuccess: false,
-      message: `批量获取帖子失败: ${error instanceof Error ? error.message : "未知错误"}`
+      message: `Unexpected error during batch fetch: ${error instanceof Error ? error.message : "Unknown error"}`
+      // data will be undefined as per ActionState for isSuccess: false
     }
   }
 }
