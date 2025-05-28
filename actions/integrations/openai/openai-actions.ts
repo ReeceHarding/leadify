@@ -33,12 +33,83 @@ export async function scoreThreadAndGenerateThreeTierCommentsAction(
   threadContent: string,
   subreddit: string,
   websiteContent: string,
-  existingComments?: string[]
+  existingComments?: string[],
+  organizationId?: string // Add optional organizationId parameter
 ): Promise<ActionState<ThreeTierCommentResult>> {
   try {
     console.log(
       `🤖 Critically scoring thread and generating 3-tier comments for: "${threadTitle.slice(0, 50)}..."`
     )
+
+    // If organizationId is provided, try to get knowledge base content
+    let enhancedWebsiteContent = websiteContent
+    let brandNameToUse = ""
+    
+    if (organizationId) {
+      console.log("🔍 [SCORING] Organization ID provided, checking for knowledge base...")
+      
+      const { getKnowledgeBaseByOrganizationIdAction } = await import(
+        "@/actions/db/personalization-actions"
+      )
+      
+      const knowledgeBaseResult = await getKnowledgeBaseByOrganizationIdAction(organizationId)
+      
+      if (knowledgeBaseResult.isSuccess && knowledgeBaseResult.data) {
+        const kb = knowledgeBaseResult.data
+        console.log("✅ [SCORING] Found knowledge base for organization")
+        
+        // Get brand name
+        brandNameToUse = kb.brandNameOverride || "our solution"
+        brandNameToUse = brandNameToUse.toLowerCase()
+        
+        // Build comprehensive knowledge base content
+        const contentParts = []
+        
+        // Add brand information
+        if (brandNameToUse) {
+          contentParts.push(`Brand Name: ${brandNameToUse}`)
+        }
+        
+        // Add website URL if available
+        if (kb.websiteUrl) {
+          contentParts.push(`Website: ${kb.websiteUrl}`)
+        }
+        
+        // Add custom information (manually typed info)
+        if (kb.customInformation) {
+          contentParts.push("Business Information:")
+          contentParts.push(kb.customInformation)
+        }
+        
+        // Add summary if available
+        if (kb.summary) {
+          contentParts.push("Summary:")
+          contentParts.push(kb.summary)
+        }
+        
+        // Add key facts if available
+        if (kb.keyFacts && kb.keyFacts.length > 0) {
+          contentParts.push("Key Facts:")
+          contentParts.push(kb.keyFacts.join("\n- "))
+        }
+        
+        // Add scraped pages info if available
+        if (kb.scrapedPages && kb.scrapedPages.length > 0) {
+          contentParts.push(`Additional Pages Analyzed: ${kb.scrapedPages.join(", ")}`)
+        }
+        
+        const knowledgeBaseContent = contentParts.join("\n\n")
+        
+        // Combine knowledge base with provided website content
+        if (knowledgeBaseContent) {
+          enhancedWebsiteContent = websiteContent 
+            ? `${knowledgeBaseContent}\n\n${websiteContent}`
+            : knowledgeBaseContent
+        }
+        
+        console.log("✅ [SCORING] Enhanced content with knowledge base, total length:", enhancedWebsiteContent.length)
+      }
+    }
 
     // Log the full context being sent
     console.log(
@@ -53,14 +124,14 @@ export async function scoreThreadAndGenerateThreeTierCommentsAction(
     )
     console.log(
       "🔍🔍🔍 [SCORING-PROMPT] Website Content Length:",
-      websiteContent.length
+      enhancedWebsiteContent.length
     )
     console.log(
       "🔍🔍🔍 [SCORING-PROMPT] Existing Comments Count:",
       existingComments?.length || 0
     )
     console.log("🔍🔍🔍 [SCORING-PROMPT] ========== WEBSITE CONTENT ==========")
-    console.log(websiteContent)
+    console.log(enhancedWebsiteContent)
     console.log("🔍🔍🔍 [SCORING-PROMPT] ========== THREAD CONTENT ==========")
     console.log(threadContent)
     if (existingComments && existingComments.length > 0) {
@@ -80,7 +151,7 @@ Content: "${threadContent}"
 PRODUCT/SOLUTION CONTEXT:
 This person was found when searching for keywords related to our solution. We want to gauge if they are a potential customer for a company with this context:
 
-${websiteContent}
+${enhancedWebsiteContent}
 
 ${existingComments && existingComments.length > 0 ? `\nEXISTING COMMENTS IN THIS THREAD (reference these naturally in your response):
 ${existingComments.slice(0, 5).map((comment, i) => `Comment ${i + 1}: "${comment}"`).join("\n\n")}
@@ -459,6 +530,73 @@ export async function regenerateCommentsWithToneAction(
       )
     }
 
+    // Get knowledge base content to enhance website content
+    let enhancedWebsiteContent = websiteContent
+    let brandNameToUse = ""
+    
+    console.log("🎨 [TONE-REGENERATE] Fetching knowledge base for organization...")
+    const { getKnowledgeBaseByOrganizationIdAction } = await import(
+      "@/actions/db/personalization-actions"
+    )
+    
+    const knowledgeBaseResult = await getKnowledgeBaseByOrganizationIdAction(organizationId)
+    
+    if (knowledgeBaseResult.isSuccess && knowledgeBaseResult.data) {
+      const kb = knowledgeBaseResult.data
+      console.log("✅ [TONE-REGENERATE] Found knowledge base for organization")
+      
+      // Get brand name
+      brandNameToUse = kb.brandNameOverride || "our solution"
+      brandNameToUse = brandNameToUse.toLowerCase()
+      
+      // Build comprehensive knowledge base content
+      const contentParts = []
+      
+      // Add brand information
+      if (brandNameToUse) {
+        contentParts.push(`Brand Name: ${brandNameToUse}`)
+      }
+      
+      // Add website URL if available
+      if (kb.websiteUrl) {
+        contentParts.push(`Website: ${kb.websiteUrl}`)
+      }
+      
+      // Add custom information (manually typed info)
+      if (kb.customInformation) {
+        contentParts.push("Business Information:")
+        contentParts.push(kb.customInformation)
+      }
+      
+      // Add summary if available
+      if (kb.summary) {
+        contentParts.push("Summary:")
+        contentParts.push(kb.summary)
+      }
+      
+      // Add key facts if available
+      if (kb.keyFacts && kb.keyFacts.length > 0) {
+        contentParts.push("Key Facts:")
+        contentParts.push(kb.keyFacts.join("\n- "))
+      }
+      
+      // Add scraped pages info if available
+      if (kb.scrapedPages && kb.scrapedPages.length > 0) {
+        contentParts.push(`Additional Pages Analyzed: ${kb.scrapedPages.join(", ")}`)
+      }
+      
+      const knowledgeBaseContent = contentParts.join("\n\n")
+      
+      // Combine knowledge base with provided website content
+      if (knowledgeBaseContent) {
+        enhancedWebsiteContent = websiteContent 
+          ? `${knowledgeBaseContent}\n\n${websiteContent}`
+          : knowledgeBaseContent
+      }
+      
+      console.log("✅ [TONE-REGENERATE] Enhanced content with knowledge base, total length:", enhancedWebsiteContent.length)
+    }
+
     // Try to fetch existing comments if we have a post URL
     let existingComments: string[] = []
     if (postUrl) {
@@ -530,7 +668,7 @@ Provide a brief analysis of:
 
     const systemPrompt = `You are a Reddit comment generator. Your job is to create natural, authentic comments that match the community's style.
 
-Business Context: ${websiteContent.substring(0, 1000)}
+Business Context: ${enhancedWebsiteContent.substring(0, 2000)}
 
 ${toneAnalysis ? `\nCommunity Tone Analysis:\n${toneAnalysis}\n` : ""}
 
@@ -942,19 +1080,37 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
       // Combine all knowledge base content
       const contentParts = []
       
+      // Add brand information
+      if (brandNameToUse) {
+        contentParts.push(`Brand Name: ${brandNameToUse}`)
+      }
+      
+      // Add website URL if available
+      if (kb.websiteUrl) {
+        contentParts.push(`Website: ${kb.websiteUrl}`)
+      }
+      
       // Add custom information (manually typed info)
       if (kb.customInformation) {
+        contentParts.push("Business Information:")
         contentParts.push(kb.customInformation)
       }
       
       // Add summary if available
       if (kb.summary) {
+        contentParts.push("Summary:")
         contentParts.push(kb.summary)
       }
       
       // Add key facts if available
       if (kb.keyFacts && kb.keyFacts.length > 0) {
-        contentParts.push(`Key facts: ${kb.keyFacts.join(", ")}`)
+        contentParts.push("Key Facts:")
+        contentParts.push(kb.keyFacts.join("\n- "))
+      }
+      
+      // Add scraped pages info if available
+      if (kb.scrapedPages && kb.scrapedPages.length > 0) {
+        contentParts.push(`Additional Pages Analyzed: ${kb.scrapedPages.join(", ")}`)
       }
       
       knowledgeBaseContent = contentParts.join("\n\n")
