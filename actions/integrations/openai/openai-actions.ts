@@ -960,8 +960,8 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
         kb.id
       )
       
-      // Use brand name override if available, otherwise use campaign name or organization name
-      brandNameToUse = kb.brandNameOverride || campaignName || organization.name || "our solution"
+      // Use brand name override if available, otherwise use organization name from settings
+      brandNameToUse = kb.brandNameOverride || organization.name || campaignName || "our solution"
       // Always convert to lowercase for natural Reddit style
       brandNameToUse = brandNameToUse.toLowerCase()
       
@@ -999,17 +999,17 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
         brandNameToUse
       )
     } else {
-      // No knowledge base, use campaign name or organization name
-      brandNameToUse = (campaignName || organization.name || "our solution").toLowerCase()
+      // No knowledge base, use organization name from settings
+      brandNameToUse = (organization.name || campaignName || "our solution").toLowerCase()
       console.log(
-        "⚠️ [OPENAI-PERSONALIZED] No knowledge base found, using default brand name:",
+        "⚠️ [OPENAI-PERSONALIZED] No knowledge base found, using organization name from settings:",
         brandNameToUse
       )
       console.log(
-        "⚠️ [OPENAI-PERSONALIZED] Fallback order: campaignName=",
-        campaignName,
-        ", organization.name=",
-        organization.name
+        "⚠️ [OPENAI-PERSONALIZED] Fallback order: organization.name=",
+        organization.name,
+        ", campaignName=",
+        campaignName
       )
     }
 
