@@ -355,3 +355,9 @@ export interface FirebaseExportData {
   status: string
   exportedAt: Date
 }
+
+// From reddit-threads-actions.ts
+export type {
+  SerializedRedditThreadDocument as SerializedSharedRedditThreadDocument,
+  SerializedThreadInteractionDocument
+} from "@/db/firestore/reddit-threads-collections"

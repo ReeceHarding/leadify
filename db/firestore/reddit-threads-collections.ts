@@ -81,3 +81,21 @@ export interface UpdateRedditThreadData {
   dmHistoryId?: string
   updatedAt?: Timestamp
 }
+
+// Serialized version for client components
+export interface SerializedRedditThreadDocument
+  extends Omit<
+    RedditThreadDocument,
+    "fetchedAt" | "updatedAt" | "lastCommentAt" | "lastDMAt"
+  > {
+  fetchedAt: string
+  updatedAt: string
+  lastCommentAt?: string
+  lastDMAt?: string
+}
+
+// Serialized version for thread interaction
+export interface SerializedThreadInteractionDocument
+  extends Omit<ThreadInteractionDocument, "timestamp"> {
+  timestamp: string
+}

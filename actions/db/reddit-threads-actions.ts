@@ -6,7 +6,9 @@ import {
   RedditThreadDocument,
   CreateRedditThreadData,
   UpdateRedditThreadData,
-  ThreadInteractionDocument
+  ThreadInteractionDocument,
+  SerializedRedditThreadDocument,
+  SerializedThreadInteractionDocument
 } from "@/db/firestore/reddit-threads-collections"
 import { ActionState } from "@/types"
 import {
@@ -23,11 +25,70 @@ import {
   limit,
   Timestamp
 } from "firebase/firestore"
+import { toISOString } from "@/lib/utils/timestamp-utils"
+
+// Serialization helper functions
+function serializeRedditThreadDocument(
+  thread: RedditThreadDocument
+): SerializedRedditThreadDocument {
+  console.log("🧵 [SERIALIZE] Serializing thread:", thread.id)
+  console.log("🧵 [SERIALIZE] Raw fetchedAt:", thread.fetchedAt)
+  console.log("🧵 [SERIALIZE] Raw updatedAt:", thread.updatedAt)
+  console.log("🧵 [SERIALIZE] Raw lastCommentAt:", thread.lastCommentAt)
+  console.log("🧵 [SERIALIZE] Raw lastDMAt:", thread.lastDMAt)
+  
+  const serialized: SerializedRedditThreadDocument = {
+    id: thread.id,
+    organizationId: thread.organizationId,
+    title: thread.title,
+    author: thread.author,
+    subreddit: thread.subreddit,
+    url: thread.url,
+    permalink: thread.permalink,
+    content: thread.content,
+    contentSnippet: thread.contentSnippet,
+    score: thread.score,
+    numComments: thread.numComments,
+    createdUtc: thread.createdUtc,
+    relevanceScore: thread.relevanceScore,
+    reasoning: thread.reasoning,
+    keywords: thread.keywords,
+    hasComment: thread.hasComment,
+    hasDM: thread.hasDM,
+    commentId: thread.commentId,
+    dmHistoryId: thread.dmHistoryId,
+    fetchedAt: toISOString(thread.fetchedAt) || new Date().toISOString(),
+    updatedAt: toISOString(thread.updatedAt) || new Date().toISOString(),
+    lastCommentAt: thread.lastCommentAt ? toISOString(thread.lastCommentAt) || undefined : undefined,
+    lastDMAt: thread.lastDMAt ? toISOString(thread.lastDMAt) || undefined : undefined
+  }
+  
+  console.log("🧵 [SERIALIZE] Serialized fetchedAt:", serialized.fetchedAt)
+  console.log("🧵 [SERIALIZE] Serialized updatedAt:", serialized.updatedAt)
+  console.log("🧵 [SERIALIZE] Serialized lastCommentAt:", serialized.lastCommentAt)
+  console.log("🧵 [SERIALIZE] Serialized lastDMAt:", serialized.lastDMAt)
+  
+  return serialized
+}
+
+function serializeThreadInteractionDocument(
+  interaction: ThreadInteractionDocument
+): SerializedThreadInteractionDocument {
+  return {
+    id: interaction.id,
+    organizationId: interaction.organizationId,
+    threadId: interaction.threadId,
+    userId: interaction.userId,
+    type: interaction.type,
+    details: interaction.details,
+    timestamp: toISOString(interaction.timestamp) || new Date().toISOString()
+  }
+}
 
 // Create or update a Reddit thread
 export async function upsertRedditThreadAction(
   data: CreateRedditThreadData
-): Promise<ActionState<RedditThreadDocument>> {
+): Promise<ActionState<SerializedRedditThreadDocument>> {
   console.log("🧵 [UPSERT-THREAD] Upserting Reddit thread:", data.id)
   
   try {
@@ -55,7 +116,7 @@ export async function upsertRedditThreadAction(
       return {
         isSuccess: true,
         message: "Thread updated successfully",
-        data: updatedThread
+        data: serializeRedditThreadDocument(updatedThread)
       }
     } else {
       // Create new thread
@@ -78,7 +139,7 @@ export async function upsertRedditThreadAction(
       return {
         isSuccess: true,
         message: "Thread created successfully",
-        data: createdThread
+        data: serializeRedditThreadDocument(createdThread)
       }
     }
   } catch (error) {
@@ -100,7 +161,7 @@ export async function getRedditThreadsByOrganizationAction(
     keywords?: string[]
     limitCount?: number
   } = {}
-): Promise<ActionState<RedditThreadDocument[]>> {
+): Promise<ActionState<SerializedRedditThreadDocument[]>> {
   console.log("🧵 [GET-THREADS] Fetching threads for org:", organizationId)
   console.log("🧵 [GET-THREADS] Options:", options)
   
@@ -142,11 +203,17 @@ export async function getRedditThreadsByOrganizationAction(
     }
     
     console.log("🧵 [GET-THREADS] ✅ Found threads:", threads.length)
+    console.log("🧵 [GET-THREADS] Serializing threads...")
+    
+    // Serialize all threads
+    const serializedThreads = threads.map(thread => serializeRedditThreadDocument(thread))
+    
+    console.log("🧵 [GET-THREADS] ✅ Threads serialized successfully")
     
     return {
       isSuccess: true,
       message: "Threads retrieved successfully",
-      data: threads
+      data: serializedThreads
     }
   } catch (error) {
     console.error("🧵 [GET-THREADS] ❌ Error:", error)
@@ -160,7 +227,7 @@ export async function getRedditThreadsByOrganizationAction(
 // Get a single Reddit thread by ID
 export async function getRedditThreadByIdAction(
   threadId: string
-): Promise<ActionState<RedditThreadDocument | null>> {
+): Promise<ActionState<SerializedRedditThreadDocument | null>> {
   console.log("🧵 [GET-THREAD] Fetching thread:", threadId)
   
   try {
@@ -176,12 +243,12 @@ export async function getRedditThreadByIdAction(
     }
     
     const thread = threadDoc.data() as RedditThreadDocument
-    console.log("🧵 [GET-THREAD] ✅ Thread retrieved")
+    console.log("🧵 [GET-THREAD] ✅ Thread retrieved, serializing...")
     
     return {
       isSuccess: true,
       message: "Thread retrieved successfully",
-      data: thread
+      data: serializeRedditThreadDocument(thread)
     }
   } catch (error) {
     console.error("🧵 [GET-THREAD] ❌ Error:", error)
@@ -201,7 +268,7 @@ export async function updateThreadInteractionAction(
     commentId?: string
     dmHistoryId?: string
   }
-): Promise<ActionState<RedditThreadDocument>> {
+): Promise<ActionState<SerializedRedditThreadDocument>> {
   console.log("🧵 [UPDATE-INTERACTION] Updating thread interaction:", threadId)
   console.log("🧵 [UPDATE-INTERACTION] Interaction:", interaction)
   
@@ -227,12 +294,12 @@ export async function updateThreadInteractionAction(
     const updatedDoc = await getDoc(threadRef)
     const updatedThread = updatedDoc.data() as RedditThreadDocument
     
-    console.log("🧵 [UPDATE-INTERACTION] ✅ Interaction updated")
+    console.log("🧵 [UPDATE-INTERACTION] ✅ Interaction updated, serializing...")
     
     return {
       isSuccess: true,
       message: "Thread interaction updated successfully",
-      data: updatedThread
+      data: serializeRedditThreadDocument(updatedThread)
     }
   } catch (error) {
     console.error("🧵 [UPDATE-INTERACTION] ❌ Error:", error)
@@ -256,7 +323,7 @@ export async function recordThreadInteractionAction(
       status?: string
     }
   }
-): Promise<ActionState<ThreadInteractionDocument>> {
+): Promise<ActionState<SerializedThreadInteractionDocument>> {
   console.log("🧵 [RECORD-INTERACTION] Recording interaction:", data)
   
   try {
@@ -270,12 +337,12 @@ export async function recordThreadInteractionAction(
     
     await setDoc(interactionRef, interactionData)
     
-    console.log("🧵 [RECORD-INTERACTION] ✅ Interaction recorded")
+    console.log("🧵 [RECORD-INTERACTION] ✅ Interaction recorded, serializing...")
     
     return {
       isSuccess: true,
       message: "Interaction recorded successfully",
-      data: interactionData
+      data: serializeThreadInteractionDocument(interactionData)
     }
   } catch (error) {
     console.error("🧵 [RECORD-INTERACTION] ❌ Error:", error)
@@ -294,7 +361,7 @@ export async function checkThreadInteractionAction(
 ): Promise<ActionState<{
   hasComment: boolean
   hasDM: boolean
-  thread: RedditThreadDocument | null
+  thread: SerializedRedditThreadDocument | null
 }>> {
   console.log("🧵 [CHECK-INTERACTION] Checking interaction for thread:", threadId)
   
