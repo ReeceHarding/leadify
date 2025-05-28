@@ -30,7 +30,11 @@ import {
   setDoc,
   serverTimestamp,
   writeBatch,
-  Timestamp
+  Timestamp,
+  query,
+  where,
+  limit,
+  getDocs
 } from "firebase/firestore"
 import { removeUndefinedValues } from "@/lib/firebase-utils"
 import { createGeneratedCommentAction } from "@/actions/db/lead-generation-actions"
@@ -43,6 +47,7 @@ import { LEAD_GENERATION_STAGES } from "@/types"
 import { getKnowledgeBaseByOrganizationIdAction } from "@/actions/db/personalization-actions"
 import { getVoiceSettingsByOrganizationIdAction } from "@/actions/db/personalization-actions"
 import { loggers } from "@/lib/logger"
+import { updateGeneratedCommentAction } from "@/actions/db/lead-generation-actions"
 
 const logger = loggers.leadGen
 
@@ -982,23 +987,14 @@ export async function stopLeadGenerationWorkflowAction(
   try {
     logger.info(`🛑 Stopping workflow for campaign: ${campaignId}`)
 
-    // Update the progress status to "stopped"
+    // Update campaign status
+    await updateCampaignAction(campaignId, { status: "paused" })
+
+    // Update progress tracking
     await updateLeadGenerationProgressAction(campaignId, {
       status: "completed",
-      stageUpdate: {
-        stageName: "User Stopped",
-        status: "completed",
-        message: "Workflow stopped by user"
-      },
-      error: "Workflow stopped by user"
+      currentStage: "Stopped by user"
     })
-
-    // Update campaign status to completed
-    await updateCampaignAction(campaignId, {
-      status: "completed"
-    })
-
-    logger.info(`✅ Workflow stopped successfully for campaign: ${campaignId}`)
 
     return {
       isSuccess: true,
@@ -1010,6 +1006,188 @@ export async function stopLeadGenerationWorkflowAction(
     return {
       isSuccess: false,
       message: `Failed to stop workflow: ${error instanceof Error ? error.message : "Unknown error"}`
+    }
+  }
+}
+
+export async function regenerateAllCommentsForCampaignAction(
+  campaignId: string
+): Promise<ActionState<{ regeneratedCount: number }>> {
+  try {
+    logger.info(`🔄 Starting regeneration of all comments for campaign: ${campaignId}`)
+    console.log("🔄 [REGENERATE-ALL] Starting regeneration for campaign:", campaignId)
+
+    // Get campaign details
+    const campaignResult = await getCampaignByIdAction(campaignId)
+    if (!campaignResult.isSuccess || !campaignResult.data) {
+      return {
+        isSuccess: false,
+        message: "Failed to get campaign details"
+      }
+    }
+
+    const campaign = campaignResult.data
+    const organizationId = campaign.organizationId
+    
+    if (!organizationId) {
+      return {
+        isSuccess: false,
+        message: "Campaign is not associated with an organization"
+      }
+    }
+
+    // Get website content
+    const websiteContent = campaign.websiteContent
+    if (!websiteContent) {
+      return {
+        isSuccess: false,
+        message: "No website content available for campaign"
+      }
+    }
+
+    console.log("🔄 [REGENERATE-ALL] Campaign details:", {
+      name: campaign.name,
+      organizationId,
+      websiteContentLength: websiteContent.length
+    })
+
+    // Get all existing comments for this campaign
+    const { getGeneratedCommentsByCampaignAction } = await import(
+      "@/actions/db/lead-generation-actions"
+    )
+    
+    const commentsResult = await getGeneratedCommentsByCampaignAction(campaignId)
+    if (!commentsResult.isSuccess || !commentsResult.data) {
+      return {
+        isSuccess: false,
+        message: "Failed to get existing comments"
+      }
+    }
+
+    const existingComments = commentsResult.data
+    console.log("🔄 [REGENERATE-ALL] Found", existingComments.length, "comments to regenerate")
+
+    // Get personalization data
+    const knowledgeBaseResult = await getKnowledgeBaseByOrganizationIdAction(organizationId)
+    let brandNameToUse = campaign.name
+    
+    if (knowledgeBaseResult.isSuccess && knowledgeBaseResult.data) {
+      const kb = knowledgeBaseResult.data
+      brandNameToUse = kb.brandNameOverride || campaign.name || "our solution"
+      brandNameToUse = brandNameToUse.toLowerCase()
+      console.log("🔄 [REGENERATE-ALL] Using brand name:", brandNameToUse)
+    }
+
+    // Process comments in batches to avoid overwhelming the API
+    const batchSize = 5
+    let regeneratedCount = 0
+    let errors = 0
+
+    for (let i = 0; i < existingComments.length; i += batchSize) {
+      const batch = existingComments.slice(i, i + batchSize)
+      console.log(`🔄 [REGENERATE-ALL] Processing batch ${Math.floor(i / batchSize) + 1} of ${Math.ceil(existingComments.length / batchSize)}`)
+
+      const regeneratePromises = batch.map(async (comment) => {
+        try {
+          // Get the Reddit thread data
+          const threadQuery = query(
+            collection(db, LEAD_COLLECTIONS.REDDIT_THREADS),
+            where("threadId", "==", comment.threadId),
+            limit(1)
+          )
+          const threadSnapshot = await getDocs(threadQuery)
+
+          if (threadSnapshot.empty) {
+            console.warn(`🔄 [REGENERATE-ALL] No thread found for comment ${comment.id}`)
+            return null
+          }
+
+          const threadData = threadSnapshot.docs[0].data() as RedditThreadDocument
+
+          // Fetch existing comments from Reddit for context
+          let existingRedditComments: string[] = []
+          try {
+            const { fetchRedditCommentsAction } = await import(
+              "@/actions/integrations/reddit/reddit-actions"
+            )
+            const commentsResult = await fetchRedditCommentsAction(
+              organizationId,
+              comment.threadId,
+              threadData.subreddit,
+              "best",
+              10
+            )
+            if (commentsResult.isSuccess && commentsResult.data.length > 0) {
+              existingRedditComments = commentsResult.data
+                .filter(c => c.body && c.body !== "[deleted]" && c.body !== "[removed]")
+                .map(c => c.body)
+                .slice(0, 5)
+            }
+          } catch (error) {
+            console.warn("🔄 [REGENERATE-ALL] Failed to fetch Reddit comments:", error)
+          }
+
+          // Use the new personalized scoring and comment generation
+          const { scoreThreadAndGeneratePersonalizedCommentsAction } = await import(
+            "@/actions/integrations/openai/openai-actions"
+          )
+
+          const result = await scoreThreadAndGeneratePersonalizedCommentsAction(
+            threadData.title,
+            threadData.content,
+            threadData.subreddit,
+            organizationId,
+            campaign.keywords,
+            websiteContent,
+            existingRedditComments,
+            brandNameToUse
+          )
+
+          if (result.isSuccess) {
+            // Update the comment in the database
+            await updateGeneratedCommentAction(comment.id, {
+              relevanceScore: result.data.score,
+              reasoning: result.data.reasoning,
+              microComment: result.data.microComment,
+              mediumComment: result.data.mediumComment,
+              verboseComment: result.data.verboseComment
+            })
+
+            console.log(`✅ [REGENERATE-ALL] Regenerated comment ${comment.id} with score ${result.data.score}`)
+            return true
+          } else {
+            console.error(`❌ [REGENERATE-ALL] Failed to regenerate comment ${comment.id}:`, result.message)
+            return false
+          }
+        } catch (error) {
+          console.error(`❌ [REGENERATE-ALL] Error regenerating comment ${comment.id}:`, error)
+          return false
+        }
+      })
+
+      const results = await Promise.all(regeneratePromises)
+      regeneratedCount += results.filter(r => r === true).length
+      errors += results.filter(r => r === false).length
+
+      // Add a small delay between batches to avoid rate limiting
+      if (i + batchSize < existingComments.length) {
+        await new Promise(resolve => setTimeout(resolve, 2000))
+      }
+    }
+
+    console.log(`🔄 [REGENERATE-ALL] Regeneration complete. Success: ${regeneratedCount}, Errors: ${errors}`)
+
+    return {
+      isSuccess: true,
+      message: `Successfully regenerated ${regeneratedCount} comments${errors > 0 ? ` (${errors} failed)` : ''}`,
+      data: { regeneratedCount }
+    }
+  } catch (error) {
+    logger.error("Error regenerating all comments:", error)
+    console.error("❌ [REGENERATE-ALL] Fatal error:", error)
+    return {
+      isSuccess: false,
+      message: `Failed to regenerate comments: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }

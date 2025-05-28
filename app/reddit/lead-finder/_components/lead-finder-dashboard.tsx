@@ -1289,6 +1289,74 @@ export default function LeadFinderDashboard() {
     }
   }
 
+  // Handle regenerating all comments with new prompts
+  const handleRegenerateAllWithNewPrompts = async () => {
+    if (!state.campaignId) {
+      toast.error("No campaign selected")
+      return
+    }
+
+    console.log("🔄 [REGENERATE-ALL] Starting regeneration with new prompts")
+    updateState({ regeneratingId: "all" })
+
+    try {
+      // Import and call the new regeneration action
+      const { regenerateAllCommentsForCampaignAction } = await import(
+        "@/actions/lead-generation/workflow-actions"
+      )
+      
+      const result = await regenerateAllCommentsForCampaignAction(state.campaignId)
+
+      if (result.isSuccess) {
+        toast.success(result.message)
+        
+        // Refresh the leads to show updated comments
+        const commentsResult = await getGeneratedCommentsByCampaignAction(state.campaignId)
+        if (commentsResult.isSuccess) {
+          const transformedLeads: LeadResult[] = commentsResult.data.map(comment => ({
+            id: comment.id,
+            campaignId: comment.campaignId,
+            organizationId: comment.organizationId,
+            threadId: comment.threadId,
+            postUrl: comment.postUrl,
+            postTitle: comment.postTitle,
+            postAuthor: comment.postAuthor,
+            postContentSnippet: comment.postContentSnippet,
+            postContent: comment.postContent,
+            relevanceScore: comment.relevanceScore,
+            reasoning: comment.reasoning,
+            microComment: comment.microComment,
+            mediumComment: comment.mediumComment,
+            verboseComment: comment.verboseComment,
+            status: comment.status,
+            selectedLength: comment.selectedLength || "verbose",
+            createdAt: comment.createdAt,
+            updatedAt: comment.updatedAt,
+            keyword: comment.keyword,
+            postScore: comment.postScore,
+            postCreatedAt: comment.postCreatedAt,
+            postedCommentUrl: comment.postedCommentUrl,
+            subreddit: comment.postUrl.match(/\/r\/([^\/]+)/)?.[1] || "",
+            timeAgo: getTimeAgo(comment.postCreatedAt || comment.createdAt)
+          }))
+          
+          setState(prev => ({
+            ...prev,
+            leads: transformedLeads,
+            regeneratingId: null
+          }))
+        }
+      } else {
+        toast.error(result.message)
+      }
+    } catch (error) {
+      console.error("🔄 [REGENERATE-ALL] Error:", error)
+      toast.error("Failed to regenerate comments")
+    } finally {
+      updateState({ regeneratingId: null })
+    }
+  }
+
   // Handle batch posting
   const handleBatchPostQueue = async () => {
     if (!user?.id) {
@@ -1932,6 +2000,7 @@ export default function LeadFinderDashboard() {
               updateState({ toneInstruction: value })
             }
             onRegenerateAll={handleToneRegeneration}
+            onRegenerateAllWithNewPrompts={handleRegenerateAllWithNewPrompts}
             isRegeneratingAll={state.regeneratingId === "all"}
             disabled={state.leads.length === 0}
           />

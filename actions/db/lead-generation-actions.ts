@@ -89,8 +89,7 @@ function serializeGeneratedCommentDocument(
     verboseComment: comment.verboseComment,
     status: comment.status,
     selectedLength: comment.selectedLength || undefined, // Handle optional
-    approved: comment.approved,
-    used: comment.used,
+
     createdAt: serializeTimestampToISOBoilerplate(comment.createdAt),
     updatedAt: serializeTimestampToISOBoilerplate(comment.updatedAt),
     postScore: comment.postScore || undefined, // Handle optional
@@ -227,8 +226,6 @@ export async function createGeneratedCommentAction(
       mediumComment: data.mediumComment,
       verboseComment: data.verboseComment,
       status: data.status || "new", // Default to 'new'
-      approved: false, // Default to false, can be updated later
-      used: false, // Default to false
       // Optional tracking fields
       keyword: data.keyword,
       postScore: data.postScore,
@@ -278,6 +275,8 @@ export async function updateGeneratedCommentAction(
     microComment?: string
     mediumComment?: string
     verboseComment?: string
+    relevanceScore?: number
+    reasoning?: string
     status?:
       | "new"
       | "viewed"
@@ -287,8 +286,6 @@ export async function updateGeneratedCommentAction(
       | "queued"
       | "posted"
     selectedLength?: "micro" | "medium" | "verbose"
-    approved?: boolean
-    used?: boolean
     postedCommentUrl?: string
   }
 ): Promise<ActionState<SerializedGeneratedCommentDocument>> {
@@ -542,8 +539,7 @@ export async function createBatchGeneratedCommentsAction(
       const data = {
         id: commentRef.id,
         ...commentData,
-        approved: false,
-        used: false,
+
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       }
