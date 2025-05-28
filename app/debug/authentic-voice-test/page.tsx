@@ -6,12 +6,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { testAuthenticVoiceSystemAction, testSpecificWritingStyleElementsAction } from "@/actions/integrations/openai/test-authentic-voice-actions"
+import { testIndustryAnalysisSystemAction } from "@/actions/integrations/openai/test-industry-analysis-actions"
 
 export default function AuthenticVoiceTestPage() {
   const [isTestingSystem, setIsTestingSystem] = useState(false)
   const [isTestingStyle, setIsTestingStyle] = useState(false)
+  const [isTestingIndustry, setIsTestingIndustry] = useState(false)
   const [systemTestResult, setSystemTestResult] = useState<any>(null)
   const [styleTestResult, setStyleTestResult] = useState<any>(null)
+  const [industryTestResult, setIndustryTestResult] = useState<any>(null)
 
   const runSystemTest = async () => {
     setIsTestingSystem(true)
@@ -43,6 +46,21 @@ export default function AuthenticVoiceTestPage() {
     }
   }
 
+  const runIndustryTest = async () => {
+    setIsTestingIndustry(true)
+    try {
+      console.log("🧪 Starting industry analysis system test...")
+      const result = await testIndustryAnalysisSystemAction()
+      setIndustryTestResult(result)
+      console.log("🧪 Industry test completed:", result)
+    } catch (error) {
+      console.error("❌ Industry test failed:", error)
+      setIndustryTestResult({ isSuccess: false, message: "Test failed with error" })
+    } finally {
+      setIsTestingIndustry(false)
+    }
+  }
+
   return (
     <div className="container mx-auto space-y-6 p-6">
       <div className="space-y-2">
@@ -52,7 +70,7 @@ export default function AuthenticVoiceTestPage() {
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-3">
         {/* System Test */}
         <Card>
           <CardHeader>
@@ -191,6 +209,78 @@ export default function AuthenticVoiceTestPage() {
             )}
           </CardContent>
         </Card>
+
+        {/* Industry Analysis Test */}
+        <Card>
+          <CardHeader>
+            <CardTitle>🔍 Industry Analysis Test</CardTitle>
+            <CardDescription>
+              Tests the intelligent industry analysis system that replaces hardcoded logic with LLM-powered analysis.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Button 
+              onClick={runIndustryTest} 
+              disabled={isTestingIndustry}
+              className="w-full"
+            >
+              {isTestingIndustry ? "Running Industry Test..." : "Run Industry Test"}
+            </Button>
+
+            {industryTestResult && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Badge variant={industryTestResult.isSuccess ? "default" : "destructive"}>
+                    {industryTestResult.isSuccess ? "✅ PASSED" : "❌ FAILED"}
+                  </Badge>
+                  <span className="text-muted-foreground text-sm">
+                    {industryTestResult.message}
+                  </span>
+                </div>
+
+                {industryTestResult.isSuccess && industryTestResult.data && (
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div>Analysis: {industryTestResult.data.basicAnalysisWorking ? "✅" : "❌"}</div>
+                      <div>Adaptations: {industryTestResult.data.adaptationsWorking ? "✅" : "❌"}</div>
+                    </div>
+
+                    <Separator />
+
+                    <div className="space-y-2">
+                      <h4 className="font-semibold">Test Scenarios</h4>
+                      <div className="space-y-2 text-sm">
+                        {industryTestResult.data.testScenarios?.map((scenario: any, index: number) => (
+                          <div key={index} className="rounded border p-2">
+                            <div className="font-medium">{scenario.scenario.substring(0, 40)}...</div>
+                            <div className="text-muted-foreground text-xs">
+                              Industry: {scenario.industry} | Confidence: {scenario.confidence}%
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {industryTestResult.data.analysisResult && (
+                      <>
+                        <Separator />
+                        <div className="space-y-2">
+                          <h4 className="font-semibold">Latest Analysis</h4>
+                          <div className="space-y-1 text-sm">
+                            <div>Industry: {industryTestResult.data.analysisResult.clientIndustry}</div>
+                            <div>Expertise: {industryTestResult.data.analysisResult.expertiseArea}</div>
+                            <div>Service: {industryTestResult.data.analysisResult.serviceOffering}</div>
+                            <div>Confidence: {industryTestResult.data.analysisResult.confidence}%</div>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Instructions */}
@@ -204,11 +294,13 @@ export default function AuthenticVoiceTestPage() {
             <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
               <li><strong>System Test:</strong> Verifies the complete authentic voice generation pipeline works correctly</li>
               <li><strong>Style Test:</strong> Ensures generated comments follow the specific writing style rules</li>
+              <li><strong>Industry Test:</strong> Validates intelligent industry analysis replaces hardcoded logic</li>
               <li><strong>Hyphen Rule:</strong> Comments must NEVER use hyphens (write "3rd party" not "third-party")</li>
               <li><strong>Symbol Usage:</strong> Must use "$" instead of "money" or "dollars"</li>
               <li><strong>Enthusiasm:</strong> Should include exclamation marks and positive language</li>
               <li><strong>Structure:</strong> Should follow the authentic consultant format with personal connection, questions, and options</li>
               <li><strong>Tone:</strong> Should be conversational, helpful, and include honest warnings</li>
+              <li><strong>Industry Analysis:</strong> Should intelligently determine client industry and expertise from thread content</li>
             </ul>
           </div>
 
@@ -225,6 +317,8 @@ export default function AuthenticVoiceTestPage() {
               <li>Personal closing with offer to help</li>
               <li>Use of "And," to start sentences</li>
               <li>ALL CAPS for emphasis on key words</li>
+              <li>Intelligent industry classification based on thread content</li>
+              <li>Dynamic expertise matching instead of hardcoded rules</li>
             </ul>
           </div>
         </CardContent>
