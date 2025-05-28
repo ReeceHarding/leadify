@@ -17,6 +17,7 @@ import {
 } from "@/types"
 
 import { scrapeWebsiteAction } from "@/actions/integrations/firecrawl/website-scraping-actions"
+import { generateAuthenticVoicePromptAction } from "@/actions/integrations/openai/authentic-voice-generation-actions"
 import OpenAI from "openai"
 
 // Schema for thread scoring and comment generation
@@ -1384,12 +1385,12 @@ COMMENT GENERATION:
 If score is 70+, write three comments that genuinely help:
 
 MICRO (5-15 words):
-- Quick, authentic reaction
-- Express genuine interest in helping
-- Natural and conversational
+- Authentic reaction showing genuine interest
+- Offer to help personally
+- Use natural, conversational tone
 - NEVER use hyphens
 
-MEDIUM (30-80 words):
+MEDIUM COMMENT (30-80 words):
 Think about:
 - What's their core need?
 - What 2-3 options best fit their constraints?
@@ -1402,7 +1403,7 @@ Structure:
 - Natural offer to help further
 - NEVER use hyphens
 
-VERBOSE (300-800 words):
+VERBOSE COMMENT (300-500 words):
 Adaptive structure based on their needs:
 
 ${postAgeContext && postAgeContext.includes('year') ? 'For this older post, start with: "Hope you found a solution, but for others finding this..."' : ''}
@@ -1439,7 +1440,7 @@ Return JSON:
   "reasoning": "<why you can genuinely help with their specific situation>",
   "microComment": "<authentic reaction>" or null,
   "mediumComment": "<helpful overview>" or null,
-  "verboseComment": "<comprehensive help>" or null
+  "verboseComment": "<comprehensive help following authentic structure>"
 }`
 
     // Log the full prompts being sent
@@ -1534,7 +1535,7 @@ Return JSON:
         microComment: parsed.microComment,
         mediumComment: parsed.mediumComment,
         verboseComment: parsed.verboseComment,
-        derivedSpecificKeywords: parsed.derivedSpecificKeywords || [] // Ensure it's an array
+        derivedSpecificKeywords: parsed.derivedSpecificKeywords || []
       }
     }
   } catch (error) {
@@ -1620,6 +1621,299 @@ IMPORTANT: Return only the combined information text, no additional commentary o
     return {
       isSuccess: false,
       message: `Failed to combine information: ${error instanceof Error ? error.message : "Unknown error"}`
+    }
+  }
+}
+
+export async function scoreThreadAndGenerateAuthenticCommentsAction(
+  threadTitle: string,
+  threadContent: string,
+  subreddit: string,
+  organizationId: string,
+  campaignKeywords: string[],
+  campaignWebsiteContent?: string,
+  existingComments?: string[],
+  campaignName?: string,
+  postCreatedUtc?: number
+): Promise<
+  ActionState<{
+    score: number
+    reasoning: string
+    microComment: string
+    mediumComment: string
+    verboseComment: string
+    derivedSpecificKeywords?: string[]
+  }>
+> {
+  try {
+    console.log("🎯 [AUTHENTIC-COMMENTS] Starting authentic comment generation")
+    console.log("🎯 [AUTHENTIC-COMMENTS] Thread title:", threadTitle)
+    console.log("🎯 [AUTHENTIC-COMMENTS] Subreddit:", subreddit)
+    console.log("🎯 [AUTHENTIC-COMMENTS] Organization ID:", organizationId)
+
+    // Get organization data for personalization
+    const { getOrganizationByIdAction } = await import(
+      "@/actions/db/organizations-actions"
+    )
+    const {
+      getKnowledgeBaseByOrganizationIdAction,
+      getVoiceSettingsByOrganizationIdAction
+    } = await import("@/actions/db/personalization-actions")
+
+    const orgResult = await getOrganizationByIdAction(organizationId)
+    if (!orgResult.isSuccess || !orgResult.data) {
+      console.error("❌ [AUTHENTIC-COMMENTS] Failed to get organization")
+      return { isSuccess: false, message: "Failed to get organization" }
+    }
+
+    const organization = orgResult.data
+    
+    // Get knowledge base for brand information
+    const knowledgeBaseResult = await getKnowledgeBaseByOrganizationIdAction(organizationId)
+    let knowledgeBaseContent = ""
+    let brandNameToUse = ""
+    let clientIndustry = "business consulting"
+    let expertiseArea = "business solutions"
+    let serviceOffering = "consulting services"
+    
+    if (knowledgeBaseResult.isSuccess && knowledgeBaseResult.data) {
+      const kb = knowledgeBaseResult.data
+      brandNameToUse = kb.brandNameOverride || organization.name || campaignName || "our solution"
+      brandNameToUse = brandNameToUse.toLowerCase()
+      
+      // Build knowledge base content
+      const contentParts = []
+      if (brandNameToUse) contentParts.push(`Brand Name: ${brandNameToUse}`)
+      if (kb.websiteUrl) contentParts.push(`Website: ${kb.websiteUrl}`)
+      if (kb.customInformation) {
+        contentParts.push("Business Information:")
+        contentParts.push(kb.customInformation)
+        
+        // Try to extract industry and expertise from custom information
+        const customInfo = kb.customInformation.toLowerCase()
+        if (customInfo.includes("software") || customInfo.includes("tech") || customInfo.includes("development")) {
+          clientIndustry = "technology"
+          expertiseArea = "software development"
+          serviceOffering = "custom software development"
+        } else if (customInfo.includes("marketing") || customInfo.includes("digital")) {
+          clientIndustry = "marketing"
+          expertiseArea = "digital marketing"
+          serviceOffering = "marketing solutions"
+        } else if (customInfo.includes("finance") || customInfo.includes("accounting")) {
+          clientIndustry = "finance"
+          expertiseArea = "financial consulting"
+          serviceOffering = "financial services"
+        }
+      }
+      if (kb.summary) {
+        contentParts.push("Summary:")
+        contentParts.push(kb.summary)
+      }
+      if (kb.keyFacts && kb.keyFacts.length > 0) {
+        contentParts.push("Key Facts:")
+        contentParts.push(kb.keyFacts.join("\n- "))
+      }
+      
+      knowledgeBaseContent = contentParts.join("\n\n")
+      serviceOffering = brandNameToUse // Use brand name as service offering
+    } else {
+      brandNameToUse = (organization.name || campaignName || "our solution").toLowerCase()
+      serviceOffering = brandNameToUse
+    }
+
+    // Determine client industry from thread content and subreddit
+    const threadText = `${threadTitle} ${threadContent}`.toLowerCase()
+    const subredditLower = subreddit.toLowerCase()
+    
+    if (subredditLower.includes("entrepreneur") || subredditLower.includes("startup") || subredditLower.includes("business")) {
+      clientIndustry = "entrepreneurship"
+      expertiseArea = "business development"
+    } else if (subredditLower.includes("tech") || subredditLower.includes("programming") || subredditLower.includes("dev")) {
+      clientIndustry = "technology"
+      expertiseArea = "software development"
+    } else if (subredditLower.includes("marketing") || subredditLower.includes("digital")) {
+      clientIndustry = "marketing"
+      expertiseArea = "digital marketing"
+    } else if (threadText.includes("software") || threadText.includes("app") || threadText.includes("development")) {
+      clientIndustry = "technology"
+      expertiseArea = "software development"
+    } else if (threadText.includes("marketing") || threadText.includes("brand") || threadText.includes("customer")) {
+      clientIndustry = "marketing"
+      expertiseArea = "marketing strategy"
+    }
+
+    console.log("🎯 [AUTHENTIC-COMMENTS] Determined client industry:", clientIndustry)
+    console.log("🎯 [AUTHENTIC-COMMENTS] Determined expertise area:", expertiseArea)
+    console.log("🎯 [AUTHENTIC-COMMENTS] Service offering:", serviceOffering)
+
+    // Generate authentic voice prompt using the new system
+    const voicePromptResult = await generateAuthenticVoicePromptAction(
+      clientIndustry,
+      `${threadTitle}\n\n${threadContent}`,
+      expertiseArea,
+      serviceOffering,
+      "medium", // urgency level
+      "moderate" // complexity level
+    )
+
+    if (!voicePromptResult.isSuccess) {
+      console.error("❌ [AUTHENTIC-COMMENTS] Failed to generate voice prompt")
+      return {
+        isSuccess: false,
+        message: "Failed to generate authentic voice prompt"
+      }
+    }
+
+    const authenticVoice = voicePromptResult.data
+
+    console.log("🎯 [AUTHENTIC-COMMENTS] Authentic voice prompt generated successfully")
+    console.log("🎯 [AUTHENTIC-COMMENTS] Enthusiasm level:", authenticVoice.voiceCharacteristics.enthusiasmLevel)
+
+    // Calculate post age context
+    let postAgeContext = ""
+    if (postCreatedUtc) {
+      const now = Date.now() / 1000
+      const ageInSeconds = now - postCreatedUtc
+      const ageInMinutes = Math.floor(ageInSeconds / 60)
+      const ageInHours = Math.floor(ageInMinutes / 60)
+      const ageInDays = Math.floor(ageInHours / 24)
+      
+      if (ageInDays > 0) {
+        postAgeContext = `Posted ${ageInDays} day${ageInDays > 1 ? 's' : ''} ago`
+      } else if (ageInHours > 0) {
+        postAgeContext = `Posted ${ageInHours} hour${ageInHours > 1 ? 's' : ''} ago`
+      } else if (ageInMinutes > 0) {
+        postAgeContext = `Posted ${ageInMinutes} minute${ageInMinutes > 1 ? 's' : ''} ago`
+      } else {
+        postAgeContext = `Posted just now`
+      }
+    }
+
+    // Enhanced system prompt with authentic consultant voice
+    const systemPrompt = `${authenticVoice.systemPrompt}
+
+ADDITIONAL CONTEXT:
+- Thread found when searching for: "${campaignKeywords.join(", ")}"
+- Your service/solution: ${serviceOffering}
+- Brand name to mention naturally: ${brandNameToUse}
+
+${knowledgeBaseContent ? `\nYOUR BUSINESS KNOWLEDGE:
+${knowledgeBaseContent}` : ""}
+
+${campaignWebsiteContent ? `\nADDITIONAL BUSINESS CONTEXT:
+${campaignWebsiteContent}` : ""}
+
+AUTHENTIC CONSULTANT VOICE REQUIREMENTS:
+- Use the EXACT writing style from the analysis
+- Start sentences with "And," when natural
+- Use "$" instead of "money" or "dollars"
+- Use "3rd party" not "third party"
+- Use ALL CAPS for emphasis: "YOUR needs"
+- Show genuine enthusiasm with exclamation marks
+- Be honest about challenges and limitations
+- Present multiple genuine options (3-4)
+- Include specific expectations ("Expect to pay...")
+- End with personal offer to help
+
+CRITICAL: Follow the authentic consultant voice patterns exactly. This should sound like the original example post, adapted to their specific situation.`
+
+    const userPrompt = `Thread: "${threadTitle}"
+Content: "${threadContent}"
+Subreddit: r/${subreddit}
+${postAgeContext ? `Posted: ${postAgeContext}` : ''}
+
+${existingComments && existingComments.length > 0 ? `\nWhat others have already said:
+${existingComments.slice(0, 10).map((comment, i) => `${i + 1}. "${comment}"`).join("\n\n")}` : ''}
+
+Using the authentic consultant voice style, generate three comments that genuinely help this person:
+
+SCORING (0-100): How well can you help with their specific situation?
+- Consider your expertise in ${expertiseArea}
+- Consider how ${serviceOffering} might fit their needs
+- Be honest about relevance
+
+MICRO COMMENT (5-15 words):
+- Authentic reaction showing genuine interest
+- Offer to help personally
+- Use natural, conversational tone
+- NEVER use hyphens
+
+MEDIUM COMMENT (30-80 words):
+- Connect to their specific situation
+- Show relevant experience
+- Ask 1-2 key questions they should consider
+- Mention 2-3 approaches (including ${serviceOffering} as ONE option)
+- Natural offer to help further
+- NEVER use hyphens
+
+VERBOSE COMMENT (300-500 words):
+Follow the authentic consultant structure:
+1. Personal connection opening ("I would love to chat about this...")
+2. Framework questions ("There are a handful of things you need to consider:")
+3. Option presentation ("Then you have a few options.")
+4. Detailed analysis with honest pros/cons
+5. Personal closing ("Again, I'd love to chat...")
+
+Present 3-4 genuine options:
+- Include ${serviceOffering} as ONE natural option among others
+- Be specific about expectations and challenges
+- Reference what others have suggested
+- Use authentic voice patterns (starting with "And,", using "$", etc.)
+- NEVER use hyphens anywhere
+
+Return JSON:
+{
+  "score": <0-100>,
+  "reasoning": "<why you can genuinely help>",
+  "microComment": "<authentic reaction>",
+  "mediumComment": "<helpful overview>",
+  "verboseComment": "<comprehensive help following authentic structure>"
+}`
+
+    console.log("🎯 [AUTHENTIC-COMMENTS] Generating comments with authentic voice...")
+
+    const result = await generateText({
+      model: openai("o3-mini"),
+      system: systemPrompt,
+      prompt: userPrompt,
+      temperature: 0.7,
+      providerOptions: {
+        openai: { reasoningEffort: "medium" }
+      }
+    })
+
+    // Parse the response
+    const text = result.text.trim()
+    const jsonMatch = text.match(/\{[\s\S]*\}/)
+    if (!jsonMatch) {
+      throw new Error("Failed to extract JSON from response")
+    }
+
+    const parsed = JSON.parse(jsonMatch[0])
+
+    console.log("🎯 [AUTHENTIC-COMMENTS] Response parsed successfully")
+    console.log("🎯 [AUTHENTIC-COMMENTS] Score:", parsed.score)
+    console.log("🎯 [AUTHENTIC-COMMENTS] Micro comment length:", parsed.microComment?.length || 0)
+    console.log("🎯 [AUTHENTIC-COMMENTS] Medium comment length:", parsed.mediumComment?.length || 0)
+    console.log("🎯 [AUTHENTIC-COMMENTS] Verbose comment length:", parsed.verboseComment?.length || 0)
+
+    return {
+      isSuccess: true,
+      message: "Authentic consultant comments generated successfully",
+      data: {
+        score: parsed.score,
+        reasoning: parsed.reasoning,
+        microComment: parsed.microComment,
+        mediumComment: parsed.mediumComment,
+        verboseComment: parsed.verboseComment,
+        derivedSpecificKeywords: parsed.derivedSpecificKeywords || []
+      }
+    }
+  } catch (error) {
+    console.error("❌ [AUTHENTIC-COMMENTS] Error:", error)
+    return {
+      isSuccess: false,
+      message: `Failed to generate authentic comments: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }
