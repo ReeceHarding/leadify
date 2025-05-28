@@ -2,25 +2,45 @@
 
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react"
 import {
+  Plus,
   Search,
+  Target,
   MessageSquare,
-  Send,
-  Loader2,
+  TrendingUp,
+  Clock,
+  CheckCircle2,
+  AlertCircle,
+  Play,
+  Eye,
+  Copy,
   ExternalLink,
   User,
   Calendar,
   ThumbsUp,
-  Copy,
-  Check,
-  Eye,
+  Sparkles,
+  Loader2,
   Filter,
   ArrowUpDown,
   Hash,
-  CalendarDays,
-  ChevronRight,
-  ChevronDown,
+  Edit2,
+  PlusCircle,
   RefreshCw,
-  TrendingUp
+  Send,
+  PlayCircle,
+  MinusCircle,
+  Bug,
+  Database,
+  Zap,
+  ArrowDown,
+  ArrowUp,
+  ChevronDown,
+  Trash2,
+  X,
+  HelpCircle,
+  Users,
+  Award,
+  CalendarDays,
+  StopCircle
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -31,8 +51,12 @@ import {
   CardTitle
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Progress } from "@/components/ui/progress"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Separator } from "@/components/ui/separator"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Select,
   SelectContent,
@@ -40,12 +64,31 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger
-} from "@/components/ui/collapsible"
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu"
 import { toast } from "sonner"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import Link from "next/link"
+import { usePostHog } from "posthog-js/react"
+import { useSearchParams } from "next/navigation"
 import { useUser } from "@clerk/nextjs"
 import { useOrganization } from "@/components/utilities/organization-provider"
 import {
@@ -57,157 +100,90 @@ import {
   doc
 } from "firebase/firestore"
 import { db } from "@/lib/firebase"
-import { searchRedditUsersAction } from "@/actions/integrations/reddit/reddit-search-actions"
-import { generatePersonalizedDMAction } from "@/actions/dm-generation/dm-generation-actions"
-import { sendRedditDMAction } from "@/actions/integrations/reddit/dm-actions"
-import { 
-  createDMHistoryAction,
-  getDMHistoryByOrganizationAction,
-  checkDMAlreadySentAction
+import { toISOString } from "@/lib/utils/timestamp-utils"
+import { validateOrganizationId, resolveOrganizationId } from "@/lib/utils/organization-utils"
+
+// Import DM-specific components and types
+import DMCard from "./dashboard/dm-card"
+import { DMPost, DMAutomation, DashboardState, WorkflowProgress } from "./dashboard/types"
+import CreateDMAutomationDialog from "./create-dm-automation-dialog"
+
+// Import DM actions
+import {
+  getDMAutomationsByOrganizationAction,
+  getDMAutomationByIdAction,
+  createDMAutomationAction,
+  updateDMAutomationAction
 } from "@/actions/db/dm-actions"
-import { fetchRedditThreadAction } from "@/actions/integrations/reddit/reddit-actions"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { AlertCircle, CheckCircle2 } from "lucide-react"
-import { 
-  getRedditThreadsByOrganizationAction,
-  upsertRedditThreadAction,
-  updateThreadInteractionAction,
-  checkThreadInteractionAction,
-  recordThreadInteractionAction
+import {
+  runDMAutomationWorkflowAction,
+  stopDMAutomationWorkflowAction
+} from "@/actions/dm-generation/dm-workflow-actions"
+import {
+  generatePersonalizedDMAction
+} from "@/actions/dm-generation/dm-generation-actions"
+import {
+  sendRedditDMAction
+} from "@/actions/integrations/reddit/dm-actions"
+import {
+  getRedditThreadsByOrganizationAction
 } from "@/actions/db/reddit-threads-actions"
 
-interface RedditPost {
-  id: string
-  threadId: string
-  title: string
-  author: string
-  subreddit: string
-  url: string
-  created_utc: number
-  selftext: string
-  score: number
-  num_comments: number
-  timeAgo?: string
-  relevanceScore?: number
-  reasoning?: string
-  hasComment?: boolean
-  hasDM?: boolean
-  keywords?: string[]
-}
-
-interface DMResult {
-  id: string
-  postId: string
-  postTitle: string
-  postAuthor: string
-  postContentSnippet: string
-  postContent?: string
-  subreddit: string
-  dmContent: string
-  status: "draft" | "sent" | "failed"
-  createdAt: string
-  sentAt?: string
-  error?: string
-  timeAgo: string
-}
-
-interface DashboardState {
-  // Search state
-  searchQuery: string
-  subreddit: string
-  timeFilter: "day" | "week" | "month" | "year" | "all"
-  isSearching: boolean
-  searchResults: RedditPost[]
-  
-  // DM state
-  selectedPost: RedditPost | null
-  dmContent: string
-  isGeneratingDM: boolean
-  isSendingDM: boolean
-  
-  // History state
-  dmHistory: DMResult[]
-  isLoadingHistory: boolean
-  
-  // UI state
-  currentPage: number
-  sortBy: "relevance" | "upvotes" | "time" | "posted" | "fetched"
-  dateFilter: "all" | "today" | "week" | "month" | "3months"
-  searchPostsQuery: string
-  selectedKeyword: string | null
-  filterScore: number
-}
+const ITEMS_PER_PAGE = 20
+const POLLING_INTERVAL = 5000 // 5 seconds
 
 const initialState: DashboardState = {
-  searchQuery: "",
-  subreddit: "",
-  timeFilter: "month",
-  isSearching: false,
-  searchResults: [],
-  selectedPost: null,
-  dmContent: "",
-  isGeneratingDM: false,
-  isSendingDM: false,
-  dmHistory: [],
-  isLoadingHistory: true,
+  automationId: null,
+  automationName: null,
+  automations: [],
+  posts: [],
+  isLoading: true,
+  error: null,
+  selectedLength: "verbose",
   currentPage: 1,
   sortBy: "relevance",
-  dateFilter: "all",
-  searchPostsQuery: "",
+  filterKeyword: "",
+  filterScore: 0,
+  activeTab: "all",
+  selectedPost: null,
+  editingDMId: null,
+  toneInstruction: "",
+  regeneratingId: null,
+  sendingDMId: null,
+  queuingDMId: null,
+  removingDMId: null,
+  isBatchSending: false,
+  showRedditAuthDialog: false,
+  showMassDMDialog: false,
+  lastPolledAt: null,
+  pollingEnabled: false,
+  workflowRunning: false,
+  debugMode: false,
+  debugLogs: [],
+  searchQuery: "",
   selectedKeyword: null,
-  filterScore: 0
+  dateFilter: "all"
 }
-
-const ITEMS_PER_PAGE = 20
 
 // Helper functions
-const getTimeAgo = (timestamp: number | string): string => {
-  const date = typeof timestamp === 'number' 
-    ? new Date(timestamp * 1000) 
-    : new Date(timestamp)
-  const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-
-  if (diffDays === 0) {
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-    if (diffHours === 0) {
-      const diffMinutes = Math.floor(diffMs / (1000 * 60))
-      return `${diffMinutes} minute${diffMinutes !== 1 ? "s" : ""} ago`
-    }
-    return `${diffHours} hour${diffHours !== 1 ? "s" : ""} ago`
-  } else if (diffDays === 1) {
-    return "Yesterday"
-  } else if (diffDays < 7) {
-    return `${diffDays} days ago`
-  } else if (diffDays < 30) {
-    const weeks = Math.floor(diffDays / 7)
-    return `${weeks} week${weeks !== 1 ? "s" : ""} ago`
-  } else if (diffDays < 365) {
-    const months = Math.floor(diffDays / 30)
-    return `${months} month${months !== 1 ? "s" : ""} ago`
-  } else {
-    const years = Math.floor(diffDays / 365)
-    return `${years} year${years !== 1 ? "s" : ""} ago`
-  }
+const getTimeAgo = (timestamp: number): string => {
+  const now = Date.now() / 1000
+  const diff = now - timestamp
+  
+  if (diff < 60) return "just now"
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`
+  if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`
+  return new Date(timestamp * 1000).toLocaleDateString()
 }
 
-const filterByDate = (item: { createdAt?: string; created_utc?: number }, dateFilter: string): boolean => {
+const filterByDate = (post: DMPost, dateFilter: string): boolean => {
   if (dateFilter === "all") return true
 
-  let itemDate: Date
-  if ('created_utc' in item && item.created_utc) {
-    itemDate = new Date(item.created_utc * 1000)
-  } else if (item.createdAt) {
-    itemDate = new Date(item.createdAt)
-  } else {
-    return true
-  }
-
+  const postDate = new Date(post.created_utc * 1000)
   const now = new Date()
   const daysDiff = Math.floor(
-    (now.getTime() - itemDate.getTime()) / (1000 * 60 * 60 * 24)
+    (now.getTime() - postDate.getTime()) / (1000 * 60 * 60 * 24)
   )
 
   switch (dateFilter) {
@@ -224,16 +200,16 @@ const filterByDate = (item: { createdAt?: string; created_utc?: number }, dateFi
   }
 }
 
-const matchesSearchQuery = (item: RedditPost | DMResult, query: string): boolean => {
+const matchesSearchQuery = (post: DMPost, query: string): boolean => {
   if (!query.trim()) return true
 
   const lowerQuery = query.toLowerCase()
   const searchableFields = [
-    'postTitle' in item ? item.postTitle : item.title,
-    'postAuthor' in item ? item.postAuthor : item.author,
-    'postContentSnippet' in item ? item.postContentSnippet : item.selftext,
-    item.subreddit,
-    'dmContent' in item ? item.dmContent : ''
+    post.title,
+    post.selftext,
+    post.author,
+    post.subreddit,
+    post.dmContent
   ]
     .filter(Boolean)
     .map(field => field!.toLowerCase())
@@ -241,891 +217,956 @@ const matchesSearchQuery = (item: RedditPost | DMResult, query: string): boolean
   return searchableFields.some(field => field.includes(lowerQuery))
 }
 
-export default function DMFinderDashboard({
-  organizationId,
-  userId,
-  organization
-}: {
-  organizationId: string
-  userId: string
-  organization: any
-}) {
+export default function DMFinderDashboard() {
   const { user, isLoaded: userLoaded } = useUser()
+  const { currentOrganization, isLoading: organizationLoading } = useOrganization()
   const [state, setState] = useState<DashboardState>(initialState)
-  const [fullPostContent, setFullPostContent] = useState<Map<string, string>>(new Map())
-  const [loadingPostContent, setLoadingPostContent] = useState<Set<string>>(new Set())
-  const [expandedPosts, setExpandedPosts] = useState<Set<string>>(new Set())
+  const [createDialogOpen, setCreateDialogOpen] = useState(false)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [editingAutomationId, setEditingAutomationId] = useState<string | null>(null)
+  const [findNewUsersOpen, setFindNewUsersOpen] = useState(false)
+  const [currentAutomationKeywords, setCurrentAutomationKeywords] = useState<string[]>([])
+  const newPostIds = useRef(new Set<string>())
+  const searchParams = useSearchParams()
+  const [liveFirestoreProgress, setLiveFirestoreProgress] = useState<WorkflowProgress | null>(null)
+  const [redditConnected, setRedditConnected] = useState<boolean | null>(null)
+  const posthog = usePostHog()
+
+  // Debug logging
+  const addDebugLog = useCallback(
+    (message: string, data?: any) => {
+      const timestamp = new Date().toISOString()
+      const logEntry = `[${timestamp}] ${message}${data ? `: ${JSON.stringify(data, null, 2)}` : ""}`
+      console.log(`🔍 DM: ${logEntry}`)
+
+      if (state.debugMode) {
+        setState(prev => ({
+          ...prev,
+          debugLogs: [...prev.debugLogs.slice(-99), logEntry]
+        }))
+      }
+    },
+    [state.debugMode]
+  )
 
   // Update state helper
   const updateState = (updates: Partial<DashboardState>) => {
     setState(prev => ({ ...prev, ...updates }))
   }
 
-  // Load threads from shared collection
-  const loadSharedThreads = async () => {
-    updateState({ isSearching: true, searchResults: [] })
-    
-    try {
-      console.log("🧵 [DM-FINDER] Loading threads from shared collection...")
-      
-      const result = await getRedditThreadsByOrganizationAction(
-        organizationId,
-        {
-          minScore: 50, // Only show threads with decent relevance
-          limitCount: 100 // Get more threads for DM finder
-        }
-      )
-
-      if (result.isSuccess) {
-        console.log("🧵 [DM-FINDER] Found", result.data.length, "threads")
-        
-        const postsWithTimeAgo = result.data.map((thread) => ({
-          id: thread.id,
-          threadId: thread.id,
-          title: thread.title,
-          author: thread.author,
-          subreddit: thread.subreddit,
-          url: thread.url,
-          created_utc: thread.createdUtc,
-          selftext: thread.content,
-          score: thread.score,
-          num_comments: thread.numComments,
-          timeAgo: getTimeAgo(thread.createdUtc),
-          relevanceScore: thread.relevanceScore,
-          reasoning: thread.reasoning,
-          hasComment: thread.hasComment,
-          hasDM: thread.hasDM,
-          keywords: thread.keywords
-        }))
-        
-        updateState({ searchResults: postsWithTimeAgo })
-        toast.success(`Found ${result.data.length} relevant threads`)
-      } else {
-        toast.error(result.message)
-      }
-    } catch (error) {
-      console.error("Load threads error:", error)
-      toast.error("Failed to load threads")
-    } finally {
-      updateState({ isSearching: false })
-    }
-  }
-
-  // Load shared threads on mount
+  // Check Reddit connection status
   useEffect(() => {
-    loadSharedThreads()
-    loadDMHistory()
-  }, [organizationId])
-
-  const loadDMHistory = async () => {
-    updateState({ isLoadingHistory: true })
-    try {
-      const result = await getDMHistoryByOrganizationAction(organizationId)
-      if (result.isSuccess) {
-        const transformedHistory: DMResult[] = result.data.map(dm => ({
-          id: dm.id,
-          postId: dm.postId,
-          postTitle: "DM to " + dm.postAuthor,
-          postAuthor: dm.postAuthor,
-          postContentSnippet: dm.messageContent.substring(0, 200),
-          subreddit: "Unknown",
-          dmContent: dm.messageContent,
-          status: "sent" as const,
-          createdAt: dm.sentAt.toDate().toISOString(),
-          sentAt: dm.sentAt.toDate().toISOString(),
-          timeAgo: getTimeAgo(dm.sentAt.toDate().toISOString())
-        }))
-        updateState({ dmHistory: transformedHistory })
+    const checkRedditConnection = async () => {
+      if (!currentOrganization?.id) return
+      
+      try {
+        const { getCurrentOrganizationTokens } = await import(
+          "@/actions/integrations/reddit/reddit-auth-helpers"
+        )
+        const tokenResult = await getCurrentOrganizationTokens(
+          currentOrganization.id
+        )
+        const isConnected =
+          tokenResult.isSuccess && !!tokenResult.data.accessToken
+        setRedditConnected(isConnected)
+        addDebugLog("Reddit connection status", { isConnected })
+      } catch (error) {
+        console.error("Error checking Reddit connection:", error)
+        setRedditConnected(false)
       }
-    } catch (error) {
-      console.error("Error loading DM history:", error)
-      toast.error("Failed to load DM history")
-    } finally {
-      updateState({ isLoadingHistory: false })
-    }
-  }
-
-  // Search Reddit posts
-  const handleSearch = async () => {
-    if (!state.searchQuery.trim()) {
-      toast.error("Please enter a search query")
-      return
     }
 
-    updateState({ isSearching: true, searchResults: [] })
-    
-    try {
-      const result = await searchRedditUsersAction(
-        organizationId,
-        state.searchQuery,
-        {
-          subreddit: state.subreddit || undefined,
-          sort: "relevance",
-          time: state.timeFilter,
-          limit: 25
+    checkRedditConnection()
+  }, [currentOrganization?.id, addDebugLog])
+
+  // Initialize dashboard
+  useEffect(() => {
+    const initialize = async () => {
+      if (!userLoaded || organizationLoading) {
+        addDebugLog("Waiting for user/organization to load")
+        return
+      }
+
+      if (!currentOrganization?.id) {
+        addDebugLog("No organization selected")
+        updateState({
+          isLoading: false,
+          error: "Please select an organization to view DM automations"
+        })
+        return
+      }
+
+      addDebugLog("Initializing DM Finder dashboard", {
+        organizationId: currentOrganization.id
+      })
+
+      try {
+        // Load DM automations
+        const automationsResult = await getDMAutomationsByOrganizationAction(
+          currentOrganization.id
+        )
+
+        if (!automationsResult.isSuccess) {
+          throw new Error(automationsResult.message)
         }
+
+        const automations = automationsResult.data || []
+        addDebugLog("Loaded DM automations", { count: automations.length })
+
+        // Get automation ID from URL or use most recent
+        const urlAutomationId = searchParams.get("automationId")
+        const selectedAutomation = urlAutomationId
+          ? automations.find(a => a.id === urlAutomationId)
+          : automations[0]
+
+        if (selectedAutomation) {
+          updateState({
+            automations,
+            automationId: selectedAutomation.id,
+            automationName: selectedAutomation.name,
+            isLoading: false
+          })
+
+          // Load posts for the selected automation
+          await loadPostsForAutomation(selectedAutomation.id)
+        } else {
+          updateState({
+            automations,
+            isLoading: false
+          })
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Failed to initialize"
+        addDebugLog("Initialization error", { error: errorMessage })
+        updateState({
+          error: errorMessage,
+          isLoading: false
+        })
+      }
+    }
+
+    initialize()
+  }, [userLoaded, organizationLoading, currentOrganization, searchParams, addDebugLog])
+
+  // Load posts for automation
+  const loadPostsForAutomation = async (automationId: string) => {
+    if (!currentOrganization?.id) return
+
+    addDebugLog("Loading posts for automation", { automationId })
+
+    try {
+      // Get threads from shared collection
+      const threadsResult = await getRedditThreadsByOrganizationIdAction(
+        currentOrganization.id
       )
 
-      if (result.isSuccess) {
-        const postsWithTimeAgo = result.data.map((post: any) => ({
-          ...post,
-          threadId: post.id,
-          timeAgo: getTimeAgo(post.created_utc)
-        }))
-        updateState({ searchResults: postsWithTimeAgo })
-        toast.success(`Found ${result.data.length} posts`)
-      } else {
-        toast.error(result.message)
+      if (!threadsResult.isSuccess) {
+        throw new Error(threadsResult.message)
       }
+
+      const threads = threadsResult.data || []
+      
+      // Transform threads to DMPost format
+      const posts: DMPost[] = threads.map(thread => ({
+        id: thread.id,
+        threadId: thread.id,
+        title: thread.title,
+        author: thread.author,
+        subreddit: thread.subreddit,
+        url: thread.url,
+        created_utc: thread.createdUtc,
+        selftext: thread.content || thread.contentSnippet || "",
+        score: thread.score,
+        num_comments: thread.numComments,
+        timeAgo: getTimeAgo(thread.createdUtc),
+        relevanceScore: thread.relevanceScore,
+        reasoning: thread.reasoning,
+        hasComment: thread.hasComment,
+        hasDM: false, // TODO: Check DM status
+        keywords: thread.keywords,
+        selectedLength: "verbose"
+      }))
+
+      addDebugLog("Loaded posts", { count: posts.length })
+      updateState({ posts })
     } catch (error) {
-      console.error("Search error:", error)
-      toast.error("Failed to search posts")
-    } finally {
-      updateState({ isSearching: false })
+      const errorMessage = error instanceof Error ? error.message : "Failed to load posts"
+      addDebugLog("Error loading posts", { error: errorMessage })
+      toast.error(errorMessage)
     }
   }
 
-  // Fetch full post content
-  const fetchFullPostContent = async (post: RedditPost) => {
-    const postId = post.id
-    
-    if (fullPostContent.has(postId) || loadingPostContent.has(postId)) {
+  // Real-time workflow progress listener
+  useEffect(() => {
+    if (!state.automationId) {
+      setLiveFirestoreProgress(null)
       return
     }
 
-    setLoadingPostContent(prev => new Set(prev).add(postId))
+    addDebugLog("Setting up Firestore listener for DM workflow progress", {
+      automationId: state.automationId
+    })
+
+    const progressDocRef = doc(db, "dm_progress", state.automationId)
+    const unsubscribe = onSnapshot(
+      progressDocRef,
+      docSnapshot => {
+        if (docSnapshot.exists()) {
+          const progressData = docSnapshot.data() as WorkflowProgress
+          addDebugLog("DM workflow progress snapshot received", {
+            data: progressData
+          })
+          setLiveFirestoreProgress(progressData)
+
+          updateState({
+            workflowRunning: !progressData.isComplete,
+            error: progressData.error || null
+          })
+        }
+      },
+      error => {
+        addDebugLog("Firestore listener error", { error: error.message })
+      }
+    )
+
+    return () => unsubscribe()
+  }, [state.automationId, addDebugLog])
+
+  // Handle automation selection
+  const handleAutomationSelect = async (automationId: string) => {
+    const automation = state.automations.find(a => a.id === automationId)
+    if (!automation) return
+
+    updateState({
+      automationId: automation.id,
+      automationName: automation.name,
+      currentPage: 1
+    })
+
+    await loadPostsForAutomation(automation.id)
+  }
+
+  // Handle run workflow
+  const handleRunWorkflow = async () => {
+    if (!state.automationId || !currentOrganization?.id) {
+      toast.error("Please select an automation first")
+      return
+    }
+
+    addDebugLog("Starting DM workflow", { automationId: state.automationId })
+
+    try {
+      updateState({ workflowRunning: true, error: null })
+
+      const result = await runDMAutomationWorkflowAction(state.automationId)
+
+      if (result.isSuccess) {
+        toast.success("DM automation started! Messages will be sent in real-time.")
+        posthog?.capture("dm_workflow_started", {
+          automationId: state.automationId,
+          organizationId: currentOrganization.id
+        })
+      } else {
+        throw new Error(result.message)
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to start workflow"
+      addDebugLog("Workflow start error", { error: errorMessage })
+      updateState({ error: errorMessage, workflowRunning: false })
+      toast.error(errorMessage)
+    }
+  }
+
+  // Handle stop workflow
+  const handleStopWorkflow = async () => {
+    if (!state.automationId) return
+
+    addDebugLog("Stopping DM workflow", { automationId: state.automationId })
+
+    try {
+      const result = await stopDMAutomationWorkflowAction(state.automationId)
+
+      if (result.isSuccess) {
+        toast.success("DM automation stopped")
+        updateState({ workflowRunning: false })
+        posthog?.capture("dm_workflow_stopped", {
+          automationId: state.automationId
+        })
+      } else {
+        throw new Error(result.message)
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to stop workflow"
+      addDebugLog("Workflow stop error", { error: errorMessage })
+      toast.error(errorMessage)
+    }
+  }
+
+  // Handle generate DM
+  const handleGenerateDM = async (post: DMPost) => {
+    if (!currentOrganization?.id) {
+      toast.error("Please select an organization first")
+      return
+    }
+
+    addDebugLog("Generating DM for post", { postId: post.id })
+
+    try {
+      const result = await generatePersonalizedDMAction({
+        organizationId: currentOrganization.id,
+        threadId: post.threadId,
+        postTitle: post.title,
+        postContent: post.selftext,
+        postAuthor: post.author,
+        subreddit: post.subreddit,
+        relevanceScore: post.relevanceScore || 0
+      })
+
+      if (result.isSuccess && result.data) {
+        // Update post with generated DM
+        updateState({
+          posts: state.posts.map(p =>
+            p.id === post.id
+              ? {
+                  ...p,
+                  dmContent: result.data[state.selectedLength],
+                  selectedLength: state.selectedLength
+                }
+              : p
+          )
+        })
+        toast.success("DM generated successfully!")
+      } else {
+        throw new Error(result.message)
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to generate DM"
+      addDebugLog("DM generation error", { error: errorMessage })
+      toast.error(errorMessage)
+    }
+  }
+
+  // Handle send DM
+  const handleSendDM = async (post: DMPost) => {
+    if (!post.dmContent) {
+      toast.error("Please generate a DM first")
+      return
+    }
+
+    addDebugLog("Sending DM", { postId: post.id, author: post.author })
+    updateState({ sendingDMId: post.id })
+
+    try {
+      const result = await sendRedditDMAction({
+        username: post.author,
+        subject: `Re: ${post.title}`,
+        message: post.dmContent
+      })
+
+      if (result.isSuccess) {
+        // Update post status
+        updateState({
+          posts: state.posts.map(p =>
+            p.id === post.id
+              ? { ...p, dmStatus: "sent", dmSentAt: new Date().toISOString() }
+              : p
+          ),
+          sendingDMId: null
+        })
+        toast.success("DM sent successfully!")
+        posthog?.capture("dm_sent", {
+          postId: post.id,
+          author: post.author
+        })
+      } else {
+        throw new Error(result.message)
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to send DM"
+      addDebugLog("DM send error", { error: errorMessage })
+      updateState({ sendingDMId: null })
+      toast.error(errorMessage)
+    }
+  }
+
+  // Handle edit DM
+  const handleEditDM = (postId: string, newContent: string) => {
+    updateState({
+      posts: state.posts.map(p =>
+        p.id === postId ? { ...p, dmContent: newContent } : p
+      ),
+      editingDMId: null
+    })
+    toast.success("DM updated!")
+  }
+
+  // Handle add to queue
+  const handleAddToQueue = async (post: DMPost) => {
+    updateState({
+      posts: state.posts.map(p =>
+        p.id === post.id ? { ...p, dmStatus: "queued" } : p
+      ),
+      queuingDMId: null
+    })
+    toast.success("Added to DM queue!")
+  }
+
+  // Handle remove from queue
+  const handleRemoveFromQueue = async (post: DMPost) => {
+    updateState({
+      posts: state.posts.map(p =>
+        p.id === post.id ? { ...p, dmStatus: "draft" } : p
+      ),
+      removingDMId: null
+    })
+    toast.success("Removed from queue")
+  }
+
+  // Handle copy DM
+  const handleCopyDM = async (content: string) => {
+    try {
+      await navigator.clipboard.writeText(content)
+      toast.success("DM copied to clipboard!")
+    } catch (error) {
+      toast.error("Failed to copy DM")
+    }
+  }
+
+  // Handle regenerate DM
+  const handleRegenerateDM = async (post: DMPost, instructions?: string) => {
+    updateState({ regeneratingId: post.id })
     
     try {
-      const result = await fetchRedditThreadAction(
-        organizationId,
-        post.threadId || post.id,
-        post.subreddit
+      // Regenerate with optional instructions
+      await handleGenerateDM(post)
+      updateState({ regeneratingId: null })
+    } catch (error) {
+      updateState({ regeneratingId: null })
+    }
+  }
+
+  // Handle delete DM
+  const handleDeleteDM = (postId: string) => {
+    updateState({
+      posts: state.posts.filter(p => p.id !== postId)
+    })
+    toast.success("Post removed")
+  }
+
+  // Handle view on Reddit
+  const handleViewReddit = (url: string) => {
+    window.open(url, "_blank", "noopener,noreferrer")
+  }
+
+  // Handle length change
+  const handleLengthChange = (postId: string, length: "micro" | "medium" | "verbose") => {
+    updateState({
+      posts: state.posts.map(p =>
+        p.id === postId ? { ...p, selectedLength: length } : p
       )
-
-      if (result.isSuccess) {
-        setFullPostContent(prev => new Map(prev).set(postId, result.data.content || result.data.title || ""))
-      }
-    } catch (error) {
-      console.error("Error fetching full content:", error)
-    } finally {
-      setLoadingPostContent(prev => {
-        const newSet = new Set(prev)
-        newSet.delete(postId)
-        return newSet
-      })
-    }
-  }
-
-  // Toggle post expansion
-  const togglePostExpansion = (postId: string) => {
-    setExpandedPosts(prev => {
-      const newSet = new Set(prev)
-      if (newSet.has(postId)) {
-        newSet.delete(postId)
-      } else {
-        newSet.add(postId)
-      }
-      return newSet
     })
   }
 
-  // Generate DM for a post
-  const handleGenerateDM = async (post: RedditPost) => {
-    updateState({ selectedPost: post, isGeneratingDM: true })
-
-    try {
-      // Check if already sent DM to this user
-      const alreadySentResult = await checkDMAlreadySentAction(organizationId, post.author)
-      if (alreadySentResult.isSuccess && alreadySentResult.data) {
-        toast.warning("You've already sent a DM to this user")
-      }
-
-      const result = await generatePersonalizedDMAction({
-        postTitle: post.title,
-        postContent: fullPostContent.get(post.id) || post.selftext || "",
-        postAuthor: post.author,
-        postCreatedAt: new Date(post.created_utc * 1000).toISOString(),
-        subreddit: post.subreddit,
-        businessContext: organization.businessDescription || organization.website || "We help businesses grow",
-        targetAudience: "Reddit users",
-        valueProposition: organization.businessDescription || "our solution"
-      })
-
-      if (result.isSuccess) {
-        updateState({ dmContent: result.data.message })
-        toast.success("DM generated successfully")
-      } else {
-        toast.error(result.message)
-      }
-    } catch (error) {
-      console.error("Generate DM error:", error)
-      toast.error("Failed to generate DM")
-    } finally {
-      updateState({ isGeneratingDM: false })
-    }
-  }
-
-  // Send DM
-  const handleSendDM = async () => {
-    if (!state.selectedPost || !state.dmContent.trim()) return
-
-    updateState({ isSendingDM: true })
-
-    try {
-      // Create DM history record first
-      const historyResult = await createDMHistoryAction({
-        organizationId,
-        userId,
-        dmId: `dm_${Date.now()}`,
-        postId: state.selectedPost.id,
-        postAuthor: state.selectedPost.author,
-        messageContent: state.dmContent,
-        sentAt: Timestamp.now()
-      })
-
-      if (!historyResult.isSuccess) {
-        throw new Error(historyResult.message)
-      }
-
-      // Send the actual DM
-      const sendResult = await sendRedditDMAction({
-        organizationId,
-        recipientUsername: state.selectedPost.author,
-        subject: `Re: ${state.selectedPost.title.substring(0, 50)}...`,
-        message: state.dmContent
-      })
-
-      if (sendResult.isSuccess) {
-        toast.success("DM sent successfully!")
-        
-        // Update shared thread to mark it as having a DM
-        console.log("🧵 [DM-FINDER] Marking thread as having a DM...")
-        await updateThreadInteractionAction(state.selectedPost.id, {
-          hasDM: true,
-          dmHistoryId: historyResult.data.id
-        })
-        
-        // Record the interaction
-        await recordThreadInteractionAction({
-          organizationId,
-          threadId: state.selectedPost.id,
-          userId,
-          type: "dm",
-          details: {
-            dmHistoryId: historyResult.data.id,
-            status: "sent"
-          }
-        })
-        
-        updateState({ 
-          selectedPost: null, 
-          dmContent: "",
-          searchResults: state.searchResults.filter(p => p.id !== state.selectedPost!.id)
-        })
-        loadDMHistory()
-        loadSharedThreads() // Reload to show updated status
-      } else {
-        toast.error(sendResult.message)
-      }
-    } catch (error) {
-      console.error("Send DM error:", error)
-      toast.error("Failed to send DM")
-    } finally {
-      updateState({ isSendingDM: false })
-    }
-  }
-
-  // Copy DM content
-  const handleCopyDM = () => {
-    navigator.clipboard.writeText(state.dmContent)
-    toast.success("DM copied to clipboard")
-  }
-
-  // Get unique keywords from posts
-  const uniqueKeywords = useMemo(() => {
-    const keywords = new Set<string>()
-    state.searchResults.forEach(post => {
-      if (post.keywords) {
-        post.keywords.forEach(keyword => keywords.add(keyword))
-      }
-    })
-    return Array.from(keywords).sort()
-  }, [state.searchResults])
-
-  // Filtered and sorted results
-  const filteredResults = useMemo(() => {
-    let filtered = [...state.searchResults]
+  // Filter and sort posts
+  const filteredAndSortedPosts = useMemo(() => {
+    let filtered = state.posts
 
     // Apply search filter
-    filtered = filtered.filter(post => matchesSearchQuery(post, state.searchPostsQuery))
+    if (state.searchQuery) {
+      filtered = filtered.filter(post => matchesSearchQuery(post, state.searchQuery))
+    }
 
     // Apply keyword filter
     if (state.selectedKeyword) {
-      filtered = filtered.filter(post => 
-        post.keywords && post.keywords.includes(state.selectedKeyword!)
-      )
-    }
-
-    // Apply score filter
-    if (state.filterScore > 0) {
-      filtered = filtered.filter(post => 
-        (post.relevanceScore || 0) >= state.filterScore
+      filtered = filtered.filter(post =>
+        post.keywords?.includes(state.selectedKeyword!)
       )
     }
 
     // Apply date filter
     filtered = filtered.filter(post => filterByDate(post, state.dateFilter))
 
-    // Sort
-    switch (state.sortBy) {
-      case "relevance":
-        filtered.sort((a, b) => (b.relevanceScore || 0) - (a.relevanceScore || 0))
-        break
-      case "upvotes":
-        filtered.sort((a, b) => b.score - a.score)
-        break
-      case "posted":
-        // Sort by Reddit post creation date (newest first)
-        filtered.sort((a, b) => b.created_utc - a.created_utc)
-        break
-      case "fetched":
-        // For DM finder, this is same as relevance since we don't track fetch time
-        filtered.sort((a, b) => (b.relevanceScore || 0) - (a.relevanceScore || 0))
-        break
-      case "time":
-        // Recent activity
-        filtered.sort((a, b) => b.created_utc - a.created_utc)
-        break
+    // Apply score filter
+    if (state.filterScore > 0) {
+      filtered = filtered.filter(
+        post => (post.relevanceScore || 0) >= state.filterScore
+      )
     }
 
-    return filtered
-  }, [state.searchResults, state.searchPostsQuery, state.selectedKeyword, state.filterScore, state.dateFilter, state.sortBy])
+    // Apply tab filter
+    if (state.activeTab === "queue") {
+      filtered = filtered.filter(post => post.dmStatus === "queued")
+    } else if (state.activeTab === "sent") {
+      filtered = filtered.filter(post => post.dmStatus === "sent")
+    }
 
-  // Filtered history
-  const filteredHistory = useMemo(() => {
-    let filtered = [...state.dmHistory]
+    // Sort
+    const sorted = [...filtered].sort((a, b) => {
+      switch (state.sortBy) {
+        case "relevance":
+          return (b.relevanceScore || 0) - (a.relevanceScore || 0)
+        case "upvotes":
+          return b.score - a.score
+        case "time":
+          return b.created_utc - a.created_utc
+        case "fetched":
+          return b.id.localeCompare(a.id)
+        case "posted":
+          const aPosted = a.dmSentAt ? new Date(a.dmSentAt).getTime() : 0
+          const bPosted = b.dmSentAt ? new Date(b.dmSentAt).getTime() : 0
+          return bPosted - aPosted
+        default:
+          return 0
+      }
+    })
 
-    // Apply date filter
-    filtered = filtered.filter(dm => filterByDate(dm, state.dateFilter))
+    return sorted
+  }, [state.posts, state.searchQuery, state.selectedKeyword, state.dateFilter, state.filterScore, state.activeTab, state.sortBy])
 
-    // Apply search filter
-    filtered = filtered.filter(dm => matchesSearchQuery(dm, state.searchPostsQuery))
-
-    return filtered
-  }, [state.dmHistory, state.dateFilter, state.searchPostsQuery])
-
-  // Paginated results
-  const paginatedResults = useMemo(() => {
+  // Paginated posts
+  const paginatedPosts = useMemo(() => {
     const startIndex = (state.currentPage - 1) * ITEMS_PER_PAGE
-    return filteredResults.slice(startIndex, startIndex + ITEMS_PER_PAGE)
-  }, [filteredResults, state.currentPage])
+    return filteredAndSortedPosts.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+  }, [filteredAndSortedPosts, state.currentPage])
 
-  const totalPages = Math.ceil(filteredResults.length / ITEMS_PER_PAGE)
+  const totalPages = Math.ceil(filteredAndSortedPosts.length / ITEMS_PER_PAGE)
+
+  // Get unique keywords from posts
+  const uniqueKeywords = useMemo(() => {
+    const keywords = new Set<string>()
+    state.posts.forEach(post => {
+      post.keywords?.forEach(keyword => keywords.add(keyword))
+    })
+    return Array.from(keywords).sort()
+  }, [state.posts])
+
+  // Loading state
+  if (state.isLoading) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="space-y-6">
+          <Skeleton className="h-32 w-full" />
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3].map(i => (
+              <Skeleton key={i} className="h-64 w-full" />
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Error state
+  if (state.error && !state.posts.length) {
+    return (
+      <div className="container mx-auto p-6">
+        <Alert variant="destructive">
+          <AlertCircle className="size-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{state.error}</AlertDescription>
+        </Alert>
+      </div>
+    )
+  }
 
   return (
-    <div className="container mx-auto space-y-6 py-6">
-      {/* Search Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Reddit Posts for DMs</CardTitle>
-          <CardDescription>
-            View posts from Lead Finder to send personalized DMs
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex gap-4">
-            <Button 
-              onClick={loadSharedThreads} 
-              disabled={state.isSearching}
-              className="gap-2"
-            >
-              {state.isSearching ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <RefreshCw className="size-4" />
-              )}
-              Load Posts from Lead Finder
-            </Button>
-            
-            <div className="ml-auto text-sm text-gray-500">
-              {state.searchResults.length > 0 && (
-                <span>Showing posts with 50%+ relevance score</span>
-              )}
-            </div>
+    <div className="container mx-auto p-6">
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">DM Finder</h1>
+            <p className="text-muted-foreground">
+              Find and send personalized direct messages to Reddit users
+            </p>
           </div>
+          <div className="flex items-center gap-2">
+            {state.debugMode && (
+              <Badge variant="outline" className="gap-1">
+                <Bug className="size-3" />
+                Debug Mode
+              </Badge>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => updateState({ debugMode: !state.debugMode })}
+            >
+              <Bug className="mr-1 size-3" />
+              {state.debugMode ? "Hide" : "Show"} Debug
+            </Button>
+          </div>
+        </div>
 
-          {/* Advanced Search (Optional) */}
-          <Collapsible>
-            <CollapsibleTrigger asChild>
-              <Button variant="ghost" size="sm" className="gap-2">
-                <Search className="size-4" />
-                Advanced Search
-                <ChevronDown className="size-3" />
-              </Button>
-            </CollapsibleTrigger>
-            <CollapsibleContent className="mt-4 space-y-4">
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <Input
-                    placeholder="Search keywords (e.g., 'looking for software developers')"
-                    value={state.searchQuery}
-                    onChange={e => updateState({ searchQuery: e.target.value })}
-                    onKeyDown={e => e.key === "Enter" && handleSearch()}
-                  />
-                </div>
-                <Input
-                  placeholder="Subreddit (optional)"
-                  value={state.subreddit}
-                  onChange={e => updateState({ subreddit: e.target.value })}
-                  className="w-48"
-                />
+        {/* Automation Selector and Controls */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
                 <Select
-                  value={state.timeFilter}
-                  onValueChange={(value: any) => updateState({ timeFilter: value })}
+                  value={state.automationId || ""}
+                  onValueChange={handleAutomationSelect}
                 >
-                  <SelectTrigger className="w-32">
-                    <SelectValue />
+                  <SelectTrigger className="w-[300px]">
+                    <SelectValue placeholder="Select a DM automation" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="day">Past Day</SelectItem>
-                    <SelectItem value="week">Past Week</SelectItem>
-                    <SelectItem value="month">Past Month</SelectItem>
-                    <SelectItem value="year">Past Year</SelectItem>
-                    <SelectItem value="all">All Time</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button 
-                  onClick={handleSearch} 
-                  disabled={state.isSearching}
-                  className="gap-2"
-                >
-                  {state.isSearching ? (
-                    <Loader2 className="size-4 animate-spin" />
-                  ) : (
-                    <Search className="size-4" />
-                  )}
-                  Search
-                </Button>
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
-        </CardContent>
-      </Card>
-
-      {/* Filters Section - Identical to Lead Finder */}
-      {state.searchResults.length > 0 && (
-        <div className="bg-card rounded-lg border p-4 shadow-sm dark:border-gray-700">
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <div className="flex grow items-center gap-2">
-                <Filter className="size-4 shrink-0 text-gray-500 dark:text-gray-400" />
-                <Input
-                  placeholder="Search by title, body, username..."
-                  value={state.searchPostsQuery}
-                  onChange={e => updateState({ searchPostsQuery: e.target.value })}
-                  className="h-9 grow"
-                />
-              </div>
-
-              {/* Keyword Filter */}
-              <div className="flex items-center gap-2">
-                <Hash className="size-4 shrink-0 text-gray-500 dark:text-gray-400" />
-                <Select
-                  value={state.selectedKeyword ?? "all"}
-                  onValueChange={(value: string) =>
-                    updateState({
-                      selectedKeyword: value === "all" ? null : value
-                    })
-                  }
-                >
-                  <SelectTrigger className="h-9 w-[200px]">
-                    <SelectValue placeholder="All Keywords" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Keywords</SelectItem>
-                    {uniqueKeywords.map(keyword => (
-                      <SelectItem key={keyword} value={keyword}>
-                        {keyword}
+                    {state.automations.map(automation => (
+                      <SelectItem key={automation.id} value={automation.id}>
+                        <div className="flex items-center justify-between gap-2">
+                          <span>{automation.name}</span>
+                          <Badge
+                            variant={
+                              automation.status === "completed"
+                                ? "default"
+                                : automation.status === "running"
+                                ? "secondary"
+                                : "outline"
+                            }
+                          >
+                            {automation.status}
+                          </Badge>
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                {state.automationId && (
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline">
+                      {state.automations.find(a => a.id === state.automationId)?.totalDMsSent || 0} DMs sent
+                    </Badge>
+                  </div>
+                )}
               </div>
+              <div className="flex items-center gap-2">
+                {!state.workflowRunning ? (
+                  <Button
+                    onClick={handleRunWorkflow}
+                    disabled={!state.automationId || !redditConnected}
+                  >
+                    <Play className="mr-2 size-4" />
+                    Run Automation
+                  </Button>
+                ) : (
+                  <Button
+                    variant="destructive"
+                    onClick={handleStopWorkflow}
+                  >
+                    <StopCircle className="mr-2 size-4" />
+                    Stop Automation
+                  </Button>
+                )}
+                <Button
+                  variant="outline"
+                  onClick={() => setCreateDialogOpen(true)}
+                >
+                  <Plus className="mr-2 size-4" />
+                  New Automation
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+        </Card>
+
+        {/* Workflow Progress */}
+        {liveFirestoreProgress && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Automation Progress</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-medium">{liveFirestoreProgress.currentStage}</span>
+                  <span className="text-muted-foreground">
+                    {Math.round(liveFirestoreProgress.totalProgress)}%
+                  </span>
+                </div>
+                <Progress value={liveFirestoreProgress.totalProgress} />
+                <div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
+                  {liveFirestoreProgress.stages.map((stage, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      {stage.status === "completed" ? (
+                        <CheckCircle2 className="size-4 text-green-500" />
+                      ) : stage.status === "in_progress" ? (
+                        <Loader2 className="size-4 animate-spin text-blue-500" />
+                      ) : stage.status === "error" ? (
+                        <AlertCircle className="size-4 text-red-500" />
+                      ) : (
+                        <Clock className="size-4 text-gray-400" />
+                      )}
+                      <span className={
+                        stage.status === "completed"
+                          ? "text-green-600 dark:text-green-400"
+                          : stage.status === "in_progress"
+                          ? "text-blue-600 dark:text-blue-400"
+                          : stage.status === "error"
+                          ? "text-red-600 dark:text-red-400"
+                          : "text-gray-500"
+                      }>
+                        {stage.name}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                {liveFirestoreProgress.error && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="size-4" />
+                    <AlertDescription>{liveFirestoreProgress.error}</AlertDescription>
+                  </Alert>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Reddit Connection Alert */}
+        {redditConnected === false && (
+          <Alert>
+            <AlertCircle className="size-4" />
+            <AlertTitle>Reddit Not Connected</AlertTitle>
+            <AlertDescription>
+              Connect your Reddit account to send DMs.{" "}
+              <Link href="/reddit/settings" className="font-medium underline">
+                Connect Reddit
+              </Link>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Filters */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Filters</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              {/* Search */}
+              <div className="relative">
+                <Search className="text-muted-foreground absolute left-3 top-1/2 size-4 -translate-y-1/2" />
+                <Input
+                  placeholder="Search posts..."
+                  value={state.searchQuery}
+                  onChange={e => updateState({ searchQuery: e.target.value })}
+                  className="pl-9"
+                />
+              </div>
+
+              {/* Keyword Filter */}
+              <Select
+                value={state.selectedKeyword ?? "all"}
+                onValueChange={(value: string) =>
+                  updateState({
+                    selectedKeyword: value === "all" ? null : value
+                  })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="All keywords" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All keywords</SelectItem>
+                  {uniqueKeywords.map(keyword => (
+                    <SelectItem key={keyword} value={keyword}>
+                      {keyword}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
               {/* Date Filter */}
-              <div className="flex items-center gap-2">
-                <Calendar className="size-4 shrink-0 text-gray-500 dark:text-gray-400" />
-                <Select
-                  value={state.dateFilter}
-                  onValueChange={(value: any) =>
-                    updateState({ dateFilter: value })
-                  }
-                >
-                  <SelectTrigger className="h-9 w-[140px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Time</SelectItem>
-                    <SelectItem value="today">Today</SelectItem>
-                    <SelectItem value="week">Past 7 Days</SelectItem>
-                    <SelectItem value="month">Past 30 Days</SelectItem>
-                    <SelectItem value="3months">Past 3 Months</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Score Filter */}
-              <div className="flex items-center gap-2">
-                <TrendingUp className="size-4 shrink-0 text-gray-500 dark:text-gray-400" />
-                <Select
-                  value={state.filterScore.toString()}
-                  onValueChange={value =>
-                    updateState({ filterScore: parseInt(value) })
-                  }
-                >
-                  <SelectTrigger className="h-9 w-[160px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="0">All Scores</SelectItem>
-                    <SelectItem value="50">50%+ Match</SelectItem>
-                    <SelectItem value="70">70%+ Match</SelectItem>
-                    <SelectItem value="80">80%+ Match</SelectItem>
-                    <SelectItem value="90">90%+ Match</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Sort and Results Count */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <ArrowUpDown className="size-4 shrink-0 text-gray-500 dark:text-gray-400" />
-                <Select
-                  value={state.sortBy}
-                  onValueChange={(value: "relevance" | "upvotes" | "time" | "posted" | "fetched") =>
-                    updateState({ sortBy: value })
-                  }
-                >
-                  <SelectTrigger className="h-9 w-[180px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="relevance">Best Match</SelectItem>
-                    <SelectItem value="upvotes">Highest Score</SelectItem>
-                    <SelectItem value="posted">Most Recently Posted</SelectItem>
-                    <SelectItem value="fetched">Most Recently Fetched</SelectItem>
-                    <SelectItem value="time">Recent Activity</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="text-sm text-gray-500 dark:text-gray-400">
-                Showing {filteredResults.length} of {state.searchResults.length} posts
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Results */}
-      {state.isSearching ? (
-        <div className="space-y-4">
-          {[...Array(3)].map((_, i) => (
-            <Card key={i}>
-              <CardContent className="p-6">
-                <Skeleton className="mb-2 h-6 w-3/4" />
-                <Skeleton className="mb-4 h-4 w-1/2" />
-                <Skeleton className="h-20 w-full" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : filteredResults.length > 0 ? (
-        <div className="space-y-4">
-          {paginatedResults.map(post => (
-            <Card key={post.id} className="overflow-hidden">
-              <CardContent className="space-y-4 p-6">
-                {/* Post Header */}
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <Badge variant="secondary" className="gap-1">
-                      <ThumbsUp className="size-3" />
-                      {post.score}
-                    </Badge>
-                    <Badge variant="outline">r/{post.subreddit}</Badge>
-                    {post.relevanceScore !== undefined && (
-                      <Badge 
-                        variant={post.relevanceScore >= 70 ? "default" : post.relevanceScore >= 50 ? "secondary" : "outline"}
-                        className="gap-1"
-                      >
-                        {post.relevanceScore}% match
-                      </Badge>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {post.hasComment && (
-                      <Badge variant="secondary" className="gap-1">
-                        <MessageSquare className="size-3" />
-                        Comment posted
-                      </Badge>
-                    )}
-                    {post.hasDM && (
-                      <Badge variant="secondary" className="gap-1">
-                        <Send className="size-3" />
-                        DM sent
-                      </Badge>
-                    )}
-                    <div className="flex items-center gap-2 text-sm text-gray-500">
-                      <Calendar className="size-4" />
-                      <span>{post.timeAgo}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Post Title */}
-                <a
-                  href={post.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group cursor-pointer"
-                >
-                  <h3 className="line-clamp-2 text-lg font-semibold text-gray-900 transition-colors group-hover:text-blue-600 dark:text-gray-100 dark:group-hover:text-blue-400">
-                    {post.title}
-                  </h3>
-                </a>
-
-                {/* Post Author */}
-                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                  <User className="size-4" />
-                  <span>u/{post.author}</span>
-                  <span>•</span>
-                  <span>{post.num_comments} comments</span>
-                </div>
-
-                {/* Post Body */}
-                {post.selftext && (
-                  <Collapsible
-                    open={expandedPosts.has(post.id)}
-                    onOpenChange={() => {
-                      togglePostExpansion(post.id)
-                      if (!fullPostContent.has(post.id)) {
-                        fetchFullPostContent(post)
-                      }
-                    }}
-                  >
-                    <CollapsibleTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="flex items-center gap-1 px-2 py-1 text-xs"
-                      >
-                        {expandedPosts.has(post.id) ? (
-                          <ChevronDown className="size-3" />
-                        ) : (
-                          <ChevronRight className="size-3" />
-                        )}
-                        View post content
-                      </Button>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="mt-2">
-                      <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700 dark:border-gray-700 dark:bg-gray-900/50 dark:text-gray-300">
-                        {loadingPostContent.has(post.id) ? (
-                          <div className="flex items-center justify-center py-4">
-                            <Loader2 className="size-5 animate-spin text-gray-400" />
-                          </div>
-                        ) : (
-                          <p className="whitespace-pre-wrap">
-                            {fullPostContent.get(post.id) || post.selftext}
-                          </p>
-                        )}
-                      </div>
-                    </CollapsibleContent>
-                  </Collapsible>
-                )}
-
-                {/* DM Section */}
-                {state.selectedPost?.id === post.id ? (
-                  <div className="space-y-3 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/30">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium">Generated DM</p>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={handleCopyDM}
-                          className="h-7 px-2 text-xs"
-                        >
-                          <Copy className="size-3" />
-                        </Button>
-                      </div>
-                    </div>
-                    <Textarea
-                      value={state.dmContent}
-                      onChange={e => updateState({ dmContent: e.target.value })}
-                      className="min-h-[120px]"
-                      placeholder="Generating DM..."
-                    />
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => updateState({ selectedPost: null, dmContent: "" })}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={handleSendDM}
-                        disabled={state.isSendingDM || !state.dmContent.trim()}
-                        className="gap-2"
-                      >
-                        {state.isSendingDM ? (
-                          <>
-                            <Loader2 className="size-4 animate-spin" />
-                            Sending...
-                          </>
-                        ) : (
-                          <>
-                            <Send className="size-4" />
-                            Send DM
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-3">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => window.open(post.url, "_blank")}
-                      className="flex-1"
-                    >
-                      <ExternalLink className="mr-2 size-4" />
-                      View on Reddit
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => handleGenerateDM(post)}
-                      disabled={state.isGeneratingDM || post.hasDM}
-                      className="flex-1 bg-blue-600 text-white hover:bg-blue-700"
-                    >
-                      {state.isGeneratingDM && state.selectedPost?.id === post.id ? (
-                        <>
-                          <Loader2 className="mr-2 size-4 animate-spin" />
-                          Generating...
-                        </>
-                      ) : post.hasDM ? (
-                        <>
-                          <Check className="mr-2 size-4" />
-                          DM Sent
-                        </>
-                      ) : (
-                        <>
-                          <MessageSquare className="mr-2 size-4" />
-                          Generate DM
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          ))}
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => updateState({ currentPage: Math.max(1, state.currentPage - 1) })}
-                disabled={state.currentPage === 1}
-              >
-                Previous
-              </Button>
-              <span className="text-sm text-gray-600">
-                Page {state.currentPage} of {totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => updateState({ currentPage: Math.min(totalPages, state.currentPage + 1) })}
-                disabled={state.currentPage === totalPages}
-              >
-                Next
-              </Button>
-            </div>
-          )}
-        </div>
-      ) : state.searchResults.length === 0 && !state.isSearching ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-            <Search className="mb-4 size-12 text-gray-400" />
-            <h3 className="mb-2 text-lg font-semibold">No posts found</h3>
-            <p className="text-sm text-gray-600">
-              Try adjusting your search query or filters
-            </p>
-          </CardContent>
-        </Card>
-      ) : null}
-
-      {/* DM History */}
-      {state.dmHistory.length > 0 && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">DM History</h2>
-            <div className="flex items-center gap-2">
-              <CalendarDays className="size-4 text-gray-500" />
               <Select
                 value={state.dateFilter}
-                onValueChange={(value: any) => updateState({ dateFilter: value })}
+                onValueChange={(value: any) =>
+                  updateState({ dateFilter: value })
+                }
               >
-                <SelectTrigger className="w-32">
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Time</SelectItem>
+                  <SelectItem value="all">All time</SelectItem>
                   <SelectItem value="today">Today</SelectItem>
-                  <SelectItem value="week">Past Week</SelectItem>
-                  <SelectItem value="month">Past Month</SelectItem>
+                  <SelectItem value="week">Past week</SelectItem>
+                  <SelectItem value="month">Past month</SelectItem>
+                  <SelectItem value="3months">Past 3 months</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Score Filter */}
+              <Select
+                value={state.filterScore.toString()}
+                onValueChange={value =>
+                  updateState({ filterScore: parseInt(value) })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="0">All scores</SelectItem>
+                  <SelectItem value="40">40%+ match</SelectItem>
+                  <SelectItem value="60">60%+ match</SelectItem>
+                  <SelectItem value="80">80%+ match</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-          </div>
 
-          {filteredHistory.map(dm => (
-            <Card key={dm.id} className="overflow-hidden">
-              <CardContent className="space-y-3 p-4">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h4 className="font-medium">{dm.postTitle}</h4>
-                    <p className="text-sm text-gray-600">
-                      to u/{dm.postAuthor} • {dm.timeAgo}
-                    </p>
-                  </div>
-                  <Badge
-                    variant={dm.status === "sent" ? "default" : dm.status === "failed" ? "destructive" : "secondary"}
-                  >
-                    {dm.status === "sent" && <CheckCircle2 className="mr-1 size-3" />}
-                    {dm.status === "failed" && <AlertCircle className="mr-1 size-3" />}
-                    {dm.status}
-                  </Badge>
+            {/* Sort */}
+            <div className="mt-4 flex items-center gap-2">
+              <span className="text-sm font-medium">Sort by:</span>
+              <Select
+                value={state.sortBy}
+                onValueChange={(value: any) => updateState({ sortBy: value })}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="relevance">Relevance</SelectItem>
+                  <SelectItem value="upvotes">Upvotes</SelectItem>
+                  <SelectItem value="time">Post time</SelectItem>
+                  <SelectItem value="fetched">Fetched time</SelectItem>
+                  <SelectItem value="posted">DM sent time</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Tabs */}
+        <Tabs
+          value={state.activeTab}
+          onValueChange={(value: any) => updateState({ activeTab: value })}
+        >
+          <TabsList>
+            <TabsTrigger value="all" className="gap-2">
+              <Database className="size-4" />
+              All Posts ({state.posts.length})
+            </TabsTrigger>
+            <TabsTrigger value="queue" className="gap-2">
+              <Clock className="size-4" />
+              Queue ({state.posts.filter(p => p.dmStatus === "queued").length})
+            </TabsTrigger>
+            <TabsTrigger value="sent" className="gap-2">
+              <CheckCircle2 className="size-4" />
+              Sent ({state.posts.filter(p => p.dmStatus === "sent").length})
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value={state.activeTab} className="mt-6">
+            {/* Posts Grid */}
+            {paginatedPosts.length > 0 ? (
+              <div className="space-y-6">
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1">
+                  {paginatedPosts.map(post => (
+                    <DMCard
+                      key={post.id}
+                      post={post}
+                      isEditing={state.editingDMId === post.id}
+                      isSending={state.sendingDMId === post.id}
+                      isQueuing={state.queuingDMId === post.id}
+                      isRemoving={state.removingDMId === post.id}
+                      isRegenerating={state.regeneratingId === post.id}
+                      selectedLength={state.selectedLength}
+                      onGenerateDM={handleGenerateDM}
+                      onSendDM={handleSendDM}
+                      onEditDM={handleEditDM}
+                      onCancelEdit={() => updateState({ editingDMId: null })}
+                      onAddToQueue={handleAddToQueue}
+                      onRemoveFromQueue={handleRemoveFromQueue}
+                      onCopyDM={handleCopyDM}
+                      onRegenerateDM={handleRegenerateDM}
+                      onDeleteDM={handleDeleteDM}
+                      onViewReddit={handleViewReddit}
+                      onLengthChange={handleLengthChange}
+                    />
+                  ))}
                 </div>
-                <p className="text-sm text-gray-700 dark:text-gray-300">
-                  {dm.dmContent}
-                </p>
-                {dm.error && (
-                  <Alert variant="destructive">
-                    <AlertCircle className="size-4" />
-                    <AlertDescription>{dm.error}</AlertDescription>
-                  </Alert>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => updateState({ currentPage: Math.max(1, state.currentPage - 1) })}
+                      disabled={state.currentPage === 1}
+                    >
+                      Previous
+                    </Button>
+                    <span className="text-muted-foreground text-sm">
+                      Page {state.currentPage} of {totalPages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => updateState({ currentPage: Math.min(totalPages, state.currentPage + 1) })}
+                      disabled={state.currentPage === totalPages}
+                    >
+                      Next
+                    </Button>
+                  </div>
                 )}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+              </div>
+            ) : (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center py-12">
+                  <MessageSquare className="text-muted-foreground mb-4 size-12" />
+                  <h3 className="mb-2 text-lg font-semibold">No posts found</h3>
+                  <p className="text-muted-foreground text-center text-sm">
+                    {state.automationId
+                      ? "Run the automation to find users and generate DMs"
+                      : "Select or create a DM automation to get started"}
+                  </p>
+                  {state.automationId && (
+                    <Button
+                      className="mt-4"
+                      onClick={handleRunWorkflow}
+                      disabled={!redditConnected}
+                    >
+                      <Play className="mr-2 size-4" />
+                      Run Automation
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
+
+        {/* Debug Panel */}
+        {state.debugMode && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Debug Logs</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-[300px] w-full rounded border p-4">
+                <pre className="text-xs">
+                  {state.debugLogs.join("\n") || "No debug logs yet"}
+                </pre>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      {/* Dialogs */}
+      <CreateDMAutomationDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        organizationId={currentOrganization?.id || ""}
+        onSuccess={(automation) => {
+          updateState({
+            automations: [...state.automations, automation],
+            automationId: automation.id,
+            automationName: automation.name
+          })
+          loadPostsForAutomation(automation.id)
+        }}
+      />
     </div>
   )
 } 
