@@ -114,89 +114,63 @@ If the score is 40 or above, generate three authentic Reddit comments as someone
    ${existingComments && existingComments.length > 0 ? `- Reference something another commenter said if it flows naturally` : ""}
 
 2. MEDIUM COMMENT (30-80 words): casual story with genuine pros/cons:
-   - start with "hey man" or "tbh" or similar
+   - start with "hey" or "tbh" or similar
    ${existingComments && existingComments.length > 0 ? `- Reference 1-2 other comments naturally like:
      * "yeah i saw that too about X, and honestly..."
      * "agree with what people are saying about Y, though in my experience..."
      * "adding to what was mentioned earlier about Z..."` : ""}
-   - mention free tool with honest pros/cons
-   - mention our solution with honest pros/cons (include at least one real downside)
-   - mention premium tool and why it might be overkill
+   - mention 2-3 solutions with balanced pros/cons
+   - keep it concise and genuinely helpful
+   - focus on solving their problem, not selling
 
-3. VERBOSE COMMENT (800-1200 words): Follow this EXACT structure:
+3. VERBOSE COMMENT (300-500 words): Focus on being GENUINELY HELPFUL:
 
-   OPENING:
-   - Start with "hey man!" or similar casual greeting
-   - Acknowledge time since post (e.g., "know this was posted a while ago")
-   ${existingComments && existingComments.length > 0 ? `- Reference the discussion: "been reading through the comments here and..."` : ""}
-   - Express intent to help others who might find thread
+   OPENING (1-2 sentences):
+   - Quick acknowledgment of their post
+   ${existingComments && existingComments.length > 0 ? `- Brief reference to existing discussion if relevant` : ""}
    
-   BACKGROUND SECTION:
-   - Use "so for a little background:" as transition
-   ${existingComments && existingComments.length > 0 ? `- Reference specific comments: "i see a few people mentioned [specific thing], and that resonates bc..."
-   - NEVER use "comment1", "comment2", "comment3" etc. Instead say:
-     * "some folks here mentioned wordpress/wix"
-     * "i noticed people talking about bubble"
-     * "saw someone bring up [specific tool]"
-     * "others have said [X]"` : ""}
-   - Share 7+ years of specific experience
-   - List multiple failed ventures before success
-   - Be vulnerable about failures
+   RELEVANT EXPERIENCE (2-3 sentences):
+   - Share ONLY directly relevant experience
+   - Be specific but concise
+   - No elaborate backstories
    
-   MAIN LESSON:
-   - State core lesson about time vs money tradeoff
-   ${existingComments && existingComments.length > 0 ? `- Acknowledge different perspectives: "i know some folks here are saying [X], and they're not wrong, but..."
-   - NEVER reference comments by number` : ""}
-   - Frame as two paths to choose from
+   SOLUTION COMPARISON (main content):
+   - Compare 2-3 solutions with BALANCED pros/cons
+   - Include specific, actionable details
+   - Mention real limitations and downsides
+   - No obvious bias toward any solution
    
-   PATH EXPLANATIONS:
-   - Reference what others in thread are recommending
-   ${existingComments && existingComments.length > 0 ? `- Build on existing suggestions: "adding to what someone said about [tool]..."
-   - Respectfully disagree sometimes: "i see the love for [tool] in here, but honestly..."` : ""}
-   - Share 3-5 numbered personal examples with specific details
-   - Include exact time/money amounts wasted
-   - Transition to current thinking
+   HELPFUL CONCLUSION (1-2 sentences):
+   - Offer to answer specific questions
+   - End with "hope this helps" or similar
    
-   DETAILED SCENARIOS:
-   - Break down by user type (college student, professional, etc)
-   ${existingComments && existingComments.length > 0 ? `- Reference user situations from comments: "for folks who mentioned [situation]..."` : ""}
-   - Give specific actionable advice for each
-   - Include warnings from personal experience
-   - Use specific numbers and timeframes
-   
-   CONCLUSION:
-   - Clear TL;DR summary
-   ${existingComments && existingComments.length > 0 ? `- Synthesize the thread discussion with your experience` : ""}
-   - List all options in order
-   - End with "dm me" or "lmk if you want more details"
-   
-   STYLE REQUIREMENTS:
-   - ALL lowercase (no capitals)
-   - 2-3 blank lines between sections
-   - Casual abbreviations: bc, w/, lmk, tbh
-   - 1-2 spelling mistakes: experince, proabbly, definately, thier
-   - Personal pronouns: heavy use of i, my, you
-   - No hyphens anywhere
-
-CRITICAL: You MUST mention THREE different solutions in each comment:
-1. A FREE tool/solution (be specific and honest about limitations)
-2. Our solution from the business context (be honest about pros AND cons)
-3. A PREMIUM/EXPENSIVE tool (be fair about when it's actually worth it)
+   AUTHENTICITY REQUIREMENTS:
+   - Focus on genuinely helpful information
+   - Share relevant experience concisely
+   - Discuss solutions with balanced pros/cons
+   - Avoid elaborate backstories or excessive detail
+   - No obvious bias despite mentioning our solution
+   - Include real downsides for ALL options
+   - Keep it conversational but not overly casual
 
 CRITICAL STYLE RULES:
 - write everything in lowercase (no capitals at all)
-- be super casual like "hey man", "tbh", "ngl", etc
-- include 1-2 small spelling mistakes per comment (like "thier" instead of "their", "definately" instead of "definitely")
+- be casual but not excessively so
+- include 1 small spelling mistake in longer comments only
 - present genuine pros and cons for all options
-- write like someone who's actually tried all 3 solutions
-- be honest about downsides of our solution too
-- never sound like marketing
+- write like someone genuinely trying to help
+- avoid marketing language completely
 - NEVER USE HYPHENS (-) anywhere in comments
-- NEVER hyphenate compound words or phrases
-- Write compound words as one word (ecommerce, builtin, cofounder) or separate words (e commerce, built in, co founder)
-- Present all three options with genuine pros and cons
-- Reference brands casually without full names (just "zoho" not "Zoho CRM", "slack" not "Slack App")
+- Write compound words as one word (ecommerce, builtin) or separate words (e commerce, built in)
+- Reference brands casually without full names (just "notion" not "Notion App")
 ${existingComments && existingComments.length > 0 ? "- Reference other comments naturally to show you're part of the conversation" : ""}
+
+CRITICAL: You MUST mention 2-3 different solutions in medium/verbose comments:
+1. A FREE/CHEAP tool (be specific about limitations)
+2. Our solution from the business context (be honest about pros AND cons, mention at least one real downside)
+3. Another alternative (optional for medium comments, required for verbose)
+
+Present all options with EQUAL detail and enthusiasm. The goal is to be helpful, not to sell.
 
 Return as JSON with score, reasoning, and all three comments (or empty strings if score < 40).`
 
@@ -564,15 +538,13 @@ USER'S TONE INSTRUCTION: ${toneInstruction}
 
 CRITICAL STYLE RULES (apply these unless user's tone instruction says otherwise):
 - write everything in lowercase (no capitals)
-- be super casual like "hey man", "tbh", "ngl", etc
-- include 1-2 small spelling mistakes per comment
+- be casual but not excessively so
+- include 1 small spelling mistake in longer comments only
 - present genuine pros and cons for all options
-- write like someone who's actually tried all 3 solutions
-- be honest about downsides of our solution too
-- never sound like marketing
+- write like someone genuinely trying to help
+- avoid marketing language completely
 - NEVER USE HYPHENS (-) anywhere in comments
-- NEVER hyphenate compound words or phrases
-- Write compound words as one word (ecommerce, builtin, cofounder) or separate words (e commerce, built in, co founder)
+- Write compound words as one word (ecommerce, builtin) or separate words (e commerce, built in)
 
 IMPORTANT: You must return your response as valid JSON with this exact structure:
 {
@@ -637,54 +609,43 @@ Subreddit: r/${subreddit}
 ${existingComments.length > 0 ? `\nExample comments from this thread:\n${existingComments.slice(0, 3).join("\n---\n")}` : ""}
 
 Generate three comments following the tone instruction and style rules:
-1. Micro (1-2 sentences, super casual, quick mention of trying different things)
-2. Medium (3-4 sentences, helpful but natural, mention 3 solutions with honest pros/cons)
-3. Verbose (800-1200 words following this EXACT structure):
+1. Micro (5-15 words): super quick casual mention
+2. Medium (30-80 words): helpful but natural, mention 2-3 solutions with balanced pros/cons
+3. Verbose (300-500 words) following this structure:
    
-   OPENING:
-   - Start with "hey man!" or similar casual greeting
-   - Acknowledge time since post (e.g., "know this was posted a while ago")
-   - Express intent to help others who might find thread
+   OPENING (1-2 sentences):
+   - Quick acknowledgment of their post
    
-   BACKGROUND SECTION:
-   - Use "so for a little background:" as transition
-   - Share 7+ years of specific experience
-   - List multiple failed ventures before success
-   - Be vulnerable about failures
+   RELEVANT EXPERIENCE (2-3 sentences):
+   - Share ONLY directly relevant experience
+   - Be specific but concise
+   - No elaborate backstories
    
-   MAIN LESSON:
-   - State core lesson about time vs money tradeoff
-   - Frame as two paths to choose from
+   SOLUTION COMPARISON (main content):
+   - Compare 2-3 solutions with BALANCED pros/cons
+   - Include specific, actionable details
+   - Mention real limitations and downsides
+   - No obvious bias toward any solution
    
-   PATH EXPLANATIONS:
-   - Reference what others in thread are recommending
-   - Share 3-5 numbered personal examples with specific details
-   - Include exact time/money amounts wasted
-   - Transition to current thinking
+   HELPFUL CONCLUSION (1-2 sentences):
+   - Offer to answer specific questions
+   - End with "hope this helps" or similar
    
-   DETAILED SCENARIOS:
-   - Break down by user type (college student, professional, etc)
-   - Give specific actionable advice for each
-   - Include warnings from personal experience
-   - Use specific numbers and timeframes
-   
-   CONCLUSION:
-   - Clear TL;DR summary
-   - List all options in order
-   - End with "dm me" or "lmk if you want more details"
-   
-   STYLE REQUIREMENTS FOR VERBOSE:
-   - ALL lowercase (no capitals)
-   - 2-3 blank lines between sections
-   - Casual abbreviations: bc, w/, lmk, tbh
-   - 1-2 spelling mistakes: experince, proabbly, definately, thier
-   - Personal pronouns: heavy use of i, my, you
-   - No hyphens anywhere
+   AUTHENTICITY REQUIREMENTS:
+   - Focus on genuinely helpful information
+   - Share relevant experience concisely
+   - Discuss solutions with balanced pros/cons
+   - Avoid elaborate backstories or excessive detail
+   - No obvious bias despite mentioning our solution
+   - Include real downsides for ALL options
+   - Keep it conversational but not overly casual
 
 For each comment, mention:
-- A free solution (with honest limitations)
-- Our solution (with honest pros AND cons)
-- A premium solution (be fair about when it's worth it)
+- A free/cheap solution (with honest limitations)
+- Our solution (with honest pros AND cons, mention at least one real downside)
+- Another alternative (optional for medium, required for verbose)
+
+Present all options with EQUAL detail and enthusiasm. The goal is to be helpful, not to sell.
 
 Return as JSON:
 {
@@ -1206,17 +1167,15 @@ IMPORTANT: People rarely directly ask for solutions. Read between the lines and 
 
 CRITICAL STYLE RULES:
 - write everything in lowercase (no capitals at all)
-- be super casual like "hey man", "tbh", "ngl", etc
-- include 1-2 small spelling mistakes per comment (like "thier" instead of "their", "definately" instead of "definitely")
+- be casual but not excessively so
+- include 1 small spelling mistake in longer comments only
 - present genuine pros and cons for all options
-- write like someone who's actually tried all 3 solutions
-- be honest about downsides of our solution too
-- never sound like marketing
+- write like someone genuinely trying to help
+- avoid marketing language completely
 - REFERENCE OTHER COMMENTS IN THE THREAD NATURALLY (see examples below)
 - NEVER USE HYPHENS (-) anywhere in comments
-- NEVER hyphenate compound words or phrases
-- Write compound words as one word (ecommerce, builtin, cofounder) or separate words (e commerce, built in, co founder)
-- Reference brands casually without full names (just "zoho" not "Zoho CRM", "slack" not "Slack App")
+- Write compound words as one word (ecommerce, builtin) or separate words (e commerce, built in)
+- Reference brands casually without full names (just "notion" not "Notion App")
 
 Return as JSON:
 {
@@ -1261,97 +1220,51 @@ If the score is 40 or above, generate three comments:
    - All lowercase, casual tone
 
 2. Medium (30-80 words): casual story with genuine pros/cons:
-   - start with "hey man" or "tbh" or similar
+   - start with "hey" or "tbh" or similar
    ${existingComments && existingComments.length > 0 ? `- Reference 1-2 other comments naturally like:
      * "yeah i saw that too about X, and honestly..."
      * "agree with what people are saying about Y, though in my experience..."
      * "adding to what was mentioned earlier about Z..."` : ""}
-   - mention free tool with honest pros/cons
-   - mention ${brandNameToUse} with honest pros/cons (include at least one real downside)
-   - mention premium tool and why it might be overkill
-   - 1 spelling mistake
-   - All lowercase
+   - mention 2-3 solutions with balanced pros/cons
+   - keep it concise and genuinely helpful
+   - focus on solving their problem, not selling
 
-3. Verbose (800-1200 words): Follow this EXACT structure:
+3. Verbose (300-500 words): Focus on being GENUINELY HELPFUL:
 
-   OPENING:
-   - Start with "hey man!" or similar casual greeting
-   - Acknowledge time since post (e.g., "know this was posted a while ago")
-   ${existingComments && existingComments.length > 0 ? `- Reference the discussion: "been reading through the comments here and..."` : ""}
-   - Express intent to help others who might find thread
+   OPENING (1-2 sentences):
+   - Quick acknowledgment of their post
+   ${existingComments && existingComments.length > 0 ? `- Brief reference to existing discussion if relevant` : ""}
    
-   BACKGROUND SECTION:
-   - Use "so for a little background:" as transition
-   ${existingComments && existingComments.length > 0 ? `- Reference specific comments: "i see a few people mentioned [specific thing], and that resonates bc..."
-   - NEVER use "comment1", "comment2", "comment3" etc. Instead say:
-     * "some folks here mentioned wordpress/wix"
-     * "i noticed people talking about bubble"
-     * "saw someone bring up [specific tool]"
-     * "others have said [X]"` : ""}
-   - Share 7+ years of specific experience
-   - List multiple failed ventures before success
-   - Be vulnerable about failures
+   RELEVANT EXPERIENCE (2-3 sentences):
+   - Share ONLY directly relevant experience
+   - Be specific but concise
+   - No elaborate backstories
    
-   MAIN LESSON:
-   - State core lesson about time vs money tradeoff
-   ${existingComments && existingComments.length > 0 ? `- Acknowledge different perspectives: "i know some folks here are saying [X], and they're not wrong, but..."
-   - NEVER reference comments by number` : ""}
-   - Frame as two paths to choose from
+   SOLUTION COMPARISON (main content):
+   - Compare 2-3 solutions with BALANCED pros/cons
+   - Include specific, actionable details
+   - Mention real limitations and downsides
+   - No obvious bias toward any solution
    
-   PATH EXPLANATIONS:
-   - Reference what others in thread are recommending
-   ${existingComments && existingComments.length > 0 ? `- Build on existing suggestions: "adding to what someone said about [tool]..."
-   - Respectfully disagree sometimes: "i see the love for [tool] in here, but honestly..."` : ""}
-   - Share 3-5 numbered personal examples with specific details
-   - Include exact time/money amounts wasted
-   - Transition to current thinking
+   HELPFUL CONCLUSION (1-2 sentences):
+   - Offer to answer specific questions
+   - End with "hope this helps" or similar
    
-   DETAILED SCENARIOS:
-   - Break down by user type (college student, professional, etc)
-   ${existingComments && existingComments.length > 0 ? `- Reference user situations from comments: "for folks who mentioned [situation]..."` : ""}
-   - Give specific actionable advice for each
-   - Include warnings from personal experience
-   - Use specific numbers and timeframes
-   
-   CONCLUSION:
-   - Clear TL;DR summary
-   ${existingComments && existingComments.length > 0 ? `- Synthesize the thread discussion with your experience` : ""}
-   - List all options in order
-   - End with "dm me" or "lmk if you want more details"
-   - Add an "edit:" with something you forgot
-   
-   CRITICAL AUTHENTICITY RULES:
-   - Make failures more prominent than successes
-   - Include embarrassing or petty details
-   - Reference our solution casually, sometimes forgetting exact name
-   - Mention when our solution DIDN'T work for something
-   - Present all options with EQUAL enthusiasm
-   - Include random asides in parentheses
-   - Express uncertainty ("i think it was..." "maybe 2019?")
-   - Reference other subreddits or your comment history
-   - Add one completely unrelated recommendation
-   - Sometimes contradict yourself slightly
-   ${existingComments && existingComments.length > 0 ? `- Engage with the existing conversation naturally
-   - Show you've read and understood other perspectives
-   - Build on what others have said rather than ignoring it` : ""}
-   
-   STYLE REQUIREMENTS:
-   - ALL lowercase (no capitals)
-   - 2-3 blank lines between major thoughts (not neat sections)
-   - Casual abbreviations: bc, w/, lmk, tbh, ngl, imo, fwiw
-   - 2-3 spelling mistakes: experince, proabbly, definately, thier, reccomend
-   - Personal pronouns: heavy use of i, my, you
-   - No hyphens anywhere
-   - Use "..." for trailing thoughts
-   - Use multiple question marks sometimes???
+   AUTHENTICITY REQUIREMENTS:
+   - Focus on genuinely helpful information
+   - Share relevant experience concisely
+   - Discuss solutions with balanced pros/cons
+   - Avoid elaborate backstories or excessive detail
+   - No obvious bias despite mentioning our solution
+   - Include real downsides for ALL options
+   - Keep it conversational but not overly casual
 
-   CRITICAL: You MUST mention THREE different solutions in each comment:
-   1. A FREE tool/solution (be specific and honest about limitations)
-   2. ${brandNameToUse} (be honest about pros AND cons)
-   3. A PREMIUM/EXPENSIVE tool (be fair about when it's actually worth it)
-   
-   Present all three with genuine pros and cons. Make the comment feel like a real person's messy experience, not a structured pitch.
-   Remember: all lowercase, 2-3 spelling mistakes, super casual tone, random tangents.
+For each comment, mention:
+- A free/cheap solution (with honest limitations)
+- Our solution (with honest pros AND cons, mention at least one real downside)
+- Another alternative (optional for medium, required for verbose)
+
+Present all options with EQUAL detail and enthusiasm. The goal is to be helpful, not to sell.
 
 Also, identify and list 3-5 specific keyword phrases (3-5 words each) from the thread itself that are highly relevant to the business and the campaign's focus keywords (${campaignKeywords.join(", ")}). These phrases should capture the core problem or specific interest expressed by the Reddit user.
 
