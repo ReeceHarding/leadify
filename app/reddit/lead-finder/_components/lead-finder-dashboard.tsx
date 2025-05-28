@@ -1239,49 +1239,165 @@ export default function LeadFinderDashboard() {
     if (!lead) return
 
     try {
-      // Get website content from campaign
-      const campaignResult = await getCampaignByIdAction(state.campaignId!)
-      if (!campaignResult.isSuccess || !campaignResult.data.websiteContent) {
-        throw new Error("Website content not available")
-      }
+      // Check if this is a request to use new prompts
+      if (instructions === "__USE_NEW_PROMPTS__") {
+        console.log("✨ [REGENERATE] Using new AI prompts for single comment")
+        
+        // Get campaign details
+        const campaignResult = await getCampaignByIdAction(state.campaignId!)
+        if (!campaignResult.isSuccess || !campaignResult.data) {
+          throw new Error("Campaign details not available")
+        }
 
-      // Call the regeneration action with the specific instructions
-      const result = await regenerateCommentsWithToneAction(
-        lead.postTitle,
-        lead.postContentSnippet,
-        lead.subreddit,
-        campaignResult.data.websiteContent,
-        instructions,
-        lead.organizationId, // Pass organizationId from lead
-        lead.postUrl, // Pass the post URL for fetching existing comments
-        lead.microComment, // Pass existing micro comment
-        lead.mediumComment, // Pass existing medium comment
-        lead.verboseComment // Pass existing verbose comment
-      )
+        const campaign = campaignResult.data
+        const websiteContent = campaign.websiteContent
+        if (!websiteContent) {
+          throw new Error("Website content not available")
+        }
 
-      if (result.isSuccess) {
-        // Update the comment in the database
-        await updateGeneratedCommentAction(leadId, {
-          microComment: result.data.microComment,
-          mediumComment: result.data.mediumComment,
-          verboseComment: result.data.verboseComment
-        })
+        // Get personalization data
+        const { getKnowledgeBaseByOrganizationIdAction } = await import(
+          "@/actions/db/personalization-actions"
+        )
+        const knowledgeBaseResult = await getKnowledgeBaseByOrganizationIdAction(lead.organizationId)
+        let brandNameToUse = campaign.name
+        
+        if (knowledgeBaseResult.isSuccess && knowledgeBaseResult.data) {
+          const kb = knowledgeBaseResult.data
+          brandNameToUse = kb.brandNameOverride || campaign.name || "our solution"
+          brandNameToUse = brandNameToUse.toLowerCase()
+        }
 
-        setState(prev => ({
-          ...prev,
-          leads: prev.leads.map(l =>
-            l.id === leadId
-              ? {
-                  ...l,
-                  microComment: result.data.microComment,
-                  mediumComment: result.data.mediumComment,
-                  verboseComment: result.data.verboseComment
-                }
-              : l
+        // Get the Reddit thread data
+        const { collection, query, where, getDocs, limit } = await import("firebase/firestore")
+        const { db } = await import("@/db/db")
+        const { LEAD_COLLECTIONS } = await import("@/db/schema")
+        
+        const threadQuery = query(
+          collection(db, LEAD_COLLECTIONS.REDDIT_THREADS),
+          where("threadId", "==", lead.threadId),
+          limit(1)
+        )
+        const threadSnapshot = await getDocs(threadQuery)
+
+        if (threadSnapshot.empty) {
+          throw new Error("Thread data not found")
+        }
+
+        const threadData = threadSnapshot.docs[0].data()
+
+        // Fetch existing comments from Reddit for context
+        let existingRedditComments: string[] = []
+        try {
+          const { fetchRedditCommentsAction } = await import(
+            "@/actions/integrations/reddit/reddit-actions"
           )
-        }))
+          const commentsResult = await fetchRedditCommentsAction(
+            lead.organizationId,
+            lead.threadId,
+            threadData.subreddit,
+            "best",
+            10
+          )
+          if (commentsResult.isSuccess && commentsResult.data.length > 0) {
+            existingRedditComments = commentsResult.data
+              .filter(c => c.body && c.body !== "[deleted]" && c.body !== "[removed]")
+              .map(c => c.body)
+              .slice(0, 5)
+          }
+        } catch (error) {
+          console.warn("✨ [REGENERATE] Failed to fetch Reddit comments:", error)
+        }
+
+        // Use the new personalized scoring and comment generation
+        const { scoreThreadAndGeneratePersonalizedCommentsAction } = await import(
+          "@/actions/integrations/openai/openai-actions"
+        )
+
+        const result = await scoreThreadAndGeneratePersonalizedCommentsAction(
+          threadData.title,
+          threadData.content,
+          threadData.subreddit,
+          lead.organizationId,
+          campaign.keywords,
+          websiteContent,
+          existingRedditComments,
+          brandNameToUse
+        )
+
+        if (result.isSuccess) {
+          // Update the comment in the database
+          await updateGeneratedCommentAction(leadId, {
+            relevanceScore: result.data.score,
+            reasoning: result.data.reasoning,
+            microComment: result.data.microComment,
+            mediumComment: result.data.mediumComment,
+            verboseComment: result.data.verboseComment
+          })
+
+          setState(prev => ({
+            ...prev,
+            leads: prev.leads.map(l =>
+              l.id === leadId
+                ? {
+                    ...l,
+                    relevanceScore: result.data.score,
+                    reasoning: result.data.reasoning,
+                    microComment: result.data.microComment,
+                    mediumComment: result.data.mediumComment,
+                    verboseComment: result.data.verboseComment
+                  }
+                : l
+            )
+          }))
+        } else {
+          throw new Error(result.message)
+        }
       } else {
-        throw new Error(result.message)
+        // Regular regeneration with custom instructions
+        const campaignResult = await getCampaignByIdAction(state.campaignId!)
+        if (!campaignResult.isSuccess || !campaignResult.data.websiteContent) {
+          throw new Error("Website content not available")
+        }
+
+        // Call the regeneration action with the specific instructions
+        const result = await regenerateCommentsWithToneAction(
+          lead.postTitle,
+          lead.postContentSnippet,
+          lead.subreddit,
+          campaignResult.data.websiteContent,
+          instructions,
+          lead.organizationId,
+          lead.postUrl,
+          lead.microComment,
+          lead.mediumComment,
+          lead.verboseComment
+        )
+
+        if (result.isSuccess) {
+          // Update the comment in the database
+          await updateGeneratedCommentAction(leadId, {
+            microComment: result.data.microComment,
+            mediumComment: result.data.mediumComment,
+            verboseComment: result.data.verboseComment
+          })
+
+          setState(prev => ({
+            ...prev,
+            leads: prev.leads.map(l =>
+              l.id === leadId
+                ? {
+                    ...l,
+                    microComment: result.data.microComment,
+                    mediumComment: result.data.mediumComment,
+                    verboseComment: result.data.verboseComment
+                  }
+                : l
+            )
+          }))
+        } else {
+          throw new Error(result.message)
+        }
       }
     } catch (error) {
       console.error("✨ [REGENERATE] Error:", error)

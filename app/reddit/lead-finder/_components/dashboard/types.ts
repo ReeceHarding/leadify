@@ -5,6 +5,7 @@ export interface LeadResult {
   id: string
   campaignId: string
   organizationId: string
+  threadId: string // Reddit thread ID (e.g., "t3_xxxxxx")
   postUrl: string
   postTitle: string
   postAuthor: string

@@ -371,61 +371,108 @@ export default function LeadCard({
                           <Sparkles className="size-3" />
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="sm:max-w-[425px]">
+                      <DialogContent className="sm:max-w-[500px]">
                         <DialogHeader>
                           <DialogTitle className="flex items-center gap-2">
                             <Sparkles className="size-4 text-blue-500" />
-                            Regenerate with AI
+                            Regenerate Comment with AI
                           </DialogTitle>
                           <DialogDescription>
-                            Describe how you'd like this comment to be changed.
-                            Be specific about tone, focus, or style adjustments.
+                            Choose how you'd like to regenerate this comment.
                           </DialogDescription>
                         </DialogHeader>
                         <div className="space-y-4 py-4">
+                          {/* Option 1: Regenerate with latest AI */}
+                          <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+                            <h4 className="mb-2 font-medium">Option 1: Use Latest AI Prompts</h4>
+                            <p className="mb-3 text-sm text-gray-600 dark:text-gray-400">
+                              Regenerate using our improved AI scoring and comment generation system.
+                            </p>
+                            <Button
+                              onClick={async () => {
+                                setIsRegenerating(true)
+                                try {
+                                  // Call the parent's regenerate function with a special flag
+                                  if (onRegenerateWithInstructions) {
+                                    await onRegenerateWithInstructions(lead.id, "__USE_NEW_PROMPTS__")
+                                    setShowRegenerateDialog(false)
+                                    toast.success("Comment regenerated with latest AI")
+                                  }
+                                } catch (error) {
+                                  toast.error("Failed to regenerate comment")
+                                } finally {
+                                  setIsRegenerating(false)
+                                }
+                              }}
+                              disabled={isRegenerating}
+                              className="w-full gap-2"
+                              variant="default"
+                            >
+                              {isRegenerating ? (
+                                <>
+                                  <Loader2 className="size-4 animate-spin" />
+                                  Regenerating...
+                                </>
+                              ) : (
+                                <>
+                                  <Sparkles className="size-4" />
+                                  Regenerate with Latest AI
+                                </>
+                              )}
+                            </Button>
+                          </div>
+
+                          <div className="flex items-center gap-3">
+                            <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
+                            <span className="text-xs text-gray-500 dark:text-gray-400">or</span>
+                            <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
+                          </div>
+
+                          {/* Option 2: Custom instructions */}
                           <div className="space-y-2">
+                            <h4 className="font-medium">Option 2: Custom Instructions</h4>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                              Describe specific changes you want.
+                            </p>
                             <Textarea
-                              placeholder="e.g., Focus more on our seclusion and make it less salesy..."
+                              placeholder="e.g., Make it more conversational, focus on our pricing advantage..."
                               value={regenerateInstructions}
                               onChange={e =>
                                 setRegenerateInstructions(e.target.value)
                               }
-                              className="min-h-[100px]"
+                              className="min-h-[80px]"
                             />
-                            <p className="text-xs text-gray-500">
-                              The AI will use your instructions along with the
-                              original comment and website context.
-                            </p>
+                            <Button
+                              onClick={handleRegenerate}
+                              disabled={
+                                isRegenerating || !regenerateInstructions.trim()
+                              }
+                              className="w-full gap-2"
+                              variant="outline"
+                            >
+                              {isRegenerating ? (
+                                <>
+                                  <Loader2 className="size-4 animate-spin" />
+                                  Regenerating...
+                                </>
+                              ) : (
+                                <>
+                                  <Sparkles className="size-4" />
+                                  Regenerate with Instructions
+                                </>
+                              )}
+                            </Button>
                           </div>
                         </div>
                         <DialogFooter>
                           <Button
-                            variant="outline"
+                            variant="ghost"
                             onClick={() => {
                               setShowRegenerateDialog(false)
                               setRegenerateInstructions("")
                             }}
                           >
                             Cancel
-                          </Button>
-                          <Button
-                            onClick={handleRegenerate}
-                            disabled={
-                              isRegenerating || !regenerateInstructions.trim()
-                            }
-                            className="gap-2"
-                          >
-                            {isRegenerating ? (
-                              <>
-                                <Loader2 className="size-4 animate-spin" />
-                                Regenerating...
-                              </>
-                            ) : (
-                              <>
-                                <Sparkles className="size-4" />
-                                Regenerate
-                              </>
-                            )}
                           </Button>
                         </DialogFooter>
                       </DialogContent>
