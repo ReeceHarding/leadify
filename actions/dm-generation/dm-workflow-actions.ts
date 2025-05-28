@@ -15,7 +15,7 @@ import {
   checkDMAlreadySentAction
 } from "@/actions/db/dm-actions"
 import { searchRedditUsersAction } from "@/actions/integrations/reddit/reddit-search-actions"
-import { getUserProfileAction, checkCanSendDMAction } from "@/actions/integrations/reddit/dm-actions"
+import { checkCanSendDMAction } from "@/actions/integrations/reddit/dm-actions"
 import { generatePersonalizedDMAction } from "@/actions/integrations/openai/dm-generation-actions"
 import { sendRedditDMAction } from "@/actions/integrations/reddit/dm-actions"
 import { Timestamp } from "firebase/firestore"
