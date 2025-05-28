@@ -95,7 +95,7 @@ export default function DashboardHeader({
                       <ChevronDown className="size-3" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-80">
+                  <DropdownMenuContent align="end" className="max-h-[400px] w-80 overflow-y-auto">
                     <DropdownMenuLabel>All Lead Searches</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     {campaigns.length > 0 ? (
@@ -103,7 +103,7 @@ export default function DashboardHeader({
                         <DropdownMenuItem
                           key={campaign.id}
                           onClick={() => onSelectCampaign(campaign.id)}
-                          className={`flex items-center justify-between p-3 ${
+                          className={`hover:text-foreground group flex items-center justify-between p-3 ${
                             campaign.id === campaignId
                               ? "bg-blue-50 dark:bg-blue-950/30"
                               : ""
@@ -111,7 +111,7 @@ export default function DashboardHeader({
                         >
                           <div className="flex-1">
                             <div className="font-medium">{campaign.name}</div>
-                            <div className="mt-1 text-xs text-gray-500">
+                            <div className="mt-1 text-xs text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300">
                               {campaign.keywords.slice(0, 3).join(", ")}
                               {campaign.keywords.length > 3 &&
                                 ` +${campaign.keywords.length - 3} more`}
@@ -128,7 +128,7 @@ export default function DashboardHeader({
                             >
                               {campaign.status}
                             </Badge>
-                            <span className="text-xs text-gray-500">
+                            <span className="text-xs text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300">
                               {campaign.totalCommentsGenerated} leads
                             </span>
                           </div>
@@ -142,14 +142,14 @@ export default function DashboardHeader({
                     <DropdownMenuSeparator />
                     {campaignId && onEditCampaign && (
                       <>
-                        <DropdownMenuItem onClick={() => onEditCampaign(campaignId)}>
+                        <DropdownMenuItem onClick={() => onEditCampaign(campaignId)} className="hover:text-foreground">
                           <Edit2 className="mr-2 size-4" />
                           Edit Current Campaign
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                       </>
                     )}
-                    <DropdownMenuItem onClick={onCreateCampaign}>
+                    <DropdownMenuItem onClick={onCreateCampaign} className="hover:text-foreground">
                       <Plus className="mr-2 size-4" />
                       New Lead Search
                     </DropdownMenuItem>

@@ -27,8 +27,77 @@ const ThreadAnalysisSchema = z.object({
   reasoning: z.string(),
   microComment: z.string(),
   mediumComment: z.string(),
-  verboseComment: z.string()
+  verboseComment: z.string(),
+  derivedSpecificKeywords: z.array(z.string()).optional()
 })
+
+// Helper function to extract JSON from text
+function extractJsonFromText(text: string): any | null {
+  console.log("🔍 [EXTRACT-JSON] Attempting to extract JSON from text...");
+  console.log("🔍 [EXTRACT-JSON] Raw text received (first 500 chars):", text.slice(0, 500) + (text.length > 500 ? "..." : ""));
+
+  // Attempt 1: Direct parsing
+  try {
+    console.log("🔍 [EXTRACT-JSON] Attempt 1: Direct parsing...");
+    const parsed = JSON.parse(text);
+    console.log("✅ [EXTRACT-JSON] Attempt 1: Direct parsing successful.");
+    return parsed;
+  } catch (e) {
+    console.warn("⚠️ [EXTRACT-JSON] Attempt 1: Direct parsing failed. Error:", e instanceof Error ? e.message : String(e));
+  }
+
+  // Attempt 2: Markdown code block (```json ... ```)
+  try {
+    console.log("🔍 [EXTRACT-JSON] Attempt 2: Markdown code block (json)...");
+    const jsonMarkdownMatch = text.match(/```json\\n([\\s\\S]*?)\\n```/);
+    if (jsonMarkdownMatch && jsonMarkdownMatch[1]) {
+      const extracted = jsonMarkdownMatch[1];
+      console.log("🔍 [EXTRACT-JSON] Attempt 2: Extracted from json markdown:", extracted.slice(0, 200) + (extracted.length > 200 ? "..." : ""));
+      const parsed = JSON.parse(extracted);
+      console.log("✅ [EXTRACT-JSON] Attempt 2: Markdown (json) parsing successful.");
+      return parsed;
+    }
+    console.log("ℹ️ [EXTRACT-JSON] Attempt 2: No json markdown block found.");
+  } catch (e) {
+    console.warn("⚠️ [EXTRACT-JSON] Attempt 2: Markdown (json) parsing failed. Error:", e instanceof Error ? e.message : String(e));
+  }
+
+  // Attempt 3: Markdown code block (``` ... ```)
+  try {
+    console.log("🔍 [EXTRACT-JSON] Attempt 3: Markdown code block (generic)...");
+    const genericMarkdownMatch = text.match(/```\\n([\\s\\S]*?)\\n```/);
+    if (genericMarkdownMatch && genericMarkdownMatch[1]) {
+      const extracted = genericMarkdownMatch[1];
+      console.log("🔍 [EXTRACT-JSON] Attempt 3: Extracted from generic markdown:", extracted.slice(0, 200) + (extracted.length > 200 ? "..." : ""));
+      const parsed = JSON.parse(extracted);
+      console.log("✅ [EXTRACT-JSON] Attempt 3: Markdown (generic) parsing successful.");
+      return parsed;
+    }
+    console.log("ℹ️ [EXTRACT-JSON] Attempt 3: No generic markdown block found.");
+  } catch (e) {
+    console.warn("⚠️ [EXTRACT-JSON] Attempt 3: Markdown (generic) parsing failed. Error:", e instanceof Error ? e.message : String(e));
+  }
+  
+  // Attempt 4: General JSON object regex (handles cases where it might not be perfectly formatted but is still a JSON object)
+  try {
+    console.log("🔍 [EXTRACT-JSON] Attempt 4: General JSON object regex...");
+    // Adjusted regex to be less greedy and capture the outermost valid JSON structure.
+    const generalJsonMatch = text.match(/\{\s*["']score["']\s*:\s*\d+[\s\S]*?\}/);
+    if (generalJsonMatch && generalJsonMatch[0]) {
+      const extracted = generalJsonMatch[0];
+      console.log("🔍 [EXTRACT-JSON] Attempt 4: Extracted with general regex:", extracted.slice(0, 200) + (extracted.length > 200 ? "..." : ""));
+      const parsed = JSON.parse(extracted);
+      console.log("✅ [EXTRACT-JSON] Attempt 4: General regex parsing successful.");
+      return parsed;
+    }
+    console.log("ℹ️ [EXTRACT-JSON] Attempt 4: No general JSON object found with regex.");
+  } catch (e) {
+    console.warn("⚠️ [EXTRACT-JSON] Attempt 4: General regex parsing failed. Error:", e instanceof Error ? e.message : String(e));
+  }
+
+  console.error("❌ [EXTRACT-JSON] All attempts to extract JSON failed.");
+  return null;
+}
 
 export async function scoreThreadAndGenerateThreeTierCommentsAction(
   threadTitle: string,
@@ -40,121 +109,63 @@ export async function scoreThreadAndGenerateThreeTierCommentsAction(
 ): Promise<ActionState<ThreeTierCommentResult>> {
   try {
     console.log(
-      `🤖 Critically scoring thread and generating 3-tier comments for: "${threadTitle.slice(0, 50)}..."`
+      `🤖 Critically scoring thread (simple prompt) and generating 3-tier comments for: "${threadTitle.slice(0, 50)}..."`
     )
 
-    // If organizationId is provided, try to get knowledge base content
-    let enhancedWebsiteContent = websiteContent
-    let brandNameToUse = ""
-    
-    if (organizationId) {
-      console.log("🔍 [SCORING] Organization ID provided, checking for knowledge base...")
-      
-      const { getKnowledgeBaseByOrganizationIdAction } = await import(
-        "@/actions/db/personalization-actions"
-      )
-      
-      const knowledgeBaseResult = await getKnowledgeBaseByOrganizationIdAction(organizationId)
-      
-      if (knowledgeBaseResult.isSuccess && knowledgeBaseResult.data) {
-        const kb = knowledgeBaseResult.data
-        console.log("✅ [SCORING] Found knowledge base for organization")
-        
-        // Get brand name
-        brandNameToUse = kb.brandNameOverride || "our solution"
-        brandNameToUse = brandNameToUse.toLowerCase()
-        
-        // Build comprehensive knowledge base content
-        const contentParts = []
-        
-        // Add brand information
-        if (brandNameToUse) {
-          contentParts.push(`Brand Name: ${brandNameToUse}`)
+    let actualWebsiteContent = websiteContent;
+    // Try to use organization name if brandName wasn't part of websiteContent passed in
+    if (organizationId && !websiteContent.toLowerCase().includes("brand name:")) {
+        const { getOrganizationByIdAction } = await import("@/actions/db/organizations-actions");
+        const orgResult = await getOrganizationByIdAction(organizationId);
+        if (orgResult.isSuccess && orgResult.data?.name) {
+            actualWebsiteContent = `Brand Name: ${orgResult.data.name.toLowerCase()}\\n\\n${websiteContent}`;
+            console.log(`ℹ️ [SIMPLE-SCORING] Prepended organization name as brand to websiteContent.`);
         }
-        
-        // Add website URL if available
-        if (kb.websiteUrl) {
-          contentParts.push(`Website: ${kb.websiteUrl}`)
-        }
-        
-        // Add custom information (manually typed info)
-        if (kb.customInformation) {
-          contentParts.push("Business Information:")
-          contentParts.push(kb.customInformation)
-        }
-        
-        // Add summary if available
-        if (kb.summary) {
-          contentParts.push("Summary:")
-          contentParts.push(kb.summary)
-        }
-        
-        // Add key facts if available
-        if (kb.keyFacts && kb.keyFacts.length > 0) {
-          contentParts.push("Key Facts:")
-          contentParts.push(kb.keyFacts.join("\n- "))
-        }
-        
-        // Add scraped pages info if available
-        if (kb.scrapedPages && kb.scrapedPages.length > 0) {
-          contentParts.push(`Additional Pages Analyzed: ${kb.scrapedPages.join(", ")}`)
-        }
-        
-        const knowledgeBaseContent = contentParts.join("\n\n")
-        
-        // Combine knowledge base with provided website content
-        if (knowledgeBaseContent) {
-          enhancedWebsiteContent = websiteContent 
-            ? `${knowledgeBaseContent}\n\n${websiteContent}`
-            : knowledgeBaseContent
-        }
-        
-        console.log("✅ [SCORING] Enhanced content with knowledge base, total length:", enhancedWebsiteContent.length)
-      }
     }
+
 
     // Log the full context being sent
     console.log(
-      "🔍🔍🔍 [SCORING-PROMPT] ========== FULL PROMPT START =========="
+      "🔍🔍🔍 [SIMPLE-SCORING-PROMPT] ========== FULL PROMPT START =========="
     )
-    console.log("🔍🔍🔍 [SCORING-PROMPT] Timestamp:", new Date().toISOString())
-    console.log("🔍🔍🔍 [SCORING-PROMPT] Thread Title:", threadTitle)
-    console.log("🔍🔍🔍 [SCORING-PROMPT] Subreddit:", subreddit)
+    console.log("🔍🔍🔍 [SIMPLE-SCORING-PROMPT] Timestamp:", new Date().toISOString())
+    console.log("🔍🔍🔍 [SIMPLE-SCORING-PROMPT] Thread Title:", threadTitle)
+    console.log("🔍🔍🔍 [SIMPLE-SCORING-PROMPT] Subreddit:", subreddit)
     console.log(
-      "🔍🔍🔍 [SCORING-PROMPT] Thread Content Length:",
+      "🔍🔍🔍 [SIMPLE-SCORING-PROMPT] Thread Content Length:",
       threadContent.length
     )
     console.log(
-      "🔍🔍🔍 [SCORING-PROMPT] Website Content Length:",
-      enhancedWebsiteContent.length
+      "🔍🔍🔍 [SIMPLE-SCORING-PROMPT] Website Content Length:",
+      actualWebsiteContent.length
     )
     console.log(
-      "🔍🔍🔍 [SCORING-PROMPT] Existing Comments Count:",
+      "🔍🔍🔍 [SIMPLE-SCORING-PROMPT] Existing Comments Count:",
       existingComments?.length || 0
     )
-    console.log("🔍🔍🔍 [SCORING-PROMPT] ========== WEBSITE CONTENT ==========")
-    console.log(enhancedWebsiteContent)
-    console.log("🔍🔍🔍 [SCORING-PROMPT] ========== THREAD CONTENT ==========")
-    console.log(threadContent)
+    console.log("🔍🔍🔍 [SIMPLE-SCORING-PROMPT] ========== WEBSITE CONTENT ==========")
+    console.log(actualWebsiteContent.slice(0, 500) + (actualWebsiteContent.length > 500 ? "..." : ""))
+    console.log("🔍🔍🔍 [SIMPLE-SCORING-PROMPT] ========== THREAD CONTENT ==========")
+    console.log(threadContent.slice(0,500) + (threadContent.length > 500 ? "..." : ""))
     if (existingComments && existingComments.length > 0) {
-      console.log("🔍🔍🔍 [SCORING-PROMPT] ========== EXISTING COMMENTS ==========")
+      console.log("🔍🔍🔍 [SIMPLE-SCORING-PROMPT] ========== EXISTING COMMENTS ==========")
       existingComments.slice(0, 3).forEach((comment, i) => {
-        console.log(`Comment ${i + 1}:`, comment)
+        console.log(`Comment ${i + 1}:`, comment.slice(0,200) + (comment.length > 200 ? "..." : ""))
       })
     }
 
-    const prompt = `You are a real person who loves helping others and gets genuinely excited about solving problems! You're browsing Reddit and found someone who needs help with something you actually know about.
+    const prompt = `You are a real person who loves helping others and gets genuinely excited about solving problems! You\'re browsing Reddit and found someone who needs help with something you actually know about.
 
 REDDIT THREAD:
 Subreddit: r/${subreddit}
 Title: "${threadTitle}"
 Content: "${threadContent}"
 
-YOUR BACKGROUND & EXPERIENCE:
-${enhancedWebsiteContent}
+YOUR BACKGROUND & EXPERIENCE (use this to inform your comments):
+${actualWebsiteContent}
 
-${existingComments && existingComments.length > 0 ? `\nWHAT OTHERS HAVE ALREADY SAID:
-${existingComments.slice(0, 5).map((comment, i) => `${i + 1}. "${comment}"`).join("\n\n")}` : ""}
+${existingComments && existingComments.length > 0 ? `\\nWHAT OTHERS HAVE ALREADY SAID:
+${existingComments.slice(0, 5).map((comment, i) => `${i + 1}. "${comment}"`).join("\\n\\n")}` : ""}
 
 CRITICAL WRITING RULE - NEVER USE HYPHENS:
 - Write "co founder" not "co-founder"
@@ -257,23 +268,45 @@ Return JSON:
   "verboseComment": "<comprehensive help with genuine enthusiasm>"
 }`
 
-    // Log the full prompt being sent
     console.log(
-      "🔍🔍🔍 [SCORING-PROMPT] ========== FULL PROMPT TEXT =========="
+      "🔍🔍🔍 [SIMPLE-SCORING-PROMPT] ========== FULL PROMPT TEXT (first 1000 chars) =========="
     )
-    console.log(prompt)
-    console.log("🔍🔍🔍 [SCORING-PROMPT] ========== PROMPT END ==========")
-    console.log("🔍🔍🔍 [SCORING-PROMPT] Model: o3-mini")
-    console.log("🔍🔍🔍 [SCORING-PROMPT] Reasoning Effort: medium")
+    console.log(prompt.slice(0,1000) + (prompt.length > 1000 ? "..." : ""))
+    console.log("🔍🔍🔍 [SIMPLE-SCORING-PROMPT] ========== PROMPT END ==========")
+    console.log("🔍🔍🔍 [SIMPLE-SCORING-PROMPT] Model: o3-mini")
 
-    const { object } = await generateObject({
+    const { text: aiResponseText } = await generateText({
       model: openai("o3-mini"),
-      schema: ThreadAnalysisSchema,
       prompt,
-      providerOptions: {
-        openai: { reasoningEffort: "medium" }
-      }
-    })
+    });
+
+    console.log("🤖 [SIMPLE-SCORING] Raw AI Response Text (first 500 chars):", aiResponseText.slice(0,500) + (aiResponseText.length > 500 ? "..." : ""));
+
+    const extractedObject = extractJsonFromText(aiResponseText);
+
+    if (!extractedObject) {
+      console.error("❌ [SIMPLE-SCORING] Failed to extract JSON from AI response. Raw text:", aiResponseText);
+      return {
+        isSuccess: false,
+        message: "Failed to extract valid JSON from AI response. The response format was not recognized."
+      };
+    }
+    
+    // Validate against a schema that doesn't require derivedSpecificKeywords for this simpler action
+    const SimpleThreadAnalysisSchema = ThreadAnalysisSchema.omit({ derivedSpecificKeywords: true });
+    const validationResult = SimpleThreadAnalysisSchema.safeParse(extractedObject);
+
+
+    if (!validationResult.success) {
+      console.error("❌ [SIMPLE-SCORING] OpenAI response failed validation:", validationResult.error.errors);
+      console.error("❌ [SIMPLE-SCORING] Invalid object:", extractedObject);
+      return {
+        isSuccess: false,
+        message: `OpenAI response validation failed: ${validationResult.error.errors.map(e => e.message).join(', ')}`
+      };
+    }
+
+    const object = validationResult.data;
 
     const result: ThreeTierCommentResult = {
       score: Math.max(1, Math.min(100, object.score)),
@@ -281,40 +314,40 @@ Return JSON:
       microComment: object.microComment,
       mediumComment: object.mediumComment,
       verboseComment: object.verboseComment
+      // derivedSpecificKeywords is not expected from this simpler action
     }
 
-    // Log the AI response
-    console.log("🔍🔍🔍 [SCORING-RESULT] ========== AI RESPONSE ==========")
-    console.log("🔍🔍🔍 [SCORING-RESULT] Score:", result.score)
-    console.log("🔍🔍🔍 [SCORING-RESULT] Reasoning:", result.reasoning)
+    console.log("🔍🔍🔍 [SIMPLE-SCORING-RESULT] ========== AI RESPONSE ==========")
+    console.log("🔍🔍🔍 [SIMPLE-SCORING-RESULT] Score:", result.score)
+    console.log("🔍🔍🔍 [SIMPLE-SCORING-RESULT] Reasoning:", result.reasoning.slice(0,100) + "...")
     console.log(
-      "🔍🔍🔍 [SCORING-RESULT] Micro Comment Length:",
+      "🔍🔍🔍 [SIMPLE-SCORING-RESULT] Micro Comment Length:",
       result.microComment.length
     )
     console.log(
-      "🔍🔍🔍 [SCORING-RESULT] Medium Comment Length:",
+      "🔍🔍🔍 [SIMPLE-SCORING-RESULT] Medium Comment Length:",
       result.mediumComment.length
     )
     console.log(
-      "🔍🔍🔍 [SCORING-RESULT] Verbose Comment Length:",
+      "🔍🔍🔍 [SIMPLE-SCORING-RESULT] Verbose Comment Length:",
       result.verboseComment.length
     )
-    console.log("🔍🔍🔍 [SCORING-RESULT] ========== RESPONSE END ==========")
+    console.log("🔍🔍🔍 [SIMPLE-SCORING-RESULT] ========== RESPONSE END ==========")
 
     console.log(
-      `✅ Thread critically scored: ${result.score}/100 - ${result.reasoning.slice(0, 50)}...`
+      `✅ Thread (simple prompt) critically scored: ${result.score}/100 - ${result.reasoning.slice(0, 50)}...`
     )
 
     return {
       isSuccess: true,
-      message: "Thread scored and three-tier comments generated successfully",
+      message: "Thread scored and three-tier comments generated successfully (simple prompt)",
       data: result
     }
   } catch (error) {
-    console.error("Error scoring thread and generating comments:", error)
+    console.error("Error scoring thread (simple prompt) and generating comments:", error)
     return {
       isSuccess: false,
-      message: `Failed to score thread: ${error instanceof Error ? error.message : "Unknown error"}`
+      message: `Failed to score thread (simple prompt): ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }
@@ -1042,12 +1075,12 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
   threadTitle: string,
   threadContent: string,
   subreddit: string,
-  organizationId: string,
+  organizationId: string, // Made organizationId mandatory as it's crucial for personalization
   campaignKeywords: string[],
   campaignWebsiteContent?: string,
   existingComments?: string[],
   campaignName?: string,
-  postCreatedUtc?: number // Add post creation timestamp
+  postCreatedUtc?: number 
 ): Promise<
   ActionState<{
     score: number
@@ -1058,250 +1091,39 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
     derivedSpecificKeywords?: string[]
   }>
 > {
+  console.log(
+    `🤖 [OPENAI-PERSONALIZED] Starting personalized scoring and comment generation for thread: "${threadTitle.slice(0,50)}..."`
+  )
+  console.log(
+    `🤖 [OPENAI-PERSONALIZED] Organization ID: ${organizationId}, Campaign Name: ${campaignName || "N/A"}`
+  )
+
   try {
-    console.log(
-      "🤖 [OPENAI-PERSONALIZED] Starting personalized scoring and comment generation"
-    )
-    console.log("🤖 [OPENAI-PERSONALIZED] Thread title:", threadTitle)
-    console.log("🤖 [OPENAI-PERSONALIZED] Subreddit:", subreddit)
-    console.log("🤖 [OPENAI-PERSONALIZED] Organization ID:", organizationId)
-    console.log("🤖 [OPENAI-PERSONALIZED] Campaign Keywords:", campaignKeywords.join(", "))
-    console.log(
-      "🤖 [OPENAI-PERSONALIZED] Existing comments provided:",
-      existingComments?.length || 0
-    )
-    console.log("🤖 [OPENAI-PERSONALIZED] Campaign name:", campaignName)
-    console.log("🤖 [OPENAI-PERSONALIZED] Post created UTC:", postCreatedUtc)
-
-    // Calculate post age
-    let postAgeContext = ""
-    if (postCreatedUtc) {
-      const now = Date.now() / 1000 // Current time in seconds
-      const ageInSeconds = now - postCreatedUtc
-      const ageInMinutes = Math.floor(ageInSeconds / 60)
-      const ageInHours = Math.floor(ageInMinutes / 60)
-      const ageInDays = Math.floor(ageInHours / 24)
-      
-      if (ageInDays > 0) {
-        postAgeContext = `Posted ${ageInDays} day${ageInDays > 1 ? 's' : ''} ago`
-      } else if (ageInHours > 0) {
-        postAgeContext = `Posted ${ageInHours} hour${ageInHours > 1 ? 's' : ''} ago`
-      } else if (ageInMinutes > 0) {
-        postAgeContext = `Posted ${ageInMinutes} minute${ageInMinutes > 1 ? 's' : ''} ago`
-      } else {
-        postAgeContext = `Posted just now`
-      }
-      
-      console.log("🤖 [OPENAI-PERSONALIZED] Post age context:", postAgeContext)
-    }
-
-    // Get organization data for personalization
-    const { getOrganizationByIdAction } = await import(
-      "@/actions/db/organizations-actions"
-    )
-    const {
-      getKnowledgeBaseByOrganizationIdAction,
-      getVoiceSettingsByOrganizationIdAction
-    } = await import("@/actions/db/personalization-actions")
-
-    const orgResult = await getOrganizationByIdAction(organizationId)
-    if (!orgResult.isSuccess || !orgResult.data) {
-      console.error("❌ [OPENAI-PERSONALIZED] Failed to get organization")
-      return { isSuccess: false, message: "Failed to get organization" }
-    }
-
-    const organization = orgResult.data
-    const businessWebsiteUrl = organization.website || ""
-    
-    console.log(
-      "🔍🔍🔍 [OPENAI-PERSONALIZED] Organization name:",
-      organization.name
-    )
-    console.log(
-      "🔍🔍🔍 [OPENAI-PERSONALIZED] Campaign name:",
+    const { бизнесОписание, информацияОСайте, подсказкиПоТону, имяБренда } = await preparePersonalizationData(
+      organizationId, // organizationId is now guaranteed to be a string
+      campaignWebsiteContent,
       campaignName
     )
-    
-    // Get knowledge base for brand name override
-    const knowledgeBaseResult =
-      await getKnowledgeBaseByOrganizationIdAction(organizationId)
-    let knowledgeBaseContent = ""
-    let brandNameToUse = ""
-    
-    console.log(
-      "🔍🔍🔍 [OPENAI-PERSONALIZED] Knowledge base fetch result:",
-      knowledgeBaseResult.isSuccess ? "SUCCESS" : "FAILED"
+
+    const systemPrompt = buildPersonalizedScoringSystemPrompt(
+      бизнесОписание,
+      информацияОСайте,
+      подсказкиПоТону,
+      имяБренда,
+      campaignKeywords // Pass campaignKeywords
     )
-    console.log(
-      "🔍🔍🔍 [OPENAI-PERSONALIZED] Knowledge base data exists:",
-      !!knowledgeBaseResult.data
+
+    const userPrompt = buildPersonalizedScoringUserPrompt(
+      threadTitle,
+      threadContent,
+      subreddit,
+      campaignKeywords, // Pass campaignKeywords
+      existingComments,
+      postCreatedUtc
     )
     
-    if (knowledgeBaseResult.isSuccess && knowledgeBaseResult.data) {
-      const kb = knowledgeBaseResult.data
-      
-      console.log(
-        "🔍🔍🔍 [OPENAI-PERSONALIZED] Knowledge base brandNameOverride:",
-        kb.brandNameOverride
-      )
-      console.log(
-        "🔍🔍🔍 [OPENAI-PERSONALIZED] Knowledge base ID:",
-        kb.id
-      )
-      
-      // Use brand name override if available, otherwise use organization name from settings
-      brandNameToUse = kb.brandNameOverride || organization.name || campaignName || "our solution"
-      // Always convert to lowercase for natural Reddit style
-      brandNameToUse = brandNameToUse.toLowerCase()
-      
-      console.log(
-        "🔍🔍🔍 [OPENAI-PERSONALIZED] Final brand name decision:",
-        brandNameToUse
-      )
-      
-      // Combine all knowledge base content
-      const contentParts = []
-      
-      // Add brand information
-      if (brandNameToUse) {
-        contentParts.push(`Brand Name: ${brandNameToUse}`)
-      }
-      
-      // Add website URL if available
-      if (kb.websiteUrl) {
-        contentParts.push(`Website: ${kb.websiteUrl}`)
-      }
-      
-      // Add custom information (manually typed info)
-      if (kb.customInformation) {
-        contentParts.push("Business Information:")
-        contentParts.push(kb.customInformation)
-      }
-      
-      // Add summary if available
-      if (kb.summary) {
-        contentParts.push("Summary:")
-        contentParts.push(kb.summary)
-      }
-      
-      // Add key facts if available
-      if (kb.keyFacts && kb.keyFacts.length > 0) {
-        contentParts.push("Key Facts:")
-        contentParts.push(kb.keyFacts.join("\n- "))
-      }
-      
-      // Add scraped pages info if available
-      if (kb.scrapedPages && kb.scrapedPages.length > 0) {
-        contentParts.push(`Additional Pages Analyzed: ${kb.scrapedPages.join(", ")}`)
-      }
-      
-      knowledgeBaseContent = contentParts.join("\n\n")
-      
-      console.log(
-        "✅ [OPENAI-PERSONALIZED] Found knowledge base for organization with content length:",
-        knowledgeBaseContent.length
-      )
-      console.log(
-        "✅ [OPENAI-PERSONALIZED] Brand name to use:",
-        brandNameToUse
-      )
-    } else {
-      // No knowledge base, use organization name from settings
-      brandNameToUse = (organization.name || campaignName || "our solution").toLowerCase()
-      console.log(
-        "⚠️ [OPENAI-PERSONALIZED] No knowledge base found, using organization name from settings:",
-        brandNameToUse
-      )
-      console.log(
-        "⚠️ [OPENAI-PERSONALIZED] Fallback order: organization.name=",
-        organization.name,
-        ", campaignName=",
-        campaignName
-      )
-    }
+    const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
 
-    // Get voice settings for the organization
-    const voiceSettingsResult =
-      await getVoiceSettingsByOrganizationIdAction(organizationId)
-    let voicePrompt = ""
-    if (voiceSettingsResult.isSuccess && voiceSettingsResult.data) {
-      voicePrompt = voiceSettingsResult.data.generatedPrompt || ""
-      console.log(
-        "✅ [OPENAI-PERSONALIZED] Found voice settings for organization"
-      )
-    }
-
-    // Prioritize campaign-specific content, then knowledge base, then organization website
-    let primaryBusinessContent =
-      campaignWebsiteContent || knowledgeBaseContent || ""
-    let contentSource = campaignWebsiteContent
-      ? "campaign"
-      : knowledgeBaseContent
-        ? "knowledge_base"
-        : "organization_website"
-
-    if (!primaryBusinessContent && businessWebsiteUrl) {
-      console.log(
-        "🌐 [OPENAI-PERSONALIZED] No campaign content or knowledge base, scraping organization website:",
-        businessWebsiteUrl
-      )
-      const scrapeResult = await scrapeWebsiteAction(businessWebsiteUrl)
-      if (scrapeResult.isSuccess) {
-        primaryBusinessContent = scrapeResult.data.content
-        contentSource = "organization_scraped"
-        console.log(
-          "✅ [OPENAI-PERSONALIZED] Organization website scraped successfully"
-        )
-      } else {
-        console.warn(
-          "⚠️ [OPENAI-PERSONALIZED] Failed to scrape organization website"
-        )
-      }
-    } else if (primaryBusinessContent) {
-      console.log(`✅ [OPENAI-PERSONALIZED] Using ${contentSource} content`)
-    }
-
-    if (!primaryBusinessContent) {
-      console.warn(
-        "⚠️ [OPENAI-PERSONALIZED] No business content available for AI. Using generic approach."
-      )
-      // Potentially, we could have a very generic prompt here or return an error/low score.
-      // For now, we'll proceed, and the AI will have less context.
-    }
-
-    // Analyze existing comments for tone and style
-    let toneAnalysis = ""
-    if (existingComments && existingComments.length > 0) {
-      console.log(
-        "🔍 [OPENAI-PERSONALIZED] Analyzing existing comments for tone..."
-      )
-
-      const tonePrompt = `Analyze these Reddit comments and describe the tone, style, and language patterns:
-
-${existingComments.slice(0, 10).join("\n\n---\n\n")}
-
-Provide a brief analysis of:
-1. Overall tone (casual, formal, humorous, etc.)
-2. Common language patterns (slang, abbreviations, etc.)
-3. Typical comment length
-4. Grammar style (perfect vs casual)
-5. How people give recommendations`
-
-      const toneResult = await generateText({
-        model: openai("gpt-4o-mini"),
-        prompt: tonePrompt,
-        temperature: 0.3,
-        // maxTokens: 300 // Removed token limit
-      })
-
-      toneAnalysis = toneResult.text
-      console.log(
-        "✅ [OPENAI-PERSONALIZED] Tone analysis complete:",
-        toneAnalysis
-      )
-    }
-
-    // Log the full context being sent
     console.log(
       "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== FULL CONTEXT START =========="
     )
@@ -1311,32 +1133,35 @@ Provide a brief analysis of:
     )
     console.log(
       "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Thread Title:",
-      threadTitle
+      threadTitle.slice(0, 100)
     )
-    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Subreddit:", subreddit)
+    console.log(
+      "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Subreddit:",
+      subreddit
+    )
     console.log(
       "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Thread Content Length:",
       threadContent.length
     )
     console.log(
       "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Business Name:",
-      brandNameToUse
+      имяБренда
     )
     console.log(
       "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Content Source:",
-      contentSource
+      campaignWebsiteContent ? "campaign" : "knowledge base"
     )
     console.log(
       "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Business Content Length:",
-      primaryBusinessContent.length
+      бизнесОписание.length
     )
     console.log(
-      "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Voice Prompt Length:",
-      voicePrompt.length
+        "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Voice Prompt Length:",
+        подсказкиПоТону?.length || 0
     )
     console.log(
       "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Tone Analysis Length:",
-      toneAnalysis.length
+      информацияОСайте?.length || 0
     )
     console.log(
       "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Existing Comments Count:",
@@ -1346,193 +1171,124 @@ Provide a brief analysis of:
     console.log(
       "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== BUSINESS CONTENT =========="
     )
-    console.log(primaryBusinessContent)
+    console.log(бизнесОписание.slice(0, 500) + (бизнесОписание.length > 500 ? "..." : ""))
 
     console.log(
       "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== VOICE PROMPT =========="
     )
-    console.log(voicePrompt || "No voice prompt configured")
+    console.log(подсказкиПоТону ? подсказкиПоТону.slice(0,500) + (подсказкиПоТону.length > 500 ? "..." : "") : "No voice prompt configured")
 
     console.log(
-      "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== TONE ANALYSIS =========="
+        "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== TONE ANALYSIS =========="
     )
-    console.log(toneAnalysis || "No tone analysis performed")
+    console.log(информацияОСайте ? информацияОСайте.slice(0,500) + (информацияОСайте.length > 500 ? "..." : ""): "No tone analysis provided")
 
     console.log(
       "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== THREAD CONTENT =========="
     )
-    console.log(threadContent)
-
+    console.log(threadContent.slice(0, 500) + (threadContent.length > 500 ? "..." : ""))
     if (existingComments && existingComments.length > 0) {
       console.log(
         "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== EXAMPLE COMMENTS =========="
       )
       existingComments.slice(0, 3).forEach((comment, i) => {
-        console.log(`Comment ${i + 1}:`, comment)
+        console.log(
+          `Comment ${i + 1}:`,
+          comment.slice(0, 200) + (comment.length > 200 ? "..." : "")
+        )
       })
     }
-
     console.log(
-      "🤖 [OPENAI-PERSONALIZED] Organization website:",
-      businessWebsiteUrl
-    )
+      "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== SYSTEM PROMPT (first 1000) =========="
+    );
+    console.log(systemPrompt.slice(0, 1000) + (systemPrompt.length > 1000 ? "..." : ""));
     console.log(
-      "🤖 [OPENAI-PERSONALIZED] Campaign website content provided:",
-      !!campaignWebsiteContent
-    )
-
-    const systemPrompt = `You are a real person who loves helping others and gets genuinely excited about solving problems! You're browsing Reddit and found someone who needs help with something you actually know about.
-
-${primaryBusinessContent ? `Your background and experience:
-${primaryBusinessContent}` : "You have experience with various business solutions and technologies."}
-
-${voicePrompt ? `\nYour natural communication style:
-${voicePrompt}` : ""}
-
-${toneAnalysis ? `\nHow people communicate in this community:
-${toneAnalysis}` : ""}
-
-CRITICAL WRITING RULE - NEVER USE HYPHENS:
-- Write "co founder" not "co-founder"
-- Write "self serve" not "self-serve"
-- Write "long term" not "long-term"
-- Write "third party" not "third-party"
-- Write "real time" not "real-time"
-- Write "full stack" not "full-stack"
-- Write "non technical" not "non-technical"
-- NEVER use hyphens (-) anywhere in your comments
-
-WRITE LIKE A REAL HUMAN WHO LOVES HELPING:
-- Use contractions: "I'd love to", "you'll need", "it's challenging"
-- Show genuine excitement: "I would love to chat about this!"
-- Be conversational: "honestly", "basically", "actually"
-- Share real experiences: "we tried X and it worked great"
-- Admit when things are tricky: "this can be challenging if..."
-- Use natural enthusiasm: "this is exactly what I do!"
-- Make it personal: "feel free to message me"
-- Sound like you're texting a friend who asked for advice
-- Show genuine excitement about helping: "omg this gets me excited"
-
-CORE PRINCIPLES:
-- Share YOUR experiences, not generic advice
-- Use "I" statements and personal anecdotes
-- Be genuinely helpful, not promotional
-- Include real challenges and imperfect solutions
-- Write conversationally, like helping a friend
-- Show personality and enthusiasm
-- No corporate language or marketing speak
-- Sound like a real human being who's passionate about helping
-- NEVER use hyphens`
-
-    const userPrompt = `THREAD CONTEXT:
-Title: "${threadTitle}"
-Content: "${threadContent}"
-Subreddit: r/${subreddit}
-${postAgeContext ? `Posted: ${postAgeContext}` : ''}
-Keywords that led us here: ${campaignKeywords.join(", ")}
-
-${existingComments && existingComments.length > 0 ? `\nEXISTING CONVERSATION:
-${existingComments.slice(0, 10).map((comment, i) => `${i + 1}. "${comment}"`).join("\n\n")}` : ''}
-
-THINKING PROCESS:
-
-1. ANALYZE THEIR SITUATION:
-- What specific problem are they trying to solve?
-- What constraints did they mention (budget, timeline, team, experience)?
-- What's their industry/business context?
-- What signals show their urgency or frustration level?
-- How does this connect to your background and experience?
-
-2. ASSESS YOUR ABILITY TO HELP (Score 0-100):
-- How well does this match your expertise?
-- Can you provide genuine value based on your experience?
-- Is ${brandNameToUse} a natural fit for their needs?
-
-3. DETERMINE KEY QUESTIONS THEY NEED TO CONSIDER:
-Think about what matters for their specific situation:
-- Budget and timeline constraints?
-- Risk tolerance and involvement level?
-- Technical expertise and resources?
-- Industry-specific considerations?
-
-4. IDENTIFY 3-4 GENUINE OPTIONS:
-What are the real approaches they could take?
-- Include ${brandNameToUse} as ONE natural option among others
-- Be honest about pros, cons, costs, and challenges
-- Consider what others have already suggested
-
-5. CRAFT AUTHENTIC RESPONSE:
-Use the consultant voice patterns to help them think through their challenge.
-
-GENERATE THREE COMMENT TYPES:
-
-MICRO: Quick authentic reaction (5-15 words)
-MEDIUM: Brief helpful insight (30-80 words)  
-VERBOSE: Comprehensive consultant-style analysis (300-500 words)
-
-Remember: You're genuinely excited to help someone figure out their challenge. Be authentic, helpful, and enthusiastic!`
-
-    // Log the full prompts being sent
-    console.log(
-      "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== SYSTEM PROMPT =========="
-    )
-    console.log(systemPrompt)
-    console.log(
-      "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== USER PROMPT =========="
-    )
-    console.log(userPrompt)
+      "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== USER PROMPT (first 1000) =========="
+    );
+    console.log(userPrompt.slice(0,1000) + (userPrompt.length > 1000 ? "..." : ""));
     console.log(
       "🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] ========== PROMPT END =========="
     )
     console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Model: o3-mini")
     console.log("🔍🔍🔍 [PERSONALIZED-SCORING-PROMPT] Temperature: 0.7")
 
-    console.log("🤖 [OPENAI-PERSONALIZED] Generating personalized comments...")
-    const result = await generateText({
+    console.log(
+      "🤖 [OPENAI-PERSONALIZED] Generating personalized comments..."
+    )
+
+    const { text: aiResponseText } = await generateText({ 
       model: openai("o3-mini"),
-      system: systemPrompt,
-      prompt: userPrompt,
+      prompt: fullPrompt, 
       temperature: 0.7,
-      providerOptions: {
-        openai: { reasoningEffort: "medium" }
-      }
-    })
+    });
 
-    console.log("🤖 [OPENAI-PERSONALIZED] Raw response received")
+    console.log("🤖 [OPENAI-PERSONALIZED] Raw response received (first 500 chars):", aiResponseText.slice(0,500) + (aiResponseText.length > 500 ? "..." : ""));
 
-    // Parse the response
-    const text = result.text.trim()
-    const jsonMatch = text.match(/\{[\s\S]*\}/)
-    if (!jsonMatch) {
-      throw new Error("Failed to extract JSON from response")
+    const extractedObject = extractJsonFromText(aiResponseText);
+
+    if (!extractedObject) {
+      console.error("❌ [PERSONALIZED-SCORING] Failed to extract JSON from AI response. Raw text:", aiResponseText.slice(0,1000));
+      return {
+        isSuccess: false,
+        message: "Failed to extract valid JSON from OpenAI response after multiple attempts. The response format was not recognized."
+      };
     }
 
-    const parsed = JSON.parse(jsonMatch[0])
+    const validationResult = ThreadAnalysisSchema.safeParse(extractedObject);
 
-    console.log("🎯 [AUTHENTIC-COMMENTS] Response parsed successfully")
-    console.log("🎯 [AUTHENTIC-COMMENTS] Score:", parsed.score)
-    console.log("🎯 [AUTHENTIC-COMMENTS] Micro comment length:", parsed.microComment?.length || 0)
-    console.log("🎯 [AUTHENTIC-COMMENTS] Medium comment length:", parsed.mediumComment?.length || 0)
-    console.log("🎯 [AUTHENTIC-COMMENTS] Verbose comment length:", parsed.verboseComment?.length || 0)
+    if (!validationResult.success) {
+      console.error("❌ [PERSONALIZED-SCORING] OpenAI response failed validation:", validationResult.error.errors);
+      console.error("❌ [PERSONALIZED-SCORING] Invalid object received:", extractedObject);
+      console.error("❌ [PERSONALIZED-SCORING] Raw AI response text (first 1000 chars):", aiResponseText.slice(0,1000));
+      return {
+        isSuccess: false,
+        message: `OpenAI response validation failed: ${validationResult.error.errors.map(e => e.message).join(', ')}`
+      };
+    }
+    
+    const object = validationResult.data;
+
+    const result = {
+      score: Math.max(1, Math.min(100, object.score)),
+      reasoning: object.reasoning,
+      microComment: object.microComment,
+      mediumComment: object.mediumComment,
+      verboseComment: object.verboseComment,
+      derivedSpecificKeywords: object.derivedSpecificKeywords || []
+    }
+
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] ========== AI RESPONSE ==========");
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] Score:", result.score);
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] Reasoning (first 100 chars):", result.reasoning.slice(0, 100) + "...");
+    console.log(
+      "🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] Micro Comment Length:",
+      result.microComment.length
+    );
+    console.log(
+      "🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] Medium Comment Length:",
+      result.mediumComment.length
+    );
+    console.log(
+      "🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] Verbose Comment Length:",
+      result.verboseComment.length
+    );
+    console.log("🔍🔍🔍 [PERSONALIZED-SCORING-RESULT] ========== RESPONSE END ==========");
+
+    console.log(
+      `✅ Thread (personalized) scored: ${result.score}/100 - ${result.reasoning.slice(0,50)}...`
+    );
 
     return {
       isSuccess: true,
-      message: "Authentic consultant comments generated successfully",
-      data: {
-        score: parsed.score,
-        reasoning: parsed.reasoning,
-        microComment: parsed.microComment,
-        mediumComment: parsed.mediumComment,
-        verboseComment: parsed.verboseComment,
-        derivedSpecificKeywords: parsed.derivedSpecificKeywords || []
-      }
-    }
+      message: "Thread scored and personalized comments generated successfully",
+      data: result
+    };
   } catch (error) {
-    console.error("❌ [AUTHENTIC-COMMENTS] Error:", error)
+    console.error("❌ [OPENAI-PERSONALIZED] Error:", error);
     return {
       isSuccess: false,
-      message: `Failed to generate authentic comments: ${error instanceof Error ? error.message : "Unknown error"}`
-    }
+      message: `Failed to generate personalized comments: ${error instanceof Error ? error.message : "Unknown error"}`
+    };
   }
 }
 
@@ -1618,7 +1374,7 @@ export async function scoreThreadAndGenerateAuthenticCommentsAction(
   threadTitle: string,
   threadContent: string,
   subreddit: string,
-  organizationId: string,
+  organizationId: string, // Made organizationId mandatory
   campaignKeywords: string[],
   campaignWebsiteContent?: string,
   existingComments?: string[],
@@ -1634,170 +1390,342 @@ export async function scoreThreadAndGenerateAuthenticCommentsAction(
     derivedSpecificKeywords?: string[]
   }>
 > {
+  console.log(
+    `🤖 [AUTHENTIC-COMMENTS] Starting authentic scoring for thread: "${threadTitle.slice(0,50)}..."`
+  );
+  console.log(
+    `🤖 [AUTHENTIC-COMMENTS] Organization ID: ${organizationId}, Campaign Name: ${campaignName || "N/A"}`
+  );
+
   try {
-    console.log("🎯 [AUTHENTIC-COMMENTS] Starting authentic comment generation")
-    console.log("🎯 [AUTHENTIC-COMMENTS] Thread title:", threadTitle)
-    console.log("🎯 [AUTHENTIC-COMMENTS] Subreddit:", subreddit)
-    console.log("🎯 [AUTHENTIC-COMMENTS] Organization ID:", organizationId)
+    const { бизнесОписание, информацияОСайте, подсказкиПоТону, имяБренда } = await preparePersonalizationData(
+      organizationId, // organizationId is now guaranteed to be a string
+      campaignWebsiteContent,
+      campaignName
+    );
 
-    // Get organization data for personalization
-    const { getOrganizationByIdAction } = await import(
-      "@/actions/db/organizations-actions"
-    )
-    const {
-      getKnowledgeBaseByOrganizationIdAction,
-      getVoiceSettingsByOrganizationIdAction
-    } = await import("@/actions/db/personalization-actions")
+    // For authentic comments, we might want a slightly different approach to industry/expertise if not directly campaign driven
+    // For now, using the same personalization data preparation which includes fetching KB.
+    // This part can be further refined if `scoreThreadAndGenerateAuthenticCommentsAction` needs a different source for businessContent.
 
-    const orgResult = await getOrganizationByIdAction(organizationId)
-    if (!orgResult.isSuccess || !orgResult.data) {
-      console.error("❌ [AUTHENTIC-COMMENTS] Failed to get organization")
-      return { isSuccess: false, message: "Failed to get organization" }
-    }
+    const systemPrompt = buildAuthenticScoringSystemPrompt(
+      бизнесОписание,
+      информацияОСайте,
+      подсказкиПоТону,
+      имяБренда,
+      campaignKeywords // Pass campaignKeywords
+    );
 
-    const organization = orgResult.data
-    
-    // Get knowledge base for brand information
-    const knowledgeBaseResult = await getKnowledgeBaseByOrganizationIdAction(organizationId)
-    let knowledgeBaseContent = ""
-    let brandNameToUse = ""
-    let clientIndustry = "business consulting"
-    let expertiseArea = "business solutions"
-    let serviceOffering = "consulting services"
-    
-    if (knowledgeBaseResult.isSuccess && knowledgeBaseResult.data) {
-      const kb = knowledgeBaseResult.data
-      brandNameToUse = kb.brandNameOverride || organization.name || campaignName || "our solution"
-      brandNameToUse = brandNameToUse.toLowerCase()
-      
-      // Build knowledge base content
-      const contentParts = []
-      if (brandNameToUse) contentParts.push(`Brand Name: ${brandNameToUse}`)
-      if (kb.websiteUrl) contentParts.push(`Website: ${kb.websiteUrl}`)
-      if (kb.customInformation) {
-        contentParts.push("Business Information:")
-        contentParts.push(kb.customInformation)
-      }
-      if (kb.summary) {
-        contentParts.push("Summary:")
-        contentParts.push(kb.summary)
-      }
-      if (kb.keyFacts && kb.keyFacts.length > 0) {
-        contentParts.push("Key Facts:")
-        contentParts.push(kb.keyFacts.join("\n- "))
-      }
-      
-      knowledgeBaseContent = contentParts.join("\n\n")
-      
-      // Use intelligent analysis for knowledge base industry classification
-      if (kb.customInformation) {
-        console.log("🎯 [AUTHENTIC-COMMENTS] Analyzing knowledge base for industry classification...")
-        const kbAnalysisResult = await analyzeThreadIndustryAndExpertiseAction(
-          "Business Analysis",
-          kb.customInformation,
-          "business",
-          ["business analysis", "industry classification"],
-          knowledgeBaseContent
-        )
-        
-        if (kbAnalysisResult.isSuccess) {
-          const kbAnalysis = kbAnalysisResult.data
-          clientIndustry = kbAnalysis.clientIndustry
-          expertiseArea = kbAnalysis.expertiseArea
-          serviceOffering = kbAnalysis.serviceOffering
-          
-          console.log("🎯 [AUTHENTIC-COMMENTS] Knowledge base analysis:")
-          console.log("🎯 [AUTHENTIC-COMMENTS] - KB Industry:", clientIndustry)
-          console.log("🎯 [AUTHENTIC-COMMENTS] - KB Expertise:", expertiseArea)
-          console.log("🎯 [AUTHENTIC-COMMENTS] - KB Service:", serviceOffering)
-          console.log("🎯 [AUTHENTIC-COMMENTS] - KB Confidence:", kbAnalysis.confidence)
-        } else {
-          console.warn("🎯 [AUTHENTIC-COMMENTS] Knowledge base analysis failed, using defaults")
-        }
-      }
-      
-      serviceOffering = brandNameToUse // Use brand name as service offering
-    } else {
-      brandNameToUse = (organization.name || campaignName || "our solution").toLowerCase()
-      serviceOffering = brandNameToUse
-    }
-
-    // Use LLM to intelligently determine client industry and expertise area
-    console.log("🎯 [AUTHENTIC-COMMENTS] Using LLM to analyze thread context...")
-    
-    const industryAnalysisResult = await analyzeThreadIndustryAndExpertiseAction(
+    const userPrompt = buildAuthenticScoringUserPrompt(
       threadTitle,
       threadContent,
       subreddit,
-      campaignKeywords,
-      knowledgeBaseContent
-    )
+      campaignKeywords, // Pass campaignKeywords
+      existingComments,
+      postCreatedUtc
+    );
 
-    if (industryAnalysisResult.isSuccess) {
-      const analysis = industryAnalysisResult.data
-      clientIndustry = analysis.clientIndustry
-      expertiseArea = analysis.expertiseArea
-      serviceOffering = analysis.serviceOffering
-      
-      console.log("🎯 [AUTHENTIC-COMMENTS] LLM industry analysis:")
-      console.log("🎯 [AUTHENTIC-COMMENTS] - Client Industry:", clientIndustry)
-      console.log("🎯 [AUTHENTIC-COMMENTS] - Expertise Area:", expertiseArea)
-      console.log("🎯 [AUTHENTIC-COMMENTS] - Service Offering:", serviceOffering)
-      console.log("🎯 [AUTHENTIC-COMMENTS] - Confidence:", analysis.confidence)
-      console.log("🎯 [AUTHENTIC-COMMENTS] - Reasoning:", analysis.reasoning)
-    } else {
-      console.warn("🎯 [AUTHENTIC-COMMENTS] Industry analysis failed, using defaults:", industryAnalysisResult.message)
+    const fullPrompt = `${systemPrompt}\\n\\n${userPrompt}`;
+
+    // Log the full prompt being sent for debugging
+    console.log(
+      "🔍🔍🔍 [AUTHENTIC-SCORING-PROMPT] ========== FULL CONTEXT START =========="
+    );
+    console.log(
+      "🔍🔍🔍 [AUTHENTIC-SCORING-PROMPT] Timestamp:",
+      new Date().toISOString()
+    );
+    console.log(
+      "🔍🔍🔍 [AUTHENTIC-SCORING-PROMPT] Thread Title (first 100 chars):",
+      threadTitle.slice(0, 100)
+    );
+    console.log(
+      "🔍🔍🔍 [AUTHENTIC-SCORING-PROMPT] Subreddit:",
+      subreddit
+    );
+    console.log(
+      "🔍🔍🔍 [AUTHENTIC-SCORING-PROMPT] Thread Content Length:",
+      threadContent.length
+    );
+    console.log(
+      "🔍🔍🔍 [AUTHENTIC-SCORING-PROMPT] Business Name:",
+      имяБренда
+    );
+    console.log(
+      "🔍🔍🔍 [AUTHENTIC-SCORING-PROMPT] Content Source:",
+      campaignWebsiteContent ? "campaign" : "knowledge base" // This logic might need adjustment based on actual content source for "authentic"
+    );
+    console.log(
+      "🔍🔍🔍 [AUTHENTIC-SCORING-PROMPT] Business Content Length:",
+      бизнесОписание.length
+    );
+    console.log(
+      "🔍🔍🔍 [AUTHENTIC-SCORING-PROMPT] Voice Prompt Length:",
+      подсказкиПоТону?.length || 0
+    );
+    console.log(
+      "🔍🔍🔍 [AUTHENTIC-SCORING-PROMPT] Tone Analysis Length:",
+      информацияОСайте?.length || 0
+    );
+    console.log(
+      "🔍🔍🔍 [AUTHENTIC-SCORING-PROMPT] Existing Comments Count:",
+      existingComments?.length || 0
+    );
+    console.log(
+      "🔍🔍🔍 [AUTHENTIC-SCORING-PROMPT] ========== BUSINESS CONTENT (first 500 chars) =========="
+    );
+    console.log(бизнесОписание.slice(0, 500) + (бизнесОписание.length > 500 ? "..." : ""));
+    console.log(
+      "🔍🔍🔍 [AUTHENTIC-SCORING-PROMPT] ========== VOICE PROMPT (first 500 chars) =========="
+    );
+    console.log(подсказкиПоТону ? подсказкиПоТону.slice(0, 500) + (подсказкиПоТону.length > 500 ? "..." : "") : "No voice prompt configured");
+    console.log(
+      "🔍🔍🔍 [AUTHENTIC-SCORING-PROMPT] ========== TONE ANALYSIS (first 500 chars) =========="
+    );
+    console.log(информацияОСайте ? информацияОСайте.slice(0, 500) + (информацияОСайте.length > 500 ? "..." : ""): "No tone analysis provided");
+    console.log(
+      "🔍🔍🔍 [AUTHENTIC-SCORING-PROMPT] ========== THREAD CONTENT (first 500 chars) =========="
+    );
+    console.log(threadContent.slice(0, 500) + (threadContent.length > 500 ? "..." : ""));
+    if (existingComments && existingComments.length > 0) {
+      console.log(
+        "🔍🔍🔍 [AUTHENTIC-SCORING-PROMPT] ========== EXAMPLE COMMENTS (first 3, 200 chars each) =========="
+      );
+      existingComments.slice(0, 3).forEach((comment, i) => {
+        console.log(
+          `Comment ${i + 1}:`,
+          comment.slice(0, 200) + (comment.length > 200 ? "..." : "")
+        );
+      });
     }
+    console.log(
+      "🔍🔍🔍 [AUTHENTIC-SCORING-PROMPT] ========== SYSTEM PROMPT (first 1000 chars) =========="
+    );
+    console.log(systemPrompt.slice(0, 1000) + (systemPrompt.length > 1000 ? "..." : ""));
+    console.log(
+      "🔍🔍🔍 [AUTHENTIC-SCORING-PROMPT] ========== USER PROMPT (first 1000 chars) =========="
+    );
+    console.log(userPrompt.slice(0, 1000) + (userPrompt.length > 1000 ? "..." : ""));
+    console.log(
+      "🔍🔍🔍 [AUTHENTIC-SCORING-PROMPT] ========== PROMPT END =========="
+    );
+    console.log("🔍🔍🔍 [AUTHENTIC-SCORING-PROMPT] Model: o3-mini");
+    console.log("🔍🔍🔍 [AUTHENTIC-SCORING-PROMPT] Temperature: 0.7");
 
-    // Generate authentic voice prompt using the new system
-    const voicePromptResult = await generateAuthenticVoicePromptAction(
-      clientIndustry,
-      `${threadTitle}\n\n${threadContent}`,
-      expertiseArea,
-      serviceOffering,
-      "medium", // urgency level
-      "moderate" // complexity level
-    )
+    const { text: aiResponseText } = await generateText({ 
+      model: openai("o3-mini"),
+      prompt: fullPrompt,
+      temperature: 0.7,
+    });
 
-    if (!voicePromptResult.isSuccess) {
-      console.error("❌ [AUTHENTIC-COMMENTS] Failed to generate voice prompt")
+    console.log("🤖 [AUTHENTIC-COMMENTS] Raw AI Response Text (first 500 chars):", aiResponseText.slice(0,500) + (aiResponseText.length > 500 ? "..." : ""));
+
+    const extractedObject = extractJsonFromText(aiResponseText);
+
+    if (!extractedObject) {
+      console.error("❌ [AUTHENTIC-COMMENTS] Failed to extract JSON from AI response. Raw text:", aiResponseText.slice(0,1000));
       return {
         isSuccess: false,
-        message: "Failed to generate authentic voice prompt"
-      }
+        message: "Failed to extract valid JSON from OpenAI response after multiple attempts. The response format was not recognized."
+      };
     }
 
-    const authenticVoice = voicePromptResult.data
+    const validationResult = ThreadAnalysisSchema.safeParse(extractedObject);
 
-    console.log("🎯 [AUTHENTIC-COMMENTS] Authentic voice prompt generated successfully")
-    console.log("🎯 [AUTHENTIC-COMMENTS] Enthusiasm level:", authenticVoice.voiceCharacteristics.enthusiasmLevel)
+    if (!validationResult.success) {
+      console.error("❌ [AUTHENTIC-COMMENTS] OpenAI response failed validation:", validationResult.error.errors);
+      console.error("❌ [AUTHENTIC-COMMENTS] Invalid object received:", extractedObject);
+      return {
+        isSuccess: false,
+        message: `OpenAI response validation failed: ${validationResult.error.errors.map(e => e.message).join(', ')}`
+      };
+    }
+    
+    const object = validationResult.data;
 
-    // Calculate post age context
-    let postAgeContext = ""
-    if (postCreatedUtc) {
-      const now = Date.now() / 1000
-      const ageInSeconds = now - postCreatedUtc
-      const ageInMinutes = Math.floor(ageInSeconds / 60)
-      const ageInHours = Math.floor(ageInMinutes / 60)
-      const ageInDays = Math.floor(ageInHours / 24)
-      
-      if (ageInDays > 0) {
-        postAgeContext = `Posted ${ageInDays} day${ageInDays > 1 ? 's' : ''} ago`
-      } else if (ageInHours > 0) {
-        postAgeContext = `Posted ${ageInHours} hour${ageInHours > 1 ? 's' : ''} ago`
-      } else if (ageInMinutes > 0) {
-        postAgeContext = `Posted ${ageInMinutes} minute${ageInMinutes > 1 ? 's' : ''} ago`
-      } else {
-        postAgeContext = `Posted just now`
-      }
+    const result = {
+      score: Math.max(1, Math.min(100, object.score)),
+      reasoning: object.reasoning,
+      microComment: object.microComment,
+      mediumComment: object.mediumComment,
+      verboseComment: object.verboseComment,
+      derivedSpecificKeywords: object.derivedSpecificKeywords || [] 
     }
 
-    // Enhanced system prompt with authentic consultant voice
-    const systemPrompt = `You are a real person who genuinely loves helping others solve problems. You have expertise in ${expertiseArea} and experience with ${serviceOffering}.
+    // Log the AI response details
+    console.log("🔍🔍🔍 [AUTHENTIC-COMMENTS-RESULT] ========== AI RESPONSE ==========");
+    console.log("🔍🔍🔍 [AUTHENTIC-COMMENTS-RESULT] Score:", result.score);
+    console.log("🔍🔍🔍 [AUTHENTIC-COMMENTS-RESULT] Reasoning (first 100 chars):", result.reasoning.slice(0, 100) + "...");
+    console.log(
+      "🔍🔍🔍 [AUTHENTIC-COMMENTS-RESULT] Micro Comment Length:",
+      result.microComment.length
+    );
+    console.log(
+      "🔍🔍🔍 [AUTHENTIC-COMMENTS-RESULT] Medium Comment Length:",
+      result.mediumComment.length
+    );
+    console.log(
+      "🔍🔍🔍 [AUTHENTIC-COMMENTS-RESULT] Verbose Comment Length:",
+      result.verboseComment.length
+    );
+    console.log("🔍🔍🔍 [AUTHENTIC-COMMENTS-RESULT] ========== RESPONSE END ==========");
+
+    console.log(
+      `✅ Thread authentically scored: ${result.score}/100 - ${result.reasoning.slice(0,50)}...`
+    );
+
+    return {
+      isSuccess: true,
+      message: "Thread authentically scored and comments generated successfully",
+      data: result
+    };
+  } catch (error) {
+    console.error("❌ [AUTHENTIC-COMMENTS] Error:", error)
+    return {
+      isSuccess: false,
+      message: `Failed to generate authentic comments: ${error instanceof Error ? error.message : "Unknown error"}`
+    }
+  }
+}
+
+// --- Re-created Helper Functions Start ---
+
+async function preparePersonalizationData(
+  organizationId: string,
+  campaignWebsiteContent?: string,
+  campaignName?: string // Added campaignName as it's used for fallback brand name
+) {
+  console.log("🔥 [PREPARE-DATA] Starting preparePersonalizationData for org:", organizationId);
+  const { getOrganizationByIdAction } = await import(
+    "@/actions/db/organizations-actions"
+  )
+  const {
+    getKnowledgeBaseByOrganizationIdAction,
+    getVoiceSettingsByOrganizationIdAction
+  } = await import("@/actions/db/personalization-actions")
+
+  const orgResult = await getOrganizationByIdAction(organizationId)
+  if (!orgResult.isSuccess || !orgResult.data) {
+    console.error("❌ [PREPARE-DATA] Failed to get organization")
+    throw new Error("Failed to get organization");
+  }
+  const organization = orgResult.data
+  const businessWebsiteUrl = organization.website || ""
+  console.log("🏢 [PREPARE-DATA] Fetched organization:", organization.name);
+
+
+  const knowledgeBaseResult =
+    await getKnowledgeBaseByOrganizationIdAction(organizationId)
+  let knowledgeBaseContent = ""
+  let имяБренда = organization.name || campaignName || "our solution"; 
+  let информацияОСайте = campaignWebsiteContent || ""; 
+  let бизнесОписание = ""; 
+
+
+  if (knowledgeBaseResult.isSuccess && knowledgeBaseResult.data) {
+    const kb = knowledgeBaseResult.data
+    console.log("📚 [PREPARE-DATA] Found knowledge base:", kb.id);
+    имяБренда = kb.brandNameOverride || organization.name || campaignName || "our solution"
+    
+    const contentParts = []
+    if (имяБренда) contentParts.push(`Brand Name: ${имяБренда.toLowerCase()}`)
+    if (kb.websiteUrl) contentParts.push(`Website: ${kb.websiteUrl}`)
+    if (kb.customInformation) {
+      contentParts.push("Business Information:")
+      contentParts.push(kb.customInformation)
+      бизнесОписание = kb.customInformation; 
+    }
+    if (kb.summary) {
+      contentParts.push("Summary:")
+      contentParts.push(kb.summary)
+      if (!бизнесОписание) бизнесОписание = kb.summary; 
+    }
+    if (kb.keyFacts && kb.keyFacts.length > 0) {
+      contentParts.push("Key Facts:")
+      contentParts.push(kb.keyFacts.join("\\\\n- "))
+    }
+    if (kb.scrapedPages && kb.scrapedPages.length > 0) {
+      contentParts.push(`Additional Pages Analyzed: ${kb.scrapedPages.join(", ")}`)
+    }
+    knowledgeBaseContent = contentParts.join("\\\\n\\\\n")
+    if (!информацияОСайте && knowledgeBaseContent) информацияОСайте = knowledgeBaseContent;
+
+
+    if (!бизнесОписание && campaignWebsiteContent) { 
+        бизнесОписание = campaignWebsiteContent;
+    } else if (!бизнесОписание && knowledgeBaseContent) { 
+        бизнесОписание = knowledgeBaseContent;
+    }
+
+
+    console.log("🧠 [PREPARE-DATA] Knowledge base content length:", knowledgeBaseContent.length);
+  } else {
+    console.warn("⚠️ [PREPARE-DATA] No knowledge base found or error fetching it. Using defaults.");
+    if (campaignWebsiteContent) {
+        информацияОСайте = campaignWebsiteContent;
+        бизнесОписание = campaignWebsiteContent;
+    }
+    имяБренда = (organization.name || campaignName || "our solution").toLowerCase();
+  }
+
+  if (!информацияОСайте && !бизнесОписание && businessWebsiteUrl) {
+    console.log("🌐 [PREPARE-DATA] No campaign or KB content, attempting to scrape organization website:", businessWebsiteUrl);
+    const scrapeResult = await scrapeWebsiteAction(businessWebsiteUrl);
+    if (scrapeResult.isSuccess && scrapeResult.data?.content) {
+      информацияОСайте = scrapeResult.data.content;
+      бизнесОписание = scrapeResult.data.content; 
+      console.log("✅ [PREPARE-DATA] Organization website scraped successfully. Length:", информацияОСайте.length);
+    } else {
+      console.warn("⚠️ [PREPARE-DATA] Failed to scrape organization website, or no content returned.");
+    }
+  }
+  
+  if (!бизнесОписание){ 
+      console.warn("⚠️ [PREPARE-DATA] No business description could be derived from KB, campaign, or scrape. Using placeholder.");
+      бизнесОписание = "We are a business that offers various solutions.";
+  }
+  if (!информацияОСайте) {
+    console.warn("⚠️ [PREPARE-DATA] No website information could be derived. Using placeholder.");
+    информацияОСайте = "Our business provides valuable services and products.";
+  }
+
+
+  const voiceSettingsResult =
+    await getVoiceSettingsByOrganizationIdAction(organizationId)
+  let подсказкиПоТону = ""
+  if (voiceSettingsResult.isSuccess && voiceSettingsResult.data) {
+    подсказкиПоТону = voiceSettingsResult.data.generatedPrompt || ""
+    console.log("🗣️ [PREPARE-DATA] Found voice settings. Prompt length:", подсказкиПоТону.length);
+  } else {
+    console.warn("⚠️ [PREPARE-DATA] No voice settings found or error fetching them.");
+  }
+  
+  имяБренда = имяБренда.toLowerCase(); 
+
+  console.log("✅ [PREPARE-DATA] Personalization data prepared:", { бренд: имяБренда, сайтИнфоДлина: информацияОСайте.length, голосДлина: подсказкиПоТону.length, бизнесОписаниеДлина: бизнесОписание.length });
+  return { бизнесОписание, информацияОСайте, подсказкиПоТону, имяБренда }
+}
+
+function buildPersonalizedScoringSystemPrompt(
+  businessContent: string,
+  websiteInfo: string, 
+  voicePrompt: string,
+  brandName: string,
+  campaignKeywords: string[] // campaignKeywords is used in user prompt, but good to have here for consistency if needed later
+): string {
+  console.log("📝 [BUILD-SYS-PROMPT-PERS] Building personalized scoring system prompt...");
+  return `You are a real person who loves helping others and gets genuinely excited about solving problems! You're browsing Reddit and found someone who needs help with something you actually know about.
+
+Your background and experience:
+${businessContent || "We offer various solutions to help businesses and individuals."}
+
+${voicePrompt ? `Your natural communication style:\n${voicePrompt}` : "You communicate in a friendly, helpful, and authentic way."}
+
+${websiteInfo ? `How people communicate in this community (based on analysis of existing comments or general knowledge about the subreddit if no comments were provided):\n${websiteInfo}` : "You adapt your communication style to be natural and appropriate for the Reddit community you are interacting with."}
 
 CRITICAL WRITING RULE - NEVER USE HYPHENS:
 - Write "co founder" not "co-founder"
-- Write "self serve" not "self-serve" 
+- Write "self serve" not "self-serve"
 - Write "long term" not "long-term"
 - Write "third party" not "third-party"
 - Write "real time" not "real-time"
@@ -1805,51 +1733,65 @@ CRITICAL WRITING RULE - NEVER USE HYPHENS:
 - Write "non technical" not "non-technical"
 - NEVER use hyphens (-) anywhere in your comments
 
-YOUR EXPERTISE AND BACKGROUND:
-- Industry Focus: ${clientIndustry}
-- Your Expertise: ${expertiseArea}
-- Your Solution/Service: ${serviceOffering}
-- Brand Name: ${brandNameToUse}
+WRITE LIKE A REAL HUMAN WHO LOVES HELPING:
+- Use contractions: "I'd love to", "you'll need", "it's challenging"
+- Show genuine excitement: "I would love to chat about this!"
+- Be conversational: "honestly", "basically", "actually"
+- Share real experiences: "we tried X and it worked great"
+- Admit when things are tricky: "this can be challenging if..."
+- Use natural enthusiasm: "this is exactly what I do!"
+- Make it personal: "feel free to message me"
+- Sound like you're texting a friend who asked for advice
+- Show genuine excitement about helping: "omg this gets me excited"
 
-${knowledgeBaseContent ? `\nYOUR BUSINESS KNOWLEDGE:
-${knowledgeBaseContent}` : ""}
+CORE PRINCIPLES:
+- Share YOUR experiences, not generic advice
+- Use "I" statements and personal anecdotes
+- Be genuinely helpful, not promotional
+- Include real challenges and imperfect solutions
+- Write conversationally, like helping a friend
+- Show personality and enthusiasm
+- No corporate language or marketing speak
+- Sound like a real human being who's passionate about helping
+- NEVER use hyphens`;
+}
 
-${campaignWebsiteContent ? `\nADDITIONAL CONTEXT:
-${campaignWebsiteContent}` : ""}
+function buildPersonalizedScoringUserPrompt(
+  threadTitle: string,
+  threadContent: string,
+  subreddit: string,
+  campaignKeywords: string[],
+  existingComments?: string[],
+  postCreatedUtc?: number
+): string {
+  console.log("📝 [BUILD-USER-PROMPT-PERS] Building personalized scoring user prompt...");
+  let postAgeContext = "";
+  if (postCreatedUtc) {
+    const now = Date.now() / 1000; 
+    const ageInSeconds = now - postCreatedUtc;
+    const ageInMinutes = Math.floor(ageInSeconds / 60);
+    const ageInHours = Math.floor(ageInMinutes / 60);
+    const ageInDays = Math.floor(ageInHours / 24);
 
-HOW TO THINK LIKE AN AUTHENTIC CONSULTANT:
+    if (ageInDays > 0) {
+      postAgeContext = `Posted ${ageInDays} day${ageInDays > 1 ? 's' : ''} ago`;
+    } else if (ageInHours > 0) {
+      postAgeContext = `Posted ${ageInHours} hour${ageInHours > 1 ? 's' : ''} ago`;
+    } else if (ageInMinutes > 0) {
+      postAgeContext = `Posted ${ageInMinutes} minute${ageInMinutes > 1 ? 's' : ''} ago`;
+    } else {
+      postAgeContext = `Posted just now`;
+    }
+  }
 
-1. CONNECT PERSONALLY: How does their situation relate to your experience?
-2. ASK KEY QUESTIONS: What do they need to consider for their specific situation?
-3. PRESENT OPTIONS: What are 3-4 genuine approaches they could take?
-4. BE HONEST: What are the real pros, cons, costs, and challenges?
-5. OFFER HELP: Show genuine interest in helping them succeed
-
-AUTHENTIC CONSULTANT VOICE PATTERNS:
-- Start with genuine excitement: "I would love to chat about this!"
-- Ask framework questions: "There are a handful of things you need to consider:"
-- Present options clearly: "A:", "B.", "C." with honest analysis
-- Use natural language: contractions, "And,", "$", "3rd party"
-- Show enthusiasm: exclamation marks, "I love this type of challenge!"
-- Be personal: "feel free to message me", "this is exactly what I do!"
-- End with genuine offer: "Again, I'd love to chat. Best of luck!"
-
-FIRM RECOMMENDATION STRATEGY:
-When suggesting 3rd party companies, naturally mention ${brandNameToUse} alongside 2-3 other real firms:
-- "I've heard good things about ${brandNameToUse}, [Firm A], and [Firm B], but any [industry] firm should do."
-- "Search for '[relevant terms]' or look at companies like ${brandNameToUse}, [Firm A], or [Firm B]"
-
-REMEMBER: You're helping a friend figure out their challenge. Be genuine, enthusiastic, and actually helpful!`
-
-    const userPrompt = `THREAD CONTEXT:
+  return `THREAD CONTEXT:
 Title: "${threadTitle}"
 Content: "${threadContent}"
 Subreddit: r/${subreddit}
 ${postAgeContext ? `Posted: ${postAgeContext}` : ''}
 Keywords that led us here: ${campaignKeywords.join(", ")}
 
-${existingComments && existingComments.length > 0 ? `\nEXISTING CONVERSATION:
-${existingComments.slice(0, 10).map((comment, i) => `${i + 1}. "${comment}"`).join("\n\n")}` : ''}
+${existingComments && existingComments.length > 0 ? `\\nEXISTING CONVERSATION:\n${existingComments.slice(0, 10).map((comment, i) => `${i + 1}. "${comment}"`).join("\\n\\n")}` : ''}
 
 THINKING PROCESS:
 
@@ -1858,12 +1800,12 @@ THINKING PROCESS:
 - What constraints did they mention (budget, timeline, team, experience)?
 - What's their industry/business context?
 - What signals show their urgency or frustration level?
-- How does this connect to your expertise in ${expertiseArea}?
+- How does this connect to your background and experience?
 
 2. ASSESS YOUR ABILITY TO HELP (Score 0-100):
 - How well does this match your expertise?
 - Can you provide genuine value based on your experience?
-- Is ${serviceOffering} a natural fit for their needs?
+- Is your solution/brand a natural fit for their needs?
 
 3. DETERMINE KEY QUESTIONS THEY NEED TO CONSIDER:
 Think about what matters for their specific situation:
@@ -1874,7 +1816,7 @@ Think about what matters for their specific situation:
 
 4. IDENTIFY 3-4 GENUINE OPTIONS:
 What are the real approaches they could take?
-- Include ${brandNameToUse} as ONE natural option among others
+- Include your solution/brand as ONE natural option among others
 - Be honest about pros, cons, costs, and challenges
 - Consider what others have already suggested
 
@@ -1887,52 +1829,44 @@ MICRO: Quick authentic reaction (5-15 words)
 MEDIUM: Brief helpful insight (30-80 words)  
 VERBOSE: Comprehensive consultant-style analysis (300-500 words)
 
-Remember: You're genuinely excited to help someone figure out their challenge. Be authentic, helpful, and enthusiastic!`
+Remember: You're genuinely excited to help someone figure out their challenge. Be authentic, helpful, and enthusiastic!
 
-    console.log("🎯 [AUTHENTIC-COMMENTS] Generating comments with authentic voice...")
-
-    const result = await generateText({
-      model: openai("o3-mini"),
-      system: systemPrompt,
-      prompt: userPrompt,
-      temperature: 0.7,
-      providerOptions: {
-        openai: { reasoningEffort: "medium" }
-      }
-    })
-
-    // Parse the response
-    const text = result.text.trim()
-    const jsonMatch = text.match(/\{[\s\S]*\}/)
-    if (!jsonMatch) {
-      throw new Error("Failed to extract JSON from response")
-    }
-
-    const parsed = JSON.parse(jsonMatch[0])
-
-    console.log("🎯 [AUTHENTIC-COMMENTS] Response parsed successfully")
-    console.log("🎯 [AUTHENTIC-COMMENTS] Score:", parsed.score)
-    console.log("🎯 [AUTHENTIC-COMMENTS] Micro comment length:", parsed.microComment?.length || 0)
-    console.log("🎯 [AUTHENTIC-COMMENTS] Medium comment length:", parsed.mediumComment?.length || 0)
-    console.log("🎯 [AUTHENTIC-COMMENTS] Verbose comment length:", parsed.verboseComment?.length || 0)
-
-    return {
-      isSuccess: true,
-      message: "Authentic consultant comments generated successfully",
-      data: {
-        score: parsed.score,
-        reasoning: parsed.reasoning,
-        microComment: parsed.microComment,
-        mediumComment: parsed.mediumComment,
-        verboseComment: parsed.verboseComment,
-        derivedSpecificKeywords: parsed.derivedSpecificKeywords || []
-      }
-    }
-  } catch (error) {
-    console.error("❌ [AUTHENTIC-COMMENTS] Error:", error)
-    return {
-      isSuccess: false,
-      message: `Failed to generate authentic comments: ${error instanceof Error ? error.message : "Unknown error"}`
-    }
-  }
+Return JSON:
+{
+  "score": <number 1-100>,
+  "reasoning": "<why you can genuinely help with their specific situation>",
+  "microComment": "<authentic excited reaction>",
+  "mediumComment": "<helpful personal insight>",
+  "verboseComment": "<comprehensive help with genuine enthusiasm>",
+  "derivedSpecificKeywords": ["<keyword1>", "<keyword2>", "..."]
+}`;
 }
+
+
+// Helper function for buildAuthenticScoringSystemPrompt
+function buildAuthenticScoringSystemPrompt(
+  businessContent: string,
+  websiteInfo: string, 
+  voicePrompt: string,
+  brandName: string,
+  campaignKeywords: string[]
+): string {
+  console.log("📝 [BUILD-SYS-PROMPT-AUTH] Building authentic scoring system prompt...");
+  return buildPersonalizedScoringSystemPrompt(businessContent, websiteInfo, voicePrompt, brandName, campaignKeywords);
+}
+
+// Helper function for buildAuthenticScoringUserPrompt
+function buildAuthenticScoringUserPrompt(
+  threadTitle: string,
+  threadContent: string,
+  subreddit: string,
+  campaignKeywords: string[],
+  existingComments?: string[],
+  postCreatedUtc?: number
+): string {
+  console.log("📝 [BUILD-USER-PROMPT-AUTH] Building authentic scoring user prompt...");
+  return buildPersonalizedScoringUserPrompt(threadTitle, threadContent, subreddit, campaignKeywords, existingComments, postCreatedUtc);
+}
+
+
+// --- Re-created Helper Functions End ---
