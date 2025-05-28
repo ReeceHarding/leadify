@@ -18,6 +18,7 @@ import {
 
 import { scrapeWebsiteAction } from "@/actions/integrations/firecrawl/website-scraping-actions"
 import { generateAuthenticVoicePromptAction } from "@/actions/integrations/openai/authentic-voice-generation-actions"
+import { analyzeThreadIndustryAndExpertiseAction } from "@/actions/integrations/openai/industry-analysis-actions"
 import OpenAI from "openai"
 
 // Schema for thread scoring and comment generation
@@ -1721,30 +1722,32 @@ export async function scoreThreadAndGenerateAuthenticCommentsAction(
       serviceOffering = brandNameToUse
     }
 
-    // Determine client industry from thread content and subreddit
-    const threadText = `${threadTitle} ${threadContent}`.toLowerCase()
-    const subredditLower = subreddit.toLowerCase()
+    // Use LLM to intelligently determine client industry and expertise area
+    console.log("🎯 [AUTHENTIC-COMMENTS] Using LLM to analyze thread context...")
     
-    if (subredditLower.includes("entrepreneur") || subredditLower.includes("startup") || subredditLower.includes("business")) {
-      clientIndustry = "entrepreneurship"
-      expertiseArea = "business development"
-    } else if (subredditLower.includes("tech") || subredditLower.includes("programming") || subredditLower.includes("dev")) {
-      clientIndustry = "technology"
-      expertiseArea = "software development"
-    } else if (subredditLower.includes("marketing") || subredditLower.includes("digital")) {
-      clientIndustry = "marketing"
-      expertiseArea = "digital marketing"
-    } else if (threadText.includes("software") || threadText.includes("app") || threadText.includes("development")) {
-      clientIndustry = "technology"
-      expertiseArea = "software development"
-    } else if (threadText.includes("marketing") || threadText.includes("brand") || threadText.includes("customer")) {
-      clientIndustry = "marketing"
-      expertiseArea = "marketing strategy"
-    }
+    const industryAnalysisResult = await analyzeThreadIndustryAndExpertiseAction(
+      threadTitle,
+      threadContent,
+      subreddit,
+      campaignKeywords,
+      knowledgeBaseContent
+    )
 
-    console.log("🎯 [AUTHENTIC-COMMENTS] Determined client industry:", clientIndustry)
-    console.log("🎯 [AUTHENTIC-COMMENTS] Determined expertise area:", expertiseArea)
-    console.log("🎯 [AUTHENTIC-COMMENTS] Service offering:", serviceOffering)
+    if (industryAnalysisResult.isSuccess) {
+      const analysis = industryAnalysisResult.data
+      clientIndustry = analysis.clientIndustry
+      expertiseArea = analysis.expertiseArea
+      serviceOffering = analysis.serviceOffering
+      
+      console.log("🎯 [AUTHENTIC-COMMENTS] LLM industry analysis:")
+      console.log("🎯 [AUTHENTIC-COMMENTS] - Client Industry:", clientIndustry)
+      console.log("🎯 [AUTHENTIC-COMMENTS] - Expertise Area:", expertiseArea)
+      console.log("🎯 [AUTHENTIC-COMMENTS] - Service Offering:", serviceOffering)
+      console.log("🎯 [AUTHENTIC-COMMENTS] - Confidence:", analysis.confidence)
+      console.log("🎯 [AUTHENTIC-COMMENTS] - Reasoning:", analysis.reasoning)
+    } else {
+      console.warn("🎯 [AUTHENTIC-COMMENTS] Industry analysis failed, using defaults:", industryAnalysisResult.message)
+    }
 
     // Generate authentic voice prompt using the new system
     const voicePromptResult = await generateAuthenticVoicePromptAction(
