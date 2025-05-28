@@ -100,8 +100,7 @@ export async function exportCampaignToFirebaseAction(
           relevanceScore: comment.relevanceScore,
           generatedComment: comment.generatedComment,
           reasoning: comment.reasoning,
-          approved: comment.approved || false,
-          used: comment.used || false,
+          status: comment.status || "new",
           exportedAt: new Date()
         })
       }
