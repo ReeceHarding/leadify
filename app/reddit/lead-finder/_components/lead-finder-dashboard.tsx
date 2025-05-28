@@ -157,6 +157,9 @@ import {
   LEAD_GENERATION_STAGES
 } from "@/types"
 import LeadGenerationProgressBar from "./dashboard/lead-generation-progress-bar"
+import { 
+  checkThreadInteractionAction
+} from "@/actions/db/reddit-threads-actions"
 
 const ITEMS_PER_PAGE = 20
 const POLLING_INTERVAL = 5000 // 5 seconds
@@ -561,6 +564,7 @@ export default function LeadFinderDashboard() {
               id: docSnap.id,
               campaignId: comment.campaignId || "",
               organizationId: validateOrganizationId(currentOrganization?.id, "Lead creation"),
+              threadId: comment.threadId || "",
               postUrl: comment.postUrl || "",
               postTitle: comment.postTitle || "Untitled Post",
               postAuthor: comment.postAuthor || "Unknown Author",
@@ -777,6 +781,49 @@ export default function LeadFinderDashboard() {
       window.history.replaceState({}, "", url)
     }
   }, [searchParams])
+
+  // Check DM status for leads
+  useEffect(() => {
+    const checkDMStatus = async () => {
+      if (state.leads.length === 0) return
+      
+      console.log("🔍 [DM-STATUS] Checking DM status for", state.leads.length, "leads")
+      
+      // Check DM status for each lead
+      const dmStatusPromises = state.leads.map(async (lead) => {
+        if (!lead.threadId) return { leadId: lead.id, hasDM: false }
+        
+        try {
+          const result = await checkThreadInteractionAction(
+            currentOrganization?.id || "",
+            lead.threadId,
+            lead.postAuthor
+          )
+          
+          return {
+            leadId: lead.id,
+            hasDM: result.isSuccess ? result.data.hasDM : false
+          }
+        } catch (error) {
+          console.error("Error checking DM status for lead:", lead.id, error)
+          return { leadId: lead.id, hasDM: false }
+        }
+      })
+      
+      const dmStatuses = await Promise.all(dmStatusPromises)
+      
+      // Update leads with DM status
+      setState(prev => ({
+        ...prev,
+        leads: prev.leads.map(lead => {
+          const status = dmStatuses.find(s => s.leadId === lead.id)
+          return status ? { ...lead, hasDM: status.hasDM } : lead
+        })
+      }))
+    }
+    
+    checkDMStatus()
+  }, [state.leads.length, currentOrganization?.id])
 
   // Manual test data creation
   const createTestData = async () => {

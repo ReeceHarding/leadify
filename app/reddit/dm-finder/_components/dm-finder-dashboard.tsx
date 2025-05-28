@@ -18,7 +18,8 @@ import {
   Hash,
   CalendarDays,
   ChevronRight,
-  ChevronDown
+  ChevronDown,
+  RefreshCw
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -67,6 +68,13 @@ import { fetchRedditThreadAction } from "@/actions/integrations/reddit/reddit-ac
 import { Skeleton } from "@/components/ui/skeleton"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle, CheckCircle2 } from "lucide-react"
+import { 
+  getRedditThreadsByOrganizationAction,
+  upsertRedditThreadAction,
+  updateThreadInteractionAction,
+  checkThreadInteractionAction,
+  recordThreadInteractionAction
+} from "@/actions/db/reddit-threads-actions"
 
 interface RedditPost {
   id: string
@@ -80,6 +88,10 @@ interface RedditPost {
   score: number
   num_comments: number
   timeAgo?: string
+  relevanceScore?: number
+  reasoning?: string
+  hasComment?: boolean
+  hasDM?: boolean
 }
 
 interface DMResult {
@@ -234,8 +246,58 @@ export default function DMFinderDashboard({
     setState(prev => ({ ...prev, ...updates }))
   }
 
-  // Load DM history on mount
+  // Load threads from shared collection
+  const loadSharedThreads = async () => {
+    updateState({ isSearching: true, searchResults: [] })
+    
+    try {
+      console.log("🧵 [DM-FINDER] Loading threads from shared collection...")
+      
+      const result = await getRedditThreadsByOrganizationAction(
+        organizationId,
+        {
+          minScore: 50, // Only show threads with decent relevance
+          limitCount: 50
+        }
+      )
+
+      if (result.isSuccess) {
+        console.log("🧵 [DM-FINDER] Found", result.data.length, "threads")
+        
+        const postsWithTimeAgo = result.data.map((thread) => ({
+          id: thread.id,
+          threadId: thread.id,
+          title: thread.title,
+          author: thread.author,
+          subreddit: thread.subreddit,
+          url: thread.url,
+          created_utc: thread.createdUtc,
+          selftext: thread.content,
+          score: thread.score,
+          num_comments: thread.numComments,
+          timeAgo: getTimeAgo(thread.createdUtc),
+          relevanceScore: thread.relevanceScore,
+          reasoning: thread.reasoning,
+          hasComment: thread.hasComment,
+          hasDM: thread.hasDM
+        }))
+        
+        updateState({ searchResults: postsWithTimeAgo })
+        toast.success(`Found ${result.data.length} relevant threads`)
+      } else {
+        toast.error(result.message)
+      }
+    } catch (error) {
+      console.error("Load threads error:", error)
+      toast.error("Failed to load threads")
+    } finally {
+      updateState({ isSearching: false })
+    }
+  }
+
+  // Load shared threads on mount
   useEffect(() => {
+    loadSharedThreads()
     loadDMHistory()
   }, [organizationId])
 
@@ -419,12 +481,33 @@ export default function DMFinderDashboard({
 
       if (sendResult.isSuccess) {
         toast.success("DM sent successfully!")
+        
+        // Update shared thread to mark it as having a DM
+        console.log("🧵 [DM-FINDER] Marking thread as having a DM...")
+        await updateThreadInteractionAction(state.selectedPost.id, {
+          hasDM: true,
+          dmHistoryId: historyResult.data.id
+        })
+        
+        // Record the interaction
+        await recordThreadInteractionAction({
+          organizationId,
+          threadId: state.selectedPost.id,
+          userId,
+          type: "dm",
+          details: {
+            dmHistoryId: historyResult.data.id,
+            status: "sent"
+          }
+        })
+        
         updateState({ 
           selectedPost: null, 
           dmContent: "",
           searchResults: state.searchResults.filter(p => p.id !== state.selectedPost!.id)
         })
         loadDMHistory()
+        loadSharedThreads() // Reload to show updated status
       } else {
         toast.error(sendResult.message)
       }
@@ -483,55 +566,88 @@ export default function DMFinderDashboard({
       {/* Search Section */}
       <Card>
         <CardHeader>
-          <CardTitle>Find Reddit Posts</CardTitle>
+          <CardTitle>Reddit Posts for DMs</CardTitle>
           <CardDescription>
-            Search for relevant posts to send personalized DMs
+            View posts from Lead Finder to send personalized DMs
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex gap-4">
-            <div className="flex-1">
-              <Input
-                placeholder="Search keywords (e.g., 'looking for software developers')"
-                value={state.searchQuery}
-                onChange={e => updateState({ searchQuery: e.target.value })}
-                onKeyDown={e => e.key === "Enter" && handleSearch()}
-              />
-            </div>
-            <Input
-              placeholder="Subreddit (optional)"
-              value={state.subreddit}
-              onChange={e => updateState({ subreddit: e.target.value })}
-              className="w-48"
-            />
-            <Select
-              value={state.timeFilter}
-              onValueChange={(value: any) => updateState({ timeFilter: value })}
-            >
-              <SelectTrigger className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="day">Past Day</SelectItem>
-                <SelectItem value="week">Past Week</SelectItem>
-                <SelectItem value="month">Past Month</SelectItem>
-                <SelectItem value="year">Past Year</SelectItem>
-                <SelectItem value="all">All Time</SelectItem>
-              </SelectContent>
-            </Select>
             <Button 
-              onClick={handleSearch} 
+              onClick={loadSharedThreads} 
               disabled={state.isSearching}
               className="gap-2"
             >
               {state.isSearching ? (
                 <Loader2 className="size-4 animate-spin" />
               ) : (
-                <Search className="size-4" />
+                <RefreshCw className="size-4" />
               )}
-              Search
+              Load Posts from Lead Finder
             </Button>
+            
+            <div className="ml-auto text-sm text-gray-500">
+              {state.searchResults.length > 0 && (
+                <span>Showing posts with 50%+ relevance score</span>
+              )}
+            </div>
           </div>
+
+          {/* Advanced Search (Optional) */}
+          <Collapsible>
+            <CollapsibleTrigger asChild>
+              <Button variant="ghost" size="sm" className="gap-2">
+                <Search className="size-4" />
+                Advanced Search
+                <ChevronDown className="size-3" />
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-4 space-y-4">
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <Input
+                    placeholder="Search keywords (e.g., 'looking for software developers')"
+                    value={state.searchQuery}
+                    onChange={e => updateState({ searchQuery: e.target.value })}
+                    onKeyDown={e => e.key === "Enter" && handleSearch()}
+                  />
+                </div>
+                <Input
+                  placeholder="Subreddit (optional)"
+                  value={state.subreddit}
+                  onChange={e => updateState({ subreddit: e.target.value })}
+                  className="w-48"
+                />
+                <Select
+                  value={state.timeFilter}
+                  onValueChange={(value: any) => updateState({ timeFilter: value })}
+                >
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="day">Past Day</SelectItem>
+                    <SelectItem value="week">Past Week</SelectItem>
+                    <SelectItem value="month">Past Month</SelectItem>
+                    <SelectItem value="year">Past Year</SelectItem>
+                    <SelectItem value="all">All Time</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button 
+                  onClick={handleSearch} 
+                  disabled={state.isSearching}
+                  className="gap-2"
+                >
+                  {state.isSearching ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <Search className="size-4" />
+                  )}
+                  Search
+                </Button>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
 
           {/* Filters */}
           {state.searchResults.length > 0 && (
@@ -594,10 +710,32 @@ export default function DMFinderDashboard({
                       {post.score}
                     </Badge>
                     <Badge variant="outline">r/{post.subreddit}</Badge>
+                    {post.relevanceScore !== undefined && (
+                      <Badge 
+                        variant={post.relevanceScore >= 70 ? "default" : post.relevanceScore >= 50 ? "secondary" : "outline"}
+                        className="gap-1"
+                      >
+                        {post.relevanceScore}% match
+                      </Badge>
+                    )}
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <Calendar className="size-4" />
-                    <span>{post.timeAgo}</span>
+                  <div className="flex items-center gap-2">
+                    {post.hasComment && (
+                      <Badge variant="secondary" className="gap-1">
+                        <MessageSquare className="size-3" />
+                        Comment posted
+                      </Badge>
+                    )}
+                    {post.hasDM && (
+                      <Badge variant="secondary" className="gap-1">
+                        <Send className="size-3" />
+                        DM sent
+                      </Badge>
+                    )}
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <Calendar className="size-4" />
+                      <span>{post.timeAgo}</span>
+                    </div>
                   </div>
                 </div>
 

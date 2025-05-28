@@ -266,6 +266,12 @@ export default function LeadCard({
                   Posted
                 </Badge>
               )}
+              {lead.hasDM && (
+                <Badge variant="secondary" className="gap-1">
+                  <Send className="size-3" />
+                  DM sent
+                </Badge>
+              )}
             </div>
             {/* Post Date */}
             <div className="flex items-center gap-2 text-sm text-gray-500">

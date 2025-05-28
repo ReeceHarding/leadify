@@ -1,0 +1,353 @@
+"use server"
+
+import { db } from "@/db/db"
+import {
+  REDDIT_COLLECTIONS,
+  RedditThreadDocument,
+  CreateRedditThreadData,
+  UpdateRedditThreadData,
+  ThreadInteractionDocument
+} from "@/db/firestore/reddit-threads-collections"
+import { ActionState } from "@/types"
+import {
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+  serverTimestamp,
+  orderBy,
+  limit,
+  Timestamp
+} from "firebase/firestore"
+
+// Create or update a Reddit thread
+export async function upsertRedditThreadAction(
+  data: CreateRedditThreadData
+): Promise<ActionState<RedditThreadDocument>> {
+  console.log("🧵 [UPSERT-THREAD] Upserting Reddit thread:", data.id)
+  
+  try {
+    const threadRef = doc(db, REDDIT_COLLECTIONS.THREADS, data.id)
+    
+    // Check if thread already exists
+    const existingDoc = await getDoc(threadRef)
+    
+    if (existingDoc.exists()) {
+      // Update existing thread
+      console.log("🧵 [UPSERT-THREAD] Thread exists, updating...")
+      
+      const updateData: UpdateRedditThreadData = {
+        relevanceScore: data.relevanceScore,
+        reasoning: data.reasoning,
+        updatedAt: serverTimestamp() as Timestamp
+      }
+      
+      await updateDoc(threadRef, { ...updateData })
+      
+      const updatedDoc = await getDoc(threadRef)
+      const updatedThread = updatedDoc.data() as RedditThreadDocument
+      
+      console.log("🧵 [UPSERT-THREAD] ✅ Thread updated")
+      return {
+        isSuccess: true,
+        message: "Thread updated successfully",
+        data: updatedThread
+      }
+    } else {
+      // Create new thread
+      console.log("🧵 [UPSERT-THREAD] Creating new thread...")
+      
+      const threadData: RedditThreadDocument = {
+        ...data,
+        hasComment: false,
+        hasDM: false,
+        fetchedAt: serverTimestamp() as Timestamp,
+        updatedAt: serverTimestamp() as Timestamp
+      }
+      
+      await setDoc(threadRef, threadData)
+      
+      const createdDoc = await getDoc(threadRef)
+      const createdThread = createdDoc.data() as RedditThreadDocument
+      
+      console.log("🧵 [UPSERT-THREAD] ✅ Thread created")
+      return {
+        isSuccess: true,
+        message: "Thread created successfully",
+        data: createdThread
+      }
+    }
+  } catch (error) {
+    console.error("🧵 [UPSERT-THREAD] ❌ Error:", error)
+    return {
+      isSuccess: false,
+      message: `Failed to upsert thread: ${error instanceof Error ? error.message : "Unknown error"}`
+    }
+  }
+}
+
+// Get Reddit threads for an organization
+export async function getRedditThreadsByOrganizationAction(
+  organizationId: string,
+  options: {
+    hasComment?: boolean
+    hasDM?: boolean
+    minScore?: number
+    keywords?: string[]
+    limitCount?: number
+  } = {}
+): Promise<ActionState<RedditThreadDocument[]>> {
+  console.log("🧵 [GET-THREADS] Fetching threads for org:", organizationId)
+  console.log("🧵 [GET-THREADS] Options:", options)
+  
+  try {
+    const threadsRef = collection(db, REDDIT_COLLECTIONS.THREADS)
+    let q = query(
+      threadsRef,
+      where("organizationId", "==", organizationId),
+      orderBy("relevanceScore", "desc")
+    )
+    
+    // Apply filters
+    if (options.hasComment !== undefined) {
+      q = query(q, where("hasComment", "==", options.hasComment))
+    }
+    
+    if (options.hasDM !== undefined) {
+      q = query(q, where("hasDM", "==", options.hasDM))
+    }
+    
+    if (options.minScore !== undefined) {
+      q = query(q, where("relevanceScore", ">=", options.minScore))
+    }
+    
+    if (options.limitCount) {
+      q = query(q, limit(options.limitCount))
+    }
+    
+    const querySnapshot = await getDocs(q)
+    let threads = querySnapshot.docs.map(doc => doc.data() as RedditThreadDocument)
+    
+    // Filter by keywords if provided
+    if (options.keywords && options.keywords.length > 0) {
+      threads = threads.filter(thread => 
+        thread.keywords.some(keyword => 
+          options.keywords!.includes(keyword)
+        )
+      )
+    }
+    
+    console.log("🧵 [GET-THREADS] ✅ Found threads:", threads.length)
+    
+    return {
+      isSuccess: true,
+      message: "Threads retrieved successfully",
+      data: threads
+    }
+  } catch (error) {
+    console.error("🧵 [GET-THREADS] ❌ Error:", error)
+    return {
+      isSuccess: false,
+      message: `Failed to get threads: ${error instanceof Error ? error.message : "Unknown error"}`
+    }
+  }
+}
+
+// Get a single Reddit thread by ID
+export async function getRedditThreadByIdAction(
+  threadId: string
+): Promise<ActionState<RedditThreadDocument | null>> {
+  console.log("🧵 [GET-THREAD] Fetching thread:", threadId)
+  
+  try {
+    const threadRef = doc(db, REDDIT_COLLECTIONS.THREADS, threadId)
+    const threadDoc = await getDoc(threadRef)
+    
+    if (!threadDoc.exists()) {
+      console.log("🧵 [GET-THREAD] Thread not found")
+      return {
+        isSuccess: false,
+        message: "Thread not found"
+      }
+    }
+    
+    const thread = threadDoc.data() as RedditThreadDocument
+    console.log("🧵 [GET-THREAD] ✅ Thread retrieved")
+    
+    return {
+      isSuccess: true,
+      message: "Thread retrieved successfully",
+      data: thread
+    }
+  } catch (error) {
+    console.error("🧵 [GET-THREAD] ❌ Error:", error)
+    return {
+      isSuccess: false,
+      message: `Failed to get thread: ${error instanceof Error ? error.message : "Unknown error"}`
+    }
+  }
+}
+
+// Update thread interaction status
+export async function updateThreadInteractionAction(
+  threadId: string,
+  interaction: {
+    hasComment?: boolean
+    hasDM?: boolean
+    commentId?: string
+    dmHistoryId?: string
+  }
+): Promise<ActionState<RedditThreadDocument>> {
+  console.log("🧵 [UPDATE-INTERACTION] Updating thread interaction:", threadId)
+  console.log("🧵 [UPDATE-INTERACTION] Interaction:", interaction)
+  
+  try {
+    const threadRef = doc(db, REDDIT_COLLECTIONS.THREADS, threadId)
+    
+    const updateData: UpdateRedditThreadData = {
+      ...interaction,
+      updatedAt: serverTimestamp() as Timestamp
+    }
+    
+    // Add timestamps for interactions
+    if (interaction.hasComment) {
+      updateData.lastCommentAt = serverTimestamp() as Timestamp
+    }
+    
+    if (interaction.hasDM) {
+      updateData.lastDMAt = serverTimestamp() as Timestamp
+    }
+    
+    await updateDoc(threadRef, { ...updateData })
+    
+    const updatedDoc = await getDoc(threadRef)
+    const updatedThread = updatedDoc.data() as RedditThreadDocument
+    
+    console.log("🧵 [UPDATE-INTERACTION] ✅ Interaction updated")
+    
+    return {
+      isSuccess: true,
+      message: "Thread interaction updated successfully",
+      data: updatedThread
+    }
+  } catch (error) {
+    console.error("🧵 [UPDATE-INTERACTION] ❌ Error:", error)
+    return {
+      isSuccess: false,
+      message: `Failed to update interaction: ${error instanceof Error ? error.message : "Unknown error"}`
+    }
+  }
+}
+
+// Record a thread interaction
+export async function recordThreadInteractionAction(
+  data: {
+    organizationId: string
+    threadId: string
+    userId: string
+    type: "comment" | "dm" | "view"
+    details?: {
+      commentId?: string
+      dmHistoryId?: string
+      status?: string
+    }
+  }
+): Promise<ActionState<ThreadInteractionDocument>> {
+  console.log("🧵 [RECORD-INTERACTION] Recording interaction:", data)
+  
+  try {
+    const interactionRef = doc(collection(db, REDDIT_COLLECTIONS.THREAD_INTERACTIONS))
+    
+    const interactionData: ThreadInteractionDocument = {
+      id: interactionRef.id,
+      ...data,
+      timestamp: serverTimestamp() as Timestamp
+    }
+    
+    await setDoc(interactionRef, interactionData)
+    
+    console.log("🧵 [RECORD-INTERACTION] ✅ Interaction recorded")
+    
+    return {
+      isSuccess: true,
+      message: "Interaction recorded successfully",
+      data: interactionData
+    }
+  } catch (error) {
+    console.error("🧵 [RECORD-INTERACTION] ❌ Error:", error)
+    return {
+      isSuccess: false,
+      message: `Failed to record interaction: ${error instanceof Error ? error.message : "Unknown error"}`
+    }
+  }
+}
+
+// Check if user has already interacted with a thread
+export async function checkThreadInteractionAction(
+  organizationId: string,
+  threadId: string,
+  author: string
+): Promise<ActionState<{
+  hasComment: boolean
+  hasDM: boolean
+  thread: RedditThreadDocument | null
+}>> {
+  console.log("🧵 [CHECK-INTERACTION] Checking interaction for thread:", threadId)
+  
+  try {
+    // Get the thread
+    const threadResult = await getRedditThreadByIdAction(threadId)
+    
+    if (!threadResult.isSuccess || !threadResult.data) {
+      return {
+        isSuccess: true,
+        message: "Thread not found",
+        data: {
+          hasComment: false,
+          hasDM: false,
+          thread: null
+        }
+      }
+    }
+    
+    const thread = threadResult.data
+    
+    // Check if the thread belongs to this organization
+    if (thread.organizationId !== organizationId) {
+      return {
+        isSuccess: true,
+        message: "Thread belongs to different organization",
+        data: {
+          hasComment: false,
+          hasDM: false,
+          thread: null
+        }
+      }
+    }
+    
+    console.log("🧵 [CHECK-INTERACTION] ✅ Interaction status:", {
+      hasComment: thread.hasComment,
+      hasDM: thread.hasDM
+    })
+    
+    return {
+      isSuccess: true,
+      message: "Interaction checked successfully",
+      data: {
+        hasComment: thread.hasComment || false,
+        hasDM: thread.hasDM || false,
+        thread
+      }
+    }
+  } catch (error) {
+    console.error("🧵 [CHECK-INTERACTION] ❌ Error:", error)
+    return {
+      isSuccess: false,
+      message: `Failed to check interaction: ${error instanceof Error ? error.message : "Unknown error"}`
+    }
+  }
+} 

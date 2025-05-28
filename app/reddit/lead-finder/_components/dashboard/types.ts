@@ -32,7 +32,9 @@ export interface LeadResult {
   keyword?: string
   createdAt?: string // ISO string format
   postCreatedAt?: string // ISO string format - when the Reddit post was created
+  updatedAt?: string // ISO string format
   postedCommentUrl?: string // URL to the posted comment on Reddit
+  hasDM?: boolean // Whether a DM has been sent to the post author
 }
 
 // Interface for tracking workflow progress of lead generation

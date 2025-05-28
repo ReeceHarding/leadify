@@ -48,6 +48,11 @@ import { getKnowledgeBaseByOrganizationIdAction } from "@/actions/db/personaliza
 import { getVoiceSettingsByOrganizationIdAction } from "@/actions/db/personalization-actions"
 import { loggers } from "@/lib/logger"
 import { updateGeneratedCommentAction } from "@/actions/db/lead-generation-actions"
+import { 
+  upsertRedditThreadAction,
+  updateThreadInteractionAction,
+  recordThreadInteractionAction
+} from "@/actions/db/reddit-threads-actions"
 
 const logger = loggers.leadGen
 
@@ -600,7 +605,35 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
           logger.info(`⚠️ [WORKFLOW] No comments fetched for tone analysis`)
         }
 
-        // Save thread to Firestore
+        // Save thread to shared Reddit threads collection
+        console.log("🧵 [WORKFLOW] Saving thread to shared collection...")
+        
+        const threadData = {
+          id: apiThread.id,
+          organizationId,
+          title: apiThread.title,
+          author: apiThread.author,
+          subreddit: apiThread.subreddit,
+          url: apiThread.url,
+          permalink: apiThread.url.replace('https://www.reddit.com', ''),
+          content: apiThread.content,
+          contentSnippet: apiThread.content.substring(0, 200),
+          score: apiThread.score,
+          numComments: apiThread.numComments,
+          createdUtc: apiThread.created,
+          relevanceScore: 0, // Will be updated after scoring
+          reasoning: "",
+          keywords: [threadToFetch.keyword]
+        }
+        
+        const upsertResult = await upsertRedditThreadAction(threadData)
+        if (!upsertResult.isSuccess) {
+          logger.error(`❌ [WORKFLOW] Failed to save thread to shared collection: ${upsertResult.message}`)
+        } else {
+          logger.info(`✅ [WORKFLOW] Thread saved to shared collection`)
+        }
+
+        // Also save to the campaign-specific collection for backward compatibility
         const threadRef = doc(collection(db, LEAD_COLLECTIONS.REDDIT_THREADS))
         const threadDocData = {
           id: threadRef.id,
@@ -683,6 +716,14 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
           )
           logger.info(`📝 [WORKFLOW] Reasoning: ${scoringData.reasoning}`)
 
+          // Update shared thread with relevance score
+          console.log("🧵 [WORKFLOW] Updating shared thread with relevance score...")
+          await upsertRedditThreadAction({
+            ...threadData,
+            relevanceScore: scoringData.score,
+            reasoning: scoringData.reasoning
+          })
+
           // Update progress for generating
           const generatingProgress =
             70 + (threadsProcessed / threadsToFetch.length) * 20
@@ -741,6 +782,25 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
             logger.info(
               `✅ [WORKFLOW] Total comments generated so far: ${commentsGeneratedCount}`
             )
+
+            // Update shared thread to mark it as having a comment
+            console.log("🧵 [WORKFLOW] Marking thread as having a comment...")
+            await updateThreadInteractionAction(apiThread.id, {
+              hasComment: true,
+              commentId: saveCommentResult.data.id
+            })
+
+            // Record the interaction
+            await recordThreadInteractionAction({
+              organizationId,
+              threadId: apiThread.id,
+              userId: campaign.userId,
+              type: "comment",
+              details: {
+                commentId: saveCommentResult.data.id,
+                status: "generated"
+              }
+            })
 
             // Update campaign progress
             await updateCampaignAction(campaignId, {
