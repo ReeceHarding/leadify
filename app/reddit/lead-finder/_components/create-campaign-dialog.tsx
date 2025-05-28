@@ -626,6 +626,7 @@ export default function CreateCampaignDialog({
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
+                              <SelectItem value="1">1 post per keyword</SelectItem>
                               <SelectItem value="5">5 posts per keyword</SelectItem>
                               <SelectItem value="10">10 posts per keyword (Recommended)</SelectItem>
                               <SelectItem value="15">15 posts per keyword</SelectItem>
@@ -765,6 +766,7 @@ export default function CreateCampaignDialog({
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
+                          <SelectItem value="1">1 post per keyword</SelectItem>
                           <SelectItem value="5">5 posts per keyword</SelectItem>
                           <SelectItem value="10">10 posts per keyword (Recommended)</SelectItem>
                           <SelectItem value="15">15 posts per keyword</SelectItem>

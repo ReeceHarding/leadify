@@ -405,6 +405,7 @@ export default function FindNewLeadsDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="1">1 post</SelectItem>
                   <SelectItem value="10">10 posts</SelectItem>
                   <SelectItem value="25">25 posts</SelectItem>
                   <SelectItem value="50">50 posts</SelectItem>
