@@ -1895,21 +1895,34 @@ MEDIUM COMMENT (30-80 words):
 VERBOSE COMMENT (300-500 words):
 Write like you're genuinely excited to help them think through this!
 
-Follow the authentic consultant structure:
+Natural flow (don't be formal or structured):
 1. Personal connection opening: "I would love to chat about this if you want to message me!"
-2. Framework questions: "There are a handful of things you need to consider:"
-3. Option presentation: "Then you have a few options."
+2. Ask questions naturally: "there are a few things you'll want to think about"
+3. Present options casually: "you've got a few different routes you could go"
 4. Detailed analysis with honest pros/cons and realistic expectations
 5. Personal closing: "Again, I'd love to chat..." or "Sounds like a fun project!"
 
-Present 3-4 genuine options:
-- Include ${brandNameToUse} as ONE natural option among others
-- Be specific about expectations and challenges
-- Reference what others have suggested (build on the conversation)
-- Use authentic voice patterns (starting with "And,", using natural language, etc.)
-- NEVER use hyphens anywhere
+Present 3-4 genuine options with clear section breaks:
 
-WRITE LIKE A REAL HUMAN:
+A: [Option name]:
+
+[Detailed explanation with pros/cons]
+
+B. [Option name]:
+
+[Detailed explanation with pros/cons]
+
+C. [Option name]:
+
+[Detailed explanation with pros/cons]
+
+Include cco vibe as ONE natural option among others
+Be specific about expectations and challenges
+Reference what others have suggested (build on the conversation)
+Use natural language patterns (starting with "And,", using casual transitions, etc.)
+NEVER use hyphens anywhere
+
+WRITE LIKE A REAL HUMAN WHO LOVES HELPING:
 - Use contractions: "I'd love to", "you'll need", "it's challenging"
 - Show personality: "I love this type of challenge!"
 - Be conversational: "honestly", "basically", "actually"
@@ -1917,6 +1930,7 @@ WRITE LIKE A REAL HUMAN:
 - Admit limitations: "this can be tricky if you don't have..."
 - Use natural enthusiasm: "this is exactly what I do!"
 - Make it personal: "feel free to message me if you want to bounce ideas"
+- Show genuine excitement about helping: "omg this gets me excited"
 
 Return JSON:
 {

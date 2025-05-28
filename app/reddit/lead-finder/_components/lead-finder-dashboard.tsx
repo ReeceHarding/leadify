@@ -2099,7 +2099,7 @@ export default function LeadFinderDashboard() {
           setEditingCampaignId(campaignId)
           setEditDialogOpen(true)
         }}
-        isWorkflowRunning={state.workflowRunning}
+        isWorkflowRunning={state.workflowRunning || liveFirestoreProgress?.status === "in_progress"}
         onMassPost={handleMassPost}
         onStopWorkflow={handleStopWorkflow}
       />

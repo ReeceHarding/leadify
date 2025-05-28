@@ -503,7 +503,7 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
         keyword: result.keyword
       }));
 
-    let fetchedThreadsData: RedditThreadDocument[] = [];
+    let fetchedThreadsData: any[] = [];
     if (threadsToFetch.length > 0) {
       const fetchThreadsResult = await fetchMultipleRedditThreadsAction(
         organizationId,
