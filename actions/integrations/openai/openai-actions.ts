@@ -924,19 +924,51 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
     const organization = orgResult.data
     const businessWebsiteUrl = organization.website || ""
     
+    console.log(
+      "🔍🔍🔍 [OPENAI-PERSONALIZED] Organization name:",
+      organization.name
+    )
+    console.log(
+      "🔍🔍🔍 [OPENAI-PERSONALIZED] Campaign name:",
+      campaignName
+    )
+    
     // Get knowledge base for brand name override
     const knowledgeBaseResult =
       await getKnowledgeBaseByOrganizationIdAction(organizationId)
     let knowledgeBaseContent = ""
     let brandNameToUse = ""
     
+    console.log(
+      "🔍🔍🔍 [OPENAI-PERSONALIZED] Knowledge base fetch result:",
+      knowledgeBaseResult.isSuccess ? "SUCCESS" : "FAILED"
+    )
+    console.log(
+      "🔍🔍🔍 [OPENAI-PERSONALIZED] Knowledge base data exists:",
+      !!knowledgeBaseResult.data
+    )
+    
     if (knowledgeBaseResult.isSuccess && knowledgeBaseResult.data) {
       const kb = knowledgeBaseResult.data
+      
+      console.log(
+        "🔍🔍🔍 [OPENAI-PERSONALIZED] Knowledge base brandNameOverride:",
+        kb.brandNameOverride
+      )
+      console.log(
+        "🔍🔍🔍 [OPENAI-PERSONALIZED] Knowledge base ID:",
+        kb.id
+      )
       
       // Use brand name override if available, otherwise use campaign name or organization name
       brandNameToUse = kb.brandNameOverride || campaignName || organization.name || "our solution"
       // Always convert to lowercase for natural Reddit style
       brandNameToUse = brandNameToUse.toLowerCase()
+      
+      console.log(
+        "🔍🔍🔍 [OPENAI-PERSONALIZED] Final brand name decision:",
+        brandNameToUse
+      )
       
       // Combine all knowledge base content
       const contentParts = []
@@ -972,6 +1004,12 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
       console.log(
         "⚠️ [OPENAI-PERSONALIZED] No knowledge base found, using default brand name:",
         brandNameToUse
+      )
+      console.log(
+        "⚠️ [OPENAI-PERSONALIZED] Fallback order: campaignName=",
+        campaignName,
+        ", organization.name=",
+        organization.name
       )
     }
 
