@@ -108,8 +108,26 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
     org: SerializedOrganizationDocument
   ) => {
     console.log("🏢 [ORG-PROVIDER] Setting current organization:", org.name)
+
+    // Check if organization is actually changing
+    const isChanging = currentOrganization?.id !== org.id
+
     setCurrentOrganization(org)
     localStorage.setItem("currentOrganizationId", org.id)
+
+    // Dispatch custom event when organization changes
+    if (isChanging) {
+      console.log("🏢 [ORG-PROVIDER] Organization changed, dispatching event")
+      window.dispatchEvent(
+        new CustomEvent("organizationChanged", {
+          detail: {
+            previousOrgId: currentOrganization?.id,
+            newOrgId: org.id,
+            newOrgName: org.name
+          }
+        })
+      )
+    }
   }
 
   const value: OrganizationContextType = {

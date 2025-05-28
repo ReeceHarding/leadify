@@ -406,6 +406,59 @@ export default function LeadFinderDashboard() {
     [state.debugMode]
   )
 
+  // Track organization changes and reset state when switching
+  const previousOrgIdRef = useRef<string | null>(null)
+  
+  useEffect(() => {
+    if (currentOrganization?.id && previousOrgIdRef.current && currentOrganization.id !== previousOrgIdRef.current) {
+      console.log("🔄 [LEAD-FINDER] Organization changed, resetting state", {
+        from: previousOrgIdRef.current,
+        to: currentOrganization.id
+      })
+      
+      // Reset the entire dashboard state when organization changes
+      setState({
+        ...initialState,
+        debugMode: state.debugMode,
+        debugLogs: state.debugLogs
+      })
+      
+      // Clear any stored campaign selection for the new organization
+      if (user?.id) {
+        const oldKey = `campaign_${previousOrgIdRef.current}_${user.id}`
+        const hasOldKey = localStorage.getItem(oldKey)
+        if (hasOldKey) {
+          console.log("🔄 [LEAD-FINDER] Clearing old campaign selection", oldKey)
+        }
+      }
+    }
+    
+    // Update the ref with current organization ID
+    previousOrgIdRef.current = currentOrganization?.id || null
+  }, [currentOrganization?.id, user?.id, state.debugMode, state.debugLogs])
+
+  // Listen for organization change events
+  useEffect(() => {
+    const handleOrganizationChange = (event: CustomEvent) => {
+      console.log("🔄 [LEAD-FINDER] Organization change event received", event.detail)
+      
+      // Reset the dashboard state
+      setState({
+        ...initialState,
+        debugMode: state.debugMode,
+        debugLogs: state.debugLogs
+      })
+      
+      // Clear Firestore listeners will be handled by the campaignId change
+    }
+    
+    window.addEventListener('organizationChanged', handleOrganizationChange as EventListener)
+    
+    return () => {
+      window.removeEventListener('organizationChanged', handleOrganizationChange as EventListener)
+    }
+  }, [state.debugMode, state.debugLogs])
+
   // Check Reddit connection status
   useEffect(() => {
     const checkRedditConnection = async () => {
@@ -2076,7 +2129,19 @@ export default function LeadFinderDashboard() {
         onCreateCampaign={() => setCreateDialogOpen(true)}
         onRunWorkflow={manualRunWorkflow}
         onSelectCampaign={(campaignId: string) => {
-          setState(prev => ({ ...prev, campaignId, isLoading: true }))
+          console.log("🔄 [LEAD-FINDER] Switching to campaign:", campaignId)
+          
+          // Reset state when switching campaigns
+          setState(prev => ({ 
+            ...prev, 
+            campaignId, 
+            isLoading: true,
+            leads: [], // Clear leads when switching campaigns
+            currentPage: 1, // Reset pagination
+            selectedPost: null, // Clear any selected post
+            editingCommentId: null, // Clear any editing state
+            error: null // Clear any errors
+          }))
           
           // Persist the selected campaign ID
           if (user && currentOrganization) {

@@ -42,6 +42,26 @@ export function TeamSwitcher() {
   const [showCreateDialog, setShowCreateDialog] = React.useState(false)
 
   const handleOrganizationSwitch = (org: (typeof organizations)[0]) => {
+    console.log("🔄 [TEAM-SWITCHER] Switching to organization:", org.name)
+
+    // Clear any stored campaign selections for the previous organization
+    if (currentOrganization && currentOrganization.id !== org.id) {
+      // Get all localStorage keys
+      const keysToRemove: string[] = []
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i)
+        if (key && key.startsWith(`campaign_${currentOrganization.id}_`)) {
+          keysToRemove.push(key)
+        }
+      }
+
+      // Remove old campaign selections
+      keysToRemove.forEach(key => {
+        console.log("🔄 [TEAM-SWITCHER] Removing old campaign selection:", key)
+        localStorage.removeItem(key)
+      })
+    }
+
     setCurrentOrganization(org)
     // Refresh the page to update all components
     router.refresh()
