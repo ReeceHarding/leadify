@@ -114,9 +114,9 @@ If the score is 40 or above, generate three authentic Reddit comments as someone
 2. MEDIUM COMMENT (30-80 words): casual story with genuine pros/cons:
    - start with "hey man" or "tbh" or similar
    ${existingComments && existingComments.length > 0 ? `- Reference 1-2 other comments naturally like:
-     * "i see someone mentioned X, and yeah that's true but..."
-     * "agree with what others are saying about Y, though in my experience..."
-     * "+1 to what was said about Z, and i'd add..."` : ""}
+     * "yeah i saw that too about X, and honestly..."
+     * "agree with what people are saying about Y, though in my experience..."
+     * "adding to what was mentioned earlier about Z..."` : ""}
    - mention free tool with honest pros/cons
    - mention our solution with honest pros/cons (include at least one real downside)
    - mention premium tool and why it might be overkill
@@ -138,19 +138,20 @@ If the score is 40 or above, generate three authentic Reddit comments as someone
    
    MAIN LESSON:
    - State core lesson about time vs money tradeoff
-   ${existingComments && existingComments.length > 0 ? `- Acknowledge different perspectives from the thread` : ""}
+   ${existingComments && existingComments.length > 0 ? `- Acknowledge different perspectives: "i know some folks here are saying [X], and they're not wrong, but..."` : ""}
    - Frame as two paths to choose from
    
    PATH EXPLANATIONS:
    - Reference what others in thread are recommending
-   ${existingComments && existingComments.length > 0 ? `- Build on existing suggestions naturally` : ""}
+   ${existingComments && existingComments.length > 0 ? `- Build on existing suggestions: "adding to what someone said about [tool]..."
+   - Respectfully disagree sometimes: "i see the love for [tool] in here, but honestly..."` : ""}
    - Share 3-5 numbered personal examples with specific details
    - Include exact time/money amounts wasted
    - Transition to current thinking
    
    DETAILED SCENARIOS:
    - Break down by user type (college student, professional, etc)
-   ${existingComments && existingComments.length > 0 ? `- Reference user situations from comments when relevant` : ""}
+   ${existingComments && existingComments.length > 0 ? `- Reference user situations from comments: "for folks who mentioned [situation]..."` : ""}
    - Give specific actionable advice for each
    - Include warnings from personal experience
    - Use specific numbers and timeframes
@@ -807,7 +808,7 @@ export async function generateReplyToCommentAction(
 YOUR ORIGINAL COMMENT:
 ${originalComment}
 
-REPLY FROM u/${replyAuthor}:
+REPLY YOU'RE RESPONDING TO:
 ${replyToComment}
 
 CONTEXT ABOUT YOU:
@@ -835,6 +836,7 @@ CRITICAL RULES:
 - use casual reddit language like "tbh", "ngl", "lmk"
 - never use marketing speak or superlatives
 - be honest about any downsides if they ask
+- NEVER mention their username - just respond naturally to what they said
 
 The reply should feel like a natural continuation of the conversation from someone who genuinely wants to help.`
 
@@ -1182,9 +1184,9 @@ If the score is 40 or above, generate three comments:
 2. Medium (30-80 words): casual story with genuine pros/cons:
    - start with "hey man" or "tbh" or similar
    ${existingComments && existingComments.length > 0 ? `- Reference 1-2 other comments naturally like:
-     * "i see someone mentioned X, and yeah that's true but..."
-     * "agree with what others are saying about Y, though in my experience..."
-     * "+1 to what was said about Z, and i'd add..."` : ""}
+     * "yeah i saw that too about X, and honestly..."
+     * "agree with what people are saying about Y, though in my experience..."
+     * "adding to what was mentioned earlier about Z..."` : ""}
    - mention free tool with honest pros/cons
    - mention ${businessName} with honest pros/cons (include at least one real downside)
    - mention premium tool and why it might be overkill
@@ -1208,19 +1210,20 @@ If the score is 40 or above, generate three comments:
    
    MAIN LESSON:
    - State core lesson about time vs money tradeoff
-   ${existingComments && existingComments.length > 0 ? `- Acknowledge different perspectives from the thread` : ""}
+   ${existingComments && existingComments.length > 0 ? `- Acknowledge different perspectives: "i know some folks here are saying [X], and they're not wrong, but..."` : ""}
    - Frame as two paths to choose from
    
    PATH EXPLANATIONS:
    - Reference what others in thread are recommending
-   ${existingComments && existingComments.length > 0 ? `- Build on existing suggestions naturally` : ""}
+   ${existingComments && existingComments.length > 0 ? `- Build on existing suggestions: "adding to what someone said about [tool]..."
+   - Respectfully disagree sometimes: "i see the love for [tool] in here, but honestly..."` : ""}
    - Share 3-5 numbered personal examples with specific details
    - Include exact time/money amounts wasted
    - Transition to current thinking
    
    DETAILED SCENARIOS:
    - Break down by user type (college student, professional, etc)
-   ${existingComments && existingComments.length > 0 ? `- Reference user situations from comments when relevant` : ""}
+   ${existingComments && existingComments.length > 0 ? `- Reference user situations from comments: "for folks who mentioned [situation]..."` : ""}
    - Give specific actionable advice for each
    - Include warnings from personal experience
    - Use specific numbers and timeframes
