@@ -152,8 +152,8 @@ export async function searchRedditThreadsAction(
       data.items?.length || 0
     )
 
-    if (!data.items || data.items.length < KEYWORD_CONFIG.MIN_RESULTS) {
-      console.log("🔍🔍🔍 [GOOGLE-SEARCH] ⚠️ No results found after fallback")
+    if (!data.items || data.items.length === 0) {
+      console.log("🔍🔍🔍 [GOOGLE-SEARCH] ⚠️ No results found")
       console.log(
         "🔍🔍🔍 [GOOGLE-SEARCH] ========== SEARCH END (NO RESULTS) =========="
       )
@@ -162,6 +162,16 @@ export async function searchRedditThreadsAction(
         message: "No results found",
         data: []
       }
+    }
+
+    // Log warning if results are below threshold but still process them
+    if (data.items.length < KEYWORD_CONFIG.MIN_RESULTS) {
+      console.log(
+        `🔍🔍🔍 [GOOGLE-SEARCH] ⚠️ Warning: Only ${data.items.length} results found, below minimum threshold of ${KEYWORD_CONFIG.MIN_RESULTS}`
+      )
+      console.log(
+        "🔍🔍🔍 [GOOGLE-SEARCH] ⚠️ Proceeding with available results"
+      )
     }
 
     // Extract Reddit thread IDs from URLs
