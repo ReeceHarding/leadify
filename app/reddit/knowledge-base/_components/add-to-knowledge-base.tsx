@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Loader2, Globe, Plus, FileText, Merge, Replace } from "lucide-react"
+import { Loader2, Globe, Plus, FileText, Merge, Replace, Check } from "lucide-react"
 import {
   SerializedKnowledgeBaseDocument,
   SerializedProfileDocument
@@ -37,23 +37,75 @@ export default function AddToKnowledgeBase({
   userProfile
 }: AddToKnowledgeBaseProps) {
   const { currentOrganization } = useOrganization()
+  const [customInformation, setCustomInformation] = useState("")
+  const [newInformation, setNewInformation] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [isCombining, setIsCombining] = useState(false)
-  const [newInformation, setNewInformation] = useState("")
-  const [editableOldInfo, setEditableOldInfo] = useState(
-    knowledgeBase?.customInformation || ""
-  )
-  const [brandNameOverride, setBrandNameOverride] = useState(
-    knowledgeBase?.brandNameOverride || ""
-  )
+  const [brandNameOverride, setBrandNameOverride] = useState("")
   const [showScrapeDialog, setShowScrapeDialog] = useState(false)
+  const [editableOldInfo, setEditableOldInfo] = useState("")
+  const [mergeMode, setMergeMode] = useState<"replace" | "merge">("merge")
+  const [websiteUrl, setWebsiteUrl] = useState("")
+  const [isUpdatingWebsite, setIsUpdatingWebsite] = useState(false)
   const { toast } = useToast()
 
-  // Update editable old info when knowledge base changes
+  // Update state when knowledge base changes
   useEffect(() => {
     setEditableOldInfo(knowledgeBase?.customInformation || "")
     setBrandNameOverride(knowledgeBase?.brandNameOverride || "")
-  }, [knowledgeBase?.customInformation, knowledgeBase?.brandNameOverride])
+    setWebsiteUrl(currentOrganization?.website || "")
+  }, [knowledgeBase?.customInformation, knowledgeBase?.brandNameOverride, currentOrganization?.website])
+
+  const handleUpdateWebsite = async () => {
+    if (!websiteUrl.trim()) {
+      toast({
+        title: "Website URL required",
+        description: "Please enter a valid website URL",
+        variant: "destructive"
+      })
+      return
+    }
+
+    setIsUpdatingWebsite(true)
+    try {
+      const { updateOrganizationAction } = await import(
+        "@/actions/db/organizations-actions"
+      )
+      
+      // Ensure URL has protocol
+      let formattedUrl = websiteUrl.trim()
+      if (!formattedUrl.startsWith('http://') && !formattedUrl.startsWith('https://')) {
+        formattedUrl = 'https://' + formattedUrl
+      }
+
+      const result = await updateOrganizationAction(organizationId, {
+        website: formattedUrl
+      })
+
+      if (result.isSuccess) {
+        // Refresh the organization data
+        window.location.reload()
+        toast({
+          title: "Success",
+          description: "Website updated successfully"
+        })
+      } else {
+        toast({
+          title: "Error",
+          description: result.message,
+          variant: "destructive"
+        })
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update website",
+        variant: "destructive"
+      })
+    } finally {
+      setIsUpdatingWebsite(false)
+    }
+  }
 
   const handleReplaceInformation = async () => {
     if (!newInformation.trim()) {
@@ -290,13 +342,52 @@ export default function AddToKnowledgeBase({
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Website Scraping */}
+          {/* Website URL */}
           <div className="space-y-2">
-            <Label>Website Scraping</Label>
+            <Label htmlFor="website-url">Website URL</Label>
             <div className="flex items-center gap-2">
               <Input
-                value={currentOrganization?.website || ""}
-                placeholder="No website connected"
+                id="website-url"
+                value={websiteUrl}
+                onChange={(e) => setWebsiteUrl(e.target.value)}
+                placeholder="Enter your website URL (e.g., https://example.com)"
+                className="flex-1"
+              />
+              <Button
+                variant="outline"
+                onClick={handleUpdateWebsite}
+                disabled={isUpdatingWebsite || !websiteUrl.trim() || websiteUrl === currentOrganization?.website}
+              >
+                {isUpdatingWebsite ? (
+                  <>
+                    <Loader2 className="mr-2 size-4 animate-spin" />
+                    Updating...
+                  </>
+                ) : (
+                  <>
+                    <Check className="mr-2 size-4" />
+                    Update
+                  </>
+                )}
+              </Button>
+            </div>
+            {currentOrganization?.website ? (
+              <p className="text-sm text-gray-600">
+                Current website: {currentOrganization.website}
+              </p>
+            ) : (
+              <p className="text-sm text-gray-500">
+                Add your website URL to enable page scraping.
+              </p>
+            )}
+          </div>
+
+          {/* Website Scraping */}
+          <div className="space-y-2">
+            <Label>Scrape Website Pages</Label>
+            <div className="flex items-center gap-2">
+              <Input
+                value={currentOrganization?.website || "No website connected"}
                 disabled
                 className="flex-1"
               />
@@ -316,7 +407,7 @@ export default function AddToKnowledgeBase({
               </p>
             ) : (
               <p className="text-sm text-gray-500">
-                Connect a website in your profile to enable page scraping.
+                Add a website URL above to enable page scraping.
               </p>
             )}
           </div>
@@ -329,7 +420,6 @@ export default function AddToKnowledgeBase({
               placeholder={`How to reference your brand (e.g., "zoho" instead of "${currentOrganization?.name || 'Your Brand'}")`}
               value={brandNameOverride}
               onChange={e => setBrandNameOverride(e.target.value)}
-              className="font-mono"
             />
             <p className="text-sm text-gray-600">
               Override how your brand is referenced in comments. Leave empty to use organization name.

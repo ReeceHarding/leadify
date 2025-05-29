@@ -235,8 +235,8 @@ export default function OrganizationSettings() {
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-2">
-            <span className="text-lg font-medium">Current Plan:</span>
-            <Badge variant="default" className="text-lg">
+            <span className="font-medium">Current Plan:</span>
+            <Badge variant="default">
               {currentOrganization.plan.charAt(0).toUpperCase() +
                 currentOrganization.plan.slice(1)}
             </Badge>

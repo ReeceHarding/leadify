@@ -101,11 +101,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             isActive: pathname === "/reddit/voice-settings"
           },
           {
-            title: "Personalization",
-            url: "/reddit/personalization",
-            isActive: pathname === "/reddit/personalization"
-          },
-          {
             title: "Settings",
             url: "/reddit/settings",
             isActive: pathname === "/reddit/settings"
@@ -122,7 +117,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     { title: "Warm Up", url: "/reddit/warm-up" },
     { title: "Knowledge Base", url: "/reddit/knowledge-base" },
     { title: "Voice Settings", url: "/reddit/voice-settings" },
-    { title: "Personalization", url: "/reddit/personalization" },
     { title: "Settings", url: "/reddit/settings" }
   ]
 
