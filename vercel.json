@@ -1,4 +1,27 @@
 {
+  "functions": {
+    "app/api/reddit/callback/route.ts": {
+      "maxDuration": 30
+    },
+    "app/api/lead-generation/start/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/warmup/generate-posts/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/warmup/reset-daily-counters/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/queue/process-warmup/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/queue/check-warmup-comments/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/monitor/check-campaigns/route.ts": {
+      "maxDuration": 60
+    }
+  },
   "crons": [
     {
       "path": "/api/queue/process-dm-automations",
@@ -23,6 +46,10 @@
     {
       "path": "/api/warmup/generate-posts",
       "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/api/monitor/check-campaigns",
+      "schedule": "0 */30 * * *"
     }
   ]
 } 

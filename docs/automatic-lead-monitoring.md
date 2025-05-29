@@ -110,4 +110,67 @@ const rateLimiter = {
 2. **Monitor Usage**: Track API calls and adjust
 3. **User Tiers**: Different frequencies for free/paid users
 4. **Error Handling**: Exponential backoff on failures
-5. **Notification Limits**: Don't overwhelm users with alerts 
+5. **Notification Limits**: Don't overwhelm users with alerts
+
+## Deployment Instructions
+
+### Setting up Automatic Monitoring
+
+#### Option 1: Vercel Cron Jobs (Recommended)
+Add to your `vercel.json`:
+
+```json
+{
+  "crons": [{
+    "path": "/api/monitor/check-campaigns",
+    "schedule": "0 */30 * * * *"
+  }]
+}
+```
+
+This runs every 30 minutes. Adjust the schedule as needed.
+
+#### Option 2: External Cron Service
+Use a service like:
+- Uptime Robot
+- EasyCron
+- Google Cloud Scheduler
+
+Set them to call: `https://yourdomain.com/api/monitor/check-campaigns`
+
+#### Option 3: GitHub Actions
+Create `.github/workflows/monitor-campaigns.yml`:
+
+```yaml
+name: Monitor Reddit Campaigns
+on:
+  schedule:
+    - cron: '0,30 * * * *' # Every 30 minutes
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger monitoring
+        run: |
+          curl -X POST https://yourdomain.com/api/monitor/check-campaigns \
+            -H "Authorization: Bearer ${{ secrets.MONITOR_API_KEY }}"
+```
+
+### Security
+
+1. Set `MONITOR_API_KEY` in your environment variables
+2. The endpoint validates this key to prevent unauthorized access
+3. Consider IP whitelisting for additional security
+
+### Testing
+
+Test the endpoint manually:
+```bash
+curl http://localhost:3000/api/monitor/check-campaigns
+```
+
+With authentication:
+```bash
+curl -X POST http://localhost:3000/api/monitor/check-campaigns \
+  -H "Authorization: Bearer your-secret-key"
+``` 

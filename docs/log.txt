@@ -12688,3 +12688,246 @@
 [2025-05-29T07:19:02.827Z] ==================================================
 [2025-05-29T07:19:02.827Z] COMMAND FINISHED: prettier --write {app,lib,components}/**/*.{ts,tsx} db/**/*.ts types/**/*.ts --cache --ignore-unknown (exit code: 0)
 [2025-05-29T07:19:02.827Z] ==================================================
+[2025-05-29T07:19:03.301Z] NEXTJS_STDOUT: ✓ Compiled in 839ms (3859 modules)
+[2025-05-29T07:19:03.508Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/reddit/lead-finder
+[2025-05-29T07:19:03.509Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /reddit/lead-finder
+[2025-05-29T07:19:03.509Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Skipping auth for /reddit/lead-finder (testing)
+[2025-05-29T07:19:03.791Z] NEXTJS_STDOUT: 🔥🔥🔥 [LEAD-FINDER-PAGE] Rendering LeadFinderPage
+[2025-05-29T07:19:03.791Z] NEXTJS_STDOUT: 🔥🔥🔥 [LEAD-FINDER-PAGE] Environment: development
+[2025-05-29T07:19:03.792Z] NEXTJS_STDOUT: 🔥🔥🔥 [LEAD-FINDER-PAGE] Time: 2025-05-29T07:19:03.791Z
+[2025-05-29T07:19:03.792Z] NEXTJS_STDOUT: 🔥🔥🔥 [LEAD-FINDER-PAGE] Rendering LeadFinderDashboard inside Suspense
+[2025-05-29T07:19:03.803Z] NEXTJS_STDOUT: 🔧 [ENSURE-PROFILE] Action called
+[2025-05-29T07:19:03.803Z] NEXTJS_STDOUT: 🔧 [ENSURE-PROFILE] User ID: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-29T07:19:03.803Z] NEXTJS_STDOUT: 🔧 [ENSURE-PROFILE] Checking for existing profile...
+[2025-05-29T07:19:03.803Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Action called
+[2025-05-29T07:19:03.803Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] User ID: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-29T07:19:03.803Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] User ID type: string
+[2025-05-29T07:19:03.803Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Created Firestore document reference
+[2025-05-29T07:19:03.803Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Collection: profiles
+[2025-05-29T07:19:03.803Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Document path: profiles/user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-29T07:19:03.803Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Reading from Firestore...
+[2025-05-29T07:19:03.984Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Firestore read completed
+[2025-05-29T07:19:03.984Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Document exists: true
+[2025-05-29T07:19:03.984Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Document id: user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy
+[2025-05-29T07:19:03.984Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw data from Firestore: {
+[2025-05-29T07:19:03.985Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-29T07:19:03.985Z] NEXTJS_STDOUT: "name": "Reece Harding",
+[2025-05-29T07:19:03.985Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-29T07:19:03.985Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-29T07:19:03.985Z] NEXTJS_STDOUT: "seconds": 1748389975,
+[2025-05-29T07:19:03.985Z] NEXTJS_STDOUT: "nanoseconds": 754000000
+[2025-05-29T07:19:03.985Z] NEXTJS_STDOUT: },
+[2025-05-29T07:19:03.985Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-29T07:19:03.985Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-29T07:19:03.985Z] NEXTJS_STDOUT: "seconds": 1748390120,
+[2025-05-29T07:19:03.985Z] NEXTJS_STDOUT: "nanoseconds": 891000000
+[2025-05-29T07:19:03.985Z] NEXTJS_STDOUT: }
+[2025-05-29T07:19:03.985Z] NEXTJS_STDOUT: }
+[2025-05-29T07:19:03.985Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw data keys: [
+[2025-05-29T07:19:03.985Z] NEXTJS_STDOUT: 'profilePictureUrl',
+[2025-05-29T07:19:03.985Z] NEXTJS_STDOUT: 'name',
+[2025-05-29T07:19:03.985Z] NEXTJS_STDOUT: 'membership',
+[2025-05-29T07:19:03.985Z] NEXTJS_STDOUT: 'createdAt',
+[2025-05-29T07:19:03.985Z] NEXTJS_STDOUT: 'userId',
+[2025-05-29T07:19:03.986Z] NEXTJS_STDOUT: 'updatedAt'
+[2025-05-29T07:19:03.986Z] NEXTJS_STDOUT: ]
+[2025-05-29T07:19:03.986Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw createdAt from Firestore: Timestamp { seconds: 1748389975, nanoseconds: 754000000 }
+[2025-05-29T07:19:03.986Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw createdAt type: object
+[2025-05-29T07:19:03.986Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw updatedAt from Firestore: Timestamp { seconds: 1748390120, nanoseconds: 891000000 }
+[2025-05-29T07:19:03.986Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Raw updatedAt type: object
+[2025-05-29T07:19:03.986Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Casting to ProfileDocument
+[2025-05-29T07:19:03.986Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] ProfileDocument createdAt: Timestamp { seconds: 1748389975, nanoseconds: 754000000 }
+[2025-05-29T07:19:03.986Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] ProfileDocument updatedAt: Timestamp { seconds: 1748390120, nanoseconds: 891000000 }
+[2025-05-29T07:19:03.986Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Starting serialization...
+[2025-05-29T07:19:03.986Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Starting serialization
+[2025-05-29T07:19:03.986Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Input profile keys: [
+[2025-05-29T07:19:03.986Z] NEXTJS_STDOUT: 'profilePictureUrl',
+[2025-05-29T07:19:03.986Z] NEXTJS_STDOUT: 'name',
+[2025-05-29T07:19:03.986Z] NEXTJS_STDOUT: 'membership',
+[2025-05-29T07:19:03.986Z] NEXTJS_STDOUT: 'createdAt',
+[2025-05-29T07:19:03.986Z] NEXTJS_STDOUT: 'userId',
+[2025-05-29T07:19:03.986Z] NEXTJS_STDOUT: 'updatedAt'
+[2025-05-29T07:19:03.986Z] NEXTJS_STDOUT: ]
+[2025-05-29T07:19:03.986Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Raw profile data: {
+[2025-05-29T07:19:03.986Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-29T07:19:03.987Z] NEXTJS_STDOUT: "name": "Reece Harding",
+[2025-05-29T07:19:03.987Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-29T07:19:03.987Z] NEXTJS_STDOUT: "createdAt": {
+[2025-05-29T07:19:03.987Z] NEXTJS_STDOUT: "seconds": 1748389975,
+[2025-05-29T07:19:03.987Z] NEXTJS_STDOUT: "nanoseconds": 754000000
+[2025-05-29T07:19:03.987Z] NEXTJS_STDOUT: },
+[2025-05-29T07:19:03.987Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-29T07:19:03.987Z] NEXTJS_STDOUT: "updatedAt": {
+[2025-05-29T07:19:03.987Z] NEXTJS_STDOUT: "seconds": 1748390120,
+[2025-05-29T07:19:03.987Z] NEXTJS_STDOUT: "nanoseconds": 891000000
+[2025-05-29T07:19:03.987Z] NEXTJS_STDOUT: }
+[2025-05-29T07:19:03.987Z] NEXTJS_STDOUT: }
+[2025-05-29T07:19:03.987Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt type: object
+[2025-05-29T07:19:03.987Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt instanceof Timestamp: true
+[2025-05-29T07:19:03.987Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] createdAt value: Timestamp { seconds: 1748389975, nanoseconds: 754000000 }
+[2025-05-29T07:19:03.987Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt type: object
+[2025-05-29T07:19:03.988Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt instanceof Timestamp: true
+[2025-05-29T07:19:03.988Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] updatedAt value: Timestamp { seconds: 1748390120, nanoseconds: 891000000 }
+[2025-05-29T07:19:03.988Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized profile: {
+[2025-05-29T07:19:03.989Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-29T07:19:03.989Z] NEXTJS_STDOUT: "name": "Reece Harding",
+[2025-05-29T07:19:03.989Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-29T07:19:03.989Z] NEXTJS_STDOUT: "createdAt": "2025-05-27T23:52:55.754Z",
+[2025-05-29T07:19:03.989Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-29T07:19:03.990Z] NEXTJS_STDOUT: "updatedAt": "2025-05-27T23:55:20.891Z"
+[2025-05-29T07:19:03.990Z] NEXTJS_STDOUT: }
+[2025-05-29T07:19:03.990Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized createdAt: 2025-05-27T23:52:55.754Z
+[2025-05-29T07:19:03.990Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialized updatedAt: 2025-05-27T23:55:20.891Z
+[2025-05-29T07:19:03.990Z] NEXTJS_STDOUT: 🔥 [PROFILE-SERIALIZE] Serialization complete
+[2025-05-29T07:19:03.990Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Final result: {
+[2025-05-29T07:19:03.990Z] NEXTJS_STDOUT: "isSuccess": true,
+[2025-05-29T07:19:03.990Z] NEXTJS_STDOUT: "message": "Profile retrieved successfully",
+[2025-05-29T07:19:03.990Z] NEXTJS_STDOUT: "data": {
+[2025-05-29T07:19:03.990Z] NEXTJS_STDOUT: "profilePictureUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeFZjUEpHNXJhNkpvQnVIT3VoUVlFZER1YmsifQ",
+[2025-05-29T07:19:03.991Z] NEXTJS_STDOUT: "name": "Reece Harding",
+[2025-05-29T07:19:03.991Z] NEXTJS_STDOUT: "membership": "free",
+[2025-05-29T07:19:03.991Z] NEXTJS_STDOUT: "createdAt": "2025-05-27T23:52:55.754Z",
+[2025-05-29T07:19:03.991Z] NEXTJS_STDOUT: "userId": "user_2xVcPK80cNJ6GNcDuEBKJcF4ZMy",
+[2025-05-29T07:19:03.991Z] NEXTJS_STDOUT: "updatedAt": "2025-05-27T23:55:20.891Z"
+[2025-05-29T07:19:03.991Z] NEXTJS_STDOUT: }
+[2025-05-29T07:19:03.991Z] NEXTJS_STDOUT: }
+[2025-05-29T07:19:03.991Z] NEXTJS_STDOUT: 🔥 [GET-PROFILE] Action completed successfully
+[2025-05-29T07:19:03.991Z] NEXTJS_STDOUT: 🔧 [ENSURE-PROFILE] Profile already exists
+[2025-05-29T07:19:03.994Z] NEXTJS_STDOUT: GET /reddit/lead-finder 200 in 483ms
+[2025-05-29T07:20:14.145Z] ==================================================
+[2025-05-29T07:20:14.146Z] COMMAND STARTED: next lint --fix
+[2025-05-29T07:20:14.146Z] ==================================================
+[2025-05-29T07:20:16.308Z] STDOUT: ✔ No ESLint warnings or errors
+[2025-05-29T07:20:16.362Z] ==================================================
+[2025-05-29T07:20:16.362Z] COMMAND FINISHED: next lint --fix (exit code: 0)
+[2025-05-29T07:20:16.362Z] ==================================================
+[2025-05-29T07:20:16.554Z] ==================================================
+[2025-05-29T07:20:16.555Z] COMMAND STARTED: prettier --write {app,lib,components}/**/*.{ts,tsx} db/**/*.ts types/**/*.ts --cache --ignore-unknown
+[2025-05-29T07:20:16.555Z] ==================================================
+[2025-05-29T07:20:16.635Z] STDOUT: app/api/lead-generation/start/route.ts 1ms (unchanged) (cached)
+[2025-05-29T07:20:16.637Z] STDOUT: app/api/monitor/check-campaigns/route.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.639Z] STDOUT: app/api/queue/check-warmup-comments/route.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.640Z] STDOUT: app/api/queue/process-dm-automations/route.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.642Z] STDOUT: app/api/queue/process-posts/route.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.643Z] STDOUT: app/api/queue/process-warmup/route.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.645Z] STDOUT: app/api/reddit/auth/route.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.646Z] STDOUT: app/api/reddit/callback/route.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.648Z] STDOUT: app/api/reddit/comments/[commentId]/replies/route.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.649Z] STDOUT: app/api/reddit/comments/route.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.651Z] STDOUT: app/api/stripe/webhooks/route.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.652Z] STDOUT: app/api/test-twitter-analysis/route.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.654Z] STDOUT: app/api/test-twitter-direct/route.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.655Z] STDOUT: app/api/warmup/generate-posts/route.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.656Z] STDOUT: app/api/warmup/reset-daily-counters/route.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.659Z] STDOUT: app/reddit/dm-finder/_components/dashboard/types.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.660Z] STDOUT: app/reddit/lead-finder/_components/dashboard/types.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.661Z] STDOUT: app/reddit/lead-finder/_components/dashboard/utils.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.663Z] STDOUT: app/(auth)/layout.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.665Z] STDOUT: app/(marketing)/layout.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.666Z] STDOUT: app/(marketing)/page.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.669Z] STDOUT: app/dashboard/layout.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.670Z] STDOUT: app/dashboard/page.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.672Z] STDOUT: app/firebase-test/page.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.673Z] STDOUT: app/onboarding/layout.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.675Z] STDOUT: app/onboarding/page.tsx 1ms (unchanged) (cached)
+[2025-05-29T07:20:16.676Z] STDOUT: app/reddit-auth/page.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.678Z] STDOUT: app/reddit-test/page.tsx 1ms (unchanged) (cached)
+[2025-05-29T07:20:16.679Z] STDOUT: app/reddit/layout.tsx 1ms (unchanged) (cached)
+[2025-05-29T07:20:16.680Z] STDOUT: lib/config/keyword-config.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.682Z] STDOUT: lib/config/reddit-config.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.685Z] STDOUT: lib/hooks/use-toast.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.687Z] STDOUT: lib/reddit/reddit-api-client.ts 1ms (unchanged) (cached)
+[2025-05-29T07:20:16.688Z] STDOUT: lib/utils/firestore-batch-utils.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.689Z] STDOUT: lib/utils/organization-utils.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.690Z] STDOUT: lib/utils/theme-utils.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.691Z] STDOUT: lib/utils/timestamp-utils.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.692Z] STDOUT: lib/hooks/use-copy-to-clipboard.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.693Z] STDOUT: lib/hooks/use-mobile.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.694Z] STDOUT: components/ui/use-toast.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.696Z] STDOUT: components/landing/hero.tsx 1ms (unchanged) (cached)
+[2025-05-29T07:20:16.696Z] STDOUT: components/landing/logo-carousel.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.697Z] STDOUT: components/landing/testimonials.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.699Z] STDOUT: components/magicui/animated-gradient-text.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.700Z] STDOUT: components/magicui/hero-video-dialog.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.702Z] STDOUT: components/sidebar/app-sidebar.tsx 1ms (unchanged) (cached)
+[2025-05-29T07:20:16.702Z] STDOUT: components/sidebar/create-organization-dialog.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.703Z] STDOUT: components/sidebar/nav-main.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.704Z] STDOUT: components/sidebar/nav-projects.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.705Z] STDOUT: components/sidebar/nav-user.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.706Z] STDOUT: components/sidebar/team-switcher.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.707Z] STDOUT: components/sidebar/user-profile-dialog.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.708Z] STDOUT: components/ui/accordion.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.709Z] STDOUT: components/ui/alert-dialog.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.710Z] STDOUT: components/ui/alert.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.711Z] STDOUT: components/ui/aspect-ratio.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.712Z] STDOUT: components/ui/avatar.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.713Z] STDOUT: components/ui/badge.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.714Z] STDOUT: components/ui/breadcrumb.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.715Z] STDOUT: components/ui/button.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.716Z] STDOUT: components/ui/calendar.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.717Z] STDOUT: components/ui/card.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.719Z] STDOUT: components/ui/carousel.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.721Z] STDOUT: components/ui/chart.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.722Z] STDOUT: components/ui/checkbox.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.723Z] STDOUT: components/ui/collapsible.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.724Z] STDOUT: components/ui/command.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.725Z] STDOUT: components/ui/context-menu.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.738Z] STDOUT: components/ui/dialog.tsx 1ms (unchanged) (cached)
+[2025-05-29T07:20:16.754Z] STDOUT: components/ui/drawer.tsx 1ms (unchanged) (cached)
+[2025-05-29T07:20:16.758Z] STDOUT: components/ui/dropdown-menu.tsx 1ms (unchanged) (cached)
+[2025-05-29T07:20:16.762Z] STDOUT: components/ui/form.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.771Z] STDOUT: components/ui/hover-card.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.777Z] STDOUT: components/ui/input-otp.tsx 1ms (unchanged) (cached)
+[2025-05-29T07:20:16.783Z] STDOUT: components/ui/input.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.788Z] STDOUT: components/ui/label.tsx 1ms (unchanged) (cached)
+[2025-05-29T07:20:16.793Z] STDOUT: components/ui/loading-skeleton.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.806Z] STDOUT: components/ui/menubar.tsx 1ms (unchanged) (cached)
+[2025-05-29T07:20:16.813Z] STDOUT: components/ui/navigation-menu.tsx 1ms (unchanged) (cached)
+[2025-05-29T07:20:16.817Z] STDOUT: components/ui/pagination.tsx 1ms (unchanged) (cached)
+[2025-05-29T07:20:16.822Z] STDOUT: components/ui/popover.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.828Z] STDOUT: components/ui/progress.tsx 1ms (unchanged) (cached)
+[2025-05-29T07:20:16.832Z] STDOUT: components/ui/radio-group.tsx 1ms (unchanged) (cached)
+[2025-05-29T07:20:16.841Z] STDOUT: components/ui/resizable.tsx 1ms (unchanged) (cached)
+[2025-05-29T07:20:16.849Z] STDOUT: components/ui/scroll-area.tsx 1ms (unchanged) (cached)
+[2025-05-29T07:20:16.859Z] STDOUT: components/ui/select.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.863Z] STDOUT: components/ui/separator.tsx 1ms (unchanged) (cached)
+[2025-05-29T07:20:16.870Z] STDOUT: components/ui/sheet.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.879Z] STDOUT: components/ui/sidebar.tsx 1ms (unchanged) (cached)
+[2025-05-29T07:20:16.884Z] STDOUT: components/ui/skeleton.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.889Z] STDOUT: components/ui/slider.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.897Z] STDOUT: components/ui/sonner.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.901Z] STDOUT: components/ui/switch.tsx 1ms (unchanged) (cached)
+[2025-05-29T07:20:16.902Z] STDOUT: components/ui/table.tsx 1ms (unchanged) (cached)
+[2025-05-29T07:20:16.902Z] STDOUT: components/ui/tabs.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.903Z] STDOUT: components/ui/textarea.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.905Z] STDOUT: components/ui/toast.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.906Z] STDOUT: components/ui/toaster.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.907Z] STDOUT: components/ui/toggle-group.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.908Z] STDOUT: components/ui/toggle.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.909Z] STDOUT: components/ui/tooltip.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.910Z] STDOUT: components/utilities/organization-provider.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.912Z] STDOUT: components/utilities/organization-selector.tsx 1ms (unchanged) (cached)
+[2025-05-29T07:20:16.913Z] STDOUT: components/utilities/providers.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.914Z] STDOUT: components/utilities/tailwind-indicator.tsx 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.915Z] STDOUT: components/utilities/theme-switcher.tsx 1ms (unchanged) (cached)
+[2025-05-29T07:20:16.916Z] STDOUT: db/firestore/collections.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.918Z] STDOUT: db/firestore/dm-collections.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.921Z] STDOUT: db/firestore/dm-progress-collections.ts 1ms (unchanged) (cached)
+[2025-05-29T07:20:16.922Z] STDOUT: db/firestore/keyword-performance-collections.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.923Z] STDOUT: db/firestore/lead-generation-collections.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.924Z] STDOUT: db/firestore/monitoring-collections.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.925Z] STDOUT: db/firestore/organizations-collections.ts 1ms (unchanged) (cached)
+[2025-05-29T07:20:16.926Z] STDOUT: db/firestore/personalization-collections.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.928Z] STDOUT: db/firestore/posting-queue-collections.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.930Z] STDOUT: db/firestore/reddit-threads-collections.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.932Z] STDOUT: db/firestore/warmup-collections.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.934Z] STDOUT: db/schema/index.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.938Z] STDOUT: types/action-interfaces.ts 1ms (unchanged) (cached)
+[2025-05-29T07:20:16.939Z] STDOUT: types/index.ts 1ms (unchanged) (cached)
+[2025-05-29T07:20:16.940Z] STDOUT: types/lead-generation-types.ts 1ms (unchanged) (cached)
+[2025-05-29T07:20:16.940Z] STDOUT: types/organization-types.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.942Z] STDOUT: types/profile-types.ts 0ms (unchanged) (cached)
+[2025-05-29T07:20:16.944Z] STDOUT: types/server-action-types.ts 1ms (unchanged) (cached)
+[2025-05-29T07:20:16.958Z] ==================================================
+[2025-05-29T07:20:16.958Z] COMMAND FINISHED: prettier --write {app,lib,components}/**/*.{ts,tsx} db/**/*.ts types/**/*.ts --cache --ignore-unknown (exit code: 0)
+[2025-05-29T07:20:16.958Z] ==================================================
