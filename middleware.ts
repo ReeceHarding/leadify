@@ -28,7 +28,8 @@ const isTestApiRoute = createRouteMatcher([
   "/api/test-twitter-analysis",
   "/api/test-twitter-direct",
   "/api/test-keywords",
-  "/api/test-personalized-comments"
+  "/api/test-personalized-comments",
+  "/api/test-ai-enhanced"
 ])
 
 // Create a custom middleware that checks for public API routes first

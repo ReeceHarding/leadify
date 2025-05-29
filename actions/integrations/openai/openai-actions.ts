@@ -1292,7 +1292,7 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
   }
 }
 
-// Updated function with dynamic system
+// Updated function with exact template matching and comprehensive variable injection
 export async function scoreThreadAndGeneratePersonalizedCommentsWithDMAction(
   threadTitle: string,
   threadContent: string,
@@ -1317,21 +1317,14 @@ export async function scoreThreadAndGeneratePersonalizedCommentsWithDMAction(
     derivedSpecificKeywords?: string[]
   }>
 > {
-  console.log(
-    `🤖 [OPENAI-COMMENTS-DM] Starting dynamic scoring and generation for thread: "${threadTitle.slice(0,50)}..."`
-  )
-  console.log(
-    `🤖 [OPENAI-COMMENTS-DM] Organization ID: ${organizationId}, Campaign: ${campaignName || "N/A"}`
-  )
+  console.log("🤖🤖🤖 [AI-COMMENT-GEN] ========== STARTING ENHANCED AI SYSTEM ==========")
+  console.log("🤖🤖🤖 [AI-COMMENT-GEN] Thread:", threadTitle.slice(0,50) + "...")
+  console.log("🤖🤖🤖 [AI-COMMENT-GEN] Organization:", organizationId)
+  console.log("🤖🤖🤖 [AI-COMMENT-GEN] Campaign:", campaignName || "N/A")
+  console.log("🤖🤖🤖 [AI-COMMENT-GEN] Existing comments count:", existingComments?.length || 0)
 
   try {
-    const { бизнесОписание, информацияОСайте, подсказкиПоТону, имяБренда } = await preparePersonalizationData(
-      organizationId,
-      campaignWebsiteContent,
-      campaignName
-    )
-
-    // Calculate time reference for post
+    // Calculate timing reference for personalization
     let timeReference = "recently"
     if (postCreatedUtc) {
       const postDate = new Date(postCreatedUtc * 1000)
@@ -1342,130 +1335,159 @@ export async function scoreThreadAndGeneratePersonalizedCommentsWithDMAction(
       if (diffDays === 0) {
         timeReference = "today"
       } else if (diffDays === 1) {
-        timeReference = "yesterday"
+        timeReference = "yesterday" 
       } else if (diffDays < 7) {
-        timeReference = "a few days ago"
+        timeReference = `${diffDays} days ago`
       } else if (diffDays < 14) {
         timeReference = "last week"
       } else if (diffDays < 30) {
-        timeReference = "a few weeks ago"
+        timeReference = `${Math.floor(diffDays / 7)} weeks ago`
       } else {
-        timeReference = "a while back"
+        timeReference = "last month"
+      }
+    }
+    
+    console.log("🕐🕐🕐 [AI-COMMENT-GEN] Time reference:", timeReference)
+
+    // Get comprehensive personalization data
+    console.log("🔥🔥🔥 [AI-COMMENT-GEN] Gathering personalization data...")
+    const personalizationData = await preparePersonalizationData(
+      organizationId,
+      campaignWebsiteContent,
+      campaignName
+    )
+    
+    console.log("📊📊📊 [AI-COMMENT-GEN] Personalization data loaded:")
+    console.log("📊📊📊 [AI-COMMENT-GEN] - Business description length:", personalizationData.бизнесОписание.length)
+    console.log("📊📊📊 [AI-COMMENT-GEN] - Website info length:", personalizationData.информацияОСайте.length) 
+    console.log("📊📊📊 [AI-COMMENT-GEN] - Voice prompt length:", personalizationData.подсказкиПоТону.length)
+    console.log("📊📊📊 [AI-COMMENT-GEN] - Brand name:", personalizationData.имяБренда)
+
+    // Prepare context about surrounding comments
+    let commentContext = ""
+    if (existingComments && existingComments.length > 0) {
+      const relevantComments = existingComments
+        .filter(comment => comment && comment.trim().length > 10)
+        .slice(0, 5)
+      
+      if (relevantComments.length > 0) {
+        commentContext = `\n\nEXISTING COMMENTS IN THREAD:\n${relevantComments.map((comment, i) => 
+          `${i + 1}. "${comment.slice(0, 200)}${comment.length > 200 ? '...' : ''}"`
+        ).join('\n')}`
+        
+        console.log("💬💬💬 [AI-COMMENT-GEN] Comment context prepared with", relevantComments.length, "comments")
       }
     }
 
-    // Dynamic scoring system
-    const scoringPrompt = `You are a lead qualification expert. Evaluate how likely the person behind this Reddit post is a potential customer.
+    // EXACT SCORING PROMPT as provided in requirements
+    const scoringPrompt = `You are a lead qualification expert. Evaluate how likely the person behind the post is a potential customer based on their post.
 
-POST ANALYSIS:
-Title: "${threadTitle}"
-Content: "${threadContent}"
-Author: u/${threadAuthor}
-Subreddit: r/${subreddit}
-Posted: ${timeReference}
+Post: "${threadContent}"
+Post Title: "${threadTitle}"
+Product/Solution Context: This person was found when searching for "${campaignKeywords.join(', ')}." We want to gauge if they are a potential customer for a company targeting this solution area.
 
-BUSINESS CONTEXT:
-Search Keywords: "${campaignKeywords.join(', ')}"
-Our Business: ${бизнесОписание}
-Organization: ${имяБренда}
-${информацияОСайте ? `Additional Context: ${информацияОСайте}` : ''}
-
-IMPORTANT: People rarely directly ask for solutions. Read between the lines for indirect signals:
+Important: People rarely directly ask for solutions. Read between the lines and look for indirect signals like:
 - Expressing frustration or challenges
-- Asking if others experience similar issues
+- Asking if others experience similar issues  
 - Describing workarounds they're using
 - Sharing related experiences or pain points
 - Engaging with related topics or discussions
 
-Score from 0-100 based on:
-- How closely they match someone who would benefit from our solution
-- How clearly they express a problem related to our business (directly or indirectly)
-- How likely they would be interested in our offering
-- Whether they seem actively looking for solutions
-- Their apparent frustration/pain level with current situation
+Score this post from 0-100 based on:
+- How closely they match the solution area
+- How clearly they express a problem or need related to ${campaignKeywords.join('/')} (directly or indirectly)
+- How likely they would be interested in a solution
+- Whether they seem to be actively looking for solutions
+- Their apparent frustration/pain level with the current situation
 
-Scale:
-90-100 = Perfect lead (clearly expressing need, actively seeking solutions)
+Return a precise number between 0-100. Use this scale as a general guide:
+90-100 = Perfect lead (clearly expressing need, actively looking for solutions)
 70-89 = Strong lead (clear problem/need expression)
 40-69 = Moderate potential (showing some signs of the problem)
 10-39 = Weak signal (tangentially related)
-0-9 = Not a potential customer
+0-9 = Not a potential customer`
 
-Provide your reasoning for the score.`
-
-    // Dynamic comment generation system
+    // ENHANCED COMMENT GENERATION with exact template matching
     const commentGenerationPrompt = `You are a genuine Reddit user who loves helping others. You found someone with a problem you can actually help with.
 
-WRITING STYLE RULES (FOLLOW EXACTLY):
-- Copy this enthusiasm style: "This is what I do! I love this exploratory phase!"
-- Use exclamation points naturally like the template
-- Keep casual, imperfect capitalization
-- Break into paragraphs exactly like template structure
-- NEVER use hyphens anywhere (write "3rd party" not "third-party")
-- Use "$" instead of "money", "cost", "budget"
-- Natural conversation flow with authentic energy
+YOUR BACKGROUND & CONTEXT:
+Business: ${personalizationData.бизнесОписание}
+Organization: ${personalizationData.имяБренда}
+Website/Additional Info: ${personalizationData.информацияОСайте}
+${personalizationData.подсказкиПоТону ? `Your Communication Style: ${personalizationData.подсказкиПоТону}` : ''}
 
-YOUR BACKGROUND:
-${бизнесОписание}
-Organization: ${имяБренда}
-${информацияОСайте ? `Additional Context: ${информацияОСайте}` : ''}
-${подсказкиПоТону ? `Communication Style: ${подсказкиПоТону}` : ''}
-
-THREAD CONTEXT:
+THREAD DETAILS:
 Title: "${threadTitle}"
 Content: "${threadContent}"
 Author: u/${threadAuthor}
 Subreddit: r/${subreddit}
-Posted: ${timeReference}
+Posted: ${timeReference}${commentContext}
 
-${existingComments && existingComments.length > 0 ? `EXISTING CONVERSATION:
-${existingComments.slice(0, 5).map((comment, i) => `${i + 1}. "${comment}"`).join('\n\n')}` : ''}
+CRITICAL WRITING STYLE RULES (FOLLOW EXACTLY):
+1. Copy this enthusiasm style VERBATIM: "I would love to chat about this if you want to message me. This is what I do! I love this exploratory phase!"
+2. Keep the EXACT capitalization patterns, including inconsistencies
+3. Use exclamation points naturally like the template shows
+4. Break into paragraphs EXACTLY like template structure
+5. NEVER use hyphens anywhere (write "3rd party" not "third-party", "staff augmentation" not "staff-augmentation")
+6. Use "$" instead of "money", "cost", "budget" where appropriate
+7. Natural conversation flow with authentic energy
+8. Include any spelling quirks or imperfections that make it sound human
 
-COMMENT GENERATION STRATEGY:
+COMMENT STRUCTURE (FOLLOW TEMPLATE EXACTLY):
+1. Enthusiastic opener: "I would love to chat about this if you want to message me. This is what I do! I love this exploratory phase!"
+
+2. Present key questions: "There are a handful of things you need to consider: [adapt these to their specific situation]?"
+
+3. Give 3 genuine options (adapt the template structure to their industry/situation):
+   A: [Most common/cheaper approach in their field - describe pros/cons honestly]
+   B: [Middle ground approach - give realistic assessment] 
+   C: [Professional/premium approach - naturally mention ${personalizationData.имяБренда} here as one option]
+
+4. Close enthusiastically: "Again, I'd love to chat. Best of luck! Sounds like a fun and challenging project!!"
+
+CONTEXT INTEGRATION:
 ${existingComments && existingComments.length > 0 ? 
-`1. Reference existing comments naturally: "I've seen a few people mention X. I agree with that to an extent, but..." or "Building on what others said..."` : 
-`1. Start with genuine enthusiasm for their challenge`}
+  `- Reference existing comments naturally: "I've seen a few other people mention X. I agree with that to an extent, but I don't agree with it completely for Y reason"
+  - Build on what others said while adding your unique perspective` : 
+  `- Start with genuine enthusiasm for their specific challenge`}
 
-2. Follow EXACT template structure (copy this format exactly):
-   - Enthusiastic opener: "I would love to chat about this if you want to message me. This is what I do! I love this exploratory phase!"
-   - Present key questions: "There are a handful of things you need to consider: [relevant questions for their situation]?"
-   - Give 3 genuine options with honest pros/cons
-   - Include ${имяБренда} as ONE natural option among others
-   - Close enthusiastically: "Again, I'd love to chat. Best of luck! Sounds like a fun and challenging project!!"
-
-3. Adapt the three options to their specific industry/situation:
-   - Option A: [Most common/cheaper approach in their field]
-   - Option B: [Middle ground approach]
-   - Option C: [Professional/premium approach - naturally mention ${имяБренда} here]
-
-4. Make content relevant to their specific problem but keep exact writing style and structure
+ADAPTATION RULES:
+- Make the 3 options relevant to their specific industry/problem
+- Keep the EXACT writing style and structure from template
+- Be genuinely helpful, not salesy
+- Show real expertise and interest
+- Make ${personalizationData.имяБренда} feel like a natural mention, not forced
 
 For DM generation:
 - Reference their specific post from ${timeReference}
 - Be casual and conversational, not salesy
 - Show genuine interest in helping
 - Mention your business naturally
-- Offer something valuable
-- Keep it short and friendly
+- Offer something valuable (free consultation, guarantee, etc.)
+- Keep it short and friendly (2-3 sentences max)
 
-CRITICAL: Never use hyphens anywhere. Write naturally with enthusiasm but don't sound robotic.
+CRITICAL: Never use hyphens anywhere. Write naturally with the exact enthusiasm pattern but adapt content to their specific situation.`
 
-Return JSON with scoring and all comment lengths plus DM content.`
+    const fullPrompt = `${scoringPrompt}
 
-    const fullPrompt = `${scoringPrompt}\n\n${commentGenerationPrompt}\n\nReturn JSON:
+COMMENT GENERATION:
+${commentGenerationPrompt}
+
+Return JSON with scoring and all comment lengths plus DM content:
 {
-  "score": <number 1-100>,
-  "reasoning": "<why you can help with their specific situation>",
-  "microComment": "<authentic excited reaction 5-15 words>",
-  "mediumComment": "<helpful insight 30-80 words>",
-  "verboseComment": "<comprehensive help following exact template structure 300-500 words>",
-  "dmSubject": "<short relevant subject line>",
-  "dmMessage": "<personalized DM message>",
+  "score": <number 0-100>,
+  "reasoning": "<why this person is/isn't a good lead>",
+  "microComment": "<enthusiastic reaction 5-15 words matching template style>",
+  "mediumComment": "<helpful insight 30-80 words with template enthusiasm>",
+  "verboseComment": "<comprehensive help following EXACT template structure 300-500 words>",
+  "dmSubject": "<short relevant subject line>", 
+  "dmMessage": "<personalized DM message referencing their post from ${timeReference}>",
   "dmFollowUp": "<optional follow-up or empty string>",
   "derivedSpecificKeywords": ["<keyword1>", "<keyword2>"]
 }`
 
-    console.log("🔍🔍🔍 [DYNAMIC-PROMPT] Generating with adaptive system...")
+    console.log("🚀🚀🚀 [AI-COMMENT-GEN] Sending enhanced prompt to AI...")
+    console.log("🚀🚀🚀 [AI-COMMENT-GEN] Prompt length:", fullPrompt.length)
 
     const { text: aiResponseText } = await generateText({ 
       model: openai("o3-mini"),
@@ -1473,65 +1495,50 @@ Return JSON with scoring and all comment lengths plus DM content.`
       temperature: 0.7,
     })
 
-    console.log("🤖 [DYNAMIC] Raw response received (first 500 chars):", aiResponseText.slice(0,500))
+    console.log("🤖🤖🤖 [AI-COMMENT-GEN] Raw AI response received")
+    console.log("🤖🤖🤖 [AI-COMMENT-GEN] Response preview:", aiResponseText.slice(0, 300) + "...")
 
     const extractedObject = extractJsonFromText(aiResponseText)
-
-    if (!extractedObject) {
-      console.error("❌ [DYNAMIC] Failed to extract JSON from AI response")
-      return {
-        isSuccess: false,
-        message: "Failed to extract valid JSON from OpenAI response"
-      }
-    }
-
-    const ThreadAnalysisWithDMSchema = ThreadAnalysisSchema.extend({
-      dmSubject: z.string(),
-      dmMessage: z.string(),
-      dmFollowUp: z.string().optional()
-    })
-
-    const validationResult = ThreadAnalysisWithDMSchema.safeParse(extractedObject)
-
-    if (!validationResult.success) {
-      console.error("❌ [DYNAMIC] Response validation failed:", validationResult.error.errors)
-      return {
-        isSuccess: false,
-        message: `Response validation failed: ${validationResult.error.errors.map(e => e.message).join(', ')}`
-      }
-    }
     
-    const object = validationResult.data
-
-    const result = {
-      score: Math.max(1, Math.min(100, object.score)),
-      reasoning: object.reasoning,
-      microComment: object.microComment,
-      mediumComment: object.mediumComment,
-      verboseComment: object.verboseComment,
-      dmSubject: object.dmSubject,
-      dmMessage: object.dmMessage,
-      dmFollowUp: object.dmFollowUp || undefined,
-      derivedSpecificKeywords: object.derivedSpecificKeywords || []
+    if (!extractedObject) {
+      console.error("❌❌❌ [AI-COMMENT-GEN] Failed to extract JSON from AI response")
+      throw new Error("Failed to parse AI response as JSON")
     }
 
-    console.log("🔍🔍🔍 [DYNAMIC-RESULT] Score:", result.score)
-    console.log("🔍🔍🔍 [DYNAMIC-RESULT] Reasoning:", result.reasoning.slice(0, 100) + "...")
+    console.log("✅✅✅ [AI-COMMENT-GEN] Successfully parsed AI response")
+    console.log("✅✅✅ [AI-COMMENT-GEN] Score:", extractedObject.score)
+    console.log("✅✅✅ [AI-COMMENT-GEN] Verbose comment length:", extractedObject.verboseComment?.length || 0)
+    console.log("✅✅✅ [AI-COMMENT-GEN] DM message length:", extractedObject.dmMessage?.length || 0)
 
-    console.log(
-      `✅ Dynamic thread analysis complete: ${result.score}/100`
-    )
+    // Validate and sanitize response
+    const result = {
+      score: Math.max(0, Math.min(100, Number(extractedObject.score) || 0)),
+      reasoning: String(extractedObject.reasoning || "No reasoning provided"),
+      microComment: String(extractedObject.microComment || "This looks interesting!"),
+      mediumComment: String(extractedObject.mediumComment || "I'd love to help with this. Feel free to message me!"),
+      verboseComment: String(extractedObject.verboseComment || "I would love to chat about this if you want to message me. This is what I do! I love this exploratory phase!"),
+      dmMessage: String(extractedObject.dmMessage || "Hey! Saw your post and would love to chat about this."),
+      dmSubject: String(extractedObject.dmSubject || `Re: ${threadTitle.slice(0, 30)}...`),
+      dmFollowUp: extractedObject.dmFollowUp ? String(extractedObject.dmFollowUp) : undefined,
+      derivedSpecificKeywords: Array.isArray(extractedObject.derivedSpecificKeywords) 
+        ? extractedObject.derivedSpecificKeywords 
+        : campaignKeywords.slice(0, 3)
+    }
+
+    console.log("🎯🎯🎯 [AI-COMMENT-GEN] ========== GENERATION COMPLETE ==========")
+    console.log("🎯🎯🎯 [AI-COMMENT-GEN] Final score:", result.score)
+    console.log("🎯🎯🎯 [AI-COMMENT-GEN] Comments generated successfully")
 
     return {
       isSuccess: true,
-      message: "Thread analyzed with dynamic system successfully",
+      message: "Comments and DM generated successfully",
       data: result
     }
   } catch (error) {
-    console.error("❌ [DYNAMIC] Error:", error)
+    console.error("❌❌❌ [AI-COMMENT-GEN] Error in generation:", error)
     return {
       isSuccess: false,
-      message: `Failed to analyze thread: ${error instanceof Error ? error.message : "Unknown error"}`
+      message: `Failed to generate content: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }
