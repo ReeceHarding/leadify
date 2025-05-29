@@ -40,7 +40,8 @@ import {
   Users,
   Award,
   CalendarDays,
-  Mail
+  Mail,
+  Activity
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -224,6 +225,7 @@ interface DashboardState {
   searchQuery: string
   selectedKeyword: string | null
   dateFilter: "all" | "today" | "week" | "month" | "3months"
+  activeMainTab: "comment" | "dm" | "monitor" // New state for main tabs
 }
 
 const initialState: DashboardState = {
@@ -258,7 +260,8 @@ const initialState: DashboardState = {
   debugLogs: [],
   searchQuery: "",
   selectedKeyword: null,
-  dateFilter: "all"
+  dateFilter: "all",
+  activeMainTab: "comment" // Initialize main tab
 }
 
 // Add date filter helper function
@@ -2135,8 +2138,7 @@ export default function LeadFinderDashboard() {
       ...prev,
       leads: prev.leads.map(l =>
         l.id === notificationLead.id
-          ? { ...l, status: "viewed" }
-          : l
+          ? { ...l, status: "viewed" } : l
       )
     }))
     
