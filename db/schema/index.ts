@@ -15,6 +15,7 @@ export * from "@/db/firestore/keyword-performance-collections"
 export * from "@/db/firestore/dm-collections"
 export * from "@/db/firestore/dm-progress-collections"
 export * from "@/db/firestore/monitoring-collections"
+export * from "@/db/firestore/unified-queue-collections"
 
 // Export Reddit threads collections separately to avoid naming conflicts
 export {
@@ -26,3 +27,9 @@ export {
 // Re-export with aliases to avoid conflicts
 export type { RedditThreadDocument as SharedRedditThreadDocument } from "@/db/firestore/reddit-threads-collections"
 export type { CreateRedditThreadData as CreateSharedRedditThreadData } from "@/db/firestore/reddit-threads-collections"
+
+// New unified queue collections
+export * from "../firestore/collections"
+export * from "../firestore/warmup-collections"
+export * from "../firestore/posting-queue-collections"
+export * from "../firestore/unified-queue-collections"

@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   MessageSquare,
   ExternalLink,
@@ -29,7 +30,9 @@ import {
   ThumbsUp,
   User,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  Calendar,
+  Target
 } from "lucide-react"
 import { toast } from "sonner"
 import { getGeneratedCommentsByOrganizationIdAction } from "@/actions/db/lead-generation-actions"
@@ -44,6 +47,7 @@ import Link from "next/link"
 import { validateOrganizationId } from "@/lib/utils/organization-utils"
 import { ListLoadingSkeleton } from "@/components/ui/loading-skeleton"
 import { loggers } from "@/lib/logger"
+import QueueManagement from "./queue-management"
 
 const logger = loggers.reddit
 
@@ -326,42 +330,35 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
     return `${days}d ago`
   }
 
-  if (isLoading) {
-    return <ListLoadingSkeleton items={3} className="space-y-4" />
-  }
+  const PostsContent = () => {
+    if (isLoading) {
+      return <ListLoadingSkeleton items={3} className="space-y-4" />
+    }
 
-  if (posts.length === 0) {
-    return (
-      <div className="space-y-4">
-        <Alert>
-          <MessageSquare className="size-4" />
-          <AlertTitle>No Posts Yet</AlertTitle>
-          <AlertDescription>
-            You haven't posted any comments to Reddit yet. Head to the Lead
-            Finder to start posting!
-          </AlertDescription>
-        </Alert>
-        <div className="flex justify-center">
-          <Button asChild>
-            <Link href="/reddit/lead-finder">
-              <MessageSquare className="mr-2 size-4" />
-              Go to Lead Finder
-            </Link>
-          </Button>
+    if (posts.length === 0) {
+      return (
+        <div className="space-y-4">
+          <Alert>
+            <MessageSquare className="size-4" />
+            <AlertTitle>No Posts Yet</AlertTitle>
+            <AlertDescription>
+              You haven't posted any comments to Reddit yet. Head to the Lead
+              Finder to start posting!
+            </AlertDescription>
+          </Alert>
+          <div className="flex justify-center">
+            <Button asChild>
+              <Link href="/reddit/lead-finder">
+                <MessageSquare className="mr-2 size-4" />
+                Go to Lead Finder
+              </Link>
+            </Button>
+          </div>
         </div>
-      </div>
-    )
-  }
+      )
+    }
 
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">My Reddit Posts</h1>
-        <p className="text-muted-foreground">
-          View and manage all your posted Reddit comments in one place
-        </p>
-      </div>
-
+    return (
       <div className="space-y-4">
         {posts.map(post => {
           const isExpanded = expandedPosts.has(post.id)
@@ -512,9 +509,12 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
                                       <Button
                                         size="sm"
                                         onClick={() =>
-                                          postReply(post.id, `t1_${reply.id}`)
+                                          postReply(post.id, reply.id)
                                         }
-                                        disabled={postingReply === post.id}
+                                        disabled={
+                                          postingReply === post.id ||
+                                          !replyText.trim()
+                                        }
                                       >
                                         {postingReply === post.id ? (
                                           <>
@@ -524,7 +524,7 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
                                         ) : (
                                           <>
                                             <Send className="mr-1 size-3" />
-                                            Post Reply
+                                            Reply
                                           </>
                                         )}
                                       </Button>
@@ -553,52 +553,30 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
                                     ) : (
                                       <>
                                         <Sparkles className="mr-1 size-3" />
-                                        Generate AI Reply
+                                        AI Reply
                                       </>
                                     )}
                                   </Button>
-                                  {post.generatedReply && (
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={() => {
-                                        setReplyText(post.generatedReply || "")
-                                        setEditingReply(post.id)
-                                      }}
-                                    >
-                                      <Edit2 className="mr-1 size-3" />
-                                      Edit & Send
-                                    </Button>
-                                  )}
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => {
+                                      setEditingReply(post.id)
+                                      setReplyText("")
+                                    }}
+                                  >
+                                    <Edit2 className="mr-1 size-3" />
+                                    Manual Reply
+                                  </Button>
                                 </>
                               )}
                             </div>
-
-                            {/* Show generated reply preview */}
-                            {post.generatedReply &&
-                              editingReply !== post.id && (
-                                <div className="mt-3 rounded-lg bg-blue-50 p-3 dark:bg-blue-900/20">
-                                  <p className="text-xs font-medium text-blue-600 dark:text-blue-400">
-                                    AI Generated Reply:
-                                  </p>
-                                  <p className="mt-1 text-sm">
-                                    {post.generatedReply}
-                                  </p>
-                                </div>
-                              )}
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-center dark:border-gray-700 dark:bg-gray-800/50">
-                        <MessageSquare className="mx-auto mb-2 size-8 text-gray-400" />
-                        <p className="text-muted-foreground text-sm font-medium">
-                          No replies yet
-                        </p>
-                        <p className="text-muted-foreground text-xs">
-                          Your comment is live on Reddit. Check back later for
-                          responses!
-                        </p>
+                      <div className="text-muted-foreground py-4 text-center text-sm">
+                        No replies yet
                       </div>
                     )}
                   </div>
@@ -608,6 +586,38 @@ export default function MyPostsDashboard({ userId }: MyPostsDashboardProps) {
           )
         })}
       </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold">My Reddit Posts</h1>
+        <p className="text-muted-foreground">
+          View and manage all your Reddit activity in one place
+        </p>
+      </div>
+
+      <Tabs defaultValue="posted" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="posted" className="gap-2">
+            <MessageSquare className="size-4" />
+            Posted Comments
+          </TabsTrigger>
+          <TabsTrigger value="queue" className="gap-2">
+            <Clock className="size-4" />
+            Queue Management
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="posted" className="space-y-6">
+          <PostsContent />
+        </TabsContent>
+
+        <TabsContent value="queue" className="space-y-6">
+          <QueueManagement userId={userId} />
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }
