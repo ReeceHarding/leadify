@@ -65,11 +65,13 @@ export async function runFullLeadGenerationWorkflowAction(
 
 export async function runLeadGenerationWorkflowWithLimitsAction(
   campaignId: string,
-  keywordLimits: Record<string, number> = {}
+  keywordLimits: Record<string, number> = {},
+  timeFilter: "hour" | "day" | "week" | "month" | "year" | "all" = "all"
 ): Promise<ActionState<WorkflowProgress>> {
   console.log("🚀🚀🚀 [WORKFLOW] ========== START WORKFLOW ==========")
   console.log("🚀🚀🚀 [WORKFLOW] Campaign ID:", campaignId)
   console.log("🚀🚀🚀 [WORKFLOW] Keyword limits:", JSON.stringify(keywordLimits, null, 2))
+  console.log("🚀🚀🚀 [WORKFLOW] Time filter:", timeFilter)
   console.log("🚀🚀🚀 [WORKFLOW] Number of keywords:", Object.keys(keywordLimits).length)
   console.log("🚀🚀🚀 [WORKFLOW] Total threads to find:", Object.values(keywordLimits).reduce((a, b) => a + b, 0))
   
@@ -409,28 +411,41 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
       const limit = keywordLimits[keyword] || 10 // Default to 10 if no limit specified
       logger.info(`🔍 Searching for keyword "${keyword}" with limit: ${limit}`)
 
-      const { searchRedditThreadsAction } = await import(
-        "@/actions/integrations/google/google-search-actions"
+      // Use Reddit search API instead of Google for better time filtering
+      const { searchRedditAction } = await import(
+        "@/actions/integrations/reddit/reddit-search-actions"
       )
-      return searchRedditThreadsAction(keyword, limit)
+      
+      // Get organization ID from campaign
+      const organizationId = campaign.organizationId
+      if (!organizationId) {
+        throw new Error("Campaign has no organization ID")
+      }
+
+      return searchRedditAction(organizationId, keyword, {
+        sort: "relevance",
+        time: timeFilter,
+        limit: limit
+      })
     })
 
     const searchResults = await Promise.all(searchPromises)
 
-    // Combine all search results
+    // Transform Reddit search results to match expected format
     const allSearchResults: any[] = []
     searchResults.forEach((result: any, index: number) => {
       if (result.isSuccess) {
         const keyword = keywordsToProcess[index]
-        result.data.forEach((searchResult: any) => {
+        result.data.forEach((post: any, position: number) => {
           allSearchResults.push({
             campaignId,
             keyword,
-            redditUrl: searchResult.link,
-            threadId: searchResult.threadId,
-            title: searchResult.title,
-            snippet: searchResult.snippet,
-            position: searchResult.position
+            redditUrl: post.permalink,
+            threadId: post.id,
+            title: post.title,
+            snippet: post.selftext?.substring(0, 200) || post.title,
+            position: position + 1,
+            createdUtc: post.created_utc
           })
         })
       }

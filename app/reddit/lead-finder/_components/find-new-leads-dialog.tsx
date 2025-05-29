@@ -31,7 +31,8 @@ import {
   AlertCircle,
   Hash,
   Target,
-  Info
+  Info,
+  Calendar
 } from "lucide-react"
 import { toast } from "sonner"
 import { useOrganization } from "@/components/utilities/organization-provider"
@@ -61,6 +62,7 @@ export default function FindNewLeadsDialog({
   const [suggestedKeywords, setSuggestedKeywords] = useState<string[]>([])
   const [customKeyword, setCustomKeyword] = useState("")
   const [postsPerKeyword, setPostsPerKeyword] = useState("10")
+  const [recencyFilter, setRecencyFilter] = useState<"hour" | "day" | "week" | "month" | "year" | "all">("all")
   const [aiRefinement, setAiRefinement] = useState("")
   const [isGeneratingKeywords, setIsGeneratingKeywords] = useState(false)
   const [isFindingLeads, setIsFindingLeads] = useState(false)
@@ -185,6 +187,7 @@ export default function FindNewLeadsDialog({
     console.log("🔍🔍🔍 [FIND-NEW-LEADS] ========== START FIND LEADS ==========")
     console.log("🔍🔍🔍 [FIND-NEW-LEADS] Selected keywords:", selectedKeywords)
     console.log("🔍🔍🔍 [FIND-NEW-LEADS] Posts per keyword:", postsPerKeyword)
+    console.log("🔍��🔍 [FIND-NEW-LEADS] Recency filter:", recencyFilter)
     console.log("🔍🔍🔍 [FIND-NEW-LEADS] Campaign ID:", campaignId)
     console.log("🔍🔍🔍 [FIND-NEW-LEADS] User ID:", userId)
     console.log("🔍🔍🔍 [FIND-NEW-LEADS] Organization:", currentOrganization?.id)
@@ -235,7 +238,8 @@ export default function FindNewLeadsDialog({
 
       const result = await runLeadGenerationWorkflowWithLimitsAction(
         campaignId,
-        keywordLimits
+        keywordLimits,
+        recencyFilter
       )
 
       console.log("🔍🔍🔍 [FIND-NEW-LEADS] Workflow result received:", {
@@ -414,6 +418,33 @@ export default function FindNewLeadsDialog({
               </Select>
               <p className="text-muted-foreground text-xs">
                 How many Reddit posts to analyze for each keyword
+              </p>
+            </div>
+
+            {/* Recency Filter */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Calendar className="size-4" />
+                Time Period
+              </Label>
+              <Select
+                value={recencyFilter}
+                onValueChange={(value: any) => setRecencyFilter(value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="hour">Past Hour</SelectItem>
+                  <SelectItem value="day">Past 24 Hours</SelectItem>
+                  <SelectItem value="week">Past Week</SelectItem>
+                  <SelectItem value="month">Past Month</SelectItem>
+                  <SelectItem value="year">Past Year</SelectItem>
+                  <SelectItem value="all">All Time</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-muted-foreground text-xs">
+                Only search for posts within this time period
               </p>
             </div>
 

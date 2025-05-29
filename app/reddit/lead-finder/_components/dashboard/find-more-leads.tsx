@@ -52,7 +52,8 @@ import {
   CheckCircle2,
   AlertCircle,
   XCircle,
-  Target
+  Target,
+  Calendar
 } from "lucide-react"
 import { toast } from "sonner"
 import { useOrganization } from "@/components/utilities/organization-provider"
@@ -108,6 +109,7 @@ export default function FindMoreLeads({
   const [generatedKeywords, setGeneratedKeywords] = useState("")
   const [manualKeywords, setManualKeywords] = useState("")
   const [showManualEntry, setShowManualEntry] = useState(false)
+  const [timeFilter, setTimeFilter] = useState<"hour" | "day" | "week" | "month" | "year" | "all">("all")
 
   // Load existing keywords and calculate stats
   useEffect(() => {
@@ -316,10 +318,12 @@ export default function FindMoreLeads({
 
     try {
       console.log("🔍 Finding leads with limits:", keywordLimits)
+      console.log("🔍 Time filter:", timeFilter)
 
       const result = await runLeadGenerationWorkflowWithLimitsAction(
         campaignId,
-        keywordLimits
+        keywordLimits,
+        timeFilter
       )
 
       if (result.isSuccess) {
@@ -409,6 +413,33 @@ export default function FindMoreLeads({
               </DialogHeader>
 
               <div className="mt-4 space-y-6">
+                {/* Time Filter Section */}
+                <div className="space-y-3">
+                  <Label className="flex items-center gap-2">
+                    <Calendar className="size-4" />
+                    Time Period
+                  </Label>
+                  <Select
+                    value={timeFilter}
+                    onValueChange={(value: any) => setTimeFilter(value)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="hour">Past Hour</SelectItem>
+                      <SelectItem value="day">Past 24 Hours</SelectItem>
+                      <SelectItem value="week">Past Week</SelectItem>
+                      <SelectItem value="month">Past Month</SelectItem>
+                      <SelectItem value="year">Past Year</SelectItem>
+                      <SelectItem value="all">All Time</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-muted-foreground text-xs">
+                    Only search for posts within this time period
+                  </p>
+                </div>
+
                 {/* Recommendations Section */}
                 {recommendedKeywords.length > 0 && (
                   <div className="space-y-3">
