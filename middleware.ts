@@ -21,6 +21,7 @@ const isProtectedRoute = createRouteMatcher([
 const isPublicApiRoute = createRouteMatcher([
   "/api/queue/(.*)",
   "/api/warmup/(.*)",
+  "/api/monitoring/(.*)",
   "/api/test-warmup"
 ])
 
