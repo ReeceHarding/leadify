@@ -639,10 +639,17 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
           "@/actions/integrations/openai/openai-actions"
         );
 
+        // Import the new function that generates both comments and DMs
+        const { scoreThreadAndGeneratePersonalizedCommentsWithDMAction } = await import(
+          "@/actions/integrations/openai/openai-actions"
+        );
+
+        // Use the new function that generates both comments and DMs
         const scoringResult =
-          await scoreThreadAndGeneratePersonalizedCommentsAction(
+          await scoreThreadAndGeneratePersonalizedCommentsWithDMAction(
             apiThread.title,
             apiThread.content,
+            apiThread.author, // Add author for DM generation
             apiThread.subreddit,
             organizationId, 
             campaign.keywords, 
@@ -658,6 +665,7 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
             `✅ [WORKFLOW] AI Scoring complete - Score: ${scoringData.score}/100`
           )
           logger.info(`📝 [WORKFLOW] Reasoning: ${scoringData.reasoning}`)
+          logger.info(`💬 [WORKFLOW] DM Subject: ${scoringData.dmSubject}`)
 
           // Update shared thread with relevance score
           console.log("🧵 [WORKFLOW] Updating shared thread with relevance score...")
@@ -680,7 +688,7 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
             totalProgress: Math.round(generatingProgress)
           })
 
-          // Prepare comment data with keyword tracking
+          // Prepare comment data with keyword tracking and DM content
           const postCreatedAtValue = apiThread.createdUtc
             ? Timestamp.fromDate(new Date(apiThread.createdUtc * 1000))
             : undefined
@@ -703,13 +711,17 @@ export async function runLeadGenerationWorkflowWithLimitsAction(
             microComment: scoringData.microComment,
             mediumComment: scoringData.mediumComment,
             verboseComment: scoringData.verboseComment,
+            // Add DM fields
+            dmSubject: scoringData.dmSubject,
+            dmMessage: scoringData.dmMessage,
+            dmFollowUp: scoringData.dmFollowUp,
             status: "new",
             keyword: apiThread.keyword,
             postScore: apiThread.score,
             postCreatedAt: postCreatedAtValue
           }
 
-          logger.info(`💾 [WORKFLOW] Saving generated comment to Firestore...`)
+          logger.info(`💾 [WORKFLOW] Saving generated comment and DM to Firestore...`)
           logger.info(
             `💾 [WORKFLOW] With keyword: ${apiThread.keyword}, score: ${apiThread.score}`
           )

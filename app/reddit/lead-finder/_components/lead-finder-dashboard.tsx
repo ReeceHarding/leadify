@@ -39,7 +39,8 @@ import {
   HelpCircle,
   Users,
   Award,
-  CalendarDays
+  CalendarDays,
+  Mail
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -158,7 +159,9 @@ import {
 } from "@/types"
 import LeadGenerationProgressBar from "./dashboard/lead-generation-progress-bar"
 import { 
-  checkThreadInteractionAction
+  checkThreadInteractionAction,
+  updateThreadInteractionAction,
+  recordThreadInteractionAction
 } from "@/actions/db/reddit-threads-actions"
 import { semanticFilterAction } from "@/actions/integrations/openai/semantic-search-actions"
 
@@ -191,6 +194,7 @@ interface DashboardState {
   filterKeyword: string
   filterScore: number
   activeTab: "all" | "queue"
+  viewMode: "comment" | "dm" // Add viewMode state
 
   // Operation state
   selectedPost: LeadResult | null
@@ -203,6 +207,7 @@ interface DashboardState {
   isBatchPosting: boolean
   showRedditAuthDialog: boolean
   showMassPostDialog: boolean
+  sendingDMLeadId: string | null // Add DM sending state
 
   // Metadata
   lastPolledAt: Date | null
@@ -232,6 +237,7 @@ const initialState: DashboardState = {
   filterKeyword: "",
   filterScore: 0,
   activeTab: "all",
+  viewMode: "comment", // Initialize viewMode
   selectedPost: null,
   editingCommentId: null,
   toneInstruction: "",
@@ -242,6 +248,7 @@ const initialState: DashboardState = {
   isBatchPosting: false,
   showRedditAuthDialog: false,
   showMassPostDialog: false,
+  sendingDMLeadId: null, // Initialize DM sending state
   lastPolledAt: null,
   pollingEnabled: false,
   workflowRunning: false,
@@ -724,6 +731,13 @@ export default function LeadFinderDashboard() {
               microComment: comment.microComment || "",
               mediumComment: comment.mediumComment || "",
               verboseComment: comment.verboseComment || "",
+              // Add DM fields
+              dmMessage: comment.dmMessage,
+              dmSubject: comment.dmSubject,
+              dmFollowUp: comment.dmFollowUp,
+              dmStatus: comment.dmStatus,
+              dmSentAt: comment.dmSentAt ? toISOString(comment.dmSentAt) || undefined : undefined,
+              dmError: comment.dmError,
               status: comment.status || "new",
               selectedLength: comment.selectedLength || "medium",
               timeAgo: postCreatedAtISO
@@ -872,18 +886,17 @@ export default function LeadFinderDashboard() {
           addDebugLog("Campaign selected", { campaignId: selectedCampaign.id })
 
           // Fetch full campaign details to get the name
-          const campaignDetailsResult = await getCampaignByIdAction(
-            selectedCampaign.id
-          )
-          if (campaignDetailsResult.isSuccess && campaignDetailsResult.data) {
-            setState(prev => ({
-              ...prev,
-              campaignName: campaignDetailsResult.data.name || null
-            }))
-            setCurrentCampaignKeywords(
-              campaignDetailsResult.data.keywords || []
-            )
-          }
+          getCampaignByIdAction(selectedCampaign.id).then(result => {
+            if (result.isSuccess && result.data) {
+              setState(prev => ({
+                ...prev,
+                campaignName: result.data.name || null
+              }))
+              setCurrentCampaignKeywords(
+                result.data.keywords || []
+              )
+            }
+          })
         } else {
           addDebugLog("No campaigns found for organization")
           setState(prev => ({ ...prev, isLoading: false }))
@@ -1073,40 +1086,160 @@ export default function LeadFinderDashboard() {
   }
 
   // Handle comment editing
-  const handleCommentEdit = async (leadId: string, newComment: string) => {
-    console.log("✏️ [EDIT] Editing comment for lead:", leadId)
+  const handleCommentEdit = async (leadId: string, newContent: string, isDM: boolean = false) => {
+    console.log("✏️ [EDIT] Editing", isDM ? "DM" : "comment", "for lead:", leadId)
 
     const lead = state.leads.find(l => l.id === leadId)
     if (!lead) return
 
     try {
-      const lengthField = `${lead.selectedLength || state.selectedLength}Comment`
-      const result = await updateGeneratedCommentAction(leadId, {
-        [lengthField]: newComment
-      })
+      if (isDM) {
+        // Update DM content
+        const result = await updateGeneratedCommentAction(leadId, {
+          dmMessage: newContent
+        })
 
-      if (result.isSuccess) {
-        setState(prev => ({
-          ...prev,
-          leads: prev.leads.map(l =>
-            l.id === leadId
-              ? {
-                  ...l,
-                  [lengthField]: newComment,
-                  [`${lead.selectedLength || state.selectedLength}Comment`]:
-                    newComment
-                }
-              : l
-          ),
-          editingCommentId: null
-        }))
-        toast.success("Comment updated")
+        if (result.isSuccess) {
+          setState(prev => ({
+            ...prev,
+            leads: prev.leads.map(l =>
+              l.id === leadId
+                ? { ...l, dmMessage: newContent }
+                : l
+            ),
+            editingCommentId: null
+          }))
+          toast.success("DM updated")
+        } else {
+          toast.error("Failed to update DM")
+        }
       } else {
-        toast.error("Failed to update comment")
+        // Update comment content
+        const lengthField = `${lead.selectedLength || state.selectedLength}Comment`
+        const result = await updateGeneratedCommentAction(leadId, {
+          [lengthField]: newContent
+        })
+
+        if (result.isSuccess) {
+          setState(prev => ({
+            ...prev,
+            leads: prev.leads.map(l =>
+              l.id === leadId
+                ? {
+                    ...l,
+                    [lengthField]: newContent,
+                    [`${lead.selectedLength || state.selectedLength}Comment`]:
+                      newContent
+                  }
+                : l
+            ),
+            editingCommentId: null
+          }))
+          toast.success("Comment updated")
+        } else {
+          toast.error("Failed to update comment")
+        }
       }
     } catch (error) {
       console.error("✏️ [EDIT] Error:", error)
-      toast.error("Error updating comment")
+      toast.error(isDM ? "Error updating DM" : "Error updating comment")
+    }
+  }
+
+  // Handle sending DM
+  const handleSendDM = async (lead: LeadResult) => {
+    console.log("📨 [DM] Sending DM to:", lead.postAuthor)
+    updateState({ sendingDMLeadId: lead.id })
+
+    try {
+      if (!lead.dmMessage) {
+        throw new Error("No DM message available")
+      }
+
+      // Import the Reddit DM sending action
+      const { sendRedditDMAction } = await import(
+        "@/actions/integrations/reddit/reddit-dm-actions"
+      )
+
+      const result = await sendRedditDMAction(
+        currentOrganization?.id || "",
+        lead.postAuthor,
+        lead.dmSubject || "Re: Your post",
+        lead.dmMessage
+      )
+
+      if (result.isSuccess) {
+        // Update the lead status
+        await updateGeneratedCommentAction(lead.id, {
+          dmStatus: "sent",
+          dmSentAt: Timestamp.now()
+        })
+
+        setState(prev => ({
+          ...prev,
+          leads: prev.leads.map(l =>
+            l.id === lead.id
+              ? {
+                  ...l,
+                  dmStatus: "sent",
+                  dmSentAt: new Date().toISOString(),
+                  hasDM: true
+                }
+              : l
+          ),
+          sendingDMLeadId: null
+        }))
+
+        // Update thread interaction
+        await updateThreadInteractionAction(lead.threadId, {
+          hasDM: true
+        })
+
+        // Record the interaction
+        await recordThreadInteractionAction({
+          organizationId: currentOrganization?.id || "",
+          threadId: lead.threadId,
+          userId: user?.id || "",
+          type: "dm",
+          details: {
+            status: "sent"
+          }
+        })
+
+        toast.success("DM sent successfully!")
+        posthog.capture("reddit_dm_sent", {
+          leadId: lead.id,
+          recipient: lead.postAuthor
+        })
+      } else {
+        throw new Error(result.message)
+      }
+    } catch (error) {
+      console.error("📨 [DM] Error sending:", error)
+
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      
+      if (
+        errorMessage.includes("No valid Reddit access token") ||
+        errorMessage.includes("authentication")
+      ) {
+        updateState({ showRedditAuthDialog: true })
+        toast.error("Please reconnect your Reddit account")
+      } else if (errorMessage.includes("User not found")) {
+        toast.error("User not found or has deleted their account")
+      } else if (errorMessage.includes("blocked")) {
+        toast.error("Cannot send DM - user has blocked DMs or you")
+      } else {
+        toast.error("Failed to send DM")
+      }
+
+      // Update with error status
+      await updateGeneratedCommentAction(lead.id, {
+        dmStatus: "failed",
+        dmError: errorMessage
+      })
+
+      updateState({ sendingDMLeadId: null })
     }
   }
 
@@ -2155,7 +2288,9 @@ export default function LeadFinderDashboard() {
                 ...prev,
                 campaignName: result.data.name || null
               }))
-              setCurrentCampaignKeywords(result.data.keywords || [])
+              setCurrentCampaignKeywords(
+                result.data.keywords || []
+              )
             }
           })
         }}
@@ -2323,6 +2458,20 @@ export default function LeadFinderDashboard() {
       </div>
 
       <div className="grid gap-4">
+        {/* View Mode Tabs */}
+        <Tabs value={state.viewMode} onValueChange={(value) => setState(prev => ({ ...prev, viewMode: value as "comment" | "dm" }))}>
+          <TabsList className="grid w-full max-w-[400px] grid-cols-2">
+            <TabsTrigger value="comment" className="flex items-center gap-2">
+              <MessageSquare className="size-4" />
+              Comments
+            </TabsTrigger>
+            <TabsTrigger value="dm" className="flex items-center gap-2">
+              <Mail className="size-4" />
+              Direct Messages
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+
         {/* Progress Bar - Show when workflow is running or recently completed */}
         {liveFirestoreProgress && (
           liveFirestoreProgress.status === "in_progress" || 
@@ -2390,10 +2539,12 @@ export default function LeadFinderDashboard() {
             state.workflowRunning ||
             liveFirestoreProgress?.status === "in_progress"
           }
+          viewMode={state.viewMode}
           selectedLength={state.selectedLength}
           onEditComment={handleCommentEdit}
           onPostComment={handlePostNow}
           onQueueComment={handleAddToQueue}
+          onSendDM={handleSendDM}
           onViewComments={lead => {
             setState(prev => ({
               ...prev,
@@ -2403,6 +2554,7 @@ export default function LeadFinderDashboard() {
           onRegenerateWithInstructions={handleRegenerateWithInstructions}
           postingLeadId={state.postingLeadId}
           queuingLeadId={state.queuingLeadId}
+          sendingDMLeadId={state.sendingDMLeadId}
           toneInstruction={state.toneInstruction}
           onToneInstructionChange={(value: string) =>
             updateState({ toneInstruction: value })

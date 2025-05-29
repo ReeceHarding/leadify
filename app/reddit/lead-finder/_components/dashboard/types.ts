@@ -17,6 +17,15 @@ export interface LeadResult {
   microComment: string
   mediumComment: string
   verboseComment: string
+
+  // DM fields
+  dmMessage?: string
+  dmSubject?: string
+  dmFollowUp?: string
+  dmStatus?: "draft" | "sent" | "failed" | "replied"
+  dmSentAt?: string // ISO string format
+  dmError?: string
+
   status:
     | "new"
     | "viewed"

@@ -47,7 +47,8 @@ import {
   ChevronDown,
   CirclePlus,
   Loader2,
-  Calendar
+  Calendar,
+  Mail
 } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -63,16 +64,20 @@ import { fetchRedditThreadAction } from "@/actions/integrations/reddit/reddit-ac
 interface LeadCardProps {
   lead: any
   selectedLength: "micro" | "medium" | "verbose"
-  onEdit: (leadId: string, newComment: string) => Promise<void>
+  viewMode: "comment" | "dm"
+  onEdit: (leadId: string, newComment: string, isDM?: boolean) => Promise<void>
   onPost: (lead: any) => Promise<void>
   onQueue: (lead: any) => Promise<void>
+  onSendDM?: (lead: any) => Promise<void>
   onViewComments?: (lead: any) => void
   onRegenerateWithInstructions?: (
     leadId: string,
-    instructions: string
+    instructions: string,
+    isDM?: boolean
   ) => Promise<void>
   isPosting?: boolean
   isQueueing?: boolean
+  isSendingDM?: boolean
 }
 
 // Add date formatting helper
@@ -110,16 +115,19 @@ const formatPostDate = (dateString?: string): string => {
 export default function LeadCard({
   lead,
   selectedLength,
+  viewMode = "comment",
   onEdit,
   onPost,
   onQueue,
+  onSendDM,
   onViewComments,
   onRegenerateWithInstructions,
   isPosting = false,
-  isQueueing = false
+  isQueueing = false,
+  isSendingDM = false
 }: LeadCardProps) {
   const [isEditing, setIsEditing] = useState(false)
-  const [editedComment, setEditedComment] = useState("")
+  const [editedContent, setEditedContent] = useState("")
   const [isCopied, setIsCopied] = useState(false)
   const [showPostDetail, setShowPostDetail] = useState(false)
   const [showRegenerateDialog, setShowRegenerateDialog] = useState(false)
@@ -132,7 +140,12 @@ export default function LeadCard({
   const [isCardLoading, setIsCardLoading] = useState(false)
   const [cardError, setCardError] = useState<string | null>(null)
 
-  const comment = lead[`${selectedLength}Comment`] || lead.mediumComment || ""
+  // Get content based on view mode
+  const content = viewMode === "dm" 
+    ? (lead.dmMessage || "No DM generated yet")
+    : (lead[`${selectedLength}Comment`] || lead.mediumComment || "")
+
+  const dmSubject = lead.dmSubject || "Re: Your post"
 
   useEffect(() => {
     const fetchFullContentForCard = async () => {
@@ -186,24 +199,27 @@ export default function LeadCard({
   }, [isPostBodyOpen, fullCardContent, lead.postUrl, lead.postContentSnippet, lead.threadId, lead.subreddit, lead.organizationId, lead.id])
 
   const handleStartEdit = () => {
-    setEditedComment(comment)
+    setEditedContent(content)
     setIsEditing(true)
   }
 
   const handleSaveEdit = async () => {
-    await onEdit(lead.id, editedComment)
+    await onEdit(lead.id, editedContent, viewMode === "dm")
     setIsEditing(false)
   }
 
   const handleCancelEdit = () => {
     setIsEditing(false)
-    setEditedComment("")
+    setEditedContent("")
   }
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(comment)
+    const textToCopy = viewMode === "dm" 
+      ? `Subject: ${dmSubject}\n\n${content}`
+      : content
+    navigator.clipboard.writeText(textToCopy)
     setIsCopied(true)
-    toast.success("Comment copied to clipboard")
+    toast.success(viewMode === "dm" ? "DM copied to clipboard" : "Comment copied to clipboard")
     setTimeout(() => setIsCopied(false), 2000)
   }
 
@@ -229,12 +245,12 @@ export default function LeadCard({
 
     setIsRegenerating(true)
     try {
-      await onRegenerateWithInstructions(lead.id, regenerateInstructions)
+      await onRegenerateWithInstructions(lead.id, regenerateInstructions, viewMode === "dm")
       setShowRegenerateDialog(false)
       setRegenerateInstructions("")
-      toast.success("Comment regenerated successfully")
+      toast.success(viewMode === "dm" ? "DM regenerated successfully" : "Comment regenerated successfully")
     } catch (error) {
-      toast.error("Failed to regenerate comment")
+      toast.error(viewMode === "dm" ? "Failed to regenerate DM" : "Failed to regenerate comment")
     } finally {
       setIsRegenerating(false)
     }
@@ -245,7 +261,8 @@ export default function LeadCard({
       <Card
         className={cn(
           "overflow-hidden transition-all duration-300",
-          lead.status === "posted" && "opacity-75"
+          lead.status === "posted" && viewMode === "comment" && "opacity-75",
+          lead.dmStatus === "sent" && viewMode === "dm" && "opacity-75"
         )}
       >
         <CardContent className="space-y-4 p-6">
@@ -261,9 +278,14 @@ export default function LeadCard({
               >
                 {lead.relevanceScore}% Match
               </Badge>
-              {lead.status === "posted" && (
+              {viewMode === "comment" && lead.status === "posted" && (
                 <Badge variant="default" className="bg-green-600 text-white">
                   Posted
+                </Badge>
+              )}
+              {viewMode === "dm" && lead.dmStatus === "sent" && (
+                <Badge variant="default" className="bg-blue-600 text-white">
+                  DM Sent
                 </Badge>
               )}
               {lead.hasDM && (
@@ -335,11 +357,18 @@ export default function LeadCard({
             </Collapsible>
           )}
 
-          {/* AI Generated Comment Section */}
+          {/* AI Generated Content Section */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                AI Generated Comment
+                {viewMode === "dm" ? (
+                  <span className="flex items-center gap-2">
+                    <Mail className="size-4" />
+                    AI Generated DM
+                  </span>
+                ) : (
+                  "AI Generated Comment"
+                )}
               </p>
               <div className="flex items-center gap-1">
                 <Button
@@ -381,10 +410,10 @@ export default function LeadCard({
                         <DialogHeader>
                           <DialogTitle className="flex items-center gap-2">
                             <Sparkles className="size-4 text-blue-500" />
-                            Regenerate Comment with AI
+                            Regenerate {viewMode === "dm" ? "DM" : "Comment"} with AI
                           </DialogTitle>
                           <DialogDescription>
-                            Choose how you'd like to regenerate this comment.
+                            Choose how you'd like to regenerate this {viewMode === "dm" ? "DM" : "comment"}.
                           </DialogDescription>
                         </DialogHeader>
                         <div className="space-y-4 py-4">
@@ -392,7 +421,7 @@ export default function LeadCard({
                           <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
                             <h4 className="mb-2 font-medium">Option 1: Use Latest AI Prompts</h4>
                             <p className="mb-3 text-sm text-gray-600 dark:text-gray-400">
-                              Regenerate using our improved AI scoring and comment generation system.
+                              Regenerate using our improved AI scoring and {viewMode === "dm" ? "DM" : "comment"} generation system.
                             </p>
                             <Button
                               onClick={async () => {
@@ -400,12 +429,12 @@ export default function LeadCard({
                                 try {
                                   // Call the parent's regenerate function with a special flag
                                   if (onRegenerateWithInstructions) {
-                                    await onRegenerateWithInstructions(lead.id, "__USE_NEW_PROMPTS__")
+                                    await onRegenerateWithInstructions(lead.id, "__USE_NEW_PROMPTS__", viewMode === "dm")
                                     setShowRegenerateDialog(false)
-                                    toast.success("Comment regenerated with latest AI")
+                                    toast.success(`${viewMode === "dm" ? "DM" : "Comment"} regenerated with latest AI`)
                                   }
                                 } catch (error) {
-                                  toast.error("Failed to regenerate comment")
+                                  toast.error(`Failed to regenerate ${viewMode === "dm" ? "DM" : "comment"}`)
                                 } finally {
                                   setIsRegenerating(false)
                                 }
@@ -441,7 +470,9 @@ export default function LeadCard({
                               Describe specific changes you want.
                             </p>
                             <Textarea
-                              placeholder="e.g., Make it more conversational, focus on our pricing advantage..."
+                              placeholder={viewMode === "dm" 
+                                ? "e.g., Make it more personal, mention their specific problem..."
+                                : "e.g., Make it more conversational, focus on our pricing advantage..."}
                               value={regenerateInstructions}
                               onChange={e =>
                                 setRegenerateInstructions(e.target.value)
@@ -488,12 +519,20 @@ export default function LeadCard({
               </div>
             </div>
 
-            {/* Comment Display/Edit Area - Now clickable when not editing */}
+            {/* DM Subject Line (only for DM view) */}
+            {viewMode === "dm" && (
+              <div className="rounded-lg border border-gray-200 bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-900/50">
+                <p className="text-xs font-medium text-gray-600 dark:text-gray-400">Subject:</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{dmSubject}</p>
+              </div>
+            )}
+
+            {/* Content Display/Edit Area - Now clickable when not editing */}
             {isEditing ? (
               <div className="space-y-2">
                 <Textarea
-                  value={editedComment}
-                  onChange={e => setEditedComment(e.target.value)}
+                  value={editedContent}
+                  onChange={e => setEditedContent(e.target.value)}
                   className="min-h-[100px] resize-none"
                   autoFocus
                 />
@@ -518,7 +557,7 @@ export default function LeadCard({
                 onClick={handleStartEdit}
               >
                 <p className="whitespace-pre-wrap text-sm leading-relaxed">
-                  {comment}
+                  {content}
                 </p>
               </div>
             )}
@@ -544,46 +583,80 @@ export default function LeadCard({
               <ExternalLink className="mr-2 size-4" />
               View on Reddit
             </Button>
-            {lead.status === "posted" && lead.postedCommentUrl ? (
-              <Button
-                size="sm"
-                onClick={() => window.open(lead.postedCommentUrl, "_blank")}
-                className="flex-1 bg-green-600 text-white hover:bg-green-700"
-              >
-                <MessageSquare className="mr-2 size-4" />
-                View Comment
-              </Button>
+            {viewMode === "comment" ? (
+              // Comment mode buttons
+              lead.status === "posted" && lead.postedCommentUrl ? (
+                <Button
+                  size="sm"
+                  onClick={() => window.open(lead.postedCommentUrl, "_blank")}
+                  className="flex-1 bg-green-600 text-white hover:bg-green-700"
+                >
+                  <MessageSquare className="mr-2 size-4" />
+                  View Comment
+                </Button>
+              ) : (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        size="sm"
+                        onClick={handlePostClick}
+                        disabled={isPosting || isQueueing}
+                        className="flex-1 bg-blue-600 text-white hover:bg-blue-700"
+                      >
+                        {isPosting || isQueueing ? (
+                          <>
+                            <Loader2 className="mr-2 size-4 animate-spin" />
+                            {isPosting ? "Posting..." : "Adding..."}
+                          </>
+                        ) : (
+                          <>
+                            <Send className="mr-2 size-4" />
+                            Post
+                          </>
+                        )}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Post to Reddit or add to queue</p>
+                      <p className="text-xs text-gray-400">
+                        Some subreddits have posting restrictions
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )
             ) : (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="sm"
-                      onClick={handlePostClick}
-                      disabled={isPosting || isQueueing}
-                      className="flex-1 bg-blue-600 text-white hover:bg-blue-700"
-                    >
-                      {isPosting || isQueueing ? (
-                        <>
-                          <Loader2 className="mr-2 size-4 animate-spin" />
-                          {isPosting ? "Posting..." : "Adding..."}
-                        </>
-                      ) : (
-                        <>
-                          <Send className="mr-2 size-4" />
-                          Post
-                        </>
-                      )}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Post to Reddit or add to queue</p>
-                    <p className="text-xs text-gray-400">
-                      Some subreddits have posting restrictions
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              // DM mode buttons
+              lead.dmStatus === "sent" ? (
+                <Button
+                  size="sm"
+                  disabled
+                  className="flex-1 cursor-not-allowed bg-gray-400 text-white"
+                >
+                  <Check className="mr-2 size-4" />
+                  DM Sent
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  onClick={() => onSendDM?.(lead)}
+                  disabled={isSendingDM || !lead.dmMessage}
+                  className="flex-1 bg-purple-600 text-white hover:bg-purple-700"
+                >
+                  {isSendingDM ? (
+                    <>
+                      <Loader2 className="mr-2 size-4 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Mail className="mr-2 size-4" />
+                      Send DM
+                    </>
+                  )}
+                </Button>
+              )
             )}
           </div>
         </CardContent>

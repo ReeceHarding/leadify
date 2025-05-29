@@ -170,6 +170,15 @@ export interface SerializedGeneratedCommentDocument {
   microComment: string
   mediumComment: string
   verboseComment: string
+
+  // DM fields
+  dmMessage?: string
+  dmSubject?: string
+  dmFollowUp?: string
+  dmStatus?: "draft" | "sent" | "failed" | "replied"
+  dmSentAt?: string
+  dmError?: string
+
   status:
     | "new"
     | "viewed"

@@ -1292,6 +1292,229 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
   }
 }
 
+// New function to generate both comments and DMs
+export async function scoreThreadAndGeneratePersonalizedCommentsWithDMAction(
+  threadTitle: string,
+  threadContent: string,
+  threadAuthor: string,
+  subreddit: string,
+  organizationId: string,
+  campaignKeywords: string[],
+  campaignWebsiteContent?: string,
+  existingComments?: string[],
+  campaignName?: string,
+  postCreatedUtc?: number 
+): Promise<
+  ActionState<{
+    score: number
+    reasoning: string
+    microComment: string
+    mediumComment: string
+    verboseComment: string
+    dmMessage: string
+    dmSubject: string
+    dmFollowUp?: string
+    derivedSpecificKeywords?: string[]
+  }>
+> {
+  console.log(
+    `🤖 [OPENAI-COMMENTS-DM] Starting scoring, comment and DM generation for thread: "${threadTitle.slice(0,50)}..."`
+  )
+  console.log(
+    `🤖 [OPENAI-COMMENTS-DM] Organization ID: ${organizationId}, Campaign Name: ${campaignName || "N/A"}`
+  )
+  console.log(
+    `🤖 [OPENAI-COMMENTS-DM] Thread Author: ${threadAuthor}`
+  )
+
+  try {
+    const { бизнесОписание, информацияОСайте, подсказкиПоТону, имяБренда } = await preparePersonalizationData(
+      organizationId,
+      campaignWebsiteContent,
+      campaignName
+    )
+
+    // Calculate time reference for DM
+    let timeReference = "recently"
+    if (postCreatedUtc) {
+      const postDate = new Date(postCreatedUtc * 1000)
+      const now = new Date()
+      const diffMs = now.getTime() - postDate.getTime()
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+      
+      if (diffDays === 0) {
+        timeReference = "today"
+      } else if (diffDays === 1) {
+        timeReference = "yesterday"
+      } else if (diffDays < 7) {
+        timeReference = "a few days ago"
+      } else if (diffDays < 14) {
+        timeReference = "last week"
+      } else if (diffDays < 30) {
+        timeReference = "a few weeks ago"
+      } else {
+        timeReference = "a while back"
+      }
+    }
+
+    const systemPrompt = `You are a real person who loves helping others and gets genuinely excited about solving problems! You're browsing Reddit and found someone who needs help with something you actually know about.
+
+YOUR BACKGROUND & EXPERIENCE:
+${бизнесОписание}
+
+IMPORTANT PERSONAL DETAILS:
+- You recently graduated from an AI bootcamp
+- You're passionate about helping people get started with AI/automation
+- You charge very little upfront (just enough to cover basic costs)
+- You only charge the full amount once clients are happy with the completed product
+- You believe in proving value before asking for payment
+
+${информацияОСайте ? `ADDITIONAL CONTEXT:
+${информацияОСайте}` : ''}
+
+${подсказкиПоТону ? `YOUR COMMUNICATION STYLE:
+${подсказкиПоТону}` : ''}
+
+BRAND NAME: ${имяБренда}
+
+CRITICAL WRITING RULE - NEVER USE HYPHENS:
+- Write "co founder" not "co-founder"
+- Write "self serve" not "self-serve"
+- Write "long term" not "long-term"
+- Write "third party" not "third-party"
+- Write "real time" not "real-time"
+- Write "full stack" not "full-stack"
+- NEVER use hyphens (-) anywhere in your comments or DMs
+
+You need to:
+1. Score how well you can help (1-100)
+2. Generate three comment lengths (micro, medium, verbose)
+3. Generate a personalized DM to reach out privately
+
+For the DM:
+- Be casual and conversational, not salesy
+- Reference their specific post from ${timeReference}
+- Show genuine interest in helping
+- Be transparent that you're reaching out because you saw their post
+- Mention that you just graduated from an AI bootcamp and are excited to help people
+- Explain your fair pricing model: minimal upfront cost, full payment only when they're satisfied
+- Offer something valuable (free consultation, tips, initial assessment)
+- Keep it short and friendly
+- Focus on how you can solve their specific problem`
+
+    const userPrompt = `REDDIT THREAD:
+Subreddit: r/${subreddit}
+Author: u/${threadAuthor}
+Title: "${threadTitle}"
+Content: "${threadContent}"
+Posted: ${timeReference}
+
+${existingComments && existingComments.length > 0 ? `\nWHAT OTHERS HAVE ALREADY SAID:
+${existingComments.slice(0, 5).map((comment, i) => `${i + 1}. "${comment}"`).join("\n\n")}` : ''}
+
+SCORING: How well can you actually help? (1-100)
+
+COMMENT GENERATION (if score is 70+):
+1. MICRO COMMENT (5-15 words): Quick, genuine reaction
+2. MEDIUM COMMENT (30-80 words): Brief helpful insight
+3. VERBOSE COMMENT (300-500 words): Comprehensive help
+
+DM GENERATION:
+Create a personalized DM that:
+- Subject line: Short and relevant (5-10 words)
+- Message: Friendly outreach referencing their post
+- Follow-up: Optional short follow-up if they don't respond
+
+Return JSON:
+{
+  "score": <number 1-100>,
+  "reasoning": "<why you can help>",
+  "microComment": "<authentic excited reaction>",
+  "mediumComment": "<helpful personal insight>",
+  "verboseComment": "<comprehensive help>",
+  "dmSubject": "<short subject line>",
+  "dmMessage": "<personalized DM message>",
+  "dmFollowUp": "<optional follow-up or empty string>",
+  "derivedSpecificKeywords": ["keyword1", "keyword2"]
+}`
+
+    const fullPrompt = `${systemPrompt}\n\n${userPrompt}`
+
+    console.log(
+      "🔍🔍🔍 [COMMENTS-DM-PROMPT] Generating comments and DM..."
+    )
+
+    const { text: aiResponseText } = await generateText({ 
+      model: openai("o3-mini"),
+      prompt: fullPrompt, 
+      temperature: 0.7,
+    })
+
+    console.log("🤖 [COMMENTS-DM] Raw response received (first 500 chars):", aiResponseText.slice(0,500))
+
+    const extractedObject = extractJsonFromText(aiResponseText)
+
+    if (!extractedObject) {
+      console.error("❌ [COMMENTS-DM] Failed to extract JSON from AI response")
+      return {
+        isSuccess: false,
+        message: "Failed to extract valid JSON from OpenAI response"
+      }
+    }
+
+    // Extended schema for comments + DM
+    const ThreadAnalysisWithDMSchema = ThreadAnalysisSchema.extend({
+      dmSubject: z.string(),
+      dmMessage: z.string(),
+      dmFollowUp: z.string().optional()
+    })
+
+    const validationResult = ThreadAnalysisWithDMSchema.safeParse(extractedObject)
+
+    if (!validationResult.success) {
+      console.error("❌ [COMMENTS-DM] OpenAI response failed validation:", validationResult.error.errors)
+      return {
+        isSuccess: false,
+        message: `OpenAI response validation failed: ${validationResult.error.errors.map(e => e.message).join(', ')}`
+      }
+    }
+    
+    const object = validationResult.data
+
+    const result = {
+      score: Math.max(1, Math.min(100, object.score)),
+      reasoning: object.reasoning,
+      microComment: object.microComment,
+      mediumComment: object.mediumComment,
+      verboseComment: object.verboseComment,
+      dmSubject: object.dmSubject,
+      dmMessage: object.dmMessage,
+      dmFollowUp: object.dmFollowUp || undefined,
+      derivedSpecificKeywords: object.derivedSpecificKeywords || []
+    }
+
+    console.log("🔍🔍🔍 [COMMENTS-DM-RESULT] Score:", result.score)
+    console.log("🔍🔍🔍 [COMMENTS-DM-RESULT] DM Subject:", result.dmSubject)
+    console.log("🔍🔍🔍 [COMMENTS-DM-RESULT] DM Message Length:", result.dmMessage.length)
+
+    console.log(
+      `✅ Thread scored with comments and DM: ${result.score}/100`
+    )
+
+    return {
+      isSuccess: true,
+      message: "Thread scored and comments/DM generated successfully",
+      data: result
+    }
+  } catch (error) {
+    console.error("❌ [COMMENTS-DM] Error:", error)
+    return {
+      isSuccess: false,
+      message: `Failed to generate comments and DM: ${error instanceof Error ? error.message : "Unknown error"}`
+    }
+  }
+}
+
 // Schema for information combining
 const InformationCombiningSchema = z.object({
   combinedInformation: z.string()

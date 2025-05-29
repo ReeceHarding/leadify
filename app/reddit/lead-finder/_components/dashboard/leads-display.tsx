@@ -26,19 +26,23 @@ interface LeadsDisplayProps {
   campaignId: string | null
   campaignStatus?: "draft" | "running" | "completed" | "paused" | "error" // Add campaign status
   isWorkflowRunning?: boolean // Add this prop to know if workflow is running
+  viewMode?: "comment" | "dm" // Add viewMode prop
 
   // Props for child components
   selectedLength: "micro" | "medium" | "verbose"
-  onEditComment: (leadId: string, newComment: string) => Promise<void>
+  onEditComment: (leadId: string, newComment: string, isDM?: boolean) => Promise<void>
   onPostComment: (lead: LeadResult) => Promise<void>
   onQueueComment: (lead: LeadResult) => Promise<void>
+  onSendDM?: (lead: LeadResult) => Promise<void> // Add DM sending handler
   onViewComments?: (lead: LeadResult) => void
   onRegenerateWithInstructions?: (
     leadId: string,
-    instructions: string
+    instructions: string,
+    isDM?: boolean
   ) => Promise<void>
   postingLeadId: string | null
   queuingLeadId: string | null
+  sendingDMLeadId?: string | null // Add DM sending state
 
   toneInstruction: string
   onToneInstructionChange: (value: string) => void
@@ -73,14 +77,17 @@ export default function LeadsDisplay({
   campaignId,
   campaignStatus,
   isWorkflowRunning = false, // Add with default value
+  viewMode = "comment", // Add with default value
   selectedLength,
   onEditComment,
   onPostComment,
   onQueueComment,
+  onSendDM,
   onViewComments,
   onRegenerateWithInstructions,
   postingLeadId,
   queuingLeadId,
+  sendingDMLeadId,
   toneInstruction,
   onToneInstructionChange,
   onRegenerateAllTones,
@@ -216,13 +223,16 @@ export default function LeadsDisplay({
               key={lead.id}
               lead={lead}
               selectedLength={selectedLength}
+              viewMode={viewMode}
               onEdit={onEditComment}
               onPost={onPostComment}
               onQueue={onQueueComment}
+              onSendDM={onSendDM}
               onViewComments={onViewComments}
               onRegenerateWithInstructions={onRegenerateWithInstructions}
               isPosting={postingLeadId === lead.id}
               isQueueing={queuingLeadId === lead.id}
+              isSendingDM={sendingDMLeadId === lead.id}
             />
           ))}
         </div>

@@ -142,6 +142,14 @@ export interface GeneratedCommentDocument {
   mediumComment: string // Balanced response with good detail (30-80 words)
   verboseComment: string // Comprehensive, valuable advice (100-200 words)
 
+  // DM content fields
+  dmMessage?: string // The personalized DM message
+  dmSubject?: string // Subject line for the DM
+  dmFollowUp?: string // Optional follow-up message
+  dmStatus?: "draft" | "sent" | "failed" | "replied" // DM sending status
+  dmSentAt?: Timestamp // When the DM was sent
+  dmError?: string // Error message if DM sending failed
+
   // Metadata
   status:
     | "new"
@@ -178,6 +186,12 @@ export interface CreateGeneratedCommentData {
   microComment: string
   mediumComment: string
   verboseComment: string
+
+  // DM content fields
+  dmMessage?: string
+  dmSubject?: string
+  dmFollowUp?: string
+
   status?:
     | "new"
     | "viewed"
@@ -203,6 +217,23 @@ export interface UpdateGeneratedCommentData {
     | "posted"
   selectedLength?: "micro" | "medium" | "verbose"
   postedCommentUrl?: string
+
+  // DM update fields
+  dmMessage?: string
+  dmSubject?: string
+  dmFollowUp?: string
+  dmStatus?: "draft" | "sent" | "failed" | "replied"
+  dmSentAt?: Timestamp
+  dmError?: string
+
+  // Allow updating individual comment lengths
+  microComment?: string
+  mediumComment?: string
+  verboseComment?: string
+
+  // Allow updating relevance score and reasoning
+  relevanceScore?: number
+  reasoning?: string
 }
 
 // Summary data for campaigns

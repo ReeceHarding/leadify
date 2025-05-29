@@ -14,7 +14,8 @@ import {
   RedditThreadDocument,
   CreateRedditThreadData,
   GeneratedCommentDocument,
-  CreateGeneratedCommentData
+  CreateGeneratedCommentData,
+  UpdateGeneratedCommentData
 } from "@/db/firestore/lead-generation-collections"
 import {
   ActionState,
@@ -82,11 +83,21 @@ function serializeGeneratedCommentDocument(
     postTitle: comment.postTitle,
     postAuthor: comment.postAuthor,
     postContentSnippet: comment.postContentSnippet,
+    postContent: comment.postContent,
     relevanceScore: comment.relevanceScore,
     reasoning: comment.reasoning,
     microComment: comment.microComment,
     mediumComment: comment.mediumComment,
     verboseComment: comment.verboseComment,
+    
+    // DM fields
+    dmMessage: comment.dmMessage,
+    dmSubject: comment.dmSubject,
+    dmFollowUp: comment.dmFollowUp,
+    dmStatus: comment.dmStatus,
+    dmSentAt: comment.dmSentAt ? serializeTimestampToISOBoilerplate(comment.dmSentAt) : undefined,
+    dmError: comment.dmError,
+    
     status: comment.status,
     selectedLength: comment.selectedLength || undefined, // Handle optional
 
@@ -238,11 +249,16 @@ export async function createGeneratedCommentAction(
       postTitle: data.postTitle,
       postAuthor: data.postAuthor,
       postContentSnippet: data.postContentSnippet,
+      postContent: data.postContent,
       relevanceScore: data.relevanceScore,
       reasoning: data.reasoning,
       microComment: data.microComment,
       mediumComment: data.mediumComment,
       verboseComment: data.verboseComment,
+      // DM fields
+      dmMessage: data.dmMessage,
+      dmSubject: data.dmSubject,
+      dmFollowUp: data.dmFollowUp,
       status: data.status || "new", // Default to 'new'
       // Optional tracking fields
       keyword: data.keyword,
@@ -289,23 +305,7 @@ export async function createGeneratedCommentAction(
 
 export async function updateGeneratedCommentAction(
   id: string,
-  data: {
-    microComment?: string
-    mediumComment?: string
-    verboseComment?: string
-    relevanceScore?: number
-    reasoning?: string
-    status?:
-      | "new"
-      | "viewed"
-      | "approved"
-      | "rejected"
-      | "used"
-      | "queued"
-      | "posted"
-    selectedLength?: "micro" | "medium" | "verbose"
-    postedCommentUrl?: string
-  }
+  data: UpdateGeneratedCommentData
 ): Promise<ActionState<SerializedGeneratedCommentDocument>> {
   try {
     console.log(`📝 [LEAD-GEN] Updating generated comment ${id}`)
