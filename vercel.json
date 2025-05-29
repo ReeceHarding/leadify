@@ -50,6 +50,20 @@
     {
       "path": "/api/monitor/check-campaigns",
       "schedule": "0 */30 * * *"
+    },
+    {
+      "path": "/api/monitoring/scan",
+      "schedule": "*/3 * * * *"
+    },
+    {
+      "path": "/api/monitoring/qualify",
+      "schedule": "*/10 * * * *"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/reddit/((?!api).*)",
+      "destination": "/reddit/$1"
     }
   ]
 } 

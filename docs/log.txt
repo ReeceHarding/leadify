@@ -463,3 +463,183 @@
 [2025-05-29T14:43:39.177Z] ==================================================
 [2025-05-29T14:43:39.177Z] COMMAND FINISHED: prettier --write {app,lib,components}/**/*.{ts,tsx} db/**/*.ts types/**/*.ts --cache --ignore-unknown (exit code: 0)
 [2025-05-29T14:43:39.177Z] ==================================================
+[2025-05-29T14:44:19.749Z] NEXTJS_STDERR: [2025-05-29T14:44:19.748Z]  @firebase/firestore: Firestore (11.8.0): GrpcConnection RPC 'Listen' stream 0x6a5e3f89 error. Code: 1 Message: 1 CANCELLED: Disconnecting idle stream. Timed out waiting for new targets.
+[2025-05-29T14:44:31.554Z] NEXTJS_STDERR: [2025-05-29T14:44:31.553Z]  @firebase/firestore: Firestore (11.8.0): GrpcConnection RPC 'Listen' stream 0x51a88ee3 error. Code: 1 Message: 1 CANCELLED: Disconnecting idle stream. Timed out waiting for new targets.
+[2025-05-29T14:47:36.272Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/api/monitoring/scan
+[2025-05-29T14:47:36.272Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /api/monitoring/scan
+[2025-05-29T14:47:36.272Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Public API route detected
+[2025-05-29T14:47:36.272Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth header: Bearer UODgJFjSZQE/Vg47kCjfmyN0kd0XNQCcxB7HbSZj5Wc=
+[2025-05-29T14:47:36.272Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Expected auth: Bearer UODgJFjSZQE/Vg47kCjfmyN0kd0XNQCcxB7HbSZj5Wc=
+[2025-05-29T14:47:36.272Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] CRON_SECRET valid - allowing request
+[2025-05-29T14:47:36.294Z] NEXTJS_STDOUT: 🔍 [MONITOR-SCAN] Starting scheduled Reddit scanning
+[2025-05-29T14:47:36.294Z] NEXTJS_STDOUT: 📊 [MONITOR-DUE] Checking for monitors due for checking
+[2025-05-29T14:47:36.507Z] NEXTJS_STDERR: 📊 [MONITOR-DUE] ❌ Error: [Error [FirebaseError]: The query requires an index. That index is currently building and cannot be used yet. See its status here: https://console.firebase.google.com/v1/r/project/austen-reddit-app/firestore/indexes?create_composite=CmZwcm9qZWN0cy9hdXN0ZW4tcmVkZGl0LWFwcC9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvY2FtcGFpZ25fbW9uaXRvcnMvaW5kZXhlcy9DSUNBZ05pNDdvTUoQARoLCgdlbmFibGVkEAEaDwoLbmV4dENoZWNrQXQQARoMCghfX25hbWVfXxAB] {
+[2025-05-29T14:47:36.507Z] NEXTJS_STDERR: code: 'failed-precondition',
+[2025-05-29T14:47:36.507Z] NEXTJS_STDERR: customData: undefined,
+[2025-05-29T14:47:36.507Z] NEXTJS_STDERR: toString: [Function (anonymous)]
+[2025-05-29T14:47:36.507Z] NEXTJS_STDERR: }
+[2025-05-29T14:47:36.507Z] NEXTJS_STDERR: 🔍 [MONITOR-SCAN] Failed to get monitors: Failed to get monitors due for checking
+[2025-05-29T14:47:36.509Z] NEXTJS_STDOUT: GET /api/monitoring/scan 500 in 236ms
+[2025-05-29T14:48:42.326Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Request URL: http://localhost:3000/api/monitoring/scan
+[2025-05-29T14:48:42.327Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Pathname: /api/monitoring/scan
+[2025-05-29T14:48:42.327Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Public API route detected
+[2025-05-29T14:48:42.327Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Auth header: Bearer UODgJFjSZQE/Vg47kCjfmyN0kd0XNQCcxB7HbSZj5Wc=
+[2025-05-29T14:48:42.327Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] Expected auth: Bearer UODgJFjSZQE/Vg47kCjfmyN0kd0XNQCcxB7HbSZj5Wc=
+[2025-05-29T14:48:42.327Z] NEXTJS_STDOUT: 🔥🔥🔥 [MIDDLEWARE] CRON_SECRET valid - allowing request
+[2025-05-29T14:48:42.336Z] NEXTJS_STDOUT: 🔍 [MONITOR-SCAN] Starting scheduled Reddit scanning
+[2025-05-29T14:48:42.337Z] NEXTJS_STDOUT: 📊 [MONITOR-DUE] Checking for monitors due for checking
+[2025-05-29T14:48:42.415Z] NEXTJS_STDERR: 📊 [MONITOR-DUE] ❌ Error: [Error [FirebaseError]: The query requires an index. That index is currently building and cannot be used yet. See its status here: https://console.firebase.google.com/v1/r/project/austen-reddit-app/firestore/indexes?create_composite=CmZwcm9qZWN0cy9hdXN0ZW4tcmVkZGl0LWFwcC9kYXRhYmFzZXMvKGRlZmF1bHQpL2NvbGxlY3Rpb25Hcm91cHMvY2FtcGFpZ25fbW9uaXRvcnMvaW5kZXhlcy9DSUNBZ05pNDdvTUoQARoLCgdlbmFibGVkEAEaDwoLbmV4dENoZWNrQXQQARoMCghfX25hbWVfXxAB] {
+[2025-05-29T14:48:42.415Z] NEXTJS_STDERR: code: 'failed-precondition',
+[2025-05-29T14:48:42.415Z] NEXTJS_STDERR: customData: undefined,
+[2025-05-29T14:48:42.415Z] NEXTJS_STDERR: toString: [Function (anonymous)]
+[2025-05-29T14:48:42.415Z] NEXTJS_STDERR: }
+[2025-05-29T14:48:42.415Z] NEXTJS_STDERR: 🔍 [MONITOR-SCAN] Failed to get monitors: Failed to get monitors due for checking
+[2025-05-29T14:48:42.416Z] NEXTJS_STDOUT: GET /api/monitoring/scan 500 in 88ms
+[2025-05-29T14:50:12.527Z] NEXTJS_STDERR: [2025-05-29T14:50:12.525Z]  @firebase/firestore: Firestore (11.8.0): GrpcConnection RPC 'Listen' stream 0x51a88ee4 error. Code: 1 Message: 1 CANCELLED: Disconnecting idle stream. Timed out waiting for new targets.
+[2025-05-29T14:50:51.774Z] ==================================================
+[2025-05-29T14:50:51.775Z] COMMAND STARTED: next lint --fix
+[2025-05-29T14:50:51.775Z] ==================================================
+[2025-05-29T14:50:53.014Z] STDOUT: ✔ No ESLint warnings or errors
+[2025-05-29T14:50:53.076Z] ==================================================
+[2025-05-29T14:50:53.076Z] COMMAND FINISHED: next lint --fix (exit code: 0)
+[2025-05-29T14:50:53.077Z] ==================================================
+[2025-05-29T14:50:53.248Z] ==================================================
+[2025-05-29T14:50:53.249Z] COMMAND STARTED: prettier --write {app,lib,components}/**/*.{ts,tsx} db/**/*.ts types/**/*.ts --cache --ignore-unknown
+[2025-05-29T14:50:53.249Z] ==================================================
+[2025-05-29T14:50:53.338Z] STDOUT: app/api/analytics/snapshot/route.ts 1ms (unchanged) (cached)
+[2025-05-29T14:50:53.339Z] STDOUT: app/api/analytics/update-engagement/route.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.342Z] STDOUT: app/api/inbox/items/[itemId]/reply/route.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.343Z] STDOUT: app/api/inbox/items/[itemId]/status/route.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.344Z] STDOUT: app/api/inbox/items/route.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.346Z] STDOUT: app/api/inbox/sync/route.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.348Z] STDOUT: app/api/lead-generation/start/route.ts 1ms (unchanged) (cached)
+[2025-05-29T14:50:53.350Z] STDOUT: app/api/monitor/check-campaigns/route.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.351Z] STDOUT: app/api/monitoring/qualify/route.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.352Z] STDOUT: app/api/monitoring/scan/route.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.354Z] STDOUT: app/api/queue/check-warmup-comments/route.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.355Z] STDOUT: app/api/queue/process-dm-automations/route.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.357Z] STDOUT: app/api/queue/process-posts/route.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.358Z] STDOUT: app/api/queue/process-warmup/route.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.360Z] STDOUT: app/api/reddit/auth/route.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.361Z] STDOUT: app/api/reddit/callback/route.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.363Z] STDOUT: app/api/reddit/comments/[commentId]/replies/route.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.364Z] STDOUT: app/api/reddit/comments/route.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.366Z] STDOUT: app/api/stripe/webhooks/route.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.367Z] STDOUT: app/api/test-twitter-analysis/route.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.368Z] STDOUT: app/api/test-twitter-direct/route.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.369Z] STDOUT: app/api/warmup/generate-posts/route.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.370Z] STDOUT: app/api/warmup/reset-daily-counters/route.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.373Z] STDOUT: app/reddit/dm-finder/_components/dashboard/types.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.374Z] STDOUT: app/reddit/lead-finder/_components/dashboard/types.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.375Z] STDOUT: app/reddit/lead-finder/_components/dashboard/utils.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.378Z] STDOUT: app/(auth)/layout.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.379Z] STDOUT: app/(marketing)/layout.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.380Z] STDOUT: app/(marketing)/page.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.383Z] STDOUT: app/dashboard/layout.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.385Z] STDOUT: app/dashboard/page.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.386Z] STDOUT: app/firebase-test/page.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.388Z] STDOUT: app/onboarding/layout.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.389Z] STDOUT: app/onboarding/page.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.391Z] STDOUT: app/reddit-auth/page.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.394Z] STDOUT: app/reddit-test/page.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.395Z] STDOUT: app/reddit/layout.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.396Z] STDOUT: lib/config/keyword-config.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.398Z] STDOUT: lib/config/reddit-config.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.399Z] STDOUT: lib/hooks/use-toast.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.401Z] STDOUT: lib/reddit/reddit-api-client.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.402Z] STDOUT: lib/utils/firestore-batch-utils.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.403Z] STDOUT: lib/utils/organization-utils.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.405Z] STDOUT: lib/utils/theme-utils.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.405Z] STDOUT: lib/utils/timestamp-utils.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.406Z] STDOUT: lib/hooks/use-copy-to-clipboard.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.407Z] STDOUT: lib/hooks/use-mobile.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.410Z] STDOUT: components/ui/use-toast.ts 1ms (unchanged) (cached)
+[2025-05-29T14:50:53.411Z] STDOUT: components/landing/hero.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.412Z] STDOUT: components/landing/logo-carousel.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.413Z] STDOUT: components/landing/testimonials.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.414Z] STDOUT: components/magicui/animated-gradient-text.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.415Z] STDOUT: components/magicui/hero-video-dialog.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.416Z] STDOUT: components/sidebar/app-sidebar.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.417Z] STDOUT: components/sidebar/create-organization-dialog.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.418Z] STDOUT: components/sidebar/nav-main.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.418Z] STDOUT: components/sidebar/nav-projects.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.419Z] STDOUT: components/sidebar/nav-user.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.420Z] STDOUT: components/sidebar/team-switcher.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.422Z] STDOUT: components/sidebar/user-profile-dialog.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.423Z] STDOUT: components/ui/accordion.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.424Z] STDOUT: components/ui/alert-dialog.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.425Z] STDOUT: components/ui/alert.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.426Z] STDOUT: components/ui/aspect-ratio.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.426Z] STDOUT: components/ui/avatar.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.427Z] STDOUT: components/ui/badge.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.428Z] STDOUT: components/ui/breadcrumb.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.430Z] STDOUT: components/ui/button.tsx 1ms (unchanged) (cached)
+[2025-05-29T14:50:53.430Z] STDOUT: components/ui/calendar.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.431Z] STDOUT: components/ui/card.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.432Z] STDOUT: components/ui/carousel.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.433Z] STDOUT: components/ui/chart.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.434Z] STDOUT: components/ui/checkbox.tsx 1ms (unchanged) (cached)
+[2025-05-29T14:50:53.435Z] STDOUT: components/ui/collapsible.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.436Z] STDOUT: components/ui/command.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.436Z] STDOUT: components/ui/context-menu.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.437Z] STDOUT: components/ui/dialog.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.438Z] STDOUT: components/ui/drawer.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.439Z] STDOUT: components/ui/dropdown-menu.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.439Z] STDOUT: components/ui/form.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.440Z] STDOUT: components/ui/hover-card.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.441Z] STDOUT: components/ui/input-otp.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.441Z] STDOUT: components/ui/input.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.442Z] STDOUT: components/ui/label.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.443Z] STDOUT: components/ui/loading-skeleton.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.445Z] STDOUT: components/ui/menubar.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.446Z] STDOUT: components/ui/navigation-menu.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.446Z] STDOUT: components/ui/pagination.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.447Z] STDOUT: components/ui/popover.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.448Z] STDOUT: components/ui/progress.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.448Z] STDOUT: components/ui/radio-group.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.449Z] STDOUT: components/ui/resizable.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.450Z] STDOUT: components/ui/scroll-area.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.450Z] STDOUT: components/ui/select.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.451Z] STDOUT: components/ui/separator.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.452Z] STDOUT: components/ui/sheet.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.453Z] STDOUT: components/ui/sidebar.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.453Z] STDOUT: components/ui/skeleton.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.454Z] STDOUT: components/ui/slider.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.455Z] STDOUT: components/ui/sonner.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.456Z] STDOUT: components/ui/switch.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.457Z] STDOUT: components/ui/table.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.457Z] STDOUT: components/ui/tabs.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.458Z] STDOUT: components/ui/textarea.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.459Z] STDOUT: components/ui/toast.tsx 1ms (unchanged) (cached)
+[2025-05-29T14:50:53.459Z] STDOUT: components/ui/toaster.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.460Z] STDOUT: components/ui/toggle-group.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.461Z] STDOUT: components/ui/toggle.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.461Z] STDOUT: components/ui/tooltip.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.463Z] STDOUT: components/utilities/organization-provider.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.463Z] STDOUT: components/utilities/organization-selector.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.466Z] STDOUT: components/utilities/providers.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.467Z] STDOUT: components/utilities/tailwind-indicator.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.468Z] STDOUT: components/utilities/theme-switcher.tsx 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.469Z] STDOUT: db/firestore/collections.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.470Z] STDOUT: db/firestore/dm-collections.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.471Z] STDOUT: db/firestore/dm-progress-collections.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.472Z] STDOUT: db/firestore/keyword-performance-collections.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.473Z] STDOUT: db/firestore/lead-generation-collections.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.474Z] STDOUT: db/firestore/monitoring-collections.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.475Z] STDOUT: db/firestore/organizations-collections.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.475Z] STDOUT: db/firestore/personalization-collections.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.476Z] STDOUT: db/firestore/posting-queue-collections.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.478Z] STDOUT: db/firestore/potential-leads-collections.ts 1ms (unchanged) (cached)
+[2025-05-29T14:50:53.485Z] STDOUT: db/firestore/reddit-threads-collections.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.498Z] STDOUT: db/firestore/unified-queue-collections.ts 1ms (unchanged) (cached)
+[2025-05-29T14:50:53.507Z] STDOUT: db/firestore/warmup-collections.ts 3ms (unchanged) (cached)
+[2025-05-29T14:50:53.527Z] STDOUT: db/schema/index.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.545Z] STDOUT: types/action-interfaces.ts 1ms (unchanged) (cached)
+[2025-05-29T14:50:53.546Z] STDOUT: types/index.ts 0ms (unchanged) (cached)
+[2025-05-29T14:50:53.550Z] STDOUT: types/lead-generation-types.ts 1ms (unchanged) (cached)
+[2025-05-29T14:50:53.554Z] STDOUT: types/organization-types.ts 1ms (unchanged) (cached)
+[2025-05-29T14:50:53.560Z] STDOUT: types/profile-types.ts 4ms (unchanged) (cached)
+[2025-05-29T14:50:53.564Z] STDOUT: types/server-action-types.ts 1ms (unchanged) (cached)
+[2025-05-29T14:50:53.636Z] ==================================================
+[2025-05-29T14:50:53.637Z] COMMAND FINISHED: prettier --write {app,lib,components}/**/*.{ts,tsx} db/**/*.ts types/**/*.ts --cache --ignore-unknown (exit code: 0)
+[2025-05-29T14:50:53.637Z] ==================================================
