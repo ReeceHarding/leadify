@@ -1292,7 +1292,7 @@ export async function scoreThreadAndGeneratePersonalizedCommentsAction(
   }
 }
 
-// New function to generate both comments and DMs
+// Updated function with dynamic system
 export async function scoreThreadAndGeneratePersonalizedCommentsWithDMAction(
   threadTitle: string,
   threadContent: string,
@@ -1318,13 +1318,10 @@ export async function scoreThreadAndGeneratePersonalizedCommentsWithDMAction(
   }>
 > {
   console.log(
-    `🤖 [OPENAI-COMMENTS-DM] Starting scoring, comment and DM generation for thread: "${threadTitle.slice(0,50)}..."`
+    `🤖 [OPENAI-COMMENTS-DM] Starting dynamic scoring and generation for thread: "${threadTitle.slice(0,50)}..."`
   )
   console.log(
-    `🤖 [OPENAI-COMMENTS-DM] Organization ID: ${organizationId}, Campaign Name: ${campaignName || "N/A"}`
-  )
-  console.log(
-    `🤖 [OPENAI-COMMENTS-DM] Thread Author: ${threadAuthor}`
+    `🤖 [OPENAI-COMMENTS-DM] Organization ID: ${organizationId}, Campaign: ${campaignName || "N/A"}`
   )
 
   try {
@@ -1334,7 +1331,7 @@ export async function scoreThreadAndGeneratePersonalizedCommentsWithDMAction(
       campaignName
     )
 
-    // Calculate time reference for DM
+    // Calculate time reference for post
     let timeReference = "recently"
     if (postCreatedUtc) {
       const postDate = new Date(postCreatedUtc * 1000)
@@ -1357,92 +1354,118 @@ export async function scoreThreadAndGeneratePersonalizedCommentsWithDMAction(
       }
     }
 
-    const systemPrompt = `You are a real person who loves helping others and gets genuinely excited about solving problems! You're browsing Reddit and found someone who needs help with something you actually know about.
+    // Dynamic scoring system
+    const scoringPrompt = `You are a lead qualification expert. Evaluate how likely the person behind this Reddit post is a potential customer.
 
-YOUR BACKGROUND & EXPERIENCE:
-${бизнесОписание}
-
-IMPORTANT PERSONAL DETAILS:
-- You recently graduated from an AI bootcamp
-- You're passionate about helping people get started with AI/automation
-- You charge very little upfront (just enough to cover basic costs)
-- You only charge the full amount once clients are happy with the completed product
-- You believe in proving value before asking for payment
-
-${информацияОСайте ? `ADDITIONAL CONTEXT:
-${информацияОСайте}` : ''}
-
-${подсказкиПоТону ? `YOUR COMMUNICATION STYLE:
-${подсказкиПоТону}` : ''}
-
-BRAND NAME: ${имяБренда}
-
-CRITICAL WRITING RULE - NEVER USE HYPHENS:
-- Write "co founder" not "co-founder"
-- Write "self serve" not "self-serve"
-- Write "long term" not "long-term"
-- Write "third party" not "third-party"
-- Write "real time" not "real-time"
-- Write "full stack" not "full-stack"
-- NEVER use hyphens (-) anywhere in your comments or DMs
-
-You need to:
-1. Score how well you can help (1-100)
-2. Generate three comment lengths (micro, medium, verbose)
-3. Generate a personalized DM to reach out privately
-
-For the DM:
-- Be casual and conversational, not salesy
-- Reference their specific post from ${timeReference}
-- Show genuine interest in helping
-- Be transparent that you're reaching out because you saw their post
-- Mention that you just graduated from an AI bootcamp and are excited to help people
-- Explain your fair pricing model: minimal upfront cost, full payment only when they're satisfied
-- Offer something valuable (free consultation, tips, initial assessment)
-- Keep it short and friendly
-- Focus on how you can solve their specific problem`
-
-    const userPrompt = `REDDIT THREAD:
-Subreddit: r/${subreddit}
-Author: u/${threadAuthor}
+POST ANALYSIS:
 Title: "${threadTitle}"
 Content: "${threadContent}"
+Author: u/${threadAuthor}
+Subreddit: r/${subreddit}
 Posted: ${timeReference}
 
-${existingComments && existingComments.length > 0 ? `\nWHAT OTHERS HAVE ALREADY SAID:
-${existingComments.slice(0, 5).map((comment, i) => `${i + 1}. "${comment}"`).join("\n\n")}` : ''}
+BUSINESS CONTEXT:
+Search Keywords: "${campaignKeywords.join(', ')}"
+Our Business: ${бизнесОписание}
+Organization: ${имяБренда}
+${информацияОСайте ? `Additional Context: ${информацияОСайте}` : ''}
 
-SCORING: How well can you actually help? (1-100)
+IMPORTANT: People rarely directly ask for solutions. Read between the lines for indirect signals:
+- Expressing frustration or challenges
+- Asking if others experience similar issues
+- Describing workarounds they're using
+- Sharing related experiences or pain points
+- Engaging with related topics or discussions
 
-COMMENT GENERATION (if score is 70+):
-1. MICRO COMMENT (5-15 words): Quick, genuine reaction
-2. MEDIUM COMMENT (30-80 words): Brief helpful insight
-3. VERBOSE COMMENT (300-500 words): Comprehensive help
+Score from 0-100 based on:
+- How closely they match someone who would benefit from our solution
+- How clearly they express a problem related to our business (directly or indirectly)
+- How likely they would be interested in our offering
+- Whether they seem actively looking for solutions
+- Their apparent frustration/pain level with current situation
 
-DM GENERATION:
-Create a personalized DM that:
-- Subject line: Short and relevant (5-10 words)
-- Message: Friendly outreach referencing their post
-- Follow-up: Optional short follow-up if they don't respond
+Scale:
+90-100 = Perfect lead (clearly expressing need, actively seeking solutions)
+70-89 = Strong lead (clear problem/need expression)
+40-69 = Moderate potential (showing some signs of the problem)
+10-39 = Weak signal (tangentially related)
+0-9 = Not a potential customer
 
-Return JSON:
+Provide your reasoning for the score.`
+
+    // Dynamic comment generation system
+    const commentGenerationPrompt = `You are a genuine Reddit user who loves helping others. You found someone with a problem you can actually help with.
+
+WRITING STYLE RULES (FOLLOW EXACTLY):
+- Copy this enthusiasm style: "This is what I do! I love this exploratory phase!"
+- Use exclamation points naturally like the template
+- Keep casual, imperfect capitalization
+- Break into paragraphs exactly like template structure
+- NEVER use hyphens anywhere (write "3rd party" not "third-party")
+- Use "$" instead of "money", "cost", "budget"
+- Natural conversation flow with authentic energy
+
+YOUR BACKGROUND:
+${бизнесОписание}
+Organization: ${имяБренда}
+${информацияОСайте ? `Additional Context: ${информацияОСайте}` : ''}
+${подсказкиПоТону ? `Communication Style: ${подсказкиПоТону}` : ''}
+
+THREAD CONTEXT:
+Title: "${threadTitle}"
+Content: "${threadContent}"
+Author: u/${threadAuthor}
+Subreddit: r/${subreddit}
+Posted: ${timeReference}
+
+${existingComments && existingComments.length > 0 ? `EXISTING CONVERSATION:
+${existingComments.slice(0, 5).map((comment, i) => `${i + 1}. "${comment}"`).join('\n\n')}` : ''}
+
+COMMENT GENERATION STRATEGY:
+${existingComments && existingComments.length > 0 ? 
+`1. Reference existing comments naturally: "I've seen a few people mention X. I agree with that to an extent, but..." or "Building on what others said..."` : 
+`1. Start with genuine enthusiasm for their challenge`}
+
+2. Follow EXACT template structure (copy this format exactly):
+   - Enthusiastic opener: "I would love to chat about this if you want to message me. This is what I do! I love this exploratory phase!"
+   - Present key questions: "There are a handful of things you need to consider: [relevant questions for their situation]?"
+   - Give 3 genuine options with honest pros/cons
+   - Include ${имяБренда} as ONE natural option among others
+   - Close enthusiastically: "Again, I'd love to chat. Best of luck! Sounds like a fun and challenging project!!"
+
+3. Adapt the three options to their specific industry/situation:
+   - Option A: [Most common/cheaper approach in their field]
+   - Option B: [Middle ground approach]
+   - Option C: [Professional/premium approach - naturally mention ${имяБренда} here]
+
+4. Make content relevant to their specific problem but keep exact writing style and structure
+
+For DM generation:
+- Reference their specific post from ${timeReference}
+- Be casual and conversational, not salesy
+- Show genuine interest in helping
+- Mention your business naturally
+- Offer something valuable
+- Keep it short and friendly
+
+CRITICAL: Never use hyphens anywhere. Write naturally with enthusiasm but don't sound robotic.
+
+Return JSON with scoring and all comment lengths plus DM content.`
+
+    const fullPrompt = `${scoringPrompt}\n\n${commentGenerationPrompt}\n\nReturn JSON:
 {
   "score": <number 1-100>,
-  "reasoning": "<why you can help>",
-  "microComment": "<authentic excited reaction>",
-  "mediumComment": "<helpful personal insight>",
-  "verboseComment": "<comprehensive help>",
-  "dmSubject": "<short subject line>",
+  "reasoning": "<why you can help with their specific situation>",
+  "microComment": "<authentic excited reaction 5-15 words>",
+  "mediumComment": "<helpful insight 30-80 words>",
+  "verboseComment": "<comprehensive help following exact template structure 300-500 words>",
+  "dmSubject": "<short relevant subject line>",
   "dmMessage": "<personalized DM message>",
   "dmFollowUp": "<optional follow-up or empty string>",
-  "derivedSpecificKeywords": ["keyword1", "keyword2"]
+  "derivedSpecificKeywords": ["<keyword1>", "<keyword2>"]
 }`
 
-    const fullPrompt = `${systemPrompt}\n\n${userPrompt}`
-
-    console.log(
-      "🔍🔍🔍 [COMMENTS-DM-PROMPT] Generating comments and DM..."
-    )
+    console.log("🔍🔍🔍 [DYNAMIC-PROMPT] Generating with adaptive system...")
 
     const { text: aiResponseText } = await generateText({ 
       model: openai("o3-mini"),
@@ -1450,19 +1473,18 @@ Return JSON:
       temperature: 0.7,
     })
 
-    console.log("🤖 [COMMENTS-DM] Raw response received (first 500 chars):", aiResponseText.slice(0,500))
+    console.log("🤖 [DYNAMIC] Raw response received (first 500 chars):", aiResponseText.slice(0,500))
 
     const extractedObject = extractJsonFromText(aiResponseText)
 
     if (!extractedObject) {
-      console.error("❌ [COMMENTS-DM] Failed to extract JSON from AI response")
+      console.error("❌ [DYNAMIC] Failed to extract JSON from AI response")
       return {
         isSuccess: false,
         message: "Failed to extract valid JSON from OpenAI response"
       }
     }
 
-    // Extended schema for comments + DM
     const ThreadAnalysisWithDMSchema = ThreadAnalysisSchema.extend({
       dmSubject: z.string(),
       dmMessage: z.string(),
@@ -1472,10 +1494,10 @@ Return JSON:
     const validationResult = ThreadAnalysisWithDMSchema.safeParse(extractedObject)
 
     if (!validationResult.success) {
-      console.error("❌ [COMMENTS-DM] OpenAI response failed validation:", validationResult.error.errors)
+      console.error("❌ [DYNAMIC] Response validation failed:", validationResult.error.errors)
       return {
         isSuccess: false,
-        message: `OpenAI response validation failed: ${validationResult.error.errors.map(e => e.message).join(', ')}`
+        message: `Response validation failed: ${validationResult.error.errors.map(e => e.message).join(', ')}`
       }
     }
     
@@ -1493,24 +1515,23 @@ Return JSON:
       derivedSpecificKeywords: object.derivedSpecificKeywords || []
     }
 
-    console.log("🔍🔍🔍 [COMMENTS-DM-RESULT] Score:", result.score)
-    console.log("🔍🔍🔍 [COMMENTS-DM-RESULT] DM Subject:", result.dmSubject)
-    console.log("🔍🔍🔍 [COMMENTS-DM-RESULT] DM Message Length:", result.dmMessage.length)
+    console.log("🔍🔍🔍 [DYNAMIC-RESULT] Score:", result.score)
+    console.log("🔍🔍🔍 [DYNAMIC-RESULT] Reasoning:", result.reasoning.slice(0, 100) + "...")
 
     console.log(
-      `✅ Thread scored with comments and DM: ${result.score}/100`
+      `✅ Dynamic thread analysis complete: ${result.score}/100`
     )
 
     return {
       isSuccess: true,
-      message: "Thread scored and comments/DM generated successfully",
+      message: "Thread analyzed with dynamic system successfully",
       data: result
     }
   } catch (error) {
-    console.error("❌ [COMMENTS-DM] Error:", error)
+    console.error("❌ [DYNAMIC] Error:", error)
     return {
       isSuccess: false,
-      message: `Failed to generate comments and DM: ${error instanceof Error ? error.message : "Unknown error"}`
+      message: `Failed to analyze thread: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }
