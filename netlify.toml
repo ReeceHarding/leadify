@@ -1,0 +1,15 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# Scheduled functions for monitoring
+[[plugins]]
+  package = "@netlify/plugin-functions-core"
+
+[build.environment]
+  NODE_VERSION = "18" 
