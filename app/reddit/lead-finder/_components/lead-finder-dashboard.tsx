@@ -165,6 +165,7 @@ import {
 } from "@/actions/db/reddit-threads-actions"
 import { semanticFilterAction } from "@/actions/integrations/openai/semantic-search-actions"
 import { cn } from "@/lib/utils"
+import MonitoringSettings from "./dashboard/monitoring-settings"
 
 const ITEMS_PER_PAGE = 20
 const POLLING_INTERVAL = 5000 // 5 seconds
@@ -2596,6 +2597,15 @@ export default function LeadFinderDashboard() {
               updateState({ workflowRunning: true })
             }}
             disabled={state.workflowRunning}
+          />
+        )}
+
+        {/* Monitoring Settings - Show when campaign is selected */}
+        {state.campaignId && currentOrganization && user && (
+          <MonitoringSettings
+            campaignId={state.campaignId}
+            organizationId={currentOrganization.id}
+            userId={user.id}
           />
         )}
 
