@@ -98,6 +98,12 @@ function serializeGeneratedCommentDocument(
     dmSentAt: comment.dmSentAt ? serializeTimestampToISOBoilerplate(comment.dmSentAt) : undefined,
     dmError: comment.dmError,
     
+    // Analytics & Engagement fields
+    engagementUpvotes: comment.engagementUpvotes || 0,
+    engagementRepliesCount: comment.engagementRepliesCount || 0,
+    lastEngagementCheckAt: comment.lastEngagementCheckAt ? serializeTimestampToISOBoilerplate(comment.lastEngagementCheckAt) : undefined,
+    engagementCheckCount: comment.engagementCheckCount || 0,
+    
     status: comment.status,
     selectedLength: comment.selectedLength || undefined, // Handle optional
 

@@ -133,26 +133,38 @@ export async function generateKeywordsAction({
 
     console.log(`🔍 [KEYWORDS] Generated ${parsedResponse.keywords.length} keywords and strategic insights.`)
 
-    // Persist keyword performance stub for future tracking
-    const perfId = generateUUID()
-    const perfData: CreateKeywordPerformanceData = {
-      userId: userId,
-      organizationId: organizationId, // Now always provided
-      campaignId,
-      keywords: parsedResponse.keywords
-    }
-    
+    // Persist keyword performance stubs for future tracking (one per keyword)
     try {
-      const perfRef = doc(collection(db, KEYWORD_PERFORMANCE_COLLECTIONS.KEYWORD_PERFORMANCE), perfId)
-      await setDoc(perfRef, {
-        ...perfData,
-        id: perfId,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      })
-      console.log("🔍 [KEYWORDS] Created keyword performance document:", perfId)
+      for (const keyword of parsedResponse.keywords) {
+        const perfId = generateUUID()
+        const perfData: CreateKeywordPerformanceData = {
+          keyword: keyword, // Individual keyword
+          userId: userId,
+          organizationId: organizationId,
+          campaignId,
+          totalLeadsGenerated: 0,
+          totalHighQualityLeads: 0,
+          sumRelevanceScore: 0,
+          totalEngagementUpvotes: 0,
+          totalEngagementReplies: 0,
+          totalPostedCommentsUsingKeyword: 0,
+          // Legacy fields for backward compatibility
+          keywords: [keyword]
+        }
+        
+        const perfRef = doc(collection(db, KEYWORD_PERFORMANCE_COLLECTIONS.KEYWORD_PERFORMANCE), perfId)
+        await setDoc(perfRef, {
+          ...perfData,
+          id: perfId,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          lastCalculatedAt: serverTimestamp()
+        })
+        
+        console.log(`🔍 [KEYWORDS] Created keyword performance document for "${keyword}": ${perfId}`)
+      }
     } catch (perfErr) {
-      console.error("[KEYWORD-PERF] Failed to write performance doc", perfErr)
+      console.error("[KEYWORD-PERF] Failed to write performance docs", perfErr)
       // Don't fail the whole operation if performance tracking fails
     }
 

@@ -13,7 +13,8 @@ import {
   Target,
   Settings,
   Search,
-  FileText
+  FileText,
+  BarChart3
 } from "lucide-react"
 import * as React from "react"
 import { usePathname } from "next/navigation"
@@ -81,6 +82,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             hasNotification: true // Enable notifications for Lead Finder
           },
           {
+            title: "Analytics",
+            url: "/reddit/analytics",
+            isActive: pathname === "/reddit/analytics"
+          },
+          {
             title: "My Posts",
             url: "/reddit/my-posts",
             isActive: pathname === "/reddit/my-posts"
@@ -113,6 +119,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const redditItems = [
     { title: "Lead Finder", url: "/reddit/lead-finder" },
+    { title: "Analytics", url: "/reddit/analytics" },
     { title: "My Posts", url: "/reddit/my-posts" },
     { title: "Warm Up", url: "/reddit/warm-up" },
     { title: "Knowledge Base", url: "/reddit/knowledge-base" },

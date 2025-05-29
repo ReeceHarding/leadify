@@ -150,6 +150,12 @@ export interface GeneratedCommentDocument {
   dmSentAt?: Timestamp // When the DM was sent
   dmError?: string // Error message if DM sending failed
 
+  // Analytics & Engagement tracking fields
+  engagementUpvotes?: number // Number of upvotes received (default 0)
+  engagementRepliesCount?: number // Number of replies received (default 0)
+  lastEngagementCheckAt?: Timestamp // Last time we checked engagement metrics
+  engagementCheckCount?: number // How many times we've checked engagement (for rate limiting)
+
   // Metadata
   status:
     | "new"
@@ -225,6 +231,12 @@ export interface UpdateGeneratedCommentData {
   dmStatus?: "draft" | "sent" | "failed" | "replied"
   dmSentAt?: Timestamp
   dmError?: string
+
+  // Analytics & Engagement update fields
+  engagementUpvotes?: number
+  engagementRepliesCount?: number
+  lastEngagementCheckAt?: Timestamp
+  engagementCheckCount?: number
 
   // Allow updating individual comment lengths
   microComment?: string

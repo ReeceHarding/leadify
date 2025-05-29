@@ -179,6 +179,12 @@ export interface SerializedGeneratedCommentDocument {
   dmSentAt?: string
   dmError?: string
 
+  // Analytics & Engagement fields
+  engagementUpvotes?: number
+  engagementRepliesCount?: number
+  lastEngagementCheckAt?: string
+  engagementCheckCount?: number
+
   status:
     | "new"
     | "viewed"
