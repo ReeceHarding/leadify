@@ -2663,7 +2663,8 @@ export default function LeadFinderDashboard() {
             state.workflowRunning ||
             liveFirestoreProgress?.status === "in_progress"
           }
-          viewMode={state.viewMode}
+          viewMode={state.activeMainTab}
+          organizationId={currentOrganization?.id}
           selectedLength={state.selectedLength}
           onEditComment={handleCommentEdit}
           onPostComment={handlePostNow}

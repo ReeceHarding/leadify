@@ -8,6 +8,7 @@ import ToneCustomizer from "./tone-customizer"
 import FiltersAndSorting from "./filters-and-sorting"
 import BatchPoster from "./batch-poster"
 import PaginationControls from "./pagination-controls"
+import MonitorTab from "./monitor-tab"
 import {
   EnhancedLeadSkeleton,
   GenerationProgress
@@ -27,6 +28,7 @@ interface LeadsDisplayProps {
   campaignStatus?: "draft" | "running" | "completed" | "paused" | "error" // Add campaign status
   isWorkflowRunning?: boolean // Add this prop to know if workflow is running
   viewMode?: "comment" | "dm" | "monitor" // Update viewMode to include monitor
+  organizationId?: string // Add organization ID for MonitorTab
 
   // Props for child components
   selectedLength: "micro" | "medium" | "verbose"
@@ -78,6 +80,7 @@ export default function LeadsDisplay({
   campaignStatus,
   isWorkflowRunning = false, // Add with default value
   viewMode = "comment", // Add with default value
+  organizationId,
   selectedLength,
   onEditComment,
   onPostComment,
@@ -107,6 +110,26 @@ export default function LeadsDisplay({
   onTriggerCreateCampaign
 }: LeadsDisplayProps) {
   const renderLoadingSkeleton = () => <EnhancedLeadSkeleton />
+
+  // If monitor mode is active, render the MonitorTab component
+  if (viewMode === "monitor") {
+    if (!organizationId) {
+      return (
+        <EmptyState
+          title="Organization required"
+          description="Please ensure you're part of an organization to use the monitoring feature."
+          icon={<AlertCircle className="size-12" />}
+        />
+      )
+    }
+    
+    return (
+      <MonitorTab 
+        campaignId={campaignId}
+        organizationId={organizationId}
+      />
+    )
+  }
 
   // Main conditional rendering logic
   // If there's a campaign selected but no leads, show appropriate state
