@@ -113,6 +113,8 @@ export default function FindMoreLeads({
   const [manualKeywords, setManualKeywords] = useState("")
   const [showManualEntry, setShowManualEntry] = useState(false)
   const [timeFilter, setTimeFilter] = useState<"hour" | "day" | "week" | "month" | "year" | "all">("all")
+  const [postsPerKeyword, setPostsPerKeyword] = useState(10)
+  const [keywordCount, setKeywordCount] = useState(5)
 
   // Load existing keywords and calculate stats
   useEffect(() => {
@@ -380,10 +382,10 @@ export default function FindMoreLeads({
       .map(k => k.trim())
       .filter(k => k.length > 0)
 
-    // Add new keywords with default 10 posts each
+    // Add new keywords with the selected posts per keyword count
     ;[...manualKeywordsList, ...generatedKeywordsList].forEach(keyword => {
       if (!keywordLimits[keyword]) {
-        keywordLimits[keyword] = 10
+        keywordLimits[keyword] = postsPerKeyword
       }
     })
 
@@ -463,8 +465,8 @@ export default function FindMoreLeads({
 
   const totalThreadsToScore =
     Object.values(selectedKeywords).reduce((a, b) => a + b, 0) +
-    manualKeywords.split("\n").filter(k => k.trim()).length * 10 +
-    generatedKeywords.split("\n").filter(k => k.trim()).length * 10
+    manualKeywords.split("\n").filter(k => k.trim()).length * postsPerKeyword +
+    generatedKeywords.split("\n").filter(k => k.trim()).length * postsPerKeyword
 
   return (
     <Card className="overflow-hidden border shadow-sm">
@@ -486,20 +488,202 @@ export default function FindMoreLeads({
                 className="gap-2 bg-blue-600 text-white shadow-sm hover:bg-blue-700"
               >
                 <Activity className="size-4" />
-                Manage Keywords
+                Find More Posts
               </Button>
             </DialogTrigger>
             <DialogContent className="max-h-[80vh] max-w-3xl overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Keyword Performance & Management</DialogTitle>
+                <DialogTitle>Generate Keywords & Find Posts</DialogTitle>
                 <DialogDescription>
-                  View performance metrics and add new keywords to find more
-                  leads
+                  Generate new keywords with AI and find more Reddit posts for your leads
                 </DialogDescription>
               </DialogHeader>
 
               <div className="mt-4 space-y-6">
-                {/* Time Filter Section */}
+                {/* Current Campaign Info */}
+                {keywords.length > 0 && (
+                  <Alert>
+                    <Info className="size-4" />
+                    <AlertDescription>
+                      <strong>Current keywords:</strong> {keywords.join(", ")}
+                      <br />
+                      <span className="text-muted-foreground mt-1 text-xs">
+                        New posts will be added to your existing collection
+                      </span>
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {/* AI Keyword Generation Section */}
+                <div className="space-y-3">
+                  <Label className="flex items-center gap-2">
+                    <Sparkles className="size-4" />
+                    Generate Keywords from Scratch w/ AI
+                  </Label>
+                  
+                  <div className="space-y-2">
+                    <Label className="text-xs text-gray-500">
+                      Describe what kind of customers you're looking for (optional)
+                    </Label>
+                    <Textarea
+                      placeholder="E.g., people looking for recommendations for large group event venues in the Dominican Republic like weddings and large family get togethers"
+                      value={aiDescription}
+                      onChange={e => setAiDescription(e.target.value)}
+                      className="min-h-[80px] text-sm"
+                    />
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      min={1}
+                      max={20}
+                      value={keywordCount}
+                      onChange={(e) => setKeywordCount(parseInt(e.target.value) || 5)}
+                      className="w-20"
+                      placeholder="5"
+                    />
+                    <Button
+                      variant="outline"
+                      className="flex-1 gap-2"
+                      onClick={handleGenerateKeywords}
+                      disabled={isGeneratingKeywords || isGeneratingFromKnowledgeBase || !aiDescription.trim()}
+                    >
+                      {isGeneratingKeywords ? (
+                        <>
+                          <Loader2 className="size-3 animate-spin" />
+                          Generating keywords...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="size-3" />
+                          Generate {keywordCount} keywords with AI
+                        </>
+                      )}
+                    </Button>
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    className="w-full gap-2"
+                    onClick={handleGenerateKeywordsFromKnowledgeBase}
+                    disabled={isGeneratingFromKnowledgeBase || isGeneratingKeywords}
+                  >
+                    {isGeneratingFromKnowledgeBase ? (
+                      <>
+                        <Loader2 className="size-3 animate-spin" />
+                        Generating from knowledge base...
+                      </>
+                    ) : (
+                      <>
+                        <Brain className="size-3" />
+                        Generate from Knowledge Base
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                {/* Generated Keywords Section */}
+                {generatedKeywords && (
+                  <div className="space-y-3">
+                    <Label>Generated Keywords (Click to Edit)</Label>
+                    <div className="space-y-2">
+                      {generatedKeywords.split("\n").filter(k => k.trim()).map((keyword, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <Input
+                            value={keyword}
+                            onChange={(e) => {
+                              const keywords = generatedKeywords.split("\n")
+                              keywords[index] = e.target.value
+                              setGeneratedKeywords(keywords.join("\n"))
+                            }}
+                            className="flex-1 text-sm"
+                          />
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              const keywords = generatedKeywords.split("\n").filter(k => k.trim())
+                              keywords.splice(index, 1)
+                              setGeneratedKeywords(keywords.join("\n"))
+                            }}
+                          >
+                            <XCircle className="size-3" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setGeneratedKeywords(generatedKeywords + "\n")}
+                      className="gap-2"
+                    >
+                      <Plus className="size-3" />
+                      Add keyword
+                    </Button>
+                  </div>
+                )}
+
+                {/* Manual Entry Section */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label>Manual Keywords</Label>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setShowManualEntry(!showManualEntry)}
+                    >
+                      {showManualEntry ? "Hide" : "Show"} Manual Entry
+                    </Button>
+                  </div>
+
+                  {showManualEntry && (
+                    <div className="space-y-2">
+                      <Textarea
+                        placeholder="budget travel tips Dominican Republic
+luxury beach resorts DR
+Dominican Republic vacation planning
+best time to visit DR beaches"
+                        value={manualKeywords}
+                        onChange={e => setManualKeywords(e.target.value)}
+                        className="min-h-[100px] font-mono text-sm"
+                      />
+                      <p className="text-xs text-gray-500">
+                        Enter one keyword per line. Each keyword will score posts.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Posts per keyword selector */}
+                <div className="space-y-3">
+                  <Label className="flex items-center gap-2">
+                    <Hash className="size-4" />
+                    Posts per keyword
+                  </Label>
+                  <Select
+                    value={postsPerKeyword.toString()}
+                    onValueChange={(value) => setPostsPerKeyword(parseInt(value))}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">1 post per keyword</SelectItem>
+                      <SelectItem value="5">5 posts per keyword</SelectItem>
+                      <SelectItem value="10">10 posts per keyword (Recommended)</SelectItem>
+                      <SelectItem value="15">15 posts per keyword</SelectItem>
+                      <SelectItem value="20">20 posts per keyword</SelectItem>
+                      <SelectItem value="25">25 posts per keyword</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-muted-foreground text-xs">
+                    How many Reddit posts to analyze for each keyword
+                  </p>
+                </div>
+
+                {/* Time Filter Section - moved lower */}
                 <div className="space-y-3">
                   <Label className="flex items-center gap-2">
                     <Calendar className="size-4" />
@@ -526,23 +710,24 @@ export default function FindMoreLeads({
                   </p>
                 </div>
 
-                {/* Recommendations Section */}
+                {/* Performance Recommendations - collapsed by default */}
                 {recommendedKeywords.length > 0 && (
                   <div className="space-y-3">
-                    <Label className="flex items-center gap-2">
-                      <Target className="size-4" />
-                      Our Recommendations
-                    </Label>
-                    <Alert>
-                      <CheckCircle2 className="size-4" />
-                      <AlertDescription>
-                        Based on performance, we recommend scoring more threads
-                        for these high-performing keywords:
-                      </AlertDescription>
-                    </Alert>
-                    <div className="space-y-2">
-                      {recommendedKeywords.map(
-                        ({ keyword, recommendation }) => (
+                    <details className="group">
+                      <summary className="flex cursor-pointer items-center gap-2 text-sm font-medium">
+                        <Target className="size-4" />
+                        Performance Recommendations ({recommendedKeywords.length})
+                        <ChevronDown className="size-4 transition-transform group-open:rotate-180" />
+                      </summary>
+                      <div className="mt-3 space-y-2">
+                        <Alert>
+                          <CheckCircle2 className="size-4" />
+                          <AlertDescription>
+                            Based on performance, we recommend scoring more threads
+                            for these high-performing keywords:
+                          </AlertDescription>
+                        </Alert>
+                        {recommendedKeywords.map(({ keyword, recommendation }) => (
                           <div
                             key={keyword}
                             className="flex items-center justify-between rounded-lg border p-3"
@@ -559,252 +744,11 @@ export default function FindMoreLeads({
                               +{recommendation.posts} threads
                             </Badge>
                           </div>
-                        )
-                      )}
-                    </div>
+                        ))}
+                      </div>
+                    </details>
                   </div>
                 )}
-
-                {/* Keyword Performance */}
-                <div className="space-y-3">
-                  <Label>Keyword Performance</Label>
-                  <div className="space-y-3">
-                    {keywordStats.map(stats => {
-                      const recommendation = getRecommendation(stats)
-                      return (
-                        <div
-                          key={stats.keyword}
-                          className="rounded-lg border bg-gray-50 p-4 dark:bg-gray-900/50"
-                        >
-                          <div className="space-y-3">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <Hash className="size-4 text-gray-500" />
-                                <span className="font-medium">
-                                  {stats.keyword}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <div className="flex flex-col items-end gap-1">
-                                  <Label className="text-xs text-gray-500">
-                                    Find more posts
-                                  </Label>
-                                  <Select
-                                    value={
-                                      selectedKeywords[
-                                        stats.keyword
-                                      ]?.toString() || "0"
-                                    }
-                                    onValueChange={value => {
-                                      const num = parseInt(value)
-                                      if (num === 0) {
-                                        const updated = { ...selectedKeywords }
-                                        delete updated[stats.keyword]
-                                        setSelectedKeywords(updated)
-                                      } else {
-                                        setSelectedKeywords({
-                                          ...selectedKeywords,
-                                          [stats.keyword]: num
-                                        })
-                                      }
-                                    }}
-                                  >
-                                    <SelectTrigger className="h-8 w-24">
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="0">None</SelectItem>
-                                      <SelectItem value="1">1</SelectItem>
-                                      <SelectItem value="10">10</SelectItem>
-                                      <SelectItem value="25">25</SelectItem>
-                                      <SelectItem value="50">50</SelectItem>
-                                      <SelectItem value="100">100</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-3 text-xs md:grid-cols-4">
-                              <div>
-                                <p className="text-gray-500">Total Posts</p>
-                                <p className="font-semibold">
-                                  {stats.totalPosts}
-                                </p>
-                              </div>
-                              <div>
-                                <p className="text-gray-500">High Quality</p>
-                                <p className="font-semibold text-green-600">
-                                  {stats.highQualityPosts}
-                                </p>
-                              </div>
-                              <div>
-                                <p className="text-gray-500">Avg Score</p>
-                                <p
-                                  className={cn(
-                                    "font-semibold",
-                                    getScoreColor(stats.averageScore)
-                                  )}
-                                >
-                                  {stats.averageScore}%
-                                </p>
-                              </div>
-                              <div>
-                                <p className="text-gray-500">Recent</p>
-                                <p className="font-semibold">
-                                  {stats.recentPostsCount}
-                                </p>
-                              </div>
-                            </div>
-
-                            {/* Recommendation Badge */}
-                            <div className="border-t pt-2">
-                              <div className="flex items-center gap-2">
-                                <recommendation.icon
-                                  className={`size-4 ${recommendation.color}`}
-                                />
-                                <span
-                                  className={`text-xs ${recommendation.color}`}
-                                >
-                                  {recommendation.text}
-                                </span>
-                              </div>
-                            </div>
-
-                            {(stats.topPerformer || stats.lowestPerformer) && (
-                              <div className="space-y-2 border-t pt-2">
-                                {stats.topPerformer && (
-                                  <div className="flex items-start gap-2">
-                                    <TrendingUp className="mt-0.5 size-3 shrink-0 text-green-500" />
-                                    <span className="break-words text-xs text-gray-600">
-                                      Top: "{stats.topPerformer.title}" (
-                                      {stats.topPerformer.score}%)
-                                    </span>
-                                  </div>
-                                )}
-                                {stats.lowestPerformer &&
-                                  stats.lowestPerformer.score !==
-                                    stats.topPerformer?.score && (
-                                    <div className="flex items-start gap-2">
-                                      <TrendingDown className="mt-0.5 size-3 shrink-0 text-red-500" />
-                                      <span className="break-words text-xs text-gray-600">
-                                        Low: "{stats.lowestPerformer.title}" (
-                                        {stats.lowestPerformer.score}%)
-                                      </span>
-                                    </div>
-                                  )}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-
-                {/* Add New Keywords */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label>Add New Keywords</Label>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => setShowManualEntry(!showManualEntry)}
-                    >
-                      {showManualEntry ? "Hide" : "Show"} Manual Entry
-                    </Button>
-                  </div>
-
-                  {/* AI Generation Section */}
-                  <div className="space-y-2">
-                    <Label className="text-xs text-gray-500">
-                      Describe what kind of customers you're looking for
-                      (optional)
-                    </Label>
-                    <Textarea
-                      placeholder="E.g., people looking for recommendations for large group event venues in the Dominican Republic like weddings and large family get togethers"
-                      value={aiDescription}
-                      onChange={e => setAiDescription(e.target.value)}
-                      className="min-h-[80px] text-sm"
-                    />
-                  </div>
-
-                  <Button
-                    variant="outline"
-                    className="w-full gap-2"
-                    onClick={handleGenerateKeywords}
-                    disabled={isGeneratingKeywords || isGeneratingFromKnowledgeBase || !aiDescription.trim()}
-                  >
-                    {isGeneratingKeywords ? (
-                      <>
-                        <Loader2 className="size-3 animate-spin" />
-                        Generating keywords...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="size-3" />
-                        Give me suggestions w/ AI
-                      </>
-                    )}
-                  </Button>
-
-                  <Button
-                    variant="outline"
-                    className="w-full gap-2"
-                    onClick={handleGenerateKeywordsFromKnowledgeBase}
-                    disabled={isGeneratingFromKnowledgeBase || isGeneratingKeywords}
-                  >
-                    {isGeneratingFromKnowledgeBase ? (
-                      <>
-                        <Loader2 className="size-3 animate-spin" />
-                        Generating from knowledge base...
-                      </>
-                    ) : (
-                      <>
-                        <Brain className="size-3" />
-                        Generate from Knowledge Base
-                      </>
-                    )}
-                  </Button>
-
-                  <div className="space-y-2">
-                    <Label className="text-xs text-gray-500">
-                      Generated keywords (edit as needed)
-                    </Label>
-                    <Textarea
-                      placeholder="Keywords will appear here after AI generation, or enter your own..."
-                      value={generatedKeywords}
-                      onChange={e => setGeneratedKeywords(e.target.value)}
-                      className="min-h-[100px]"
-                    />
-                    <p className="text-xs text-gray-500">
-                      Enter search phrases that your target audience might use
-                      when looking for solutions
-                    </p>
-                  </div>
-
-                  {/* Manual Entry Section */}
-                  {showManualEntry && (
-                    <div className="space-y-2 rounded-lg border p-4">
-                      <Label className="text-xs text-gray-500">
-                        Manually enter keywords (one per line)
-                      </Label>
-                      <Textarea
-                        placeholder="budget travel tips Dominican Republic
-luxury beach resorts DR
-Dominican Republic vacation planning
-best time to visit DR beaches"
-                        value={manualKeywords}
-                        onChange={e => setManualKeywords(e.target.value)}
-                        className="min-h-[100px] font-mono text-sm"
-                      />
-                      <p className="text-xs text-gray-500">
-                        Enter one keyword per line. Each keyword will score 10
-                        threads.
-                      </p>
-                    </div>
-                  )}
-                </div>
 
                 <Alert>
                   <Info className="size-4" />
