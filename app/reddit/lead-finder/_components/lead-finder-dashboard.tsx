@@ -2558,23 +2558,33 @@ export default function LeadFinderDashboard() {
         </div>
       </div>
 
-      {/* View Mode Tabs - Moved here from grid section */}
-      <Tabs value={state.viewMode} onValueChange={(value) => setState(prev => ({ ...prev, viewMode: value as "comment" | "dm" | "monitor" }))}>
-        <TabsList className="grid w-full max-w-[400px] grid-cols-3">
-          <TabsTrigger value="comment" className="flex items-center gap-2">
-            <MessageSquare className="size-4" />
-            Comments
-          </TabsTrigger>
-          <TabsTrigger value="dm" className="flex items-center gap-2">
-            <Mail className="size-4" />
-            Direct Messages
-          </TabsTrigger>
-          <TabsTrigger value="monitor" className="flex items-center gap-2">
-            <Eye className="size-4" />
-            Monitor
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
+      {/* View Mode Tabs - Moved here, below filters and above main content grid */}
+      {state.campaignId && ( // Ensure tabs only show if a campaign is selected
+        <Tabs 
+          value={state.activeMainTab} // Changed from viewMode to activeMainTab
+          onValueChange={(value) => setState(prev => ({ ...prev, activeMainTab: value as "comment" | "dm" | "monitor" }))} // Changed to activeMainTab
+          className="w-full pt-4" // Added pt-4 for spacing
+        >
+          <TabsList className="grid w-full grid-cols-3"> {/* Ensured w-full and removed max-w-[400px] */}
+            <TabsTrigger value="comment" className="flex items-center gap-2">
+              <MessageSquare className="size-4" />
+              Comments
+            </TabsTrigger>
+            <TabsTrigger value="dm" className="flex items-center gap-2">
+              <Mail className="size-4" />
+              Direct Messages
+            </TabsTrigger>
+            <TabsTrigger value="monitor" className="flex items-center gap-2">
+              <Eye className="size-4" />
+              Monitor
+            </TabsTrigger>
+          </TabsList>
+          
+          {/* Tab Content will be rendered inside the LeadsDisplay or specific sections below */}
+          {/* This is a structural change; the actual content rendering is handled by LeadsDisplay or specific TabContent blocks */}
+          
+        </Tabs>
+      )}
 
       <div className="grid gap-4">
         {/* Progress Bar - Show when workflow is running or recently completed */}
@@ -3010,7 +3020,7 @@ export default function LeadFinderDashboard() {
               </Button>
               <Button
                 onClick={handleNotificationSendBoth}
-                className="gap-2 bg-blue-600 text-white hover:bg-blue-700"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2" // Ensured text-primary-foreground
               >
                 <Send className="size-4" />
                 Send Both
