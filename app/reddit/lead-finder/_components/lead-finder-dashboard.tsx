@@ -2506,8 +2506,8 @@ export default function LeadFinderDashboard() {
                 <SelectContent>
                   <SelectItem value="relevance">Best Match</SelectItem>
                   <SelectItem value="upvotes">Highest Score</SelectItem>
-                  <SelectItem value="posted">Most Recently Posted</SelectItem>
-                  <SelectItem value="fetched">Most Recently Fetched</SelectItem>
+                  <SelectItem value="posted">Most Recent Posts (Reddit)</SelectItem>
+                  <SelectItem value="fetched">Most Recently Found</SelectItem>
                   <SelectItem value="time">Recent Activity</SelectItem>
                 </SelectContent>
               </Select>
