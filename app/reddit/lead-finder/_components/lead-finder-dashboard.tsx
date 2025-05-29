@@ -1965,12 +1965,12 @@ export default function LeadFinderDashboard() {
         // Apply monitor tab filter - only show posts from today
         if (state.viewMode === "monitor") {
           const now = new Date()
-          const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
+          const sevenDaysAgo = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)).getTime()
           
           filtered = filtered.filter(lead => {
             if (!lead.postCreatedAt) return false
             const postDate = new Date(lead.postCreatedAt).getTime()
-            return postDate >= todayStart
+            return postDate >= sevenDaysAgo
           })
           
           // Sort by most recent first for monitor tab
