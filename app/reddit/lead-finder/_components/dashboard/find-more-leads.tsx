@@ -53,13 +53,15 @@ import {
   AlertCircle,
   XCircle,
   Target,
-  Calendar
+  Calendar,
+  Brain
 } from "lucide-react"
 import { toast } from "sonner"
 import { useOrganization } from "@/components/utilities/organization-provider"
 import { getGeneratedCommentsByCampaignAction } from "@/actions/db/lead-generation-actions"
 import { runLeadGenerationWorkflowWithLimitsAction } from "@/actions/lead-generation/workflow-actions"
 import { generateKeywordsAction } from "@/actions/lead-generation/keywords-actions"
+import { getKnowledgeBaseByOrganizationIdAction } from "@/actions/db/personalization-actions"
 import { cn } from "@/lib/utils"
 
 interface KeywordStats {
@@ -97,6 +99,7 @@ export default function FindMoreLeads({
   const [keywordStats, setKeywordStats] = useState<KeywordStats[]>([])
   const [newKeywords, setNewKeywords] = useState("")
   const [isGeneratingKeywords, setIsGeneratingKeywords] = useState(false)
+  const [isGeneratingFromKnowledgeBase, setIsGeneratingFromKnowledgeBase] = useState(false)
   const [isFindingLeads, setIsFindingLeads] = useState(false)
   const [threadsPerKeyword, setThreadsPerKeyword] = useState<
     Record<string, number>
@@ -276,6 +279,89 @@ export default function FindMoreLeads({
       toast.error("Failed to generate keywords")
     } finally {
       setIsGeneratingKeywords(false)
+    }
+  }
+
+  const handleGenerateKeywordsFromKnowledgeBase = async () => {
+    console.log("🧠 [KB-KEYWORDS] Starting knowledge base keyword generation")
+    
+    if (!currentOrganization) {
+      toast.error("Organization not found")
+      return
+    }
+
+    setIsGeneratingFromKnowledgeBase(true)
+    try {
+      console.log("🧠 [KB-KEYWORDS] Fetching knowledge base for organization:", currentOrganization.id)
+      
+      // Get the knowledge base for this organization
+      const knowledgeBaseResult = await getKnowledgeBaseByOrganizationIdAction(currentOrganization.id)
+      
+      if (!knowledgeBaseResult.isSuccess || !knowledgeBaseResult.data) {
+        toast.error("No knowledge base found. Please add business information in your Knowledge Base first.")
+        return
+      }
+
+      const knowledgeBase = knowledgeBaseResult.data
+      console.log("🧠 [KB-KEYWORDS] Found knowledge base with custom info:", !!knowledgeBase.customInformation)
+      
+      // Build comprehensive business description from knowledge base
+      const businessDescriptionParts = []
+      
+      if (knowledgeBase.brandNameOverride) {
+        businessDescriptionParts.push(`Business Name: ${knowledgeBase.brandNameOverride}`)
+      }
+      
+      if (knowledgeBase.customInformation) {
+        businessDescriptionParts.push("Business Information:")
+        businessDescriptionParts.push(knowledgeBase.customInformation)
+      }
+      
+      if (knowledgeBase.summary) {
+        businessDescriptionParts.push("Summary:")
+        businessDescriptionParts.push(knowledgeBase.summary)
+      }
+      
+      if (knowledgeBase.keyFacts && knowledgeBase.keyFacts.length > 0) {
+        businessDescriptionParts.push("Key Facts:")
+        businessDescriptionParts.push("- " + knowledgeBase.keyFacts.join("\n- "))
+      }
+
+      if (businessDescriptionParts.length === 0) {
+        toast.error("Knowledge base is empty. Please add business information first.")
+        return
+      }
+
+      const businessDescription = businessDescriptionParts.join("\n\n")
+      console.log("🧠 [KB-KEYWORDS] Generated business description length:", businessDescription.length)
+
+      // Create refinement text that focuses on customer targeting
+      const refinement = aiDescription.trim() 
+        ? `Based on our knowledge base, generate keywords to find customers who ${aiDescription}. Focus on problems our business solves.`
+        : "Based on our knowledge base, generate keywords to find potential customers who might need our products or services. Focus on problems we solve and customer pain points."
+
+      console.log("🧠 [KB-KEYWORDS] Refinement text:", refinement)
+
+      // Generate keywords using the knowledge base info as business description
+      const keywordsResult = await generateKeywordsAction({
+        website: currentOrganization.website || "",
+        businessDescription: businessDescription,
+        refinement: refinement,
+        organizationId: currentOrganization.id
+      })
+
+      if (keywordsResult.isSuccess) {
+        console.log("🧠 [KB-KEYWORDS] ✅ Generated", keywordsResult.data.keywords.length, "keywords from knowledge base")
+        setGeneratedKeywords(keywordsResult.data.keywords.join("\n"))
+        toast.success(`Generated ${keywordsResult.data.keywords.length} keywords from your knowledge base!`)
+      } else {
+        throw new Error(keywordsResult.message || "Failed to generate keywords")
+      }
+    } catch (error) {
+      console.error("🧠 [KB-KEYWORDS] Error:", error)
+      toast.error("Failed to generate keywords from knowledge base")
+    } finally {
+      setIsGeneratingFromKnowledgeBase(false)
     }
   }
 
@@ -647,7 +733,7 @@ export default function FindMoreLeads({
                     variant="outline"
                     className="w-full gap-2"
                     onClick={handleGenerateKeywords}
-                    disabled={isGeneratingKeywords || !aiDescription.trim()}
+                    disabled={isGeneratingKeywords || isGeneratingFromKnowledgeBase || !aiDescription.trim()}
                   >
                     {isGeneratingKeywords ? (
                       <>
@@ -658,6 +744,25 @@ export default function FindMoreLeads({
                       <>
                         <Sparkles className="size-3" />
                         Give me suggestions w/ AI
+                      </>
+                    )}
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    className="w-full gap-2"
+                    onClick={handleGenerateKeywordsFromKnowledgeBase}
+                    disabled={isGeneratingFromKnowledgeBase || isGeneratingKeywords}
+                  >
+                    {isGeneratingFromKnowledgeBase ? (
+                      <>
+                        <Loader2 className="size-3 animate-spin" />
+                        Generating from knowledge base...
+                      </>
+                    ) : (
+                      <>
+                        <Brain className="size-3" />
+                        Generate from Knowledge Base
                       </>
                     )}
                   </Button>
