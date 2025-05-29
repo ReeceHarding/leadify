@@ -6,52 +6,61 @@ import {
 import { scanForNewPostsByMonitorAction } from "@/actions/monitoring/scanner-actions"
 
 /**
- * API endpoint for checking campaigns that are due for monitoring
- * Updated to use the new lightweight scanning approach
- * This should be called by a cron job or scheduled function
+ * API endpoint for scanning Reddit for new posts matching campaign keywords
+ * This should be called frequently by a cron job (every 1-5 minutes)
  */
 export async function GET(request: Request) {
-  console.log("🔍 [MONITOR-CHECK] Starting scheduled campaign monitoring check")
+  console.log("🔍 [MONITOR-SCAN] Starting scheduled Reddit scanning")
 
   try {
+    // Optional: Check for cron secret for security
+    const authHeader = request.headers.get("authorization")
+    const cronSecret = process.env.CRON_SECRET
+
+    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+      console.error("🔍 [MONITOR-SCAN] Unauthorized scan request")
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     // Get all monitors due for checking
     const monitorsResult = await getMonitorsDueForCheckAction()
 
     if (!monitorsResult.isSuccess || !monitorsResult.data) {
       console.error(
-        "🔍 [MONITOR-CHECK] Failed to get monitors:",
+        "🔍 [MONITOR-SCAN] Failed to get monitors:",
         monitorsResult.message
       )
       return NextResponse.json(
-        { error: "Failed to get monitors for checking" },
+        { error: "Failed to get monitors for scanning" },
         { status: 500 }
       )
     }
 
     const monitors = monitorsResult.data
-    console.log(
-      `🔍 [MONITOR-CHECK] Found ${monitors.length} campaigns to check`
-    )
+    console.log(`🔍 [MONITOR-SCAN] Found ${monitors.length} monitors to scan`)
 
     if (monitors.length === 0) {
       return NextResponse.json({
-        message: "No campaigns due for checking",
-        monitorsChecked: 0
+        message: "No monitors due for scanning",
+        monitorsScanned: 0,
+        totalPostsFound: 0,
+        totalNewPostsAdded: 0
       })
     }
 
     const results = []
     let totalPostsFound = 0
     let totalNewPostsAdded = 0
+    let totalApiCalls = 0
 
-    // Process each monitor using the new scanning approach
+    // Process each monitor
     for (const monitor of monitors) {
       console.log(
-        `🔍 [MONITOR-CHECK] Processing campaign ${monitor.campaignId} with monitor ${monitor.id}`
+        `🔍 [MONITOR-SCAN] Scanning monitor ${monitor.id} for campaign ${monitor.campaignId}`
       )
 
       try {
-        // Use the new lightweight scanning instead of full workflow
+        // Run the scanner for this monitor
         const scanResult = await scanForNewPostsByMonitorAction(monitor)
 
         if (scanResult.isSuccess && scanResult.data) {
@@ -59,8 +68,9 @@ export async function GET(request: Request) {
 
           totalPostsFound += postsFound
           totalNewPostsAdded += newPostsAdded
+          totalApiCalls += apiCallsUsed
 
-          // Record the successful check
+          // Record the successful scan
           await recordMonitoringCheckAction(monitor.id, {
             postsFound,
             newPostsAdded,
@@ -69,25 +79,27 @@ export async function GET(request: Request) {
           })
 
           results.push({
-            campaignId: monitor.campaignId,
             monitorId: monitor.id,
+            campaignId: monitor.campaignId,
             postsFound,
             newPostsAdded,
+            apiCallsUsed,
             success: true
           })
 
           console.log(
-            `🔍 [MONITOR-CHECK] ✅ Campaign ${monitor.campaignId} checked successfully - Found: ${postsFound}, Added: ${newPostsAdded}`
+            `🔍 [MONITOR-SCAN] ✅ Monitor ${monitor.id} scan complete - Found: ${postsFound}, Added: ${newPostsAdded}`
           )
         } else {
           throw new Error(scanResult.message || "Scan failed")
         }
       } catch (error) {
         console.error(
-          `🔍 [MONITOR-CHECK] Error processing campaign ${monitor.campaignId}:`,
+          `🔍 [MONITOR-SCAN] Error scanning monitor ${monitor.id}:`,
           error
         )
 
+        // Record the failed scan
         await recordMonitoringCheckAction(monitor.id, {
           postsFound: 0,
           newPostsAdded: 0,
@@ -97,8 +109,8 @@ export async function GET(request: Request) {
         })
 
         results.push({
-          campaignId: monitor.campaignId,
           monitorId: monitor.id,
+          campaignId: monitor.campaignId,
           error: error instanceof Error ? error.message : "Unknown error",
           success: false
         })
@@ -106,35 +118,27 @@ export async function GET(request: Request) {
     }
 
     console.log(
-      `🔍 [MONITOR-CHECK] Completed checking ${monitors.length} campaigns - Found ${totalPostsFound} posts, added ${totalNewPostsAdded} new potential leads`
+      `🔍 [MONITOR-SCAN] ✅ Scanning complete - Monitors: ${monitors.length}, Posts found: ${totalPostsFound}, New posts added: ${totalNewPostsAdded}, API calls: ${totalApiCalls}`
     )
 
     return NextResponse.json({
-      message: "Campaign monitoring check completed",
-      monitorsChecked: monitors.length,
+      message: "Reddit scanning completed",
+      monitorsScanned: monitors.length,
       totalPostsFound,
       totalNewPostsAdded,
+      totalApiCalls,
       results
     })
   } catch (error) {
-    console.error("🔍 [MONITOR-CHECK] Fatal error:", error)
+    console.error("🔍 [MONITOR-SCAN] ❌ Fatal scanning error:", error)
     return NextResponse.json(
-      { error: "Internal server error during monitoring check" },
+      { error: "Internal server error during Reddit scanning" },
       { status: 500 }
     )
   }
 }
 
-// Optional: Add authentication to ensure only authorized services can call this endpoint
+// POST method for manual triggering (same as GET)
 export async function POST(request: Request) {
-  // You could add a secret key check here
-  const authHeader = request.headers.get("authorization")
-  const expectedKey = process.env.MONITOR_API_KEY
-
-  if (expectedKey && authHeader !== `Bearer ${expectedKey}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
-
-  // Delegate to GET handler
   return GET(request)
 }

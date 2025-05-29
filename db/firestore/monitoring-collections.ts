@@ -24,6 +24,9 @@ export interface CampaignMonitorDocument {
     | "24hours"
   priority: "high" | "medium" | "low"
 
+  // NEW: Tracking for incremental scanning
+  last_checked_post_ids: Record<string, string> // Map of keyword_subreddit_combo -> newest_reddit_post_id_seen
+
   // Tracking
   lastCheckAt: Timestamp | null
   nextCheckAt: Timestamp | null
@@ -68,6 +71,7 @@ export interface CreateCampaignMonitorData {
   frequency?: CampaignMonitorDocument["frequency"]
   priority?: CampaignMonitorDocument["priority"]
   enabled?: boolean
+  last_checked_post_ids?: Record<string, string>
 }
 
 export interface UpdateCampaignMonitorData {
@@ -83,6 +87,7 @@ export interface UpdateCampaignMonitorData {
   apiCallsToday?: number
   apiCallsMonth?: number
   lastApiReset?: Timestamp
+  last_checked_post_ids?: Record<string, string>
 }
 
 export interface MonitoringLogDocument {

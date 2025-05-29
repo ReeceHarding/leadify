@@ -15,6 +15,7 @@ export * from "@/db/firestore/keyword-performance-collections"
 export * from "@/db/firestore/dm-collections"
 export * from "@/db/firestore/dm-progress-collections"
 export * from "@/db/firestore/monitoring-collections"
+export * from "@/db/firestore/potential-leads-collections"
 export * from "@/db/firestore/unified-queue-collections"
 
 // Export Reddit threads collections separately to avoid naming conflicts

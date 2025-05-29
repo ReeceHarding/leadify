@@ -86,6 +86,9 @@ export async function createCampaignMonitorAction(
       frequency,
       priority: data.priority || "medium",
       
+      // NEW: Initialize empty tracking for incremental scanning
+      last_checked_post_ids: data.last_checked_post_ids || {},
+      
       // Tracking
       lastCheckAt: null,
       nextCheckAt: nextCheckTime,

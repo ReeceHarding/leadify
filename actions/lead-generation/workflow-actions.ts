@@ -1075,153 +1075,85 @@ export async function stopLeadGenerationWorkflowAction(
 export async function regenerateAllCommentsForCampaignAction(
   campaignId: string
 ): Promise<ActionState<{ regeneratedCount: number }>> {
+  logger.info(`🔄 Starting comment regeneration for campaign: ${campaignId}`)
+  
   try {
-    logger.info(`🔄 Starting regeneration of all comments for campaign: ${campaignId}`)
-    console.log("🔄 [REGENERATE-ALL] Starting regeneration for campaign:", campaignId)
-
-    // Get campaign details
-    const campaignResult = await getCampaignByIdAction(campaignId)
-    if (!campaignResult.isSuccess || !campaignResult.data) {
-      return {
-        isSuccess: false,
-        message: "Failed to get campaign details"
-      }
-    }
-
-    const campaign = campaignResult.data
-    const organizationId = campaign.organizationId
-    
-    if (!organizationId) {
-      return {
-        isSuccess: false,
-        message: "Campaign is not associated with an organization"
-      }
-    }
-
-    // Get website content
-    const websiteContent = campaign.websiteContent
-    if (!websiteContent) {
-      return {
-        isSuccess: false,
-        message: "No website content available for campaign"
-      }
-    }
-
-    console.log("🔄 [REGENERATE-ALL] Campaign details:", {
-      name: campaign.name,
-      organizationId,
-      websiteContentLength: websiteContent.length
-    })
-
-    // Get all existing comments for this campaign
-    const { getGeneratedCommentsByCampaignAction } = await import(
-      "@/actions/db/lead-generation-actions"
-    )
-    
+    // Get all generated comments for this campaign
+    const { getGeneratedCommentsByCampaignAction } = await import("@/actions/db/lead-generation-actions")
     const commentsResult = await getGeneratedCommentsByCampaignAction(campaignId)
-    if (!commentsResult.isSuccess || !commentsResult.data) {
+    
+    if (!commentsResult.isSuccess) {
       return {
         isSuccess: false,
         message: "Failed to get existing comments"
       }
     }
-
-    const existingComments = commentsResult.data
-    console.log("🔄 [REGENERATE-ALL] Found", existingComments.length, "comments to regenerate")
-
-    // Get personalization data
-    const knowledgeBaseResult = await getKnowledgeBaseByOrganizationIdAction(organizationId)
-    let brandNameToUse = campaign.name
     
-    if (knowledgeBaseResult.isSuccess && knowledgeBaseResult.data) {
-      const kb = knowledgeBaseResult.data
-      brandNameToUse = kb.brandNameOverride || campaign.name || "our solution"
-      brandNameToUse = brandNameToUse.toLowerCase()
-      console.log("🔄 [REGENERATE-ALL] Using brand name:", brandNameToUse)
+    const comments = commentsResult.data
+    if (comments.length === 0) {
+      return {
+        isSuccess: true,
+        message: "No comments found to regenerate",
+        data: { regeneratedCount: 0 }
+      }
     }
-
+    
+    logger.info(`🔄 Found ${comments.length} comments to regenerate`)
+    
+    // Get campaign and business content
+    const campaignResult = await getCampaignByIdAction(campaignId)
+    if (!campaignResult.isSuccess) {
+      return {
+        isSuccess: false,
+        message: "Failed to get campaign details"
+      }
+    }
+    
+    const campaign = campaignResult.data
+    const websiteContent = campaign.websiteContent || campaign.businessDescription
+    
+    if (!websiteContent) {
+      return {
+        isSuccess: false,
+        message: "No business content available for regeneration"
+      }
+    }
+    
+    // Get personalization settings
+    const organizationId = campaign.organizationId
+    let knowledgeBase = ""
+    let voiceSettings = null
+    
+    if (organizationId) {
+      const kbResult = await getKnowledgeBaseByOrganizationIdAction(organizationId)
+      if (kbResult.isSuccess && kbResult.data) {
+        knowledgeBase = kbResult.data.customInformation || kbResult.data.summary || ""
+      }
+      
+      const voiceResult = await getVoiceSettingsByOrganizationIdAction(organizationId)
+      if (voiceResult.isSuccess && voiceResult.data) {
+        voiceSettings = voiceResult.data
+      }
+    }
+    
+    let regeneratedCount = 0
+    
     // Process comments in batches to avoid overwhelming the API
     const batchSize = 5
-    let regeneratedCount = 0
-    let errors = 0
-
-    for (let i = 0; i < existingComments.length; i += batchSize) {
-      const batch = existingComments.slice(i, i + batchSize)
-      console.log(`🔄 [REGENERATE-ALL] Processing batch ${Math.floor(i / batchSize) + 1} of ${Math.ceil(existingComments.length / batchSize)}`)
-
-      const regeneratePromises = batch.map(async (comment) => {
+    for (let i = 0; i < comments.length; i += batchSize) {
+      const batch = comments.slice(i, i + batchSize)
+      
+      await Promise.all(batch.map(async (comment: any) => {
         try {
-          // Get the Reddit thread data
-          const threadQuery = query(
-            collection(db, LEAD_COLLECTIONS.REDDIT_THREADS),
-            where("threadId", "==", comment.threadId),
-            limit(1)
-          )
-          const threadSnapshot = await getDocs(threadQuery)
-
-          if (threadSnapshot.empty) {
-            console.warn(`🔄 [REGENERATE-ALL] No thread found for comment ${comment.id}`)
-            return null
-          }
-
-          const threadData = threadSnapshot.docs[0].data() as RedditThreadDocument
-
-          // Fetch existing comments from Reddit for context
-          let existingRedditComments: string[] = []
-          try {
-            const { fetchRedditCommentsAction } = await import(
-              "@/actions/integrations/reddit/reddit-actions"
-            )
-            const commentsResult = await fetchRedditCommentsAction(
-              organizationId,
-              comment.threadId,
-              threadData.subreddit,
-              "best",
-              10
-            )
-            if (commentsResult.isSuccess && commentsResult.data.length > 0) {
-              existingRedditComments = commentsResult.data
-                .filter(c => c.body && c.body !== "[deleted]" && c.body !== "[removed]")
-                .map(c => c.body)
-                .slice(0, 5)
-            }
-          } catch (error) {
-            console.warn("🔄 [REGENERATE-ALL] Failed to fetch Reddit comments:", error)
-          }
-
-          // Extract post creation timestamp
-          let postCreatedUtc: number | undefined
-          if (comment.postCreatedAt) {
-            // Convert Firestore Timestamp to Unix timestamp in seconds
-            const timestamp = comment.postCreatedAt as any
-            if (timestamp && timestamp.seconds) {
-              postCreatedUtc = timestamp.seconds
-            } else if (timestamp && timestamp.toDate) {
-              postCreatedUtc = Math.floor(timestamp.toDate().getTime() / 1000)
-            }
-          }
-          
-          console.log("🔄 [REGENERATE-ALL] Post created UTC:", postCreatedUtc)
-
-          // Use the new personalized scoring and comment generation
-          const { scoreThreadAndGeneratePersonalizedCommentsAction } = await import(
-            "@/actions/integrations/openai/openai-actions"
-          )
-
-          const result = await scoreThreadAndGeneratePersonalizedCommentsAction(
-            threadData.title,
-            threadData.content,
-            threadData.subreddit,
-            organizationId,
-            campaign.keywords,
+          const result = await scoreThreadAndGenerateThreeTierCommentsAction(
+            comment.postContent || comment.postContentSnippet,
+            comment.postTitle,
             websiteContent,
-            existingRedditComments,
-            brandNameToUse,
-            postCreatedUtc
+            knowledgeBase,
+            voiceSettings?.generatedPrompt ? [voiceSettings.generatedPrompt] : undefined
           )
-
+          
           if (result.isSuccess) {
-            // Update the comment in the database
             await updateGeneratedCommentAction(comment.id, {
               relevanceScore: result.data.score,
               reasoning: result.data.reasoning,
@@ -1229,42 +1161,267 @@ export async function regenerateAllCommentsForCampaignAction(
               mediumComment: result.data.mediumComment,
               verboseComment: result.data.verboseComment
             })
-
-            console.log(`✅ [REGENERATE-ALL] Regenerated comment ${comment.id} with score ${result.data.score}`)
-            return true
+            regeneratedCount++
+            logger.info(`🔄 Regenerated comment ${comment.id}`)
           } else {
-            console.error(`❌ [REGENERATE-ALL] Failed to regenerate comment ${comment.id}:`, result.message)
-            return false
+            logger.error(`🔄 Failed to regenerate comment ${comment.id}: ${result.message}`)
           }
         } catch (error) {
-          console.error(`❌ [REGENERATE-ALL] Error regenerating comment ${comment.id}:`, error)
-          return false
+          logger.error(`🔄 Error regenerating comment ${comment.id}:`, error)
         }
-      })
-
-      const results = await Promise.all(regeneratePromises)
-      regeneratedCount += results.filter(r => r === true).length
-      errors += results.filter(r => r === false).length
-
-      // Add a small delay between batches to avoid rate limiting
-      if (i + batchSize < existingComments.length) {
-        await new Promise(resolve => setTimeout(resolve, 2000))
+      }))
+      
+      // Small delay between batches
+      if (i + batchSize < comments.length) {
+        await new Promise(resolve => setTimeout(resolve, 1000))
       }
     }
-
-    console.log(`🔄 [REGENERATE-ALL] Regeneration complete. Success: ${regeneratedCount}, Errors: ${errors}`)
-
+    
+    logger.info(`🔄 ✅ Regenerated ${regeneratedCount} of ${comments.length} comments`)
+    
     return {
       isSuccess: true,
-      message: `Successfully regenerated ${regeneratedCount} comments${errors > 0 ? ` (${errors} failed)` : ''}`,
+      message: `Regenerated ${regeneratedCount} comments`,
       data: { regeneratedCount }
     }
+    
   } catch (error) {
-    logger.error("Error regenerating all comments:", error)
-    console.error("❌ [REGENERATE-ALL] Fatal error:", error)
+    logger.error("🔄 ❌ Error regenerating comments:", error)
     return {
       isSuccess: false,
       message: `Failed to regenerate comments: ${error instanceof Error ? error.message : "Unknown error"}`
+    }
+  }
+}
+
+/**
+ * Qualify a potential lead by running full AI analysis and generating comments/DMs
+ * This is the heavy processing step that converts potential leads to qualified leads
+ */
+export async function qualifyPotentialLeadAction(
+  potentialLeadId: string,
+  organizationId: string
+): Promise<ActionState<{
+  qualified: boolean
+  relevanceScore?: number
+  generatedCommentId?: string
+}>> {
+  console.log("🎯 [QUALIFY-LEAD] Starting qualification for potential lead:", potentialLeadId)
+
+  try {
+    // Import potential leads actions
+    const { 
+      updatePotentialLeadAction,
+      getPotentialLeadsByCampaignAction 
+    } = await import("@/actions/db/potential-leads-actions")
+
+    // Get the potential lead
+    const potentialLeadQuery = query(
+      collection(db, "potential_leads_feed"),
+      where("id", "==", potentialLeadId),
+      where("organizationId", "==", organizationId),
+      limit(1)
+    )
+    const potentialLeadSnapshot = await getDocs(potentialLeadQuery)
+    
+    if (potentialLeadSnapshot.empty) {
+      return {
+        isSuccess: false,
+        message: "Potential lead not found"
+      }
+    }
+
+    const potentialLeadDoc = potentialLeadSnapshot.docs[0]
+    const potentialLead = potentialLeadDoc.data()
+
+    console.log("🎯 [QUALIFY-LEAD] Found potential lead:", potentialLead.title)
+
+    // Mark as qualifying
+    await updatePotentialLeadAction(potentialLeadId, {
+      status: "qualifying"
+    })
+
+    // Get campaign details for business content
+    const campaignResult = await getCampaignByIdAction(potentialLead.campaignId)
+    if (!campaignResult.isSuccess || !campaignResult.data) {
+      await updatePotentialLeadAction(potentialLeadId, {
+        status: "ignored",
+        qualification_error: "Campaign not found"
+      })
+      return {
+        isSuccess: false,
+        message: "Campaign not found"
+      }
+    }
+
+    const campaign = campaignResult.data
+    const websiteContent = campaign.websiteContent || campaign.businessDescription
+
+    if (!websiteContent) {
+      await updatePotentialLeadAction(potentialLeadId, {
+        status: "ignored",
+        qualification_error: "No business content available"
+      })
+      return {
+        isSuccess: false,
+        message: "No business content available"
+      }
+    }
+
+    // Get personalization settings
+    let knowledgeBase = ""
+    let voiceSettings = null
+    
+    const kbResult = await getKnowledgeBaseByOrganizationIdAction(organizationId)
+    if (kbResult.isSuccess && kbResult.data) {
+      knowledgeBase = kbResult.data.customInformation || kbResult.data.summary || ""
+    }
+    
+    const voiceResult = await getVoiceSettingsByOrganizationIdAction(organizationId)
+    if (voiceResult.isSuccess && voiceResult.data) {
+      voiceSettings = voiceResult.data
+    }
+
+    // Get full post content if not available  
+    let fullContent = potentialLead.content_snippet
+    if (!potentialLead.full_content && potentialLead.permalink) {
+      console.log("🎯 [QUALIFY-LEAD] Using content snippet as full content for qualification")
+      fullContent = potentialLead.content_snippet
+    } else {
+      fullContent = potentialLead.full_content || potentialLead.content_snippet
+    }
+
+    // Run AI qualification
+    console.log("🎯 [QUALIFY-LEAD] Running AI qualification...")
+    const qualificationResult = await scoreThreadAndGenerateThreeTierCommentsAction(
+      fullContent,
+      potentialLead.title,
+      websiteContent,
+      knowledgeBase,
+      voiceSettings?.generatedPrompt ? [voiceSettings.generatedPrompt] : undefined
+    )
+
+    if (!qualificationResult.isSuccess) {
+      await updatePotentialLeadAction(potentialLeadId, {
+        status: "ignored",
+        qualification_error: qualificationResult.message
+      })
+      return {
+        isSuccess: false,
+        message: `AI qualification failed: ${qualificationResult.message}`
+      }
+    }
+
+    const aiResult = qualificationResult.data
+    console.log("🎯 [QUALIFY-LEAD] AI qualification score:", aiResult.score)
+
+    // Update potential lead with qualification results
+    await updatePotentialLeadAction(potentialLeadId, {
+      relevance_score: aiResult.score,
+      reasoning: aiResult.reasoning,
+      generated_comment: aiResult.mediumComment, // Store the medium comment as primary
+      qualified_at: serverTimestamp() as Timestamp
+    })
+
+    // Determine if this is a qualified lead (e.g., score >= 70)
+    const isQualified = aiResult.score >= 70
+
+    if (isQualified) {
+      console.log("🎯 [QUALIFY-LEAD] ✅ Lead qualified! Creating full generated comment...")
+      
+      // Create a full generated comment document
+      const generatedCommentData: CreateGeneratedCommentData = {
+        campaignId: potentialLead.campaignId,
+        organizationId: potentialLead.organizationId,
+        redditThreadId: potentialLeadId, // Use potential lead ID as thread reference
+        threadId: potentialLead.id,
+        postUrl: `https://reddit.com${potentialLead.permalink}`,
+        postTitle: potentialLead.title,
+        postAuthor: potentialLead.author,
+        postContentSnippet: potentialLead.content_snippet,
+        postContent: fullContent,
+        relevanceScore: aiResult.score,
+        reasoning: aiResult.reasoning,
+        microComment: aiResult.microComment,
+        mediumComment: aiResult.mediumComment,
+        verboseComment: aiResult.verboseComment,
+        keyword: potentialLead.matchedKeywords[0], // Use first matched keyword
+        postScore: potentialLead.score,
+        postCreatedAt: potentialLead.created_utc ? 
+          Timestamp.fromMillis(potentialLead.created_utc * 1000) : undefined
+      }
+
+      const commentResult = await createGeneratedCommentAction(generatedCommentData)
+      
+      if (commentResult.isSuccess) {
+        // Mark potential lead as qualified
+        await updatePotentialLeadAction(potentialLeadId, {
+          status: "qualified_lead"
+        })
+
+        console.log("🎯 [QUALIFY-LEAD] ✅ Generated comment created:", commentResult.data.id)
+        
+        return {
+          isSuccess: true,
+          message: "Lead qualified and comment generated",
+          data: {
+            qualified: true,
+            relevanceScore: aiResult.score,
+            generatedCommentId: commentResult.data.id
+          }
+        }
+      } else {
+        console.error("🎯 [QUALIFY-LEAD] Failed to create generated comment:", commentResult.message)
+        
+        // Still mark as qualified even if comment creation failed
+        await updatePotentialLeadAction(potentialLeadId, {
+          status: "qualified_lead"
+        })
+        
+        return {
+          isSuccess: true,
+          message: "Lead qualified but comment creation failed",
+          data: {
+            qualified: true,
+            relevanceScore: aiResult.score
+          }
+        }
+      }
+    } else {
+      console.log("🎯 [QUALIFY-LEAD] Lead did not meet qualification threshold")
+      
+      // Mark as ignored due to low score
+      await updatePotentialLeadAction(potentialLeadId, {
+        status: "ignored"
+      })
+      
+      return {
+        isSuccess: true,
+        message: "Lead did not meet qualification threshold",
+        data: {
+          qualified: false,
+          relevanceScore: aiResult.score
+        }
+      }
+    }
+
+  } catch (error) {
+    console.error("🎯 [QUALIFY-LEAD] ❌ Qualification failed:", error)
+    
+    // Mark potential lead as failed
+    try {
+      const { updatePotentialLeadAction } = await import("@/actions/db/potential-leads-actions")
+      await updatePotentialLeadAction(potentialLeadId, {
+        status: "ignored",
+        qualification_error: error instanceof Error ? error.message : "Unknown error"
+      })
+    } catch (updateError) {
+      console.error("🎯 [QUALIFY-LEAD] Failed to update lead status:", updateError)
+    }
+    
+    return {
+      isSuccess: false,
+      message: `Qualification failed: ${error instanceof Error ? error.message : "Unknown error"}`
     }
   }
 }
