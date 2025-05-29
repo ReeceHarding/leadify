@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { qualifyPotentialLeadAction } from "@/actions/lead-generation/workflow-actions"
 import {
   getPotentialLeadsByOrganizationAction,
+  getAllPotentialLeadsAction,
   batchUpdatePotentialLeadsStatusAction
 } from "@/actions/db/potential-leads-actions"
 
@@ -25,7 +26,7 @@ export async function GET(request: Request) {
 
     // Parse URL parameters for batch size and organization filtering
     const url = new URL(request.url)
-    const batchSize = parseInt(url.searchParams.get("batchSize") || "10")
+    const batchSize = parseInt(url.searchParams.get("batchSize") || "20")
     const organizationId = url.searchParams.get("organizationId")
 
     console.log(
@@ -35,6 +36,7 @@ export async function GET(request: Request) {
     // Get potential leads with status "new"
     let unqualifiedLeads
     if (organizationId) {
+      // Specific organization
       const leadsResult = await getPotentialLeadsByOrganizationAction(
         organizationId,
         "new",
@@ -47,12 +49,17 @@ export async function GET(request: Request) {
       }
       unqualifiedLeads = leadsResult.data
     } else {
-      // If no organization specified, we'd need a different approach
-      // For now, require organizationId to avoid qualifying across all orgs
-      return NextResponse.json(
-        { error: "organizationId parameter is required" },
-        { status: 400 }
+      // All organizations (for Vercel cron jobs)
+      console.log(
+        "🎯 [MONITOR-QUALIFY] Processing leads from all organizations (Vercel cron mode)"
       )
+      const leadsResult = await getAllPotentialLeadsAction("new", batchSize)
+      if (!leadsResult.isSuccess) {
+        throw new Error(
+          `Failed to get leads across all organizations: ${leadsResult.message}`
+        )
+      }
+      unqualifiedLeads = leadsResult.data
     }
 
     console.log(

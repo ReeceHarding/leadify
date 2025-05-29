@@ -20,6 +20,12 @@
     },
     "app/api/monitor/check-campaigns/route.ts": {
       "maxDuration": 60
+    },
+    "app/api/monitoring/scan/route.ts": {
+      "maxDuration": 30
+    },
+    "app/api/monitoring/qualify/route.ts": {
+      "maxDuration": 60
     }
   },
   "crons": [

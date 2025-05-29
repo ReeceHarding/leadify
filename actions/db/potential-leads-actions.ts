@@ -213,6 +213,54 @@ export async function getPotentialLeadsByOrganizationAction(
 }
 
 /**
+ * Get potential leads across all organizations (for Vercel cron jobs)
+ */
+export async function getAllPotentialLeadsAction(
+  status?: PotentialLeadStatus,
+  limitCount: number = 50
+): Promise<ActionState<SerializedPotentialLeadDocument[]>> {
+  console.log("🎯 [POTENTIAL-LEADS-ALL] Fetching potential leads across all organizations, status:", status)
+
+  try {
+    let leadsQuery = query(
+      collection(db, POTENTIAL_LEADS_COLLECTIONS.POTENTIAL_LEADS_FEED),
+      orderBy("discovered_at", "desc"),
+      limit(limitCount)
+    )
+
+    // Add status filter if provided
+    if (status) {
+      leadsQuery = query(
+        collection(db, POTENTIAL_LEADS_COLLECTIONS.POTENTIAL_LEADS_FEED),
+        where("status", "==", status),
+        orderBy("discovered_at", "desc"),
+        limit(limitCount)
+      )
+    }
+
+    const snapshot = await getDocs(leadsQuery)
+    const leads = snapshot.docs.map(doc => {
+      const leadData = { ...doc.data() } as PotentialLeadDocument
+      return serializePotentialLeadTimestamps(leadData)
+    })
+    
+    console.log("🎯 [POTENTIAL-LEADS-ALL] ✅ Found", leads.length, "potential leads across all organizations")
+    
+    return {
+      isSuccess: true,
+      message: `Found ${leads.length} potential leads`,
+      data: leads
+    }
+  } catch (error) {
+    console.error("🎯 [POTENTIAL-LEADS-ALL] ❌ Error:", error)
+    return {
+      isSuccess: false,
+      message: "Failed to get potential leads"
+    }
+  }
+}
+
+/**
  * Update a potential lead
  */
 export async function updatePotentialLeadAction(
