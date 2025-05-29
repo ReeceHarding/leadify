@@ -17,6 +17,7 @@ import {
 } from "lucide-react"
 import * as React from "react"
 import { usePathname } from "next/navigation"
+import { useState, useEffect } from "react"
 
 import {
   Sidebar,
@@ -32,6 +33,27 @@ import { TeamSwitcher } from "./team-switcher"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname()
+  const [notificationCount, setNotificationCount] = useState(0)
+
+  // Listen for notification updates from lead finder
+  useEffect(() => {
+    const handleNotificationUpdate = (event: CustomEvent) => {
+      console.log("📢 [SIDEBAR] Notification update received:", event.detail)
+      setNotificationCount(event.detail.count || 0)
+    }
+
+    window.addEventListener(
+      "leadFinderNotificationUpdate",
+      handleNotificationUpdate as EventListener
+    )
+
+    return () => {
+      window.removeEventListener(
+        "leadFinderNotificationUpdate",
+        handleNotificationUpdate as EventListener
+      )
+    }
+  }, [])
 
   // Generalized data
   const data = {
@@ -55,7 +77,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           {
             title: "Lead Finder",
             url: "/reddit/lead-finder",
-            isActive: pathname === "/reddit/lead-finder"
+            isActive: pathname === "/reddit/lead-finder",
+            hasNotification: true // Enable notifications for Lead Finder
           },
           {
             title: "My Posts",
@@ -109,7 +132,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <TeamSwitcher />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={data.navMain} notificationCount={notificationCount} />
         {data.projects.length > 0 && <NavProjects projects={data.projects} />}
       </SidebarContent>
       <SidebarFooter>

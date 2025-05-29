@@ -26,7 +26,7 @@ interface LeadsDisplayProps {
   campaignId: string | null
   campaignStatus?: "draft" | "running" | "completed" | "paused" | "error" // Add campaign status
   isWorkflowRunning?: boolean // Add this prop to know if workflow is running
-  viewMode?: "comment" | "dm" // Add viewMode prop
+  viewMode?: "comment" | "dm" | "monitor" // Update viewMode to include monitor
 
   // Props for child components
   selectedLength: "micro" | "medium" | "verbose"

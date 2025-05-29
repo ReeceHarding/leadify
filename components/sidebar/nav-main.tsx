@@ -21,18 +21,21 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem
 } from "@/components/ui/sidebar"
-import { ChevronRight, type LucideIcon } from "lucide-react"
+import { ChevronRight, type LucideIcon, Bell } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 
 export function NavMain({
-  items
+  items,
+  notificationCount
 }: {
   items: {
     title: string
     url: string
     icon?: LucideIcon
     isActive?: boolean
-    items?: { title: string; url: string }[]
+    items?: { title: string; url: string; hasNotification?: boolean }[]
   }[]
+  notificationCount?: number
 }) {
   return (
     <SidebarGroup>
@@ -58,8 +61,26 @@ export function NavMain({
                   {item.items?.map(subItem => (
                     <SidebarMenuSubItem key={subItem.title}>
                       <SidebarMenuSubButton asChild>
-                        <a href={subItem.url}>
+                        <a
+                          href={subItem.url}
+                          className="flex items-center justify-between"
+                        >
                           <span>{subItem.title}</span>
+                          {subItem.hasNotification &&
+                            notificationCount &&
+                            notificationCount > 0 && (
+                              <div className="flex items-center gap-1">
+                                <Bell className="size-3.5 text-orange-500" />
+                                <Badge
+                                  variant="destructive"
+                                  className="flex size-5 items-center justify-center p-0 text-xs"
+                                >
+                                  {notificationCount > 99
+                                    ? "99+"
+                                    : notificationCount}
+                                </Badge>
+                              </div>
+                            )}
                         </a>
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>

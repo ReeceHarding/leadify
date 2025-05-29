@@ -64,7 +64,7 @@ import { fetchRedditThreadAction } from "@/actions/integrations/reddit/reddit-ac
 interface LeadCardProps {
   lead: any
   selectedLength: "micro" | "medium" | "verbose"
-  viewMode: "comment" | "dm"
+  viewMode: "comment" | "dm" | "monitor"
   onEdit: (leadId: string, newComment: string, isDM?: boolean) => Promise<void>
   onPost: (lead: any) => Promise<void>
   onQueue: (lead: any) => Promise<void>
@@ -141,7 +141,7 @@ export default function LeadCard({
   const [cardError, setCardError] = useState<string | null>(null)
 
   // Local view mode state so each card can independently toggle between Comment and DM
-  const [localViewMode, setLocalViewMode] = useState<"comment" | "dm">(viewMode)
+  const [localViewMode, setLocalViewMode] = useState<"comment" | "dm" | "monitor">(viewMode === "monitor" ? "comment" : viewMode)
 
   const content = localViewMode === "dm" 
     ? (lead.dmMessage || "No DM generated yet")
@@ -300,7 +300,7 @@ export default function LeadCard({
             {/* Post Date */}
             <div className="flex items-center gap-2 text-sm text-gray-500">
               <Calendar className="size-4" />
-              <span>{formatPostDate(lead.postCreatedAt || lead.createdAt)}</span>
+              <span>{formatPostDate(lead.postCreatedAt)}</span>
             </div>
           </div>
 

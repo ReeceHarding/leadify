@@ -164,6 +164,7 @@ import {
   recordThreadInteractionAction
 } from "@/actions/db/reddit-threads-actions"
 import { semanticFilterAction } from "@/actions/integrations/openai/semantic-search-actions"
+import { cn } from "@/lib/utils"
 
 const ITEMS_PER_PAGE = 20
 const POLLING_INTERVAL = 5000 // 5 seconds
@@ -194,7 +195,7 @@ interface DashboardState {
   filterKeyword: string
   filterScore: number
   activeTab: "all" | "queue"
-  viewMode: "comment" | "dm" // Add viewMode state
+  viewMode: "comment" | "dm" | "monitor" // Update viewMode to include monitor
 
   // Operation state
   selectedPost: LeadResult | null
@@ -365,6 +366,7 @@ export default function LeadFinderDashboard() {
     useState<LeadGenerationProgress | null>(null)
   const [redditConnected, setRedditConnected] = useState<boolean | null>(null)
   const posthog = usePostHog()
+  const [notificationLead, setNotificationLead] = useState<LeadResult | null>(null) // Add notification lead state
 
   // Debug logging
   const addDebugLog = useCallback(
@@ -1960,78 +1962,110 @@ export default function LeadFinderDashboard() {
       try {
         let filtered = [...state.leads]
 
-        // Apply semantic text search filter
-        if (state.searchQuery.trim()) {
-          console.log("🔍 [LEAD-FINDER] Applying semantic search filter")
-          filtered = await performSemanticSearch(filtered, state.searchQuery)
-        }
+        // Apply monitor tab filter - only show posts from today
+        if (state.viewMode === "monitor") {
+          const now = new Date()
+          const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
+          
+          filtered = filtered.filter(lead => {
+            if (!lead.postCreatedAt) return false
+            const postDate = new Date(lead.postCreatedAt).getTime()
+            return postDate >= todayStart
+          })
+          
+          // Sort by most recent first for monitor tab
+          filtered.sort((a, b) => {
+            const dateA = a.postCreatedAt ? new Date(a.postCreatedAt).getTime() : 0
+            const dateB = b.postCreatedAt ? new Date(b.postCreatedAt).getTime() : 0
+            return dateB - dateA
+          })
+        } else {
+          // Apply semantic text search filter
+          if (state.searchQuery.trim()) {
+            console.log("🔍 [LEAD-FINDER] Applying semantic search filter")
+            filtered = await performSemanticSearch(filtered, state.searchQuery)
+          }
 
-        // Apply keyword filter
-        if (state.selectedKeyword) {
-          filtered = filtered.filter(lead => lead.keyword === state.selectedKeyword)
-        }
+          // Apply keyword filter
+          if (state.selectedKeyword) {
+            filtered = filtered.filter(lead => lead.keyword === state.selectedKeyword)
+          }
 
-        // Apply score filter
-        if (state.filterScore > 0) {
-          filtered = filtered.filter(
-            lead => lead.relevanceScore >= state.filterScore
-          )
-        }
+          // Apply score filter
+          if (state.filterScore > 0) {
+            filtered = filtered.filter(
+              lead => lead.relevanceScore >= state.filterScore
+            )
+          }
 
-        // Apply date filter
-        filtered = filtered.filter(lead => filterByDate(lead, state.dateFilter))
+          // Apply date filter
+          filtered = filtered.filter(lead => filterByDate(lead, state.dateFilter))
 
-        // Apply tab filter
-        if (state.activeTab === "queue") {
-          filtered = filtered.filter(lead => lead.status === "queued")
-        }
+          // Apply tab filter
+          if (state.activeTab === "queue") {
+            filtered = filtered.filter(lead => lead.status === "queued")
+          }
 
-        // Sort
-        switch (state.sortBy) {
-          case "relevance":
-            filtered.sort((a, b) => b.relevanceScore - a.relevanceScore)
-            break
-          case "upvotes":
-            filtered.sort((a, b) => (b.postScore || 0) - (a.postScore || 0))
-            break
-          case "time":
-            filtered.sort((a, b) => {
-              const dateA = a.postCreatedAt
-                ? new Date(a.postCreatedAt).getTime()
-                : 0
-              const dateB = b.postCreatedAt
-                ? new Date(b.postCreatedAt).getTime()
-                : 0
-              return dateB - dateA
-            })
-            break
-          case "posted":
-            // Sort by Reddit post creation date (newest first)
-            filtered.sort((a, b) => {
-              const dateA = a.postCreatedAt
-                ? new Date(a.postCreatedAt).getTime()
-                : 0
-              const dateB = b.postCreatedAt
-                ? new Date(b.postCreatedAt).getTime()
-                : 0
-              return dateB - dateA
-            })
-            break
-          case "fetched":
-            // Sort by when we found the lead (newest first)
-            filtered.sort((a, b) => {
-              const dateA = a.createdAt
-                ? new Date(a.createdAt).getTime()
-                : 0
-              const dateB = b.createdAt
-                ? new Date(b.createdAt).getTime()
-                : 0
-              return dateB - dateA
-            })
-            break
+          // Sort
+          switch (state.sortBy) {
+            case "relevance":
+              filtered.sort((a, b) => b.relevanceScore - a.relevanceScore)
+              break
+            case "upvotes":
+              filtered.sort((a, b) => (b.postScore || 0) - (a.postScore || 0))
+              break
+            case "time":
+              filtered.sort((a, b) => {
+                const dateA = a.postCreatedAt
+                  ? new Date(a.postCreatedAt).getTime()
+                  : 0
+                const dateB = b.postCreatedAt
+                  ? new Date(b.postCreatedAt).getTime()
+                  : 0
+                return dateB - dateA
+              })
+              break
+            case "posted":
+              // Sort by Reddit post creation date (newest first)
+              filtered.sort((a, b) => {
+                const dateA = a.postCreatedAt
+                  ? new Date(a.postCreatedAt).getTime()
+                  : 0
+                const dateB = b.postCreatedAt
+                  ? new Date(b.postCreatedAt).getTime()
+                  : 0
+                return dateB - dateA
+              })
+              break
+            case "fetched":
+              // Sort by when we found the lead (newest first)
+              filtered.sort((a, b) => {
+                const dateA = a.createdAt
+                  ? new Date(a.createdAt).getTime()
+                  : 0
+                const dateB = b.createdAt
+                  ? new Date(b.createdAt).getTime()
+                  : 0
+                return dateB - dateA
+              })
+              break
+          }
         }
 
         setFilteredLeads(filtered)
+
+        // Update notification count for monitor tab
+        if (state.viewMode === "monitor") {
+          const newPostsCount = filtered.filter(lead => {
+            // Consider a post "new" if it's not posted and not viewed
+            return lead.status === "new" && !lead.dmStatus
+          }).length
+
+          // Dispatch event to update sidebar notification
+          window.dispatchEvent(new CustomEvent('leadFinderNotificationUpdate', {
+            detail: { count: newPostsCount }
+          }))
+        }
       } catch (error) {
         console.error("🔍 [LEAD-FINDER] Error applying filters:", error)
         // Fallback to basic filtering
@@ -2069,8 +2103,72 @@ export default function LeadFinderDashboard() {
     state.filterScore,
     state.dateFilter,
     state.activeTab,
-    state.sortBy
+    state.sortBy,
+    state.viewMode // Add viewMode to dependencies
   ])
+
+  // Add effect to automatically show notification popup for new leads in monitor mode
+  useEffect(() => {
+    if (state.viewMode === "monitor" && filteredLeads.length > 0) {
+      // Find the first unprocessed lead
+      const unprocessedLead = filteredLeads.find(lead => 
+        lead.status === "new" && !lead.dmStatus && !lead.hasDM
+      )
+      
+      if (unprocessedLead && !notificationLead) {
+        setNotificationLead(unprocessedLead)
+      }
+    }
+  }, [state.viewMode, filteredLeads, notificationLead])
+
+  // Handle notification actions
+  const handleNotificationIgnore = async () => {
+    if (!notificationLead) return
+    
+    // Mark as viewed
+    await updateGeneratedCommentAction(notificationLead.id, {
+      status: "viewed"
+    })
+    
+    setState(prev => ({
+      ...prev,
+      leads: prev.leads.map(l =>
+        l.id === notificationLead.id
+          ? { ...l, status: "viewed" }
+          : l
+      )
+    }))
+    
+    setNotificationLead(null)
+    toast.success("Lead marked as viewed")
+  }
+
+  const handleNotificationSendComment = async () => {
+    if (!notificationLead) return
+    
+    await handlePostNow(notificationLead)
+    setNotificationLead(null)
+  }
+
+  const handleNotificationSendDM = async () => {
+    if (!notificationLead) return
+    
+    await handleSendDM(notificationLead)
+    setNotificationLead(null)
+  }
+
+  const handleNotificationSendBoth = async () => {
+    if (!notificationLead) return
+    
+    // Send both comment and DM
+    await Promise.all([
+      handlePostNow(notificationLead),
+      handleSendDM(notificationLead)
+    ])
+    
+    setNotificationLead(null)
+    toast.success("Comment and DM sent!")
+  }
 
   // Render loading state
   if (state.isLoading && !state.leads.length && !state.error) {
@@ -2457,21 +2555,25 @@ export default function LeadFinderDashboard() {
         </div>
       </div>
 
-      <div className="grid gap-4">
-        {/* View Mode Tabs */}
-        <Tabs value={state.viewMode} onValueChange={(value) => setState(prev => ({ ...prev, viewMode: value as "comment" | "dm" }))}>
-          <TabsList className="grid w-full max-w-[400px] grid-cols-2">
-            <TabsTrigger value="comment" className="flex items-center gap-2">
-              <MessageSquare className="size-4" />
-              Comments
-            </TabsTrigger>
-            <TabsTrigger value="dm" className="flex items-center gap-2">
-              <Mail className="size-4" />
-              Direct Messages
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+      {/* View Mode Tabs - Moved here from grid section */}
+      <Tabs value={state.viewMode} onValueChange={(value) => setState(prev => ({ ...prev, viewMode: value as "comment" | "dm" | "monitor" }))}>
+        <TabsList className="grid w-full max-w-[400px] grid-cols-3">
+          <TabsTrigger value="comment" className="flex items-center gap-2">
+            <MessageSquare className="size-4" />
+            Comments
+          </TabsTrigger>
+          <TabsTrigger value="dm" className="flex items-center gap-2">
+            <Mail className="size-4" />
+            Direct Messages
+          </TabsTrigger>
+          <TabsTrigger value="monitor" className="flex items-center gap-2">
+            <Eye className="size-4" />
+            Monitor
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
 
+      <div className="grid gap-4">
         {/* Progress Bar - Show when workflow is running or recently completed */}
         {liveFirestoreProgress && (
           liveFirestoreProgress.status === "in_progress" || 
@@ -2806,6 +2908,105 @@ export default function LeadFinderDashboard() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Notification Popup for Monitor Tab */}
+      {notificationLead && state.viewMode === "monitor" && (
+        <Dialog open={!!notificationLead} onOpenChange={(open) => !open && setNotificationLead(null)}>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Zap className="size-5 text-orange-500" />
+                New Lead Found!
+              </DialogTitle>
+              <DialogDescription>
+                A new post matching your keywords was just found. Take action quickly!
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4 py-4">
+              {/* Lead Details */}
+              <div className="rounded-lg border p-4">
+                <h4 className="mb-2 font-semibold">{notificationLead.postTitle}</h4>
+                <p className="mb-2 text-sm text-gray-600 dark:text-gray-400">
+                  by u/{notificationLead.postAuthor} • {notificationLead.timeAgo}
+                </p>
+                <p className="text-sm">{notificationLead.postContentSnippet}</p>
+                
+                <div className="mt-3 flex items-center gap-2">
+                  <Badge 
+                    variant="secondary" 
+                    className={cn(
+                      "text-sm",
+                      notificationLead.relevanceScore >= 80 
+                        ? "text-green-600 dark:text-green-400" 
+                        : notificationLead.relevanceScore >= 60 
+                        ? "text-amber-600 dark:text-amber-400"
+                        : "text-gray-600 dark:text-gray-400"
+                    )}
+                  >
+                    {notificationLead.relevanceScore}% Match
+                  </Badge>
+                  <Badge variant="outline" className="text-sm">
+                    {notificationLead.keyword}
+                  </Badge>
+                </div>
+              </div>
+
+              {/* Generated Content Preview */}
+              <div className="space-y-3">
+                <div>
+                  <Label className="mb-1 text-sm">Generated Comment:</Label>
+                  <div className="rounded-md bg-gray-50 p-3 text-sm dark:bg-gray-800">
+                    {notificationLead.mediumComment}
+                  </div>
+                </div>
+                
+                {notificationLead.dmMessage && (
+                  <div>
+                    <Label className="mb-1 text-sm">Generated DM:</Label>
+                    <div className="rounded-md bg-gray-50 p-3 text-sm dark:bg-gray-800">
+                      <p className="font-medium">Subject: {notificationLead.dmSubject || "Re: Your post"}</p>
+                      <p className="mt-1">{notificationLead.dmMessage}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button
+                variant="ghost"
+                onClick={handleNotificationIgnore}
+              >
+                Ignore
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleNotificationSendComment}
+                className="gap-2"
+              >
+                <MessageSquare className="size-4" />
+                Send Comment Only
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleNotificationSendDM}
+                className="gap-2"
+              >
+                <Mail className="size-4" />
+                Send DM Only
+              </Button>
+              <Button
+                onClick={handleNotificationSendBoth}
+                className="gap-2 bg-blue-600 text-white hover:bg-blue-700"
+              >
+                <Send className="size-4" />
+                Send Both
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   )
 }
