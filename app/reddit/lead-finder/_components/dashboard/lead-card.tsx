@@ -140,8 +140,10 @@ export default function LeadCard({
   const [isCardLoading, setIsCardLoading] = useState(false)
   const [cardError, setCardError] = useState<string | null>(null)
 
-  // Get content based on view mode
-  const content = viewMode === "dm" 
+  // Local view mode state so each card can independently toggle between Comment and DM
+  const [localViewMode, setLocalViewMode] = useState<"comment" | "dm">(viewMode)
+
+  const content = localViewMode === "dm" 
     ? (lead.dmMessage || "No DM generated yet")
     : (lead[`${selectedLength}Comment`] || lead.mediumComment || "")
 
@@ -204,7 +206,7 @@ export default function LeadCard({
   }
 
   const handleSaveEdit = async () => {
-    await onEdit(lead.id, editedContent, viewMode === "dm")
+    await onEdit(lead.id, editedContent, localViewMode === "dm")
     setIsEditing(false)
   }
 
@@ -214,12 +216,12 @@ export default function LeadCard({
   }
 
   const handleCopy = () => {
-    const textToCopy = viewMode === "dm" 
+    const textToCopy = localViewMode === "dm" 
       ? `Subject: ${dmSubject}\n\n${content}`
       : content
     navigator.clipboard.writeText(textToCopy)
     setIsCopied(true)
-    toast.success(viewMode === "dm" ? "DM copied to clipboard" : "Comment copied to clipboard")
+    toast.success(localViewMode === "dm" ? "DM copied to clipboard" : "Comment copied to clipboard")
     setTimeout(() => setIsCopied(false), 2000)
   }
 
@@ -245,12 +247,12 @@ export default function LeadCard({
 
     setIsRegenerating(true)
     try {
-      await onRegenerateWithInstructions(lead.id, regenerateInstructions, viewMode === "dm")
+      await onRegenerateWithInstructions(lead.id, regenerateInstructions, localViewMode === "dm")
       setShowRegenerateDialog(false)
       setRegenerateInstructions("")
-      toast.success(viewMode === "dm" ? "DM regenerated successfully" : "Comment regenerated successfully")
+      toast.success(localViewMode === "dm" ? "DM regenerated successfully" : "Comment regenerated successfully")
     } catch (error) {
-      toast.error(viewMode === "dm" ? "Failed to regenerate DM" : "Failed to regenerate comment")
+      toast.error(localViewMode === "dm" ? "Failed to regenerate DM" : "Failed to regenerate comment")
     } finally {
       setIsRegenerating(false)
     }
@@ -261,8 +263,8 @@ export default function LeadCard({
       <Card
         className={cn(
           "overflow-hidden transition-all duration-300",
-          lead.status === "posted" && viewMode === "comment" && "opacity-75",
-          lead.dmStatus === "sent" && viewMode === "dm" && "opacity-75"
+          lead.status === "posted" && localViewMode === "comment" && "opacity-75",
+          lead.dmStatus === "sent" && localViewMode === "dm" && "opacity-75"
         )}
       >
         <CardContent className="space-y-4 p-6">
@@ -278,12 +280,12 @@ export default function LeadCard({
               >
                 {lead.relevanceScore}% Match
               </Badge>
-              {viewMode === "comment" && lead.status === "posted" && (
+              {localViewMode === "comment" && lead.status === "posted" && (
                 <Badge variant="default" className="bg-green-600 text-white">
                   Posted
                 </Badge>
               )}
-              {viewMode === "dm" && lead.dmStatus === "sent" && (
+              {localViewMode === "dm" && lead.dmStatus === "sent" && (
                 <Badge variant="default" className="bg-blue-600 text-white">
                   DM Sent
                 </Badge>
@@ -298,7 +300,7 @@ export default function LeadCard({
             {/* Post Date */}
             <div className="flex items-center gap-2 text-sm text-gray-500">
               <Calendar className="size-4" />
-              <span>{formatPostDate(lead.postCreatedAt)}</span>
+              <span>{formatPostDate(lead.postCreatedAt || lead.createdAt)}</span>
             </div>
           </div>
 
@@ -361,7 +363,7 @@ export default function LeadCard({
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                {viewMode === "dm" ? (
+                {localViewMode === "dm" ? (
                   <span className="flex items-center gap-2">
                     <Mail className="size-4" />
                     AI Generated DM
@@ -370,6 +372,23 @@ export default function LeadCard({
                   "AI Generated Comment"
                 )}
               </p>
+              {/* Small toggle tabs */}
+              <div className="flex gap-1">
+                <Button
+                  variant={localViewMode === "comment" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setLocalViewMode("comment")}
+                >
+                  Comment
+                </Button>
+                <Button
+                  variant={localViewMode === "dm" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setLocalViewMode("dm")}
+                >
+                  DM
+                </Button>
+              </div>
               <div className="flex items-center gap-1">
                 <Button
                   variant="ghost"
@@ -410,10 +429,10 @@ export default function LeadCard({
                         <DialogHeader>
                           <DialogTitle className="flex items-center gap-2">
                             <Sparkles className="size-4 text-blue-500" />
-                            Regenerate {viewMode === "dm" ? "DM" : "Comment"} with AI
+                            Regenerate {localViewMode === "dm" ? "DM" : "Comment"} with AI
                           </DialogTitle>
                           <DialogDescription>
-                            Choose how you'd like to regenerate this {viewMode === "dm" ? "DM" : "comment"}.
+                            Choose how you'd like to regenerate this {localViewMode === "dm" ? "DM" : "comment"}.
                           </DialogDescription>
                         </DialogHeader>
                         <div className="space-y-4 py-4">
@@ -421,7 +440,7 @@ export default function LeadCard({
                           <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
                             <h4 className="mb-2 font-medium">Option 1: Use Latest AI Prompts</h4>
                             <p className="mb-3 text-sm text-gray-600 dark:text-gray-400">
-                              Regenerate using our improved AI scoring and {viewMode === "dm" ? "DM" : "comment"} generation system.
+                              Regenerate using our improved AI scoring and {localViewMode === "dm" ? "DM" : "comment"} generation system.
                             </p>
                             <Button
                               onClick={async () => {
@@ -429,12 +448,12 @@ export default function LeadCard({
                                 try {
                                   // Call the parent's regenerate function with a special flag
                                   if (onRegenerateWithInstructions) {
-                                    await onRegenerateWithInstructions(lead.id, "__USE_NEW_PROMPTS__", viewMode === "dm")
+                                    await onRegenerateWithInstructions(lead.id, "__USE_NEW_PROMPTS__", localViewMode === "dm")
                                     setShowRegenerateDialog(false)
-                                    toast.success(`${viewMode === "dm" ? "DM" : "Comment"} regenerated with latest AI`)
+                                    toast.success(`${localViewMode === "dm" ? "DM" : "Comment"} regenerated with latest AI`)
                                   }
                                 } catch (error) {
-                                  toast.error(`Failed to regenerate ${viewMode === "dm" ? "DM" : "comment"}`)
+                                  toast.error(`Failed to regenerate ${localViewMode === "dm" ? "DM" : "comment"}`)
                                 } finally {
                                   setIsRegenerating(false)
                                 }
@@ -470,7 +489,7 @@ export default function LeadCard({
                               Describe specific changes you want.
                             </p>
                             <Textarea
-                              placeholder={viewMode === "dm" 
+                              placeholder={localViewMode === "dm" 
                                 ? "e.g., Make it more personal, mention their specific problem..."
                                 : "e.g., Make it more conversational, focus on our pricing advantage..."}
                               value={regenerateInstructions}
@@ -520,7 +539,7 @@ export default function LeadCard({
             </div>
 
             {/* DM Subject Line (only for DM view) */}
-            {viewMode === "dm" && (
+            {localViewMode === "dm" && (
               <div className="rounded-lg border border-gray-200 bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-900/50">
                 <p className="text-xs font-medium text-gray-600 dark:text-gray-400">Subject:</p>
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{dmSubject}</p>
@@ -583,7 +602,7 @@ export default function LeadCard({
               <ExternalLink className="mr-2 size-4" />
               View on Reddit
             </Button>
-            {viewMode === "comment" ? (
+            {localViewMode === "comment" ? (
               // Comment mode buttons
               lead.status === "posted" && lead.postedCommentUrl ? (
                 <Button
