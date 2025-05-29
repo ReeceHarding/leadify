@@ -30,7 +30,7 @@ import {
   AlertCircle
 } from "lucide-react"
 import { toast } from "sonner"
-import { CampaignMonitorDocument } from "@/db/schema"
+import { CampaignMonitorDocument, SerializedCampaignMonitorDocument } from "@/db/schema"
 import {
   getCampaignMonitorAction,
   createCampaignMonitorAction,
@@ -57,7 +57,7 @@ export default function MonitoringSettings({
   organizationId,
   userId
 }: MonitoringSettingsProps) {
-  const [monitor, setMonitor] = useState<CampaignMonitorDocument | null>(null)
+  const [monitor, setMonitor] = useState<SerializedCampaignMonitorDocument | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [enabled, setEnabled] = useState(false)
@@ -145,9 +145,9 @@ export default function MonitoringSettings({
     )
   }
 
-  const formatNextCheck = (timestamp: any) => {
+  const formatNextCheck = (timestamp: string | null) => {
     if (!timestamp) return "Not scheduled"
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp)
+    const date = new Date(timestamp)
     const now = new Date()
     const diff = date.getTime() - now.getTime()
     

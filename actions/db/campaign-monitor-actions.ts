@@ -4,6 +4,7 @@ import { db } from "@/db/db"
 import {
   MONITORING_COLLECTIONS,
   CampaignMonitorDocument,
+  SerializedCampaignMonitorDocument,
   CreateCampaignMonitorData,
   UpdateCampaignMonitorData,
   frequencyToMs
@@ -21,13 +22,31 @@ import {
   serverTimestamp,
   Timestamp
 } from "firebase/firestore"
+import { toISOString } from "@/lib/utils/timestamp-utils"
+
+/**
+ * Helper function to serialize CampaignMonitorDocument Timestamps to ISO strings
+ */
+function serializeCampaignMonitorTimestamps(
+  monitor: CampaignMonitorDocument
+): SerializedCampaignMonitorDocument {
+  return {
+    ...monitor,
+    lastCheckAt: monitor.lastCheckAt ? toISOString(monitor.lastCheckAt) : null,
+    nextCheckAt: monitor.nextCheckAt ? toISOString(monitor.nextCheckAt) : null,
+    lastPostFoundAt: monitor.lastPostFoundAt ? toISOString(monitor.lastPostFoundAt) : null,
+    lastApiReset: toISOString(monitor.lastApiReset),
+    createdAt: toISOString(monitor.createdAt),
+    updatedAt: toISOString(monitor.updatedAt),
+  } as SerializedCampaignMonitorDocument
+}
 
 /**
  * Create a new campaign monitor
  */
 export async function createCampaignMonitorAction(
   data: CreateCampaignMonitorData
-): Promise<ActionState<CampaignMonitorDocument>> {
+): Promise<ActionState<SerializedCampaignMonitorDocument>> {
   console.log("📊 [MONITOR-CREATE] Creating campaign monitor", { campaignId: data.campaignId })
 
   try {
@@ -50,7 +69,14 @@ export async function createCampaignMonitorAction(
     const frequency = data.frequency || "1hour"
     const nextCheckTime = Timestamp.fromMillis(Date.now() + frequencyToMs(frequency))
     
-    const monitorData: Omit<CampaignMonitorDocument, "id"> = {
+    const monitorData: Omit<CampaignMonitorDocument, "id" | "createdAt" | "updatedAt" | "lastCheckAt" | "nextCheckAt" | "lastPostFoundAt" | "lastApiReset"> & {
+      createdAt: Timestamp,
+      updatedAt: Timestamp,
+      lastCheckAt: Timestamp | null,
+      nextCheckAt: Timestamp | null,
+      lastPostFoundAt: Timestamp | null,
+      lastApiReset: Timestamp
+    } = {
       campaignId: data.campaignId,
       organizationId: data.organizationId,
       userId: data.userId,
@@ -80,15 +106,19 @@ export async function createCampaignMonitorAction(
 
     await setDoc(monitorRef, monitorData)
     
-    const createdDoc = await getDoc(monitorRef)
-    const createdData = { id: monitorRef.id, ...createdDoc.data() } as CampaignMonitorDocument
+    // Fetch the document again to get server-generated timestamps
+    const createdDocSnapshot = await getDoc(monitorRef)
+    if (!createdDocSnapshot.exists()) {
+      throw new Error("Failed to create campaign monitor document.")
+    }
+    const createdData = { id: monitorRef.id, ...createdDocSnapshot.data() } as CampaignMonitorDocument
     
     console.log("📊 [MONITOR-CREATE] ✅ Monitor created successfully", { id: monitorRef.id })
     
     return {
       isSuccess: true,
       message: "Campaign monitor created successfully",
-      data: createdData
+      data: serializeCampaignMonitorTimestamps(createdData)
     }
   } catch (error) {
     console.error("📊 [MONITOR-CREATE] ❌ Error:", error)
@@ -104,7 +134,7 @@ export async function createCampaignMonitorAction(
  */
 export async function getCampaignMonitorAction(
   campaignId: string
-): Promise<ActionState<CampaignMonitorDocument | null>> {
+): Promise<ActionState<SerializedCampaignMonitorDocument | null>> {
   console.log("📊 [MONITOR-GET] Fetching monitor for campaign:", campaignId)
 
   try {
@@ -131,7 +161,7 @@ export async function getCampaignMonitorAction(
     return {
       isSuccess: true,
       message: "Monitor retrieved successfully",
-      data: monitorData
+      data: serializeCampaignMonitorTimestamps(monitorData)
     }
   } catch (error) {
     console.error("📊 [MONITOR-GET] ❌ Error:", error)
@@ -148,7 +178,7 @@ export async function getCampaignMonitorAction(
 export async function updateCampaignMonitorAction(
   monitorId: string,
   data: UpdateCampaignMonitorData
-): Promise<ActionState<CampaignMonitorDocument>> {
+): Promise<ActionState<SerializedCampaignMonitorDocument>> {
   console.log("📊 [MONITOR-UPDATE] Updating monitor:", monitorId, data)
 
   try {
@@ -159,22 +189,25 @@ export async function updateCampaignMonitorAction(
       data.nextCheckAt = Timestamp.fromMillis(Date.now() + frequencyToMs(data.frequency))
     }
     
-    const updateData = {
+    const updateDataWithTimestamp = {
       ...data,
       updatedAt: serverTimestamp()
     }
     
-    await updateDoc(monitorRef, updateData)
+    await updateDoc(monitorRef, updateDataWithTimestamp)
     
-    const updatedDoc = await getDoc(monitorRef)
-    const updatedData = { id: monitorId, ...updatedDoc.data() } as CampaignMonitorDocument
+    const updatedDocSnapshot = await getDoc(monitorRef)
+    if (!updatedDocSnapshot.exists()) {
+        throw new Error("Failed to fetch updated campaign monitor document.")
+    }
+    const updatedData = { id: monitorId, ...updatedDocSnapshot.data() } as CampaignMonitorDocument
     
     console.log("📊 [MONITOR-UPDATE] ✅ Monitor updated successfully")
     
     return {
       isSuccess: true,
       message: "Monitor updated successfully",
-      data: updatedData
+      data: serializeCampaignMonitorTimestamps(updatedData)
     }
   } catch (error) {
     console.error("📊 [MONITOR-UPDATE] ❌ Error:", error)
@@ -188,7 +221,7 @@ export async function updateCampaignMonitorAction(
 /**
  * Get all monitors due for checking
  */
-export async function getMonitorsDueForCheckAction(): Promise<ActionState<CampaignMonitorDocument[]>> {
+export async function getMonitorsDueForCheckAction(): Promise<ActionState<SerializedCampaignMonitorDocument[]>> {
   console.log("📊 [MONITOR-DUE] Checking for monitors due for checking")
 
   try {
@@ -200,10 +233,10 @@ export async function getMonitorsDueForCheckAction(): Promise<ActionState<Campai
     )
     
     const snapshot = await getDocs(monitorsQuery)
-    const monitors = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as CampaignMonitorDocument))
+    const monitors = snapshot.docs.map(doc => {
+      const monitorData = { id: doc.id, ...doc.data() } as CampaignMonitorDocument
+      return serializeCampaignMonitorTimestamps(monitorData)
+    })
     
     console.log("📊 [MONITOR-DUE] ✅ Found", monitors.length, "monitors due for checking")
     

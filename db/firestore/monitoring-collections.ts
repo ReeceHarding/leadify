@@ -42,6 +42,25 @@ export interface CampaignMonitorDocument {
   updatedAt: Timestamp
 }
 
+// Add a serialized version of the document type
+export interface SerializedCampaignMonitorDocument
+  extends Omit<
+    CampaignMonitorDocument,
+    | "lastCheckAt"
+    | "nextCheckAt"
+    | "lastPostFoundAt"
+    | "lastApiReset"
+    | "createdAt"
+    | "updatedAt"
+  > {
+  lastCheckAt: string | null
+  nextCheckAt: string | null
+  lastPostFoundAt: string | null
+  lastApiReset: string
+  createdAt: string
+  updatedAt: string
+}
+
 export interface CreateCampaignMonitorData {
   campaignId: string
   organizationId: string
