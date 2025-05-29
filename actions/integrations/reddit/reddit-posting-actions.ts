@@ -170,14 +170,21 @@ export async function postCommentAndUpdateStatusAction(
     console.log("📤 [REDDIT-POST] Comment posted successfully!")
     console.log("📤 [REDDIT-POST] Comment URL:", postResult.data.link)
 
+    // Extract Reddit comment ID from the posted comment URL
+    // Reddit URLs typically look like: https://www.reddit.com/r/subreddit/comments/threadid/title/commentid/
+    const redditCommentId = postResult.data.link.match(/\/([a-zA-Z0-9]+)\/?$/)?.[1]
+    console.log("📤 [REDDIT-POST] Extracted Reddit comment ID:", redditCommentId)
+
     // Extract subreddit from the comment URL
     const subredditMatch = postResult.data.link.match(/\/r\/([^\/]+)/)
     const subreddit = subredditMatch ? subredditMatch[1] : null
 
-    // Update the lead status in the database
+    // Update the lead status in the database with Reddit comment ID
     const updateResult = await updateGeneratedCommentAction(leadId, {
       status: "posted",
-      postedCommentUrl: postResult.data.link
+      postedCommentUrl: postResult.data.link,
+      reddit_comment_id: redditCommentId ? `t1_${redditCommentId}` : undefined,
+      lead_interaction_status: "new" // Start tracking for replies
     })
 
     if (!updateResult.isSuccess) {
@@ -188,6 +195,7 @@ export async function postCommentAndUpdateStatusAction(
       // Don't fail the whole operation if just the status update fails
     } else {
       console.log("📤 [REDDIT-POST] Lead status updated to 'posted'")
+      console.log("📤 [REDDIT-POST] Stored Reddit comment ID:", redditCommentId ? `t1_${redditCommentId}` : "none")
     }
 
     // Update posting history if we have the subreddit

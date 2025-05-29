@@ -11,7 +11,8 @@ export const LEAD_COLLECTIONS = {
   CAMPAIGNS: "campaigns",
   SEARCH_RESULTS: "search_results",
   REDDIT_THREADS: "reddit_threads",
-  GENERATED_COMMENTS: "generated_comments"
+  GENERATED_COMMENTS: "generated_comments",
+  INBOX_ITEMS: "inbox_items"
 } as const
 
 // Campaign status
@@ -156,6 +157,22 @@ export interface GeneratedCommentDocument {
   lastEngagementCheckAt?: Timestamp // Last time we checked engagement metrics
   engagementCheckCount?: number // How many times we've checked engagement (for rate limiting)
 
+  // NEW: Reply Management & Inbox fields
+  reddit_comment_id?: string // The ID of *your* comment on Reddit (e.g., "t1_xxxxxx")
+  last_reply_fetch_at?: Timestamp // Last time we fetched replies for this comment
+  unread_reply_count?: number // Number of unread replies (default 0)
+  lead_interaction_status?:
+    | "new"
+    | "pending_reply"
+    | "awaiting_customer"
+    | "followed_up"
+    | "closed_won"
+    | "closed_lost"
+    | "archived" // Default "new"
+  last_reply_author?: string // Author of the most recent reply
+  last_reply_snippet?: string // Snippet of the most recent reply
+  last_reply_timestamp?: Timestamp // Timestamp of the most recent reply
+
   // Metadata
   status:
     | "new"
@@ -170,10 +187,62 @@ export interface GeneratedCommentDocument {
   updatedAt: Timestamp
 
   // Optional tracking fields
-  keyword?: string // Which keyword led to finding this post
+  keyword?: string
   postScore?: number // Reddit post score/upvotes
   postCreatedAt?: Timestamp // When the Reddit post was created
   postedCommentUrl?: string // URL to the posted Reddit comment (after posting)
+}
+
+// NEW: Inbox Items Collection for Reply Management
+export interface InboxItemDocument {
+  id: string // Reddit reply ID (e.g., "t1_yyyyyy")
+  organizationId: string
+  parent_leadify_comment_id: string // FK to generated_comments.id
+  parent_reddit_comment_id: string // Reddit ID of *our* comment
+  reddit_thread_id: string // Reddit ID of the original post
+  author: string // Author of the reply
+  body: string // Content of the reply
+  created_utc: number // Unix timestamp from Reddit
+  permalink: string // Permalink to this specific reply
+  sentiment?: "positive" | "negative" | "neutral" // AI-analyzed sentiment
+  status: "unread" | "read" | "action_needed" | "archived" | "replied" // Default "unread"
+  notes?: string // User notes about this reply
+  fetched_at: Timestamp // When this reply was fetched from Reddit
+  score?: number // Reddit score/upvotes for this reply
+  depth?: number // Reply depth (0 = direct reply to our comment)
+
+  // Response tracking
+  our_response_id?: string // ID of our response comment (if we replied)
+  responded_at?: Timestamp // When we responded
+
+  // Metadata
+  createdAt: Timestamp
+  updatedAt: Timestamp
+}
+
+// Create inbox item data
+export interface CreateInboxItemData {
+  organizationId: string
+  parent_leadify_comment_id: string
+  parent_reddit_comment_id: string
+  reddit_thread_id: string
+  author: string
+  body: string
+  created_utc: number
+  permalink: string
+  sentiment?: "positive" | "negative" | "neutral"
+  score?: number
+  depth?: number
+}
+
+// Update inbox item data
+export interface UpdateInboxItemData {
+  status?: "unread" | "read" | "action_needed" | "archived" | "replied"
+  notes?: string
+  sentiment?: "positive" | "negative" | "neutral"
+  our_response_id?: string
+  responded_at?: Timestamp
+  updatedAt?: Timestamp
 }
 
 // Create generated comment data
@@ -237,6 +306,22 @@ export interface UpdateGeneratedCommentData {
   engagementRepliesCount?: number
   lastEngagementCheckAt?: Timestamp
   engagementCheckCount?: number
+
+  // NEW: Reply Management update fields
+  reddit_comment_id?: string
+  last_reply_fetch_at?: Timestamp
+  unread_reply_count?: number
+  lead_interaction_status?:
+    | "new"
+    | "pending_reply"
+    | "awaiting_customer"
+    | "followed_up"
+    | "closed_won"
+    | "closed_lost"
+    | "archived"
+  last_reply_author?: string
+  last_reply_snippet?: string
+  last_reply_timestamp?: Timestamp
 
   // Allow updating individual comment lengths
   microComment?: string

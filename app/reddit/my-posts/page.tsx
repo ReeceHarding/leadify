@@ -2,9 +2,9 @@
 
 import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
-import MyPostsDashboard from "./_components/my-posts-dashboard"
+import InboxDashboard from "./_components/inbox-dashboard"
 
-export default async function MyPostsPage() {
+export default async function MyPostsInboxPage() {
   const { userId } = await auth()
 
   if (!userId) {
@@ -12,8 +12,16 @@ export default async function MyPostsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <MyPostsDashboard userId={userId} />
+    <div className="container mx-auto space-y-6 p-6">
+      <div>
+        <h1 className="text-3xl font-bold">Reply Management & Inbox</h1>
+        <p className="text-muted-foreground">
+          Centralize viewing and managing replies to your posted comments. 
+          Engage with leads efficiently and track conversation progress.
+        </p>
+      </div>
+      
+      <InboxDashboard userId={userId} />
     </div>
   )
 }

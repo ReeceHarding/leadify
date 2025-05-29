@@ -185,6 +185,22 @@ export interface SerializedGeneratedCommentDocument {
   lastEngagementCheckAt?: string
   engagementCheckCount?: number
 
+  // NEW: Reply Management fields
+  reddit_comment_id?: string
+  last_reply_fetch_at?: string
+  unread_reply_count?: number
+  lead_interaction_status?:
+    | "new"
+    | "pending_reply"
+    | "awaiting_customer"
+    | "followed_up"
+    | "closed_won"
+    | "closed_lost"
+    | "archived"
+  last_reply_author?: string
+  last_reply_snippet?: string
+  last_reply_timestamp?: string
+
   status:
     | "new"
     | "viewed"
@@ -376,3 +392,26 @@ export type {
   SerializedRedditThreadDocument as SerializedSharedRedditThreadDocument,
   SerializedThreadInteractionDocument
 } from "@/db/firestore/reddit-threads-collections"
+
+// NEW: Serialized Inbox Item Document
+export interface SerializedInboxItemDocument {
+  id: string
+  organizationId: string
+  parent_leadify_comment_id: string
+  parent_reddit_comment_id: string
+  reddit_thread_id: string
+  author: string
+  body: string
+  created_utc: number
+  permalink: string
+  sentiment?: "positive" | "negative" | "neutral"
+  status: "unread" | "read" | "action_needed" | "archived" | "replied"
+  notes?: string
+  fetched_at: string
+  score?: number
+  depth?: number
+  our_response_id?: string
+  responded_at?: string
+  createdAt: string
+  updatedAt: string
+}

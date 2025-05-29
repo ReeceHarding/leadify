@@ -69,6 +69,74 @@
       ]
     },
     {
+      "collectionGroup": "generated_comments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "organizationId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "last_reply_fetch_at",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "inbox_items",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "organizationId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "created_utc",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "inbox_items",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "organizationId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "created_utc",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "inbox_items",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "organizationId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "parent_leadify_comment_id",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "created_utc",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
       "collectionGroup": "warmup_accounts",
       "queryScope": "COLLECTION",
       "fields": [
@@ -87,39 +155,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "warmupAccountId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "status",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "scheduledFor",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "warmup_posts",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "status",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "scheduledFor",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "warmup_comments",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "warmupAccountId",
+          "fieldPath": "organizationId",
           "order": "ASCENDING"
         },
         {
@@ -137,11 +173,47 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
+          "fieldPath": "organizationId",
+          "order": "ASCENDING"
+        },
+        {
           "fieldPath": "status",
           "order": "ASCENDING"
         },
         {
           "fieldPath": "scheduledFor",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "warmup_comments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "organizationId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "warmupPostId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "scheduledFor",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "posting_history",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "userId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "subreddit",
           "order": "ASCENDING"
         }
       ]
@@ -151,17 +223,17 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "campaignId",
+          "fieldPath": "organizationId",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "processed",
-          "order": "ASCENDING"
+          "fieldPath": "fetchedAt",
+          "order": "DESCENDING"
         }
       ]
     },
     {
-      "collectionGroup": "knowledge_base_entries",
+      "collectionGroup": "organization_members",
       "queryScope": "COLLECTION",
       "fields": [
         {
@@ -169,12 +241,18 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "type",
+          "fieldPath": "userId",
           "order": "ASCENDING"
-        },
+        }
+      ]
+    },
+    {
+      "collectionGroup": "organization_members",
+      "queryScope": "COLLECTION",
+      "fields": [
         {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
+          "fieldPath": "userId",
+          "order": "ASCENDING"
         }
       ]
     },
@@ -185,10 +263,44 @@
         {
           "fieldPath": "organizationId",
           "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "personalization",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "organizationId",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "daily_analytics_snapshots",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "organizationId",
+          "order": "ASCENDING"
         },
         {
-          "fieldPath": "isActive",
+          "fieldPath": "date",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "keyword_performance",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "organizationId",
           "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "lastCalculatedAt",
+          "order": "DESCENDING"
         }
       ]
     }
